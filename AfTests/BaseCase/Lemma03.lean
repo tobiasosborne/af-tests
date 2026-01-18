@@ -48,17 +48,64 @@ def kernelElements : Finset (Equiv.Perm (Fin 6)) :=
 /-- The kernel has 4 elements -/
 theorem kernelElements_card : kernelElements.card = 4 := by native_decide
 
+/-- Identity preserves blocks -/
+theorem one_preserves_B₀ : ∀ B ∈ B₀, B.image (1 : Equiv.Perm (Fin 6)) ∈ B₀ := by
+  intro B hB
+  convert hB using 1
+  ext x
+  simp only [Finset.mem_image, Equiv.Perm.coe_one, id_eq, exists_eq_right]
+
+/-- If g preserves B₀, then g⁻¹ preserves B₀ -/
+theorem inv_preserves_B₀ (g : Equiv.Perm (Fin 6))
+    (hg : ∀ B ∈ B₀, B.image g ∈ B₀) : ∀ B ∈ B₀, B.image (g⁻¹ : Equiv.Perm (Fin 6)) ∈ B₀ := by
+  -- g induces a bijection on B₀ (3 blocks), so g⁻¹ does too.
+  -- For each B ∈ B₀, there exists B' ∈ B₀ with B'.image g = B, so B.image g⁻¹ = B'.
+  -- Proof: g is a bijection on Fin 6, and maps each block to a block.
+  -- Since B₀ has 3 elements and g restricted to B₀ is injective (as g is a bijection),
+  -- it must be surjective, so every block has a preimage under g.
+  sorry  -- TODO: Combinatorial argument on finite set
+
+/-- If g, h preserve B₀, then g * h preserves B₀ -/
+theorem mul_preserves_B₀ (g h : Equiv.Perm (Fin 6))
+    (hg : ∀ B ∈ B₀, B.image g ∈ B₀) (hh : ∀ B ∈ B₀, B.image h ∈ B₀) :
+    ∀ B ∈ B₀, B.image (g * h) ∈ B₀ := by
+  intro B hB
+  have : B.image (g * h) = (B.image h).image g := by
+    ext x
+    simp only [Finset.mem_image, Equiv.Perm.coe_mul, Function.comp_apply]
+    constructor
+    · rintro ⟨y, hy, rfl⟩
+      exact ⟨h y, ⟨y, hy, rfl⟩, rfl⟩
+    · rintro ⟨z, ⟨y, hy, rfl⟩, rfl⟩
+      exact ⟨y, hy, rfl⟩
+  rw [this]
+  exact hg _ (hh B hB)
+
 /-- H₆ acts imprimitively: it preserves the non-trivial block partition B₀ -/
 theorem H₆_imprimitive : ∀ (g : H₆), ∀ B ∈ B₀, B.image g.val ∈ B₀ := by
-  sorry  -- TODO: Phase 2 - follows from Lemma 1
+  intro ⟨g, hg⟩
+  -- Use closure_induction
+  induction hg using Subgroup.closure_induction with
+  | mem x hx =>
+    simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hx
+    rcases hx with rfl | rfl | rfl
+    · exact g₁_preserves_B₀
+    · exact g₂_preserves_B₀
+    · exact g₃_preserves_B₀
+  | one => exact one_preserves_B₀
+  | mul x y _ _ hx hy => exact mul_preserves_B₀ x y hx hy
+  | inv x _ hx => exact inv_preserves_B₀ x hx
 
 /-- The group H₆ is isomorphic to S₄ -/
 theorem H₆_iso_S4 : Nonempty (H₆ ≃* Equiv.Perm (Fin 4)) := by
   sorry  -- TODO: Phase 2 - structural proof via first isomorphism theorem
 
 /-- H₆ is finite with cardinality 24 -/
-noncomputable instance : Fintype H₆ := by
-  sorry  -- TODO: Phase 2 - derive from closure of finite set in finite group
+noncomputable instance : Fintype H₆ :=
+  -- H₆ is a subgroup of the finite group Perm(Fin 6), so it's finite
+  -- We use classical logic to decide membership
+  @Subgroup.instFintypeSubtypeMemOfDecidablePred _ _ H₆
+    (Classical.decPred _) inferInstance
 
 /-- H₆ has cardinality 24 (as a subgroup) -/
 theorem H₆_card_eq_24 : Fintype.card H₆ = 24 := by
