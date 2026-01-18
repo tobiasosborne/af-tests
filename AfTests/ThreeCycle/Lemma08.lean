@@ -102,10 +102,14 @@ theorem commutator_g₂_g₃_mem_H : commutator_g₂_g₃ 0 0 0 ∈ H 0 0 0 := b
     · exact g₂_mem_H 0 0 0
   · exact g₃_mem_H 0 0 0
 
-/-- The 3-cycle c[0, 5, 1] is in H since [g₂, g₃] ∈ H and contains this cycle -/
+/-- The 3-cycle c[0, 5, 1] is in H.
+    NOTE: Extracting individual 3-cycles from a product of disjoint 3-cycles
+    requires Lemma09's technique: combining commutators and squaring.
+    This is Phase 3 work - see Lemma09 for the extraction method. -/
 theorem first_3cycle_g₂g₃_mem_H : first_3cycle_g₂g₃ ∈ H 0 0 0 := by
-  sorry -- Will be proved via conjugation or extraction method
+  sorry -- Phase 3: requires Lemma09 extraction method
 
-/-- The 3-cycle c[2, 4, 3] is in H since [g₂, g₃] ∈ H and contains this cycle -/
+/-- The 3-cycle c[2, 4, 3] is in H.
+    NOTE: See first_3cycle_g₂g₃_mem_H for explanation. -/
 theorem second_3cycle_g₂g₃_mem_H : second_3cycle_g₂g₃ ∈ H 0 0 0 := by
-  sorry -- Will be proved via conjugation or extraction method
+  sorry -- Phase 3: requires Lemma09 extraction method
