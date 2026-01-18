@@ -42,6 +42,14 @@
 - `examples/proof_master.md` - Canonical natural language proof (v2.0)
 - `examples/lemmas/main_theorem/HANDOFF_CONSOLIDATION_AND_LEANIFICATION.md` - Original handoff
 
+### AF Proof Exports (Natural Language Proofs)
+Each lemma has a detailed proof exported from the AF framework in `examples/lemmas/`:
+- `lemma01_block_preservation.md` through `lemma15_an_vs_sn.md`
+- `lemma11_1_*.md` through `lemma11_5_*.md` (primitivity sub-lemmas)
+- `main_theorem.md`
+
+See CLAUDE.md or IMPLEMENTATION_PLAN.md for the complete table.
+
 ## Issue Summary
 ```
 Phase 1 (P1): 23 issues remaining - Project structure setup

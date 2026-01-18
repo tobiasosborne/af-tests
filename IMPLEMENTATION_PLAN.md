@@ -27,6 +27,41 @@ Prove in Lean 4 (with no sorries and no axioms, except Jordan's Theorem if unava
 
 ---
 
+## Reference Documents
+
+### Natural Language Proofs (AF Framework Exports)
+Each lemma has a detailed natural-language proof exported from the AF framework. Consult these when implementing:
+
+| Lemma | Reference File |
+|-------|----------------|
+| Main Theorem | `examples/lemmas/main_theorem.md` |
+| Lemma 1 | `examples/lemmas/lemma01_block_preservation.md` |
+| Lemma 2 | `examples/lemmas/lemma02_induced_action.md` |
+| Lemma 3 | `examples/lemmas/lemma03_base_case_structure.md` |
+| Lemma 4 | `examples/lemmas/lemma04_base_case_exclusion.md` |
+| Lemma 5 | `examples/lemmas/lemma05_transitivity.md` |
+| Lemma 6 | `examples/lemmas/lemma06_commutator_g1g2.md` |
+| Lemma 7 | `examples/lemmas/lemma07_commutator_g1g3.md` |
+| Lemma 8 | `examples/lemmas/lemma08_commutator_g2g3.md` |
+| Lemma 9 | `examples/lemmas/lemma09_3cycle_extraction.md` |
+| Lemma 10 | `examples/lemmas/lemma10_primitivity_criterion.md` |
+| Lemma 11 | `examples/lemmas/lemma11_primitivity.md` |
+| Lemma 11.1 | `examples/lemmas/lemma11_1_unique_block_system.md` |
+| Lemma 11.2 | `examples/lemmas/lemma11_2_cycle_fixing_block.md` |
+| Lemma 11.3 | `examples/lemmas/lemma11_3_tail_in_block.md` |
+| Lemma 11.4 | `examples/lemmas/lemma11_4_block_orbit.md` |
+| Lemma 11.5 | `examples/lemmas/lemma11_5_no_nontrivial_blocks.md` |
+| Lemma 12 | `examples/lemmas/lemma12_jordan_theorem.md` |
+| Lemma 13 | `examples/lemmas/lemma13_cycle_sign.md` |
+| Lemma 14 | `examples/lemmas/lemma14_generator_parity.md` |
+| Lemma 15 | `examples/lemmas/lemma15_an_vs_sn.md` |
+
+### Other References
+- `examples/proof_master.md` - Canonical proof (v2.0 corrected)
+- `examples/lemmas/main_theorem/HANDOFF_CONSOLIDATION_AND_LEANIFICATION.md` - Full context
+
+---
+
 ## Phase 1: Project Structure Setup
 
 **Goal**: Create scaffolding with one file per lemma, all compiling with sorries.

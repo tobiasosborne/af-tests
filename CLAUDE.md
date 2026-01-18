@@ -98,9 +98,40 @@ bd comment <id> "note"        # Add comment
 | Cleanup/refactor | P3 | `Cleanup: <description>` |
 
 ## Reference Documents
+
+### Primary References
 - `examples/proof_master.md` - Canonical proof (v2.0 corrected)
 - `examples/lemmas/main_theorem/HANDOFF_CONSOLIDATION_AND_LEANIFICATION.md` - Full context
-- `examples/lemmas/lemma06_commutator_g1g2/ThreeCycleExtraction.lean` - Working example
+
+### AF Proof Exports (Natural Language Proofs)
+Each lemma has a detailed natural-language proof exported from the AF framework:
+
+| Lemma | File | Description |
+|-------|------|-------------|
+| Main Theorem | `examples/lemmas/main_theorem.md` | H = Aₙ or Sₙ |
+| Lemma 1 | `examples/lemmas/lemma01_block_preservation.md` | Block preservation |
+| Lemma 2 | `examples/lemmas/lemma02_induced_action.md` | Induced action φ: H₆→S₃ |
+| Lemma 3 | `examples/lemmas/lemma03_base_case_structure.md` | H₆ ≅ S₄ |
+| Lemma 4 | `examples/lemmas/lemma04_base_case_exclusion.md` | H₆ ≠ Aₙ, Sₙ |
+| Lemma 5 | `examples/lemmas/lemma05_transitivity.md` | Transitivity |
+| Lemma 6 | `examples/lemmas/lemma06_commutator_g1g2.md` | [g₁,g₂] 3-cycle |
+| Lemma 7 | `examples/lemmas/lemma07_commutator_g1g3.md` | [g₁,g₃] 3-cycle |
+| Lemma 8 | `examples/lemmas/lemma08_commutator_g2g3.md` | [g₂,g₃] 3-cycle |
+| Lemma 9 | `examples/lemmas/lemma09_3cycle_extraction.md` | 3-cycle extraction |
+| Lemma 10 | `examples/lemmas/lemma10_primitivity_criterion.md` | Primitivity criterion |
+| Lemma 11 | `examples/lemmas/lemma11_primitivity.md` | Primitivity (main) |
+| Lemma 11.1 | `examples/lemmas/lemma11_1_unique_block_system.md` | Unique block system |
+| Lemma 11.2 | `examples/lemmas/lemma11_2_cycle_fixing_block.md` | Cycle fixing block |
+| Lemma 11.3 | `examples/lemmas/lemma11_3_tail_in_block.md` | Tail in block |
+| Lemma 11.4 | `examples/lemmas/lemma11_4_block_orbit.md` | Block orbit |
+| Lemma 11.5 | `examples/lemmas/lemma11_5_no_nontrivial_blocks.md` | No nontrivial blocks |
+| Lemma 12 | `examples/lemmas/lemma12_jordan_theorem.md` | Jordan's theorem |
+| Lemma 13 | `examples/lemmas/lemma13_cycle_sign.md` | Cycle sign |
+| Lemma 14 | `examples/lemmas/lemma14_generator_parity.md` | Generator parity |
+| Lemma 15 | `examples/lemmas/lemma15_an_vs_sn.md` | Aₙ vs Sₙ |
+
+### Working Examples
+- `examples/lemmas/lemma06_commutator_g1g2/ThreeCycleExtraction.lean` - Lean 4 example
 
 ## Quick Wins (Start Here)
 1. Lemma 13 - cycle sign (mathlib direct)
