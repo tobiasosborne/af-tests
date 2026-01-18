@@ -43,23 +43,44 @@ bd comment <id> "note"        # Add comment
 
 **MANDATORY WORKFLOW:**
 
-1. **File issues for remaining work** - Create issues for anything that needs follow-up
-2. **Run quality gates** (if code changed) - Tests, linters, builds
-3. **Update issue status** - Close finished work, update in-progress items
-4. **PUSH TO REMOTE** - This is MANDATORY:
+1. **Update HANDOFF.md** - Create/update `HANDOFF.md` in project root:
+   ```markdown
+   # Handoff: [Date]
+   ## Completed This Session
+   - [List of completed tasks/issues]
+   ## Current State
+   - Build status: [passing/failing]
+   - Sorry count: [N]
+   - Open blockers: [list or "none"]
+   ## Next Steps (Priority Order)
+   1. [Most important next task]
+   2. [Second priority]
+   ## Known Issues / Gotchas
+   - [Any context the next agent needs]
+   ## Files Modified
+   - [List of files changed]
+   ```
+2. **File issues for remaining work** - Create issues for anything that needs follow-up
+3. **Run quality gates** (if code changed) - `lake build`, check for errors
+4. **Update issue status** - Close finished work, update in-progress items
+5. **PUSH TO REMOTE** - This is MANDATORY:
    ```bash
-   git pull --rebase
+   git add -A
+   git commit -m "Session: <summary>"
    bd sync
    git push
    git status  # MUST show "up to date with origin"
    ```
-5. **Clean up** - Clear stashes, prune remote branches
-6. **Verify** - All changes committed AND pushed
-7. **Hand off** - Provide context for next session
+6. **Verify checklist**:
+   - [ ] HANDOFF.md updated
+   - [ ] All changes committed and pushed
+   - [ ] Beads synced
+   - [ ] No uncommitted work left behind
 
 **CRITICAL RULES:**
 - Work is NOT complete until `git push` succeeds
 - NEVER stop before pushing - that leaves work stranded locally
 - NEVER say "ready to push when you are" - YOU must push
 - If push fails, resolve and retry until it succeeds
+- ALWAYS update HANDOFF.md - next agent depends on it
 

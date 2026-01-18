@@ -130,3 +130,54 @@ def H : Subgroup (Perm (Fin n)) := Subgroup.closure {g₁, g₂, g₃}
 - `lean_diagnostic_messages` - see errors
 - `lean_hover_info` - get type info
 - `lean_completions` - autocomplete
+
+## Landing the Plane (Session End)
+
+**MANDATORY** when ending a work session:
+
+### 1. Update HANDOFF.md
+Create/update `HANDOFF.md` in project root with:
+```markdown
+# Handoff: [Date]
+
+## Completed This Session
+- [List of completed tasks/issues]
+
+## Current State
+- Build status: [passing/failing]
+- Sorry count: [N]
+- Open blockers: [list or "none"]
+
+## Next Steps (Priority Order)
+1. [Most important next task]
+2. [Second priority]
+3. [Third priority]
+
+## Known Issues / Gotchas
+- [Any traps or context the next agent needs]
+
+## Files Modified
+- [List of files changed this session]
+```
+
+### 2. Update Issues
+```bash
+bd close <completed-ids>           # Close finished work
+bd new -p P1 "Blocked: ..." -d "..." # File blockers
+bd list -p P0                       # Verify no P0 open
+```
+
+### 3. Commit and Push
+```bash
+git add -A
+git commit -m "Session: <summary>"
+bd sync
+git push
+git status  # MUST show "up to date with origin"
+```
+
+### 4. Verify
+- [ ] HANDOFF.md updated
+- [ ] All changes committed and pushed
+- [ ] Beads synced
+- [ ] No uncommitted work left behind
