@@ -134,7 +134,7 @@ theorem tailCList_nodup (n k m : ℕ) : (tailCList n k m).Nodup := by
 theorem g₁Core_disjoint_tailA (n k m : ℕ) :
     ∀ x ∈ g₁CoreList n k m, x ∉ tailAList n k m := by
   intro x hx hy
-  simp only [g₁CoreList, List.mem_cons, List.mem_singleton] at hx
+  simp only [g₁CoreList, List.mem_cons] at hx
   simp only [tailAList, List.mem_map, List.mem_finRange] at hy
   obtain ⟨i, _, hi⟩ := hy
   subst hi
@@ -145,7 +145,7 @@ theorem g₁Core_disjoint_tailA (n k m : ℕ) :
 theorem g₂Core_disjoint_tailB (n k m : ℕ) :
     ∀ x ∈ g₂CoreList n k m, x ∉ tailBList n k m := by
   intro x hx hy
-  simp only [g₂CoreList, List.mem_cons, List.mem_singleton] at hx
+  simp only [g₂CoreList, List.mem_cons] at hx
   simp only [tailBList, List.mem_map, List.mem_finRange] at hy
   obtain ⟨i, _, hi⟩ := hy
   subst hi
@@ -156,7 +156,7 @@ theorem g₂Core_disjoint_tailB (n k m : ℕ) :
 theorem g₃Core_disjoint_tailC (n k m : ℕ) :
     ∀ x ∈ g₃CoreList n k m, x ∉ tailCList n k m := by
   intro x hx hy
-  simp only [g₃CoreList, List.mem_cons, List.mem_singleton] at hx
+  simp only [g₃CoreList, List.mem_cons] at hx
   simp only [tailCList, List.mem_map, List.mem_finRange] at hy
   obtain ⟨i, _, hi⟩ := hy
   subst hi
