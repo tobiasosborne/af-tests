@@ -46,9 +46,58 @@ def isTailC {n k m : ℕ} (x : Omega n k m) : Prop :=
 /-- Every point is either in core or one of the tails -/
 theorem Omega.partition {n k m : ℕ} (x : Omega n k m) :
     isCore x ∨ isTailA x ∨ isTailB x ∨ isTailC x := by
-  sorry
+  simp only [isCore, isTailA, isTailB, isTailC]
+  omega
 
 /-- The size of Omega is at least 6 -/
 theorem Omega.card_ge_six (n k m : ℕ) : Omega.card n k m ≥ 6 := by
   unfold Omega.card
   omega
+
+/-! ## Decidability -/
+
+instance : DecidablePred (@isCore n k m) := fun x =>
+  decidable_of_iff (x.val < 6) Iff.rfl
+
+instance : DecidablePred (@isTailA n k m) := fun x =>
+  decidable_of_iff (6 ≤ x.val ∧ x.val < 6 + n) Iff.rfl
+
+instance : DecidablePred (@isTailB n k m) := fun x =>
+  decidable_of_iff (6 + n ≤ x.val ∧ x.val < 6 + n + k) Iff.rfl
+
+instance : DecidablePred (@isTailC n k m) := fun x =>
+  decidable_of_iff (6 + n + k ≤ x.val ∧ x.val < 6 + n + k + m) Iff.rfl
+
+/-! ## Exclusivity -/
+
+/-- Core and TailA are disjoint -/
+theorem isCore_not_isTailA {n k m : ℕ} {x : Omega n k m} (h : isCore x) : ¬isTailA x := by
+  simp only [isCore, isTailA] at *; omega
+
+/-- Core and TailB are disjoint -/
+theorem isCore_not_isTailB {n k m : ℕ} {x : Omega n k m} (h : isCore x) : ¬isTailB x := by
+  simp only [isCore, isTailB] at *; omega
+
+/-- Core and TailC are disjoint -/
+theorem isCore_not_isTailC {n k m : ℕ} {x : Omega n k m} (h : isCore x) : ¬isTailC x := by
+  simp only [isCore, isTailC] at *; omega
+
+/-! ## Core element constructors -/
+
+/-- Core element 0 (AF element 1) -/
+def Omega.core0 (n k m : ℕ) : Omega n k m := ⟨0, by omega⟩
+
+/-- Core element 1 (AF element 2) -/
+def Omega.core1 (n k m : ℕ) : Omega n k m := ⟨1, by omega⟩
+
+/-- Core element 2 (AF element 3) -/
+def Omega.core2 (n k m : ℕ) : Omega n k m := ⟨2, by omega⟩
+
+/-- Core element 3 (AF element 4) -/
+def Omega.core3 (n k m : ℕ) : Omega n k m := ⟨3, by omega⟩
+
+/-- Core element 4 (AF element 5) -/
+def Omega.core4 (n k m : ℕ) : Omega n k m := ⟨4, by omega⟩
+
+/-- Core element 5 (AF element 6) -/
+def Omega.core5 (n k m : ℕ) : Omega n k m := ⟨5, by omega⟩
