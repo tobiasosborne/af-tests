@@ -1,0 +1,1 @@
+{"type":"proof_initialized","timestamp":"2026-01-17T14:46:20.318923121Z","conjecture":"Let G \u003c= S_n with G \u003e= A_n. Then: G = A_n iff G \u003c= A_n iff all generators of G are even. G = S_n iff G contains an odd permutation.","author":"claude"}

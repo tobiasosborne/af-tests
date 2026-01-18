@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T22:07:45.423158306Z","definition":{"id":"ee2c97745b7f64b0","name":"Cycle_Action","definition":"For σ = (x_1 x_2 ... x_ℓ), we have σ(x_i) = x_{i+1} where indices are mod ℓ.","created":"2026-01-17T22:07:45.422633876Z"}}

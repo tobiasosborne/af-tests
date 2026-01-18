@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-18T08:41:59.17042663Z","definition":{"id":"d9a0ed295f1d83a5","name":"Cycle","definition":"An l-cycle is a permutation sigma = (a_1 a_2 ... a_l) that maps a_i -\u003e a_{i+1} for i \u003c l, maps a_l -\u003e a_1, and fixes all other elements.","created":"2026-01-18T08:41:59.169966375Z"}}

@@ -1,0 +1,1 @@
+{"type":"node_amended","timestamp":"2026-01-17T21:14:21.297166113Z","node_id":"1","previous_statement":"Let g_2 = (1 2 4 5) and g_3 = (5 6 2 3) in S_7. Then [g_2, g_3] = (1 5 6)(2 3 4).","new_statement":"Let g_2 = (1 2 4 5) and g_3 = (5 6 2 3) in S_7. Then [g_2, g_3] = (1 6 2)(3 5 4).","owner":"prover-1"}

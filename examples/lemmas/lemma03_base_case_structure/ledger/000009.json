@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T19:55:35.515697502Z","definition":{"id":"7d3eebf2d4f44cd5","name":"Imprimitive_Action","definition":"A group G acting on a set X acts imprimitively if there exists a non-trivial G-invariant partition of X (i.e., a partition into blocks of size \u003e1 and \u003c|X| that is preserved by G).","created":"2026-01-17T19:55:35.515136224Z"}}

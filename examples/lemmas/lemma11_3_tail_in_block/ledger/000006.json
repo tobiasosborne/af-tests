@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T22:12:11.190246548Z","definition":{"id":"16ca3aaacb47690b","name":"Block","definition":"A subset B ⊆ Omega is a block for H if for all h ∈ H, either h(B) = B or h(B) ∩ B = ∅.","created":"2026-01-17T22:12:11.189696288Z"}}

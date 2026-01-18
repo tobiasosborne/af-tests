@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T22:16:08.538920259Z","definition":{"id":"41d43d117636eb16","name":"Support","definition":"supp(σ) := {x : σ(x) ≠ x}. For an ℓ-cycle, |supp(σ)| = ℓ.","created":"2026-01-17T22:16:08.538399339Z"}}

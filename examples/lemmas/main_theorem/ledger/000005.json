@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-18T09:08:54.294392617Z","definition":{"id":"02c79170740ade09","name":"Generators","definition":"g_1 = (1 4 a_1...a_n 2 5) is a (4+n)-cycle; g_2 = (2 5 b_1...b_k 3 6) is a (4+k)-cycle; g_3 = (3 6 c_1...c_m 1 4) is a (4+m)-cycle.","created":"2026-01-18T09:08:54.293949457Z"}}

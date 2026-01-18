@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T20:34:05.966954706Z","definition":{"id":"1294ce6908c205d6","name":"g_1_inv","definition":"g_1^{-1} = (1 7 3 4 6), the inverse of g_1. Obtained by reversing the cycle (1 6 4 3 7) to get (7 3 4 6 1), which in standard form is (1 7 3 4 6).","created":"2026-01-17T20:34:05.966384971Z"}}

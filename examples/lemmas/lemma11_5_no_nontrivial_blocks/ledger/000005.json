@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-18T07:38:31.350449699Z","definition":{"id":"6e19f7fd6d743e3f","name":"g_2","definition":"g_2 := (1 2 4 5 b_1 ... b_k), a (4+k)-cycle. supp(g_2) = {1, 2, 4, 5, b_1, ..., b_k}.","created":"2026-01-18T07:38:31.349863071Z"}}

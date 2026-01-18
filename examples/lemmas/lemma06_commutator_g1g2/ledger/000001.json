@@ -1,0 +1,1 @@
+{"type":"proof_initialized","timestamp":"2026-01-17T14:45:33.370484991Z","conjecture":"Let g_1 = (1 6 4 3 7) and g_2 = (1 2 4 5) in S_7 (case n=1, k=m=0). Then [g_1, g_2] := g_1^{-1} g_2^{-1} g_1 g_2 = (1 2 6)(3 4 5).","author":"claude"}

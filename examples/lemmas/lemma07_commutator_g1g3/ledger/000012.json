@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T21:09:53.170871605Z","definition":{"id":"62c5e0b9dce53eca","name":"Cycle_Inverse","definition":"For an ℓ-cycle (a_1 a_2 ... a_ℓ), its inverse is obtained by reversing: (a_ℓ a_{ℓ-1} ... a_1). In standard form: (a_1 a_ℓ a_{ℓ-1} ... a_2).","created":"2026-01-17T21:09:53.170218099Z"}}

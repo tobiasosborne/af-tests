@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T19:55:32.094328193Z","definition":{"id":"8a431aa4f8b6aad4","name":"Cycle_Notation","definition":"The cycle (a₁ a₂ ... aₖ) denotes the permutation σ where σ(aᵢ) = aᵢ₊₁ for i \u003c k, and σ(aₖ) = a₁. Elements not appearing in the cycle are fixed.","created":"2026-01-17T19:55:32.093849848Z"}}

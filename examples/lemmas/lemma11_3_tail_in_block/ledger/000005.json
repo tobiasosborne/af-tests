@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T22:12:10.123669328Z","definition":{"id":"b3e866379f6d6017","name":"Support","definition":"supp(σ) := {x : σ(x) ≠ x}. For g_1 = (1 6 4 3 a_1 ... a_n), supp(g_1) = {1, 3, 4, 6, a_1, ..., a_n}.","created":"2026-01-17T22:12:10.123049318Z"}}

@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-18T08:42:01.842902364Z","definition":{"id":"298e6fe948062ff6","name":"Sign_Homomorphism","definition":"The sign function sign: S_n -\u003e {+1, -1} is a group homomorphism. sign(sigma tau) = sign(sigma) * sign(tau). For transpositions, sign((a b)) = -1.","created":"2026-01-18T08:42:01.842360564Z"}}

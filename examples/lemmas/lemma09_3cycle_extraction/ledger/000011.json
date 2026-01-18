@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T21:31:49.286330686Z","definition":{"id":"1e518c15f1734de3","name":"Disjoint_Cycle_Power","definition":"For disjoint cycles σ = σ_1 σ_2 ... σ_k, we have σ^n = σ_1^n σ_2^n ... σ_k^n.","created":"2026-01-17T21:31:49.285608256Z"}}

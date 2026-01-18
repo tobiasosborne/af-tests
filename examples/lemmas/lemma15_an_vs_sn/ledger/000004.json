@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-18T08:58:48.345275569Z","definition":{"id":"a4e39ee0b246e6c8","name":"Index_Two","definition":"The index [S_n : A_n] = 2. This means A_n has exactly 2 cosets in S_n: A_n itself (even permutations) and S_n \\ A_n (odd permutations).","created":"2026-01-18T08:58:48.344787087Z"}}

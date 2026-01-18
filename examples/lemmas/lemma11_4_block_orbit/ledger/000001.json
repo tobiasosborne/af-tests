@@ -1,0 +1,1 @@
+{"type":"proof_initialized","timestamp":"2026-01-17T14:46:02.21509171Z","conjecture":"Let sigma in S_n be an l-cycle and B a sigma-invariant block system with block size d. Let B in B with B intersect supp(sigma) nonempty. Let r be the size of the \u003csigma\u003e-orbit of B in B. Then r divides l and |B intersect supp(sigma)| = l/r.","author":"claude"}

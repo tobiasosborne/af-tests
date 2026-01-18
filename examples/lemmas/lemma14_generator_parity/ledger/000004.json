@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-18T08:52:32.278430636Z","definition":{"id":"acac91ea1d7b01b4","name":"Generator_g1","definition":"g_1 = (1 4 a_1 a_2 ... a_n 2 5) is a cycle of length 4+n (the 4 core elements {1,4,2,5} plus n tail elements {a_1,...,a_n}).","created":"2026-01-18T08:52:32.277990176Z"}}

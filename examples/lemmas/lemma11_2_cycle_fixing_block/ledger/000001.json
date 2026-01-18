@@ -1,0 +1,1 @@
+{"type":"proof_initialized","timestamp":"2026-01-17T14:45:59.849239614Z","conjecture":"Let sigma in S_n be a cycle with exactly one non-trivial orbit. Let B be a subset of {1,...,n} with sigma(B) = B. Then either supp(sigma) is contained in B or supp(sigma) is disjoint from B.","author":"claude"}

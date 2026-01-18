@@ -1,0 +1,1 @@
+{"type":"node_validated","timestamp":"2026-01-17T20:39:11.231797428Z","node_id":"1.4","note":"VERIFIED CORRECT by pedantic-verifier-2. Independent computation: g_2(1)=2, g_1(2)=2 (fixed), g_2^{-1}(2)=1, g_1^{-1}(1)=7. Final: 1→7 matches claim."}

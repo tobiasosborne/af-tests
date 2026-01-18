@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-18T07:38:28.982635294Z","definition":{"id":"c13d4cb5a6555fb7","name":"Omega","definition":"Omega := {1, 2, 3, 4, 5, 6, a_1, ..., a_n, b_1, ..., b_k, c_1, ..., c_m} with |Omega| = N = 6 + n + k + m.","created":"2026-01-18T07:38:28.982135594Z"}}

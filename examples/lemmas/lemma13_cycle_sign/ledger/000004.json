@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-18T08:42:00.330211344Z","definition":{"id":"84f93e80f8f2293e","name":"Transposition","definition":"A transposition is a 2-cycle (a b) that swaps two elements and fixes all others. Every transposition has sign -1.","created":"2026-01-18T08:42:00.329740914Z"}}

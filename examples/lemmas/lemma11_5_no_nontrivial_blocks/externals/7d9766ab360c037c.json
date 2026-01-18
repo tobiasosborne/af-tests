@@ -1,0 +1,8 @@
+{
+  "id": "7d9766ab360c037c",
+  "name": "Lemma 11.2",
+  "source": "Cycle stabilizer implies support containment: If sigma is a cycle and sigma(B) = B for block B intersecting supp(sigma), then supp(sigma) is contained in B.",
+  "content_hash": "0a3f444328bba8d2de89a6b9a5bf97f556d38c1719db9398218fc55a675a0796",
+  "created": "2026-01-18T08:01:58.647316984Z",
+  "notes": ""
+}

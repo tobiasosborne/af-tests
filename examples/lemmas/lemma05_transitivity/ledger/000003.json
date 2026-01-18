@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T20:22:19.54512246Z","definition":{"id":"32d527cda900d9c6","name":"Omega","definition":"Ω = {1, 2, 3, 4, 5, 6, a_1, ..., a_n, b_1, ..., b_k, c_1, ..., c_m} with |Ω| = N = 6 + n + k + m. The sets {a_i}, {b_j}, {c_ℓ} are pairwise disjoint and disjoint from {1,...,6}.","created":"2026-01-17T20:22:19.544659625Z"}}

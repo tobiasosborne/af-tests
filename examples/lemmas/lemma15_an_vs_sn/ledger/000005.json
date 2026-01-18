@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-18T08:58:49.168722926Z","definition":{"id":"2582f3cf1fb91108","name":"Even_Permutation","definition":"A permutation σ is even if sign(σ) = +1, equivalently if σ can be written as a product of an even number of transpositions.","created":"2026-01-18T08:58:49.168246891Z"}}

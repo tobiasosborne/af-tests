@@ -1,0 +1,1 @@
+{"type":"challenge_raised","timestamp":"2026-01-17T20:15:08.201984866Z","challenge_id":"ch-b6e82440588c8303","node_id":"1.3","target":"dependencies","reason":"Node uses definitions S_6, A_6, and Factorial but declares no dependencies. While the definitions are in scope, explicit dependency declaration would improve traceability.","severity":"minor","raised_by":""}

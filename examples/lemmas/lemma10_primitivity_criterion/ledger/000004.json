@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T21:40:14.431780816Z","definition":{"id":"6dc53e7be71206c8","name":"Transitive_Action","definition":"G acts transitively on Ω if for all x, y ∈ Ω, there exists g ∈ G with g(x) = y. Equivalently, Ω is a single G-orbit.","created":"2026-01-17T21:40:14.431318742Z"}}

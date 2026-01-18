@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T22:07:44.458614446Z","definition":{"id":"9c8618bf19e7c1c5","name":"Support","definition":"supp(σ) := {x : σ(x) ≠ x}. For cycle σ = (x_1 ... x_ℓ), supp(σ) = {x_1, ..., x_ℓ}.","created":"2026-01-17T22:07:44.458120706Z"}}

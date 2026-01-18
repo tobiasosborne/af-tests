@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T19:55:35.866054198Z","definition":{"id":"d342abfc06f109f5","name":"Induced_Action","definition":"The induced action φ: Sym(Ω) → Sym(B₀) is defined by φ(σ)(B) = σ(B) for each block B ∈ B₀. This is well-defined when σ preserves B₀ setwise.","created":"2026-01-17T19:55:35.865463572Z"}}

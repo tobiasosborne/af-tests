@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T22:00:55.806575751Z","definition":{"id":"e838277156c154e4","name":"B_0","definition":"B_0 := {{1,4}, {2,5}, {3,6}}, a partition of {1,...,6} into 2-element blocks.","created":"2026-01-17T22:00:55.80607211Z"}}

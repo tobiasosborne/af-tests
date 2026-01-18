@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T20:11:18.542546115Z","definition":{"id":"570fc58ae4f71422","name":"Subgroup_Cardinality","definition":"If H ≤ G are groups and H = G, then |H| = |G|. Equivalently, if |H| ≠ |G|, then H ≠ G.","created":"2026-01-17T20:11:18.542060756Z"}}

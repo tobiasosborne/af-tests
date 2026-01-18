@@ -1,0 +1,1 @@
+{"type":"proof_initialized","timestamp":"2026-01-17T14:45:52.561955554Z","conjecture":"Let c_12 := (1 2 6)(3 4 5) and c_13 := (2 4 6)(3 5 7). Then: (1) c_12 * c_13^{-1} = (1 6)(2 4 3)(5 7), and (2) (c_12 * c_13^{-1})^2 = (2 3 4).","author":"claude"}

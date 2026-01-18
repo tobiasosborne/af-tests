@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T20:34:09.331255607Z","definition":{"id":"1e690f62039da45d","name":"Cycle_Inverse","definition":"For an ℓ-cycle (a_1 a_2 ... a_ℓ), its inverse is (a_ℓ a_{ℓ-1} ... a_1). In standard form starting with the smallest element, this is (a_1 a_ℓ a_{ℓ-1} ... a_2).","created":"2026-01-17T20:34:09.330663765Z"}}

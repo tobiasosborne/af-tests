@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T21:40:21.381415603Z","definition":{"id":"a0e12d861714b402","name":"Block_Stabilizer_Correspondence","definition":"If B is a block containing α, then G_α ≤ G_B ≤ G where G_B = {g ∈ G : g(B) = B}. This gives a correspondence between blocks containing α and subgroups between G_α and G.","created":"2026-01-17T21:40:21.380741757Z"}}

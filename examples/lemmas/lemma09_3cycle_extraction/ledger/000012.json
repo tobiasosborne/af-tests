@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T21:31:52.551272301Z","definition":{"id":"7760aaa8741cf8a8","name":"Transposition_Square","definition":"For any transposition (a b), we have (a b)^2 = e (identity).","created":"2026-01-17T21:31:52.545580341Z"}}

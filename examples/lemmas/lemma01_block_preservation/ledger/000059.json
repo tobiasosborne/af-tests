@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T18:49:45.965349032Z","definition":{"id":"a7e5a3f655e43a5e","name":"Domain","definition":"The domain Ω := {1, 2, 3, 4, 5, 6} is the finite set containing exactly the six elements 1, 2, 3, 4, 5, and 6. All permutations in this proof system act on this domain. Formally, Ω = {n ∈ ℕ : 1 ≤ n ≤ 6}.","created":"2026-01-17T18:49:45.946044482Z"}}

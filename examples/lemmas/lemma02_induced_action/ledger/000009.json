@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T19:39:39.659976359Z","definition":{"id":"72db0b86cc1182cb","name":"Block_Labeling","definition":"For convenience, label the blocks: B₁ = {1,4}, B₂ = {2,5}, B₃ = {3,6}. Then S_{B₀} ≅ S_3 acts on {B₁, B₂, B₃}.","created":"2026-01-17T19:39:39.659401079Z"}}

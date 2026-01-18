@@ -1,0 +1,1 @@
+{"type":"proof_initialized","timestamp":"2026-01-17T14:45:55.922996512Z","conjecture":"Let G \u003c= S_n be transitive. The following are equivalent: (1) G is primitive, (2) G preserves no non-trivial partition of {1,...,n}, (3) For any alpha, the stabilizer G_alpha is a maximal subgroup of G.","author":"claude"}

@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T22:07:46.433572196Z","definition":{"id":"729c1ca6d9214b24","name":"Setwise_Stabilizer","definition":"σ(B) = B means σ maps B to itself setwise: x ∈ B ⟹ σ(x) ∈ B.","created":"2026-01-17T22:07:46.433005736Z"}}

@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T21:14:38.647114334Z","definition":{"id":"ece7f5c6309cfcec","name":"Commutator","definition":"For permutations σ, τ, the commutator is [σ, τ] := σ^{-1} τ^{-1} σ τ. Evaluated as [σ,τ](x) = σ^{-1}(τ^{-1}(σ(τ(x)))).","created":"2026-01-17T21:14:38.646461204Z"}}

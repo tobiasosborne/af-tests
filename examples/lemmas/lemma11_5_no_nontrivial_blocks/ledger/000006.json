@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-18T07:38:32.410726696Z","definition":{"id":"98d7ec18f6dca5f1","name":"g_3","definition":"g_3 := (5 6 2 3 c_1 ... c_m), a (4+m)-cycle. supp(g_3) = {2, 3, 5, 6, c_1, ..., c_m}.","created":"2026-01-18T07:38:32.409913735Z"}}

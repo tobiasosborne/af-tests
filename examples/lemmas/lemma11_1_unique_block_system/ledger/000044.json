@@ -1,0 +1,1 @@
+{"type":"node_amended","timestamp":"2026-01-17T22:04:46.658809464Z","node_id":"1.2","previous_statement":"CASE |B|=2: There are C(6,2)·C(4,2)·C(2,2)/3! = 15·3·1/6 = 15 partitions into 3 blocks of size 2.","new_statement":"CASE |B|=2: There are C(6,2)·C(4,2)·C(2,2)/3! = 15·6·1/6 = 15 partitions into 3 blocks of size 2.","owner":"prover-2"}

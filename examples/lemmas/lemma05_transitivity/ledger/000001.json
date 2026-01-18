@@ -1,0 +1,1 @@
+{"type":"proof_initialized","timestamp":"2026-01-17T14:45:32.553118845Z","conjecture":"For all n, k, m \u003e= 0, the group H = \u003cg_1, g_2, g_3\u003e acts transitively on Omega, where g_1 = (1 6 4 3 a_1 ... a_n), g_2 = (1 2 4 5 b_1 ... b_k), g_3 = (5 6 2 3 c_1 ... c_m).","author":"claude"}

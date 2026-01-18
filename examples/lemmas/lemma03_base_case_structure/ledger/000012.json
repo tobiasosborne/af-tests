@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T19:55:36.570721575Z","definition":{"id":"0425d5021d1639b7","name":"Kernel_Block_Action","definition":"ker(φ) = {σ ∈ H_6 : φ(σ) = id} consists of elements that fix each block setwise. For H_6, this kernel acts within each 2-element block.","created":"2026-01-17T19:55:36.57009298Z"}}

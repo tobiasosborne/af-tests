@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T21:40:15.047637007Z","definition":{"id":"08796eb611af930d","name":"Block","definition":"A subset B ⊆ Ω is a block for G if for all g ∈ G, either g(B) = B or g(B) ∩ B = ∅.","created":"2026-01-17T21:40:15.047015741Z"}}

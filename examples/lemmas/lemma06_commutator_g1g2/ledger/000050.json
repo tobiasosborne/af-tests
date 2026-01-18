@@ -1,0 +1,1 @@
+{"type":"node_validated","timestamp":"2026-01-17T20:40:07.86656418Z","node_id":"1.7","note":"VERIFIED CORRECT by pedantic-verifier-2. Independent computation: g_2(4)=5 (from cycle 4→5), g_1(5)=5 (5 not in cycle, fixed), g_2^{-1}(5)=4 (from cycle 5→4), g_1^{-1}(4)=6 (from cycle 4→6). Final: 4→6 matches claim."}

@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T19:55:32.451116188Z","definition":{"id":"1790cd16a037b02f","name":"Permutations_h1_h2_h3","definition":"h₁ = (1 6 4 3), h₂ = (1 2 4 5), h₃ = (5 6 2 3) are 4-cycles in Sym(Ω). Explicit mappings:\nh₁: 1→6→4→3→1, fixes {2,5}\nh₂: 1→2→4→5→1, fixes {3,6}\nh₃: 5→6→2→3→5, fixes {1,4}","created":"2026-01-17T19:55:32.450551445Z"}}

@@ -1,0 +1,8 @@
+{
+  "id": "9ed35b26a56303c2",
+  "name": "Lemma_1",
+  "source": "Block Preservation Lemma (lemma01_block_preservation): Each of h₁, h₂, h₃ preserves the partition B₀ setwise. Established mappings:\n- h₁: {1,4}→{3,6}, {2,5}→{2,5}, {3,6}→{1,4}\n- h₂: {1,4}→{2,5}, {2,5}→{1,4}, {3,6}→{3,6}\n- h₃: {1,4}→{1,4}, {2,5}→{3,6}, {3,6}→{2,5}",
+  "content_hash": "ac18d6c46750056cd3e6889d29185b54894ae3e1459818a7ade1add7db3d76a5",
+  "created": "2026-01-17T19:45:26.061505564Z",
+  "notes": ""
+}

@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T22:16:00.737693349Z","definition":{"id":"c4b6aba1a300183a","name":"Orbit_Stabilizer","definition":"For group G acting on set X, |G| = |Orb(x)| · |Stab(x)|. Hence |Orb(x)| divides |G|.","created":"2026-01-17T22:16:00.737144529Z"}}

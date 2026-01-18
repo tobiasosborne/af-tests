@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T22:16:04.995512079Z","definition":{"id":"fade0839da69d41e","name":"Block_Orbit","definition":"σ permutes blocks: if B is a block system and σ(B) = B (setwise for B), then σ induces a permutation on B.","created":"2026-01-17T22:16:04.995006549Z"}}

@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T21:40:20.579053776Z","definition":{"id":"12d0fb1dd24f83d4","name":"Maximal_Subgroup","definition":"H is a maximal subgroup of G if H \u003c G and there is no subgroup K with H \u003c K \u003c G.","created":"2026-01-17T21:40:20.578389699Z"}}

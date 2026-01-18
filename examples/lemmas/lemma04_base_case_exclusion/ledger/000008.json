@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T20:11:18.53351118Z","definition":{"id":"ded835220375f03d","name":"Factorial","definition":"For n ∈ ℕ, n! = n × (n-1) × ... × 2 × 1. In particular: 4! = 24, 6! = 720.","created":"2026-01-17T20:11:18.533024357Z"}}

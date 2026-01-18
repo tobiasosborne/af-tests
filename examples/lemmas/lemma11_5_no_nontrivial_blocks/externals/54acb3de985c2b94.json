@@ -1,0 +1,8 @@
+{
+  "id": "54acb3de985c2b94",
+  "name": "Lemma 11.3",
+  "source": "Tail in block implies support in block: If n \u003e= 1 and g_1(B) = B for block B containing a_1, then supp(g_1) is contained in B.",
+  "content_hash": "34fcadfd4ed6ee355ed5d586eee3ef2736252fa2acb95727b6b94a118da2b1ed",
+  "created": "2026-01-18T08:02:02.208849454Z",
+  "notes": ""
+}

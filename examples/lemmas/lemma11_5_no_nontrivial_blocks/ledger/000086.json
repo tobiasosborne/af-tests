@@ -1,0 +1,1 @@
+{"type":"challenge_raised","timestamp":"2026-01-18T07:47:53.628297051Z","challenge_id":"ch-8208f892c4968087","node_id":"1.9.2","target":"dependencies","reason":"Missing dependency: This node relies on the orbit partition established in node 1.9.1 (which applies Lemma 11.4) but does not declare this dependency. Should explicitly depend on 1.9.1.","severity":"minor","raised_by":""}

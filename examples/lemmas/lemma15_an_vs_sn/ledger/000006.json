@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-18T08:58:50.331299835Z","definition":{"id":"dffc34860551b410","name":"Odd_Permutation","definition":"A permutation σ is odd if sign(σ) = -1, equivalently if σ can be written as a product of an odd number of transpositions.","created":"2026-01-18T08:58:50.330767585Z"}}

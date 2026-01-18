@@ -1,0 +1,1 @@
+{"type":"node_validated","timestamp":"2026-01-17T20:39:50.873702251Z","node_id":"1.6","note":"VERIFIED CORRECT by pedantic-verifier-2. Independent computation: g_2(3)=3 (3 not in cycle, fixed), g_1(3)=7 (from cycle 3→7), g_2^{-1}(7)=7 (7 not in cycle, fixed), g_1^{-1}(7)=3 (from cycle 7→3). Final: 3→3 (fixed point) matches claim."}

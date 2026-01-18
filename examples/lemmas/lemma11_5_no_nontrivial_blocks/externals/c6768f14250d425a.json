@@ -1,0 +1,8 @@
+{
+  "id": "c6768f14250d425a",
+  "name": "Lemma 11.4",
+  "source": "Orbit-block size relationship: If sigma is an l-cycle and B is a block with non-trivial intersection with supp(sigma), then: (i) the orbit size r divides l, and (ii) |B intersect supp(sigma)| = l/r.",
+  "content_hash": "39d94f1ef57a032cceab32298a02506bf2bfc5ad6593a0d1557a89485fd1b67d",
+  "created": "2026-01-18T08:02:06.689233594Z",
+  "notes": ""
+}

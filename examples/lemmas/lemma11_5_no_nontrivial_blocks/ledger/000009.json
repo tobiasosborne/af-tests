@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-18T07:38:35.552180907Z","definition":{"id":"15da04504fdd1446","name":"Block","definition":"A subset B of Omega is a block for H if for all h in H: h(B) = B or h(B) disjoint from B.","created":"2026-01-18T07:38:35.551646575Z"}}

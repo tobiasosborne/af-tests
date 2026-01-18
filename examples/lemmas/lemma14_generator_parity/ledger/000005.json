@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-18T08:52:33.056160776Z","definition":{"id":"e63de77a28f600f7","name":"Generator_g2","definition":"g_2 = (2 5 b_1 b_2 ... b_k 3 6) is a cycle of length 4+k (the 4 core elements {2,5,3,6} plus k tail elements {b_1,...,b_k}).","created":"2026-01-18T08:52:33.055692416Z"}}

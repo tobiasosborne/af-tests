@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-18T08:58:51.43259896Z","definition":{"id":"38ea6e390de33beb","name":"Generator_Parity","definition":"A group G ≤ S_n is contained in A_n iff all elements of G are even iff all generators of G are even. (The sign homomorphism maps G to {+1} iff it maps the generators to {+1}.)","created":"2026-01-18T08:58:51.431976456Z"}}

@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T21:31:44.692999336Z","definition":{"id":"7761f66816eb3850","name":"Three_Cycle_Inverse","definition":"For a 3-cycle (a b c), its inverse is (a c b). Equivalently, (a b c)^{-1} = (a c b).","created":"2026-01-17T21:31:44.692359796Z"}}

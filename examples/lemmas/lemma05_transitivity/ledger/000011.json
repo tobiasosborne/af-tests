@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T20:22:22.517310082Z","definition":{"id":"5a5e8f9662d26c84","name":"Graph_Connectivity","definition":"A graph is connected if for any two vertices u, v, there exists a path from u to v. For a group action, if the support graph is connected, the group acts transitively.","created":"2026-01-17T20:22:22.516674107Z"}}

@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T20:22:22.50645503Z","definition":{"id":"b69a96c0f49b5743","name":"Transitive_Action","definition":"A group G acts transitively on a set X if for any x, y ∈ X, there exists g ∈ G with g(x) = y. Equivalently, G has exactly one orbit on X.","created":"2026-01-17T20:22:22.505805505Z"}}

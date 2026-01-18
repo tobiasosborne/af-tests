@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-18T08:52:34.108338266Z","definition":{"id":"f2674774347fa4dd","name":"Generator_g3","definition":"g_3 = (3 6 c_1 c_2 ... c_m 1 4) is a cycle of length 4+m (the 4 core elements {3,6,1,4} plus m tail elements {c_1,...,c_m}).","created":"2026-01-18T08:52:34.107760106Z"}}

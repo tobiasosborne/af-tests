@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T20:34:06.795845267Z","definition":{"id":"edba181e3a7599a8","name":"g_2_inv","definition":"g_2^{-1} = (1 5 4 2), the inverse of g_2. Obtained by reversing the cycle (1 2 4 5) to get (5 4 2 1), which in standard form is (1 5 4 2).","created":"2026-01-17T20:34:06.79525176Z"}}

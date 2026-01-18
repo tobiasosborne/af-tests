@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T19:39:37.810609289Z","definition":{"id":"c969715393c0a702","name":"Set_Action","definition":"For σ ∈ Sym(Ω) and S ⊆ Ω, define σ(S) := {σ(x) : x ∈ S}.","created":"2026-01-17T19:39:37.810100429Z"}}

@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-18T08:21:17.051834967Z","definition":{"id":"ec7e461d7df00cb3","name":"Primitive_Action","definition":"A transitive group action is primitive if the only G-invariant partitions are trivial (all singletons or whole set).","created":"2026-01-18T08:21:17.051176041Z"}}

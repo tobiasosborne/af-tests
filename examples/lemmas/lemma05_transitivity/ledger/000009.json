@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T20:22:22.495643927Z","definition":{"id":"c19c1f3a7524452a","name":"Support_Graph","definition":"The support graph Γ has vertices Ω and edges {x, y} whenever x and y are adjacent in some cycle g_i (i.e., g_i(x) = y or g_i(y) = x).","created":"2026-01-17T20:22:22.495027089Z"}}

@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-01-17T20:34:08.285367534Z","definition":{"id":"a3f78b8cbd6e5973","name":"Cycle_Multiplication","definition":"When computing σ · τ, we apply τ first, then σ. So (σ · τ)(x) = σ(τ(x)).","created":"2026-01-17T20:34:08.284787503Z"}}
