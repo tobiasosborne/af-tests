@@ -83,3 +83,103 @@ theorem g₂_cycle_length (n k m : ℕ) :
 theorem g₃_cycle_length (n k m : ℕ) :
     (g₃CoreList n k m ++ tailCList n k m).length = 4 + m := by
   simp [g₃CoreList, tailCList, List.finRange]; omega
+
+-- ============================================
+-- NODUP PROPERTIES
+-- ============================================
+
+/-- Core list for g₁ has no duplicates -/
+theorem g₁CoreList_nodup (n k m : ℕ) : (g₁CoreList n k m).Nodup := by
+  simp only [g₁CoreList, List.nodup_cons, List.mem_cons,
+    List.not_mem_nil, Fin.mk.injEq]
+  simp_all
+
+/-- Core list for g₂ has no duplicates -/
+theorem g₂CoreList_nodup (n k m : ℕ) : (g₂CoreList n k m).Nodup := by
+  simp only [g₂CoreList, List.nodup_cons, List.mem_cons,
+    List.not_mem_nil, Fin.mk.injEq]
+  simp_all
+
+/-- Core list for g₃ has no duplicates -/
+theorem g₃CoreList_nodup (n k m : ℕ) : (g₃CoreList n k m).Nodup := by
+  simp only [g₃CoreList, List.nodup_cons, List.mem_cons,
+    List.not_mem_nil, Fin.mk.injEq]
+  simp_all
+
+/-- Tail A list has no duplicates -/
+theorem tailAList_nodup (n k m : ℕ) : (tailAList n k m).Nodup := by
+  simp only [tailAList]
+  refine List.Nodup.map ?_ (List.nodup_finRange n)
+  intro i j h
+  simp only [Fin.mk.injEq] at h
+  ext; omega
+
+/-- Tail B list has no duplicates -/
+theorem tailBList_nodup (n k m : ℕ) : (tailBList n k m).Nodup := by
+  simp only [tailBList]
+  refine List.Nodup.map ?_ (List.nodup_finRange k)
+  intro i j h
+  simp only [Fin.mk.injEq] at h
+  ext; omega
+
+/-- Tail C list has no duplicates -/
+theorem tailCList_nodup (n k m : ℕ) : (tailCList n k m).Nodup := by
+  simp only [tailCList]
+  refine List.Nodup.map ?_ (List.nodup_finRange m)
+  intro i j h
+  simp only [Fin.mk.injEq] at h
+  ext; omega
+
+/-- Core list g₁ elements are disjoint from tail A elements -/
+theorem g₁Core_disjoint_tailA (n k m : ℕ) :
+    ∀ x ∈ g₁CoreList n k m, x ∉ tailAList n k m := by
+  intro x hx hy
+  simp only [g₁CoreList, List.mem_cons, List.mem_singleton] at hx
+  simp only [tailAList, List.mem_map, List.mem_finRange] at hy
+  obtain ⟨i, _, hi⟩ := hy
+  subst hi
+  rcases hx with h | h | h | h
+  all_goals simp only [Fin.mk.injEq, List.not_mem_nil, or_false] at h; omega
+
+/-- Core list g₂ elements are disjoint from tail B elements -/
+theorem g₂Core_disjoint_tailB (n k m : ℕ) :
+    ∀ x ∈ g₂CoreList n k m, x ∉ tailBList n k m := by
+  intro x hx hy
+  simp only [g₂CoreList, List.mem_cons, List.mem_singleton] at hx
+  simp only [tailBList, List.mem_map, List.mem_finRange] at hy
+  obtain ⟨i, _, hi⟩ := hy
+  subst hi
+  rcases hx with h | h | h | h
+  all_goals simp only [Fin.mk.injEq, List.not_mem_nil, or_false] at h; omega
+
+/-- Core list g₃ elements are disjoint from tail C elements -/
+theorem g₃Core_disjoint_tailC (n k m : ℕ) :
+    ∀ x ∈ g₃CoreList n k m, x ∉ tailCList n k m := by
+  intro x hx hy
+  simp only [g₃CoreList, List.mem_cons, List.mem_singleton] at hx
+  simp only [tailCList, List.mem_map, List.mem_finRange] at hy
+  obtain ⟨i, _, hi⟩ := hy
+  subst hi
+  rcases hx with h | h | h | h
+  all_goals simp only [Fin.mk.injEq, List.not_mem_nil, or_false] at h; omega
+
+/-- Full list for g₁ has no duplicates -/
+theorem g₁_list_nodup (n k m : ℕ) : (g₁CoreList n k m ++ tailAList n k m).Nodup := by
+  rw [List.nodup_append]
+  refine ⟨g₁CoreList_nodup n k m, tailAList_nodup n k m, ?_⟩
+  intro a ha b hb hab
+  exact g₁Core_disjoint_tailA n k m a ha (hab ▸ hb)
+
+/-- Full list for g₂ has no duplicates -/
+theorem g₂_list_nodup (n k m : ℕ) : (g₂CoreList n k m ++ tailBList n k m).Nodup := by
+  rw [List.nodup_append]
+  refine ⟨g₂CoreList_nodup n k m, tailBList_nodup n k m, ?_⟩
+  intro a ha b hb hab
+  exact g₂Core_disjoint_tailB n k m a ha (hab ▸ hb)
+
+/-- Full list for g₃ has no duplicates -/
+theorem g₃_list_nodup (n k m : ℕ) : (g₃CoreList n k m ++ tailCList n k m).Nodup := by
+  rw [List.nodup_append]
+  refine ⟨g₃CoreList_nodup n k m, tailCList_nodup n k m, ?_⟩
+  intro a ha b hb hab
+  exact g₃Core_disjoint_tailC n k m a ha (hab ▸ hb)
