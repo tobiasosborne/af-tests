@@ -8,6 +8,9 @@ import AfTests.BaseCase.Lemma03
 import Mathlib.GroupTheory.SpecificGroups.Alternating
 import Mathlib.Data.Nat.Factorial.Basic
 
+-- native_decide is appropriate for computational proofs in this project
+set_option linter.style.nativeDecide false
+
 /-!
 # Lemma 4: Base Case Exclusion (H₆ ≠ A₆, S₆)
 
@@ -60,11 +63,16 @@ theorem H₆_card_lt_S6_card : Fintype.card H₆ < Fintype.card (Equiv.Perm (Fin
 
 /-- H₆ ≠ A₆ (as subgroups): cardinalities differ -/
 theorem H₆_ne_alternatingGroup : H₆ ≠ alternatingGroup (Fin 6) := by
-  sorry  -- TODO: Phase 2 - follows from cardinality comparison
+  intro h
+  have := H₆_card_lt_A6_card
+  simp only [h] at this
+  exact Nat.lt_irrefl _ this
 
 /-- H₆ ≠ S₆ (trivially, since H₆ is a proper subgroup): cardinalities differ -/
 theorem H₆_ne_Perm : H₆ ≠ ⊤ := by
-  sorry  -- TODO: Phase 2 - follows from cardinality comparison
+  rw [Ne, ← Subgroup.card_eq_iff_eq_top]
+  rw [Nat.card_eq_fintype_card, Nat.card_eq_fintype_card, H₆_card_eq_24, S6_card]
+  decide
 
 /-- Main result: H₆ is neither A₆ nor S₆ -/
 theorem H₆_proper_subgroup : H₆ ≠ alternatingGroup (Fin 6) ∧ H₆ ≠ ⊤ :=
