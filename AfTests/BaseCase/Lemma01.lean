@@ -5,6 +5,9 @@ Authors: AF-Tests Project
 -/
 import AfTests.Core
 
+-- native_decide is appropriate for computational proofs in this project
+set_option linter.style.nativeDecide false
+
 /-!
 # Lemma 1: Block Preservation in Base Case
 
