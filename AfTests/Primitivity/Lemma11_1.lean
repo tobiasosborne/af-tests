@@ -97,16 +97,13 @@ theorem size2_partition_count : ∃ n : ℕ, n = 15 ∧
   · native_decide
 
 /-- B₀ is invariant under g₁ (restricted to Fin 6) -/
-theorem B₀_invariant_g₁ : ∀ B ∈ B₀, (B.image (g₁ 0 0 0)) ∈ B₀ := by
-  sorry
+theorem B₀_invariant_g₁ : ∀ B ∈ B₀, (B.image (g₁ 0 0 0)) ∈ B₀ := by decide
 
 /-- B₀ is invariant under g₂ (restricted to Fin 6) -/
-theorem B₀_invariant_g₂ : ∀ B ∈ B₀, (B.image (g₂ 0 0 0)) ∈ B₀ := by
-  sorry
+theorem B₀_invariant_g₂ : ∀ B ∈ B₀, (B.image (g₂ 0 0 0)) ∈ B₀ := by decide
 
 /-- B₀ is invariant under g₃ (restricted to Fin 6) -/
-theorem B₀_invariant_g₃ : ∀ B ∈ B₀, (B.image (g₃ 0 0 0)) ∈ B₀ := by
-  sorry
+theorem B₀_invariant_g₃ : ∀ B ∈ B₀, (B.image (g₃ 0 0 0)) ∈ B₀ := by decide
 
 -- ============================================
 -- SECTION 4: SIZE-3 PARTITIONS
@@ -129,11 +126,50 @@ theorem no_size3_block_system :
 -- SECTION 5: MAIN THEOREM
 -- ============================================
 
+/-- Helper: g preserves B₀ if all blocks map to blocks -/
+def preservesB₀ (g : Equiv.Perm (Fin 6)) : Prop :=
+  ∀ B ∈ B₀, (B.image g) ∈ B₀
+
+/-- preservesB₀ is decidable -/
+instance : DecidablePred preservesB₀ := fun g =>
+  inferInstanceAs (Decidable (∀ B ∈ B₀, (B.image g) ∈ B₀))
+
+/-- 1 preserves B₀ -/
+theorem one_preservesB₀ : preservesB₀ 1 := by decide
+
+/-- If g preserves B₀, so does g⁻¹ (Phase 3: currently uses sorry) -/
+theorem inv_preservesB₀ (g : Equiv.Perm (Fin 6)) (h : preservesB₀ g) : preservesB₀ g⁻¹ := by
+  -- Key insight: g induces a bijection on B₀ (3 elements).
+  -- Since g permutes {Block1, Block2, Block3}, so does g⁻¹.
+  sorry
+
+/-- If g and h preserve B₀, so does g * h -/
+theorem mul_preservesB₀ (g h : Equiv.Perm (Fin 6))
+    (hg : preservesB₀ g) (hh : preservesB₀ h) : preservesB₀ (g * h) := by
+  intro B hB
+  have hB' := hh B hB
+  have := hg (B.image h) hB'
+  simp only [Equiv.Perm.coe_mul, Finset.image_image] at this ⊢
+  exact this
+
+/-- All elements of H₆ preserve B₀ -/
+theorem H₆_preservesB₀ : ∀ g ∈ H₆, preservesB₀ g := by
+  intro g hg
+  induction hg using Subgroup.closure_induction with
+  | mem x hx =>
+    simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hx
+    rcases hx with rfl | rfl | rfl
+    · exact B₀_invariant_g₁
+    · exact B₀_invariant_g₂
+    · exact B₀_invariant_g₃
+  | one => exact one_preservesB₀
+  | mul _ _ _ _ ihx ihy => exact mul_preservesB₀ _ _ ihx ihy
+  | inv _ _ ih => exact inv_preservesB₀ _ ih
+
 /-- B₀ is a block system for H₆ -/
 theorem B₀_is_block_system : IsBlockSystem B₀_partition := by
   intro g hg B hB
-  -- By closure of H₆, suffices to check generators
-  sorry
+  exact H₆_preservesB₀ g hg B hB
 
 /-- B₀ is a non-trivial block system -/
 theorem B₀_nontrivial : IsNontrivialBlockSystem B₀_partition := by
