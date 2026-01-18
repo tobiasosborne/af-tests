@@ -1,20 +1,18 @@
 # Handoff: 2026-01-18
 
 ## Completed This Session
-- Created BaseCase lemma files:
-  - `BaseCase/Lemma03.lean` - H₆ ≅ S₄ (67 LOC)
-  - `BaseCase/Lemma04.lean` - |H₆| = 24 < |A₆|, so H₆ ≠ A₆, S₆ (73 LOC)
-- Closed issues: af-tests-wej (Phase 1.9), af-tests-1fd (Phase 1.10)
+- Created `Transitivity/Lemma05.lean` - H acts transitively on Omega (90 LOC)
+- Closed issue: af-tests-59e (Phase 1.11)
 
 ## Current State
 - **Build status**: Passing
-- **Sorry count**: 14 (expected for Phase 1 scaffolding)
+- **Sorry count**: 22 (expected for Phase 1 scaffolding)
 - **Open blockers**: None (no P0 issues)
 
 ## Next Steps (Priority Order)
-1. **Phase 1.11**: Create `Transitivity/Lemma05.lean` (`af-tests-59e`)
-2. **Phase 1.12**: Create `ThreeCycle/Lemma06.lean` (`af-tests-v6g`)
-3. **Phase 1.13-15**: Continue ThreeCycle lemmas (Lemma07, 08, 09)
+1. **Phase 1.12**: Create `ThreeCycle/Lemma06.lean` (`af-tests-v6g`)
+2. **Phase 1.13**: Create `ThreeCycle/Lemma07.lean` (`af-tests-u4o`)
+3. **Phase 1.14-15**: Continue ThreeCycle lemmas (Lemma08, 09)
 4. Continue through remaining Phase 1 issues
 
 ## Known Issues / Gotchas
@@ -27,13 +25,11 @@
 - **Jordan's Theorem** (Lemma 12): May need to be axiom if not in mathlib
 
 ## Files Modified This Session
-- `AfTests/BaseCase/Lemma03.lean` (new - 67 LOC)
-- `AfTests/BaseCase/Lemma04.lean` (new - 73 LOC)
+- `AfTests/Transitivity/Lemma05.lean` (new - 90 LOC)
 
 ## Reference Documents
 - `CLAUDE.md` - Quick reference for agents
 - `examples/proof_master.md` - Canonical natural language proof (v2.0)
-- `examples/lemmas/lemma03_base_case_structure.md` - H₆ ≅ S₄ proof
-- `examples/lemmas/lemma04_base_case_exclusion.md` - |H₆| = 24 proof
+- `examples/lemmas/lemma05_transitivity.md` - Transitivity proof
 
 Run `bd ready` to see available tasks.
