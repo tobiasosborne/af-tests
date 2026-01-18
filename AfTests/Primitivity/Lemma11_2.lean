@@ -42,7 +42,29 @@ def PreservesSet (σ : Perm α) (B : Set α) : Prop :=
 /-- Equivalent formulation: x ∈ B ↔ σ(x) ∈ B -/
 theorem preservesSet_iff_mem (σ : Perm α) (B : Set α) :
     PreservesSet σ B ↔ ∀ x, x ∈ B ↔ σ x ∈ B := by
-  sorry
+  rw [PreservesSet]
+  constructor
+  · intro h x
+    constructor
+    · intro hx
+      rw [← h]
+      exact Set.mem_image_of_mem σ hx
+    · intro hx
+      rw [← h] at hx
+      obtain ⟨y, hyB, hyx⟩ := hx
+      have : y = x := σ.injective hyx
+      rw [← this]
+      exact hyB
+  · intro h
+    ext y
+    constructor
+    · intro hy
+      obtain ⟨x, hxB, hxy⟩ := hy
+      rw [← hxy]
+      exact (h x).mp hxB
+    · intro hy
+      have := (h (σ.symm y)).mpr (by simp [hy])
+      exact ⟨σ.symm y, this, by simp⟩
 
 /-- If σ preserves B and x ∈ B, then σ(x) ∈ B -/
 theorem preservesSet_apply {σ : Perm α} {B : Set α} (h : PreservesSet σ B)
@@ -57,14 +79,14 @@ theorem preservesSet_apply {σ : Perm α} {B : Set α} (h : PreservesSet σ B)
 /-- If σ is a cycle and x is in the support, then σ^k(x) is in the support -/
 theorem IsCycle.zpow_apply_mem_support {σ : Perm α} (hσ : σ.IsCycle) {x : α}
     (hx : x ∈ σ.support) (k : ℤ) : (σ ^ k) x ∈ σ.support := by
-  sorry
+  rw [Equiv.Perm.zpow_apply_mem_support]
+  exact hx
 
 /-- The support of a cycle is closed under σ -/
 theorem IsCycle.support_closed {σ : Perm α} (hσ : σ.IsCycle) {x : α}
     (hx : x ∈ σ.support) : σ x ∈ σ.support := by
-  -- If σ(σ(x)) = σ(x), then σ(x) is a fixed point, but cycles have no
-  -- interior fixed points, so σ(x) ≠ x implies σ(σ(x)) ≠ σ(x)
-  sorry
+  rw [Equiv.Perm.apply_mem_support]
+  exact hx
 
 /-- All elements in a cycle's support are related by SameCycle -/
 theorem IsCycle.support_sameCycle {σ : Perm α} (hσ : σ.IsCycle) {x y : α}
@@ -80,9 +102,29 @@ theorem IsCycle.support_sameCycle {σ : Perm α} (hσ : σ.IsCycle) {x y : α}
 theorem cycle_support_in_B_of_one_in_B {σ : Perm α} (hσ : σ.IsCycle) {B : Set α}
     (hB : PreservesSet σ B) {x : α} (hxS : x ∈ σ.support) (hxB : x ∈ B) :
     ∀ y ∈ σ.support, y ∈ B := by
-  -- All support elements are σ^k(x) for some k
-  -- Since σ(B) = B, we have σ^k(B) = B, so σ^k(x) ∈ B
-  sorry
+  intro y hy
+  rw [mem_support] at hxS hy
+  obtain ⟨k, hk⟩ := hσ.exists_zpow_eq hxS hy
+  rw [← hk]
+  rw [preservesSet_iff_mem] at hB
+  -- Prove by induction on k that σ^k preserves B membership
+  have hBk : ∀ k : ℤ, ∀ z, z ∈ B → (σ^k) z ∈ B := by
+    intro k z hz
+    induction k using Int.induction_on generalizing z with
+    | zero => simp [hz]
+    | succ n ih =>
+      simp only [zpow_add, zpow_one, Equiv.Perm.coe_mul, Function.comp_apply]
+      -- Goal: (σ^n) (σ z) ∈ B
+      exact ih (σ z) ((hB z).mp hz)
+    | pred n ih =>
+      simp only [sub_eq_add_neg, zpow_add, zpow_neg_one, Equiv.Perm.coe_mul, Function.comp_apply]
+      -- Goal: (σ^(-n)) (σ⁻¹ z) ∈ B
+      have hBinv : σ⁻¹ z ∈ B := by
+        have := (hB (σ⁻¹ z)).mpr
+        simp at this
+        exact this hz
+      exact ih (σ⁻¹ z) hBinv
+  exact hBk k x hxB
 
 /-- **Lemma 11.2: Cycle Fixing Block**
 
