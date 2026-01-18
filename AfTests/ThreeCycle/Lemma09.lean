@@ -136,3 +136,23 @@ theorem c₁₂_times_c₁₃_inv_cubed :
 theorem H_contains_3cycle_product :
     ∃ σ ∈ H 0 0 0, σ = c[0, 1, 5] * c[2, 3, 4] :=
   ⟨c₁₂_times_c₁₃_inv 0 0 0, c₁₂_times_c₁₃_inv_mem_H, c₁₂_times_c₁₃_inv_base_case_eq⟩
+
+-- ============================================
+-- SQUARED PRODUCT (for 3-cycle extraction)
+-- ============================================
+
+/-- The squared product (c₁₂ * c₁₃⁻¹)².
+    Squaring products of 3-cycles: (abc)² = (acb).
+    So c[0,1,5]² = c[0,5,1] and c[2,3,4]² = c[2,4,3]. -/
+def c₁₂_times_c₁₃_inv_squared : Perm (Omega 0 0 0) :=
+  (c₁₂_times_c₁₃_inv 0 0 0) ^ 2
+
+/-- The squared product equals c[0,5,1] * c[2,4,3] -/
+theorem c₁₂_times_c₁₃_inv_squared_eq :
+    c₁₂_times_c₁₃_inv_squared = c[0, 5, 1] * c[2, 4, 3] := by
+  native_decide
+
+/-- The squared product is in H -/
+theorem c₁₂_times_c₁₃_inv_squared_mem_H : c₁₂_times_c₁₃_inv_squared ∈ H 0 0 0 := by
+  unfold c₁₂_times_c₁₃_inv_squared
+  exact Subgroup.pow_mem _ c₁₂_times_c₁₃_inv_mem_H 2
