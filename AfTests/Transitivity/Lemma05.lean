@@ -317,44 +317,208 @@ theorem core_connected (n k m : ℕ) :
   rw [hcast_x, hcast_y]
   rw [hinv, hh₂]
 
+/-- Element 6+i is at index 4+i in the g₁ list -/
+theorem g₁_list_getElem_tail (n k m : ℕ) (i : Fin n) :
+    (g₁CoreList n k m ++ tailAList n k m)[4 + i.val]'(by simp [g₁CoreList, tailAList]; omega) =
+    ⟨6 + i.val, by omega⟩ := by
+  have h1 : (g₁CoreList n k m).length = 4 := by simp [g₁CoreList]
+  have h2 : (g₁CoreList n k m).length ≤ 4 + i.val := by omega
+  rw [List.getElem_append_right h2]
+  simp only [tailAList, h1, Nat.add_sub_cancel_left]
+  rw [List.getElem_map]
+  simp only [List.getElem_finRange, Fin.cast_val_eq_self]
+  rfl
+
 /-- Each tail vertex in the a-tail (from g₁) connects to the Core.
     The a-tail elements are at indices 6, 7, ..., 5+n.
     g₁ cycles through [0, 5, 3, 2, 6, 7, ..., 5+n], so
-    g₁⁻¹ maps 6 to 2 (in the Core). -/
+    g₁^(n-i) maps 6+i to 0 (in the Core). -/
 theorem a_tail_connected_to_core (n k m : ℕ) (i : Fin n) :
     ∃ h : H n k m, (h.val ⟨6 + i.val, by omega⟩ : Omega n k m).val < 6 := by
-  sorry -- Requires showing g₁⁻^(i+1) maps 6+i to Core
+  -- Witness: g₁^(n - i.val) maps 6+i to 0
+  use ⟨(g₁ n k m) ^ (n - i.val), Subgroup.pow_mem _ (g₁_mem_H n k m) _⟩
+  -- The g₁ list and its properties
+  let L := g₁CoreList n k m ++ tailAList n k m
+  have hnd : L.Nodup := g₁_list_nodup n k m
+  have hlen : L.length = 4 + n := g₁_cycle_length n k m
+  -- Element 6+i is at index 4+i
+  have hidx : 4 + i.val < L.length := by simp [L, g₁CoreList, tailAList]; omega
+  have helem : L[4 + i.val] = ⟨6 + i.val, by omega⟩ := g₁_list_getElem_tail n k m i
+  -- Element 0 is at index 0
+  have hidx0 : 0 < L.length := by simp [L, g₁CoreList, tailAList]
+  have helem0 : L[0] = ⟨0, by omega⟩ := by simp [L, g₁CoreList]
+  -- Compute: g₁^(n-i.val) applied to element at index 4+i gives element at index 0
+  have hmod : (4 + i.val + (n - i.val)) % (4 + n) = 0 := by
+    have hi : i.val < n := i.isLt
+    have heq : 4 + i.val + (n - i.val) = 4 + n := by omega
+    rw [heq, Nat.mod_self]
+  -- Apply formPerm_pow_apply_getElem
+  unfold g₁
+  conv_lhs => rw [← helem]
+  rw [List.formPerm_pow_apply_getElem L hnd (n - i.val) (4 + i.val) hidx]
+  simp only [hlen, hmod, helem0]
+  omega
+
+/-- Element 6+n+j is at index 4+j in the g₂ list -/
+theorem g₂_list_getElem_tail (n k m : ℕ) (j : Fin k) :
+    (g₂CoreList n k m ++ tailBList n k m)[4 + j.val]'(by simp [g₂CoreList, tailBList]; omega) =
+    ⟨6 + n + j.val, by omega⟩ := by
+  have h1 : (g₂CoreList n k m).length = 4 := by simp [g₂CoreList]
+  have h2 : (g₂CoreList n k m).length ≤ 4 + j.val := by omega
+  rw [List.getElem_append_right h2]
+  simp only [tailBList, h1, Nat.add_sub_cancel_left]
+  rw [List.getElem_map]
+  simp only [List.getElem_finRange, Fin.cast_val_eq_self]
+  rfl
 
 /-- Each tail vertex in the b-tail (from g₂) connects to the Core.
     The b-tail elements are at indices 6+n, 6+n+1, ..., 5+n+k.
     g₂ cycles through [1, 3, 4, 0, 6+n, ...], so
-    g₂⁻¹ maps 6+n to 0 (in the Core). -/
+    g₂^(k-j) maps 6+n+j to 1 (in the Core). -/
 theorem b_tail_connected_to_core (n k m : ℕ) (j : Fin k) :
     ∃ h : H n k m, (h.val ⟨6 + n + j.val, by omega⟩ : Omega n k m).val < 6 := by
-  sorry -- Requires showing g₂⁻^(j+1) maps 6+n+j to Core
+  -- Witness: g₂^(k - j.val) maps 6+n+j to 1
+  use ⟨(g₂ n k m) ^ (k - j.val), Subgroup.pow_mem _ (g₂_mem_H n k m) _⟩
+  -- The g₂ list and its properties
+  let L := g₂CoreList n k m ++ tailBList n k m
+  have hnd : L.Nodup := g₂_list_nodup n k m
+  have hlen : L.length = 4 + k := g₂_cycle_length n k m
+  -- Element 6+n+j is at index 4+j
+  have hidx : 4 + j.val < L.length := by simp [L, g₂CoreList, tailBList]; omega
+  have helem : L[4 + j.val] = ⟨6 + n + j.val, by omega⟩ := g₂_list_getElem_tail n k m j
+  -- Element 1 is at index 0
+  have hidx0 : 0 < L.length := by simp [L, g₂CoreList, tailBList]
+  have helem0 : L[0] = ⟨1, by omega⟩ := by simp [L, g₂CoreList]
+  -- Compute: g₂^(k-j.val) applied to element at index 4+j gives element at index 0
+  have hmod : (4 + j.val + (k - j.val)) % (4 + k) = 0 := by
+    have hj : j.val < k := j.isLt
+    have heq : 4 + j.val + (k - j.val) = 4 + k := by omega
+    rw [heq, Nat.mod_self]
+  -- Apply formPerm_pow_apply_getElem
+  unfold g₂
+  conv_lhs => rw [← helem]
+  rw [List.formPerm_pow_apply_getElem L hnd (k - j.val) (4 + j.val) hidx]
+  simp only [hlen, hmod, helem0]
+  omega
+
+/-- Element 6+n+k+l is at index 4+l in the g₃ list -/
+theorem g₃_list_getElem_tail (n k m : ℕ) (l : Fin m) :
+    (g₃CoreList n k m ++ tailCList n k m)[4 + l.val]'(by simp [g₃CoreList, tailCList]; omega) =
+    ⟨6 + n + k + l.val, by omega⟩ := by
+  have h1 : (g₃CoreList n k m).length = 4 := by simp [g₃CoreList]
+  have h2 : (g₃CoreList n k m).length ≤ 4 + l.val := by omega
+  rw [List.getElem_append_right h2]
+  simp only [tailCList, h1, Nat.add_sub_cancel_left]
+  rw [List.getElem_map]
+  simp only [List.getElem_finRange, Fin.cast_val_eq_self]
+  rfl
 
 /-- Each tail vertex in the c-tail (from g₃) connects to the Core.
     The c-tail elements are at indices 6+n+k, ..., 5+n+k+m.
     g₃ cycles through [2, 4, 5, 1, 6+n+k, ...], so
-    g₃⁻¹ maps 6+n+k to 1 (in the Core). -/
+    g₃^(m-l) maps 6+n+k+l to 2 (in the Core). -/
 theorem c_tail_connected_to_core (n k m : ℕ) (l : Fin m) :
     ∃ h : H n k m, (h.val ⟨6 + n + k + l.val, by omega⟩ : Omega n k m).val < 6 := by
-  sorry -- Requires showing g₃⁻^(l+1) maps 6+n+k+l to Core
+  -- Witness: g₃^(m - l.val) maps 6+n+k+l to 2
+  use ⟨(g₃ n k m) ^ (m - l.val), Subgroup.pow_mem _ (g₃_mem_H n k m) _⟩
+  -- The g₃ list and its properties
+  let L := g₃CoreList n k m ++ tailCList n k m
+  have hnd : L.Nodup := g₃_list_nodup n k m
+  have hlen : L.length = 4 + m := g₃_cycle_length n k m
+  -- Element 6+n+k+l is at index 4+l
+  have hidx : 4 + l.val < L.length := by simp [L, g₃CoreList, tailCList]; omega
+  have helem : L[4 + l.val] = ⟨6 + n + k + l.val, by omega⟩ := g₃_list_getElem_tail n k m l
+  -- Element 2 is at index 0
+  have hidx0 : 0 < L.length := by simp [L, g₃CoreList, tailCList]
+  have helem0 : L[0] = ⟨2, by omega⟩ := by simp [L, g₃CoreList]
+  -- Compute: g₃^(m-l.val) applied to element at index 4+l gives element at index 0
+  have hmod : (4 + l.val + (m - l.val)) % (4 + m) = 0 := by
+    have hl : l.val < m := l.isLt
+    have heq : 4 + l.val + (m - l.val) = 4 + m := by omega
+    rw [heq, Nat.mod_self]
+  -- Apply formPerm_pow_apply_getElem
+  unfold g₃
+  conv_lhs => rw [← helem]
+  rw [List.formPerm_pow_apply_getElem L hnd (m - l.val) (4 + l.val) hidx]
+  simp only [hlen, hmod, helem0]
+  omega
+
+/-- Any element of Omega can be mapped to a core element -/
+theorem H_reaches_core (n k m : ℕ) (x : Omega n k m) :
+    ∃ h : H n k m, (h.val x).val < 6 := by
+  by_cases hx : x.val < 6
+  · -- x is already in core, use identity
+    exact ⟨1, by simp [hx]⟩
+  · push_neg at hx
+    -- x is in some tail
+    by_cases hn : x.val < 6 + n
+    · -- x is in a-tail: x.val = 6 + i for some i < n
+      have hi : x.val - 6 < n := by omega
+      obtain ⟨h, hh⟩ := a_tail_connected_to_core n k m ⟨x.val - 6, hi⟩
+      refine ⟨h, ?_⟩
+      have hval : 6 + (x.val - 6) = x.val := Nat.add_sub_cancel' hx
+      have heq : (⟨6 + (x.val - 6), by have := x.isLt; omega⟩ : Omega n k m) = x := by
+        ext; exact hval
+      rw [← heq]; exact hh
+    · push_neg at hn
+      by_cases hk : x.val < 6 + n + k
+      · -- x is in b-tail: x.val = 6 + n + j for some j < k
+        have hj : x.val - 6 - n < k := by omega
+        obtain ⟨h, hh⟩ := b_tail_connected_to_core n k m ⟨x.val - 6 - n, hj⟩
+        refine ⟨h, ?_⟩
+        have hval : 6 + n + (x.val - 6 - n) = x.val := by omega
+        have heq : (⟨6 + n + (x.val - 6 - n), by have := x.isLt; omega⟩ : Omega n k m) = x := by
+          ext; exact hval
+        rw [← heq]; exact hh
+      · push_neg at hk
+        -- x is in c-tail: x.val = 6 + n + k + l for some l < m
+        have hl : x.val - 6 - n - k < m := by have := x.isLt; omega
+        obtain ⟨h, hh⟩ := c_tail_connected_to_core n k m ⟨x.val - 6 - n - k, hl⟩
+        refine ⟨h, ?_⟩
+        have hval : 6 + n + k + (x.val - 6 - n - k) = x.val := by omega
+        have heq : (⟨6 + n + k + (x.val - 6 - n - k), by have := x.isLt; omega⟩ : Omega n k m) = x := by
+          ext; exact hval
+        rw [← heq]; exact hh
+
+/-- There is only one orbit under the action of H -/
+theorem H_single_orbit (n k m : ℕ) :
+    ∀ x y : Omega n k m, ∃ h : H n k m, h.val x = y := by
+  intro x y
+  -- Get h₁ mapping x to some core element c₁
+  obtain ⟨h₁, hh₁⟩ := H_reaches_core n k m x
+  -- Get h₂ mapping y to some core element c₂
+  obtain ⟨h₂, hh₂⟩ := H_reaches_core n k m y
+  -- Get elements as Fin 6
+  let c₁ : Fin 6 := ⟨(h₁.val x).val, hh₁⟩
+  let c₂ : Fin 6 := ⟨(h₂.val y).val, hh₂⟩
+  -- Use core_connected to get h₃ mapping c₁ to c₂
+  obtain ⟨h₃, hh₃⟩ := core_connected n k m c₁ c₂
+  -- Compose: h₂⁻¹ * h₃ * h₁ maps x to y
+  use h₂⁻¹ * h₃ * h₁
+  simp only [Subgroup.coe_mul, Subgroup.coe_inv, Equiv.Perm.coe_mul, Function.comp_apply]
+  -- h₃(h₁(x)) = h₂(y) since h₃(c₁) = c₂
+  have heq : h₃.val (h₁.val x) = h₂.val y := by
+    have hh₃' := hh₃
+    -- Both sides have val < 6+n+k+m and we need to show they're equal
+    ext
+    have lhs_val : (h₃.val (h₁.val x)).val = (Fin.castLE (by omega : 6 ≤ 6 + n + k + m) c₂).val := by
+      have : h₃.val (Fin.castLE (by omega : 6 ≤ 6 + n + k + m) c₁) =
+             Fin.castLE (by omega : 6 ≤ 6 + n + k + m) c₂ := hh₃'
+      have heq1 : (Fin.castLE (by omega : 6 ≤ 6 + n + k + m) c₁ : Omega n k m) = h₁.val x := by
+        ext; simp [c₁]
+      rw [← heq1, this]
+    have rhs_val : (h₂.val y).val = (Fin.castLE (by omega : 6 ≤ 6 + n + k + m) c₂).val := by
+      simp [c₂]
+    rw [lhs_val, rhs_val]
+  rw [heq]
+  exact Equiv.Perm.inv_apply_self (h₂.val) y
 
 /-- The group H acts transitively on Omega.
     Proof: The support graph is connected (Core is connected and all tails
     connect to Core), hence H acts transitively. -/
 theorem H_isPretransitive (n k m : ℕ) : MulAction.IsPretransitive (H n k m) (Omega n k m) := by
-  sorry -- Combines core_connected with tail connections
-
-/-! ### Orbit Equivalence
-
-Alternative formulation using orbits.
--/
-
-/-- There is only one orbit under the action of H -/
-theorem H_single_orbit (n k m : ℕ) :
-    ∀ x y : Omega n k m, ∃ h : H n k m, h.val x = y := by
-  sorry -- Equivalent to H_isPretransitive
+  constructor
+  intro x y
+  exact H_single_orbit n k m x y
 
 end AfTests.Transitivity
