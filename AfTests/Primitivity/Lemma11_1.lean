@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: AF-Tests Project
 -/
 import AfTests.Primitivity.Lemma11_1_Defs
+import AfTests.Primitivity.Lemma11_1_Size2
 import AfTests.Primitivity.Lemma11_1_Size3
 
 /-!
@@ -150,6 +151,6 @@ theorem lemma11_1_unique_block_system (P : Partition6) :
     interval_cases P.blockSize <;> simp_all
   rcases hSize with hSize2 | hSize3
   · -- Size 2 case: only B₀ works
-    sorry
+    exact size2_unique_block_system P hBS hSize2
   · -- Size 3 case: contradiction, no such block system exists
     exact absurd hBS (no_size3_block_system P hSize3)
