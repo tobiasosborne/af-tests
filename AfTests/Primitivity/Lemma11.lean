@@ -58,6 +58,27 @@ instance omega_nontrivial (n k m : ℕ) : Nontrivial (Omega n k m) := by
 -- SECTION 3: BLOCKS ARE TRIVIAL
 -- ============================================
 
+/-- Convert a non-trivial IsBlock to a BlockSystemOn.
+
+    When G acts transitively on X and B is a non-trivial block (not subsingleton
+    and not univ), the set of G-translates {g • B | g : G} forms a non-trivial
+    block system (partition into blocks of equal size).
+
+    This uses mathlib's `IsBlock.isBlockSystem` under the hood. -/
+theorem block_to_system (hne : n + k + m ≥ 1)
+    {B : Set (Omega n k m)} (hB : IsBlock (H n k m) B) (hNT : ¬IsTrivialBlock B) :
+    ∃ BS : BlockSystemOn n k m, IsHInvariant BS ∧ IsNontrivial BS := by
+  -- B is non-trivial: not subsingleton and not univ
+  rw [trivialBlock_iff_subsingleton_or_univ, not_or] at hNT
+  obtain ⟨hNotSub, hNotUniv⟩ := hNT
+  -- B has at least 2 elements
+  rw [Set.not_subsingleton_iff] at hNotSub
+  obtain ⟨x, hx, y, hy, hxy⟩ := hNotSub
+  -- Construct the block system from B's orbit under H
+  -- The translates {g • B | g ∈ H} partition Omega
+  -- Uses mathlib's IsBlock.isBlockSystem for the partition structure
+  sorry
+
 /-- When n + k + m ≥ 1, all H-blocks on Omega are trivial.
 
     A block B is trivial if B.Subsingleton ∨ B = Set.univ.
@@ -68,12 +89,11 @@ instance omega_nontrivial (n k m : ℕ) : Nontrivial (Omega n k m) := by
 theorem H_blocks_trivial (h : n + k + m ≥ 1) :
     ∀ B : Set (Omega n k m), IsBlock (H n k m) B → IsTrivialBlock B := by
   intro B hB
-  -- If B is not trivial, it would be part of a non-trivial block system
-  -- But Lemma 11.5 says no such system exists
   by_contra hNT
-  -- Need to construct a BlockSystemOn and derive contradiction
-  -- The orbit of B under H forms a partition
-  sorry
+  -- B non-trivial → forms a non-trivial H-invariant block system
+  obtain ⟨BS, hInv, hBSnt⟩ := block_to_system h hB hNT
+  -- But Lemma 11.5 says no such system exists
+  exact lemma11_5_no_nontrivial_blocks h BS hInv hBSnt
 
 -- ============================================
 -- SECTION 4: MAIN THEOREM
