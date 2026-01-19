@@ -32,103 +32,120 @@ See `examples/lemmas/lemma11_primitivity.md` for the natural language proof.
 
 namespace AfTests.Primitivity
 
-open MulAction Equiv.Perm
+open MulAction Equiv.Perm Set
+open scoped Pointwise
 
 variable {n k m : ℕ}
-
--- ============================================
--- SECTION 1: TRANSITIVITY FROM LEMMA 5
--- ============================================
 
 /-- H acts transitively on Omega (from Lemma 5) -/
 theorem H_transitive (n k m : ℕ) :
     IsPretransitive (H n k m) (Omega n k m) :=
   AfTests.Transitivity.H_isPretransitive n k m
 
--- ============================================
--- SECTION 2: NONTRIVIALITY OF OMEGA
--- ============================================
-
 /-- Omega has at least 2 elements when 6 + n + k + m ≥ 2 (always true) -/
 instance omega_nontrivial (n k m : ℕ) : Nontrivial (Omega n k m) := by
   have h : 6 + n + k + m ≥ 2 := by omega
   exact Fin.nontrivial_iff_two_le.mpr h
 
--- ============================================
--- SECTION 3: BLOCKS ARE TRIVIAL
--- ============================================
+-- Helper: subgroup smul equals perm image
+private lemma H_smul_eq_image (h : H n k m) (B : Set (Omega n k m)) :
+    h • B = (h : Equiv.Perm (Omega n k m)) '' B := by
+  ext x; simp only [mem_smul_set_iff_inv_smul_mem, mem_image]
+  constructor
+  · intro hx; exact ⟨h⁻¹ • x, hx, by simp [Subgroup.smul_def, Equiv.Perm.smul_def]⟩
+  · rintro ⟨y, hy, hyx⟩; simp only [Subgroup.smul_def, Equiv.Perm.smul_def] at hyx ⊢
+    simp [← hyx, hy]
 
-/-- Convert a non-trivial IsBlock to a BlockSystemOn.
+-- Helper: non-trivial blocks are nonempty
+private lemma nontrivial_block_nonempty {B : Set (Omega n k m)} (hNT : ¬IsTrivialBlock B) :
+    B.Nonempty := by
+  by_contra h; apply hNT; left
+  simp only [not_nonempty_iff_eq_empty] at h; rw [h]; exact subsingleton_empty
 
-    When G acts transitively on X and B is a non-trivial block (not subsingleton
-    and not univ), the set of G-translates {g • B | g : G} forms a non-trivial
-    block system (partition into blocks of equal size).
+-- Helper: non-trivial block has proper size
+private lemma nontrivial_block_size {B : Set (Omega n k m)} (hNT : ¬IsTrivialBlock B) :
+    1 < B.ncard ∧ B.ncard < 6 + n + k + m := by
+  constructor
+  · by_contra h; push_neg at h; apply hNT; left
+    intro a ha b hb; exact (ncard_le_one_iff (toFinite B)).mp h ha hb
+  · by_contra h; push_neg at h; apply hNT; right
+    have hB : B.ncard = (univ : Set (Omega n k m)).ncard := le_antisymm
+      (ncard_le_ncard (subset_univ B)) (by convert h; simp [ncard_univ, Fintype.card_fin])
+    exact eq_of_subset_of_ncard_le (subset_univ B) (by rw [hB])
 
-    This uses mathlib's `IsBlock.isBlockSystem` under the hood. -/
-theorem block_to_system (hne : n + k + m ≥ 1)
+-- The set of H-translates as image-based definition
+private def blockSystemBlocks (B : Set (Omega n k m)) : Set (Set (Omega n k m)) :=
+  { C | ∃ h : H n k m, C = (h : Equiv.Perm (Omega n k m)) '' B }
+
+-- Block system equals smul-based range
+private lemma blockSystemBlocks_eq_range (B : Set (Omega n k m)) :
+    blockSystemBlocks B = range (fun h : H n k m => h • B) := by
+  ext C; simp only [blockSystemBlocks, mem_setOf_eq, mem_range]
+  constructor
+  · rintro ⟨h, hC⟩; exact ⟨h, by rw [H_smul_eq_image, hC]⟩
+  · rintro ⟨h, hC⟩; exact ⟨h, by rw [← hC, H_smul_eq_image]⟩
+
+-- Partition property from mathlib's IsBlock.isBlockSystem
+private lemma blockSystemBlocks_isPartition {B : Set (Omega n k m)}
+    (hB : IsBlock (H n k m) B) (hBne : B.Nonempty) :
+    (blockSystemBlocks B).PairwiseDisjoint id ∧ ⋃₀ (blockSystemBlocks B) = univ := by
+  rw [blockSystemBlocks_eq_range]
+  haveI : IsPretransitive (H n k m) (Omega n k m) := H_transitive n k m
+  have hBS := hB.isBlockSystem hBne
+  exact ⟨hBS.1.pairwiseDisjoint, hBS.1.sUnion_eq_univ⟩
+
+-- All blocks have same ncard
+private lemma blockSystemBlocks_allSameSize {B : Set (Omega n k m)} :
+    ∀ C ∈ blockSystemBlocks B, C.ncard = B.ncard := by
+  intro C hC
+  simp only [blockSystemBlocks, mem_setOf_eq] at hC
+  obtain ⟨h, rfl⟩ := hC
+  exact ncard_image_of_injective B (Equiv.injective (h : Equiv.Perm (Omega n k m)))
+
+-- Generators preserve the block system
+private lemma blockSystemBlocks_invariant (B : Set (Omega n k m))
+    (g : Equiv.Perm (Omega n k m)) (hg : g ∈ H n k m) :
+    BlockSystemInvariant g (blockSystemBlocks B) := by
+  intro C hC
+  simp only [blockSystemBlocks, mem_setOf_eq] at hC ⊢
+  obtain ⟨h, rfl⟩ := hC
+  exact ⟨⟨g * ↑h, Subgroup.mul_mem _ hg h.2⟩, by simp [image_image]⟩
+
+/-- Convert a non-trivial IsBlock to a BlockSystemOn. -/
+theorem block_to_system (_hne : n + k + m ≥ 1)
     {B : Set (Omega n k m)} (hB : IsBlock (H n k m) B) (hNT : ¬IsTrivialBlock B) :
     ∃ BS : BlockSystemOn n k m, IsHInvariant BS ∧ IsNontrivial BS := by
-  -- Strategy:
-  -- 1. Use IsBlock.isBlockSystem to get mathlib's block system as Set.range (g • B)
-  -- 2. Convert to BlockSystemOn by:
-  --    - blocks = Set.range (g '' B)
-  --    - blockSize = B.ncard
-  --    - isPartition: from Setoid.IsPartition (needs type coercion between smul and image)
-  --    - allSameSize: ncard_image_of_injective
-  -- 3. H-invariance: g_i '' (g '' B) = (g_i * g) '' B
-  -- 4. Non-triviality: 1 < B.ncard < |Ω| from ¬IsTrivialBlock
-  --
-  -- TODO: Type coercions between H-action (g • B) and Perm-image (g '' B) are complex
-  sorry
+  let BS : BlockSystemOn n k m := {
+    blocks := blockSystemBlocks B
+    blockSize := B.ncard
+    isPartition := blockSystemBlocks_isPartition hB (nontrivial_block_nonempty hNT)
+    allSameSize := blockSystemBlocks_allSameSize }
+  refine ⟨BS, ⟨?_, ?_, ?_⟩, nontrivial_block_size hNT⟩
+  · exact blockSystemBlocks_invariant B (g₁ n k m) (g₁_mem_H n k m)
+  · exact blockSystemBlocks_invariant B (g₂ n k m) (g₂_mem_H n k m)
+  · exact blockSystemBlocks_invariant B (g₃ n k m) (g₃_mem_H n k m)
 
 /-- When n + k + m ≥ 1, all H-blocks on Omega are trivial.
-
-    A block B is trivial if B.Subsingleton ∨ B = Set.univ.
-
-    This follows from Lemma 11.5: no non-trivial block system exists,
-    combined with the fact that any non-trivial block would induce
-    a non-trivial block system. -/
+    Uses Lemma 11.5: no non-trivial block system exists. -/
 theorem H_blocks_trivial (h : n + k + m ≥ 1) :
     ∀ B : Set (Omega n k m), IsBlock (H n k m) B → IsTrivialBlock B := by
-  intro B hB
-  by_contra hNT
-  -- B non-trivial → forms a non-trivial H-invariant block system
+  intro B hB; by_contra hNT
   obtain ⟨BS, hInv, hBSnt⟩ := block_to_system h hB hNT
-  -- But Lemma 11.5 says no such system exists
   exact lemma11_5_no_nontrivial_blocks h BS hInv hBSnt
 
--- ============================================
--- SECTION 4: MAIN THEOREM
--- ============================================
-
-/-- **Lemma 11: Primitivity of H**
-
-    If n + k + m ≥ 1, then H = ⟨g₁, g₂, g₃⟩ acts primitively on Ω.
-
-    The proof combines:
-    - Lemma 5: H is transitive
-    - Lemma 11.5: No non-trivial block systems
-    - Lemma 10: Transitive + trivial blocks → primitive -/
+/-- **Lemma 11**: If n + k + m ≥ 1, H acts primitively on Ω.
+    Combines Lemma 5 (transitivity), Lemma 10 (criterion), Lemma 11.5 (no blocks). -/
 theorem lemma11_H_isPrimitive (h : n + k + m ≥ 1) :
     IsPreprimitive (H n k m) (Omega n k m) := by
   haveI : IsPretransitive (H n k m) (Omega n k m) := H_transitive n k m
-  -- Apply Lemma 10: primitivity ↔ all blocks trivial
-  rw [lemma10_primitivity_criterion (H n k m)]
-  -- Use Lemma 11.5 to show all blocks are trivial
-  exact H_blocks_trivial h
+  rw [lemma10_primitivity_criterion (H n k m)]; exact H_blocks_trivial h
 
-/-- Alternative statement: H-blocks are trivial → H is primitive -/
+/-- Alternative: H-blocks trivial → H primitive -/
 theorem H_primitive_of_trivial_blocks (_h : n + k + m ≥ 1) :
     (∀ B : Set (Omega n k m), IsBlock (H n k m) B → IsTrivialBlock B) →
     IsPreprimitive (H n k m) (Omega n k m) := by
-  intro hTriv
-  haveI : IsPretransitive (H n k m) (Omega n k m) := H_transitive n k m
-  rw [lemma10_primitivity_criterion (H n k m)]
-  exact hTriv
-
--- ============================================
--- SECTION 5: COROLLARIES
--- ============================================
+  intro hTriv; haveI : IsPretransitive (H n k m) (Omega n k m) := H_transitive n k m
+  rw [lemma10_primitivity_criterion (H n k m)]; exact hTriv
 
 /-- Maximal stabilizers: For primitive H, point stabilizers are maximal -/
 theorem H_stabilizers_maximal (h : n + k + m ≥ 1) (x : Omega n k m) :
@@ -136,17 +153,13 @@ theorem H_stabilizers_maximal (h : n + k + m ≥ 1) (x : Omega n k m) :
   haveI : IsPretransitive (H n k m) (Omega n k m) := H_transitive n k m
   exact (primitivity_iff_maximal_stabilizer (H n k m) x).mp (lemma11_H_isPrimitive h)
 
-/-- No proper intermediate subgroups between stabilizers and H.
-    This is a direct consequence of stabilizers being coatoms. -/
+/-- No proper intermediate subgroups between stabilizers and H -/
 theorem H_no_intermediate_subgroups (h : n + k + m ≥ 1) (x : Omega n k m)
     (K : Subgroup (H n k m)) :
     stabilizer (H n k m) x ≤ K → K = stabilizer (H n k m) x ∨ K = ⊤ := by
-  intro hLe
-  have hMax := H_stabilizers_maximal h x
-  -- IsCoatom means: if K ≠ ⊤ and stab ≤ K, then stab = K
+  intro hLe; have hMax := H_stabilizers_maximal h x
   by_cases hK : K = ⊤
   · exact Or.inr hK
-  · left
-    exact (hMax.le_iff_eq hK).mp hLe
+  · left; exact (hMax.le_iff_eq hK).mp hLe
 
 end AfTests.Primitivity

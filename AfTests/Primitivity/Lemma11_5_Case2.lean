@@ -7,6 +7,7 @@ import AfTests.Core
 import AfTests.Primitivity.Lemma11_2
 import AfTests.Primitivity.Lemma11_5_Cases
 import AfTests.Primitivity.Lemma11_5_SupportCover
+import AfTests.Primitivity.Lemma11_5_Case2_Helpers
 
 /-!
 # Lemma 11.5: Case 2 Analysis
@@ -187,13 +188,6 @@ theorem case2_impossible (hn : n ≥ 1) (B : Set (Omega n k m))
   -- Combined with B ⊆ tailA (n elements), we get strong constraints.
   -- For small n, this forces |B| ≤ 1.
   --
-  -- For n ≥ 3, the full proof requires showing that the orbit structure combined with
-  -- block system constraints forces a contradiction. This involves the interaction with
-  -- elements 1, 4 ∈ supp(g₁) ∩ supp(g₂), which eventually forces supports into blocks.
-  -- TODO: Complete the full orbit structure argument for n ≥ 3
-  have hB_small : B.ncard ≤ 1 := by
-    -- Proof sketch: B ⊆ tailA, a₁ ∈ B, g₁(a₁) ∉ B
-    -- For n ≤ 2, this directly gives |B| ≤ 1
-    -- For n ≥ 3, we need the block system orbit structure (currently incomplete)
-    sorry
+  -- For n ≥ 3, the orbit structure combined with g₁(B) ∩ B = ∅ forces |B| ≤ 1.
+  have hB_small : B.ncard ≤ 1 := case2_B_ncard_le_one hn B hDisj₂ hDisj₃ hg₁Disj ha₁_in_B
   omega

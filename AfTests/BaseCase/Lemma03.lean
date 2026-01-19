@@ -7,6 +7,7 @@ import AfTests.Core
 import AfTests.BaseCase.Lemma01
 import AfTests.BaseCase.Lemma02
 import AfTests.BaseCase.Lemma03_Explicit
+import AfTests.BaseCase.Lemma03_IsoS4
 import Mathlib.GroupTheory.Perm.Subgroup
 import Mathlib.GroupTheory.SpecificGroups.Alternating
 
@@ -131,11 +132,7 @@ theorem kernelElements_fix_blocks (g : Equiv.Perm (Fin 6)) (hg : g ∈ kernelEle
     fin_cases i <;> native_decide
 
 /-- The group H₆ is isomorphic to S₄ -/
-theorem H₆_iso_S4 : Nonempty (H₆ ≃* Equiv.Perm (Fin 4)) := by
-  -- This follows from |H₆| = 24 = |S₄| and H₆ is a subgroup of S₆
-  -- The isomorphism comes from the action on tetrahedral vertices
-  -- For now, we establish this via cardinality argument
-  sorry  -- TODO: Construct explicit isomorphism via tetrahedral action
+theorem H₆_iso_S4 : Nonempty (H₆ ≃* Equiv.Perm (Fin 4)) := H₆_iso_S4_exists
 
 /-- H₆ is finite with cardinality 24 -/
 noncomputable instance : Fintype H₆ :=

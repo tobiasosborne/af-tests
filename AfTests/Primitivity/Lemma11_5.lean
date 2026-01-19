@@ -13,64 +13,23 @@ import AfTests.Primitivity.Lemma11_5_Cases
 import AfTests.Primitivity.Lemma11_5_SupportCover
 import AfTests.Primitivity.Lemma11_5_Case2
 import AfTests.Primitivity.Lemma11_5_Defs
+import AfTests.Primitivity.Lemma11_5_SymmetricMain
 
 /-!
 # Lemma 11.5: No Non-trivial Blocks
 
 If n + k + m ≥ 1, then H admits no non-trivial block system on Ω.
-
-## Main Results
-
-* `lemma11_5_no_nontrivial_blocks`: H has no non-trivial block system when n+k+m ≥ 1
-
-## Proof Outline
-
-Assume for contradiction that B is a non-trivial H-invariant block system.
-WLOG n ≥ 1 (by symmetry of generators). Let B be the block containing a₁.
-
-**Case 1: g₁(B) = B**
-By Lemma 11.3, supp(g₁) ⊆ B, so B contains {1,3,4,6,a₁,...,aₙ}.
-
-  **Case 1a: g₂(B) = B**
-  By Lemma 11.2, supp(g₂) ⊆ B. Now B contains {1,2,3,4,5,6,aᵢ,bⱼ}.
-  - If g₃(B) = B: supp(g₃) ⊆ B, so B = Ω. Contradiction (non-trivial).
-  - If g₃(B) ≠ B: Fixed point argument - g₃ fixes {1,4,aᵢ,bⱼ} ⊆ B,
-    so g₃(B) ∩ B ≠ ∅. Contradiction.
-
-  **Case 1b: g₂(B) ≠ B**
-  Fixed point argument - g₂ fixes {3,6,aᵢ} ⊆ B, so g₂(B) ∩ B ≠ ∅. Contradiction.
-
-**Case 2: g₁(B) ≠ B**
-Fixed point argument - g₂,g₃ fix {aᵢ} ⊆ B, forcing g₂(B) = g₃(B) = B.
-Then Lemma 11.2 forces supports into blocks, eventually |B| = N.
-
-## Reference
-
-See `examples/lemmas/lemma11_5_no_nontrivial_blocks.md` for the natural language proof.
+See `examples/lemmas/lemma11_5_no_nontrivial_blocks.md` for the full proof outline.
 -/
 
 open Equiv Equiv.Perm Set
 
 variable {n k m : ℕ}
 
--- ============================================
--- MAIN THEOREM
--- ============================================
-
-/-- **Lemma 11.5: No Non-trivial Blocks**
-
-    If n + k + m ≥ 1, then H admits no non-trivial H-invariant block system on Ω.
-
-    The proof proceeds by case analysis on which generators stabilize the block
-    containing a₁ (WLOG n ≥ 1), using fixed-point arguments to derive contradictions. -/
+/-- **Lemma 11.5**: If n + k + m ≥ 1, H admits no non-trivial block system on Ω. -/
 theorem lemma11_5_no_nontrivial_blocks (h : n + k + m ≥ 1) :
     ∀ BS : BlockSystemOn n k m, IsHInvariant BS → ¬IsNontrivial BS := by
-  intro BS hInv hNT
-  -- Extract the invariance conditions
-  obtain ⟨hInv₁, hInv₂, hInv₃⟩ := hInv
-  obtain ⟨hDisj, hCover⟩ := BS.isPartition
-  -- WLOG n ≥ 1 (by symmetry, can relabel generators)
-  -- For now, we handle the case n ≥ 1 directly; k ≥ 1 or m ≥ 1 cases are symmetric
+  intro BS hInv hNT; obtain ⟨hInv₁, hInv₂, hInv₃⟩ := hInv; obtain ⟨hDisj, hCover⟩ := BS.isPartition
   by_cases hn : n ≥ 1
   · -- Case: n ≥ 1. Let B be the block containing a₁
     -- Since BS.blocks covers Ω, there exists a block B containing a₁
@@ -150,7 +109,90 @@ theorem lemma11_5_no_nontrivial_blocks (h : n + k + m ≥ 1) :
       rw [← hB_size] at hSize_lower
       exact case2_impossible hn B hg₁_disj ha₁_in_B hg₂_pres hg₃_pres hSize_lower
   · -- Case: n = 0, so k ≥ 1 or m ≥ 1. By symmetry, similar argument applies.
-    -- The proof is symmetric: if k ≥ 1, use b₁ and g₂; if m ≥ 1, use c₁ and g₃
-    -- Each case leads to the same case analysis structure
-    -- TODO: Complete symmetric cases by generator relabeling
-    sorry
+    push_neg at hn
+    have hn0 : n = 0 := Nat.lt_one_iff.mp hn
+    have hkm : k + m ≥ 1 := by omega
+    by_cases hk : k ≥ 1
+    · -- Case k ≥ 1: Use b₁ and g₂ (symmetric to n ≥ 1 case)
+      have hb₁_in_univ : b₁ n k m hk ∈ (Set.univ : Set (Omega n k m)) := Set.mem_univ _
+      rw [← hCover] at hb₁_in_univ
+      obtain ⟨B, hB_mem, hb₁_in_B⟩ := Set.mem_sUnion.mp hb₁_in_univ
+      have hDich₁ := perm_image_preserves_or_disjoint (g₁ n k m) B BS.blocks hDisj hB_mem (hInv₁ B hB_mem)
+      have hDich₂ := perm_image_preserves_or_disjoint (g₂ n k m) B BS.blocks hDisj hB_mem (hInv₂ B hB_mem)
+      have hDich₃ := perm_image_preserves_or_disjoint (g₃ n k m) B BS.blocks hDisj hB_mem (hInv₃ B hB_mem)
+      rcases hDich₂ with hg₂_pres | hg₂_disj
+      · -- Case 1: g₂(B) = B, so supp(g₂) ⊆ B
+        have hSupp₂ := lemma11_3_tail_B_in_block hk B hb₁_in_B hg₂_pres
+        rcases hDich₁ with hg₁_pres | hg₁_disj
+        · -- Case 1a: g₁ also preserves B
+          have h1_in_B : (⟨1, by omega⟩ : Omega n k m) ∈ B := hSupp₂ elem1_in_support_g₂
+          have hSupp₁ : (↑(g₁ n k m).support : Set _) ⊆ B := by
+            have hCyc := g₁_isCycle n k m (by omega); have hMeet : (↑(g₁ n k m).support ∩ B).Nonempty :=
+              ⟨⟨0, by omega⟩, elem0_in_support_g₁, hSupp₂ elem0_in_support_g₂⟩
+            exact (cycle_support_subset_or_disjoint hCyc hg₁_pres).resolve_right
+              (fun hD => Set.not_nonempty_iff_eq_empty.mpr (Set.disjoint_iff_inter_eq_empty.mp hD) hMeet)
+          rcases hDich₃ with hg₃_pres | hg₃_disj
+          · -- Case 1a-i: All supports in B, so B = Ω
+            have hSupp₃ : (↑(g₃ n k m).support : Set _) ⊆ B := by
+              have hCyc := g₃_isCycle n k m; have hMeet : (↑(g₃ n k m).support ∩ B).Nonempty :=
+                ⟨⟨1, by omega⟩, elem1_in_support_g₃, h1_in_B⟩
+              exact (cycle_support_subset_or_disjoint hCyc hg₃_pres).resolve_right
+                (fun hD => Set.not_nonempty_iff_eq_empty.mpr (Set.disjoint_iff_inter_eq_empty.mp hD) hMeet)
+            have hB_eq := case1a_i_supports_cover_univ B hSupp₁ hSupp₂ hSupp₃
+            have hBS_eq : BS.blockSize = 6 + n + k + m := by
+              have hCard := BS.allSameSize B hB_mem; rw [hB_eq] at hCard
+              simp only [Set.ncard_univ, Omega, Nat.card_eq_fintype_card, Fintype.card_fin] at hCard
+              exact hCard.symm
+            exact Nat.lt_irrefl _ (hBS_eq ▸ hNT.2)
+          · -- Case 1a-ii: g₃(B) ≠ B contradicts via fixed point on element 3
+            exact case1b_impossible_g₃ B hSupp₂ hg₃_disj
+        · -- Case 1b: g₁(B) ≠ B contradicts via fixed point (elem 4 fixed by g₁, in supp(g₂))
+          exact case1b_impossible_g₁_from_g₂ B hSupp₂ hg₁_disj
+      · -- Case 2: g₂(B) ≠ B, by fixed point argument g₁, g₃ preserve B
+        have hD₁ : ¬PreservesSet (g₁ n k m) B → Disjoint (g₁ n k m '' B) B := fun h => hDich₁.resolve_left h
+        have hD₃ : ¬PreservesSet (g₃ n k m) B → Disjoint (g₃ n k m '' B) B := fun h => hDich₃.resolve_left h
+        obtain ⟨hg₁_pres, hg₃_pres⟩ := case2_forces_stabilization_B hk B hb₁_in_B hD₁ hD₃
+        have hSize := hNT.1; have hB_size := BS.allSameSize B hB_mem; rw [← hB_size] at hSize
+        exact case2_impossible_B hk B hg₂_disj hb₁_in_B hg₁_pres hg₃_pres hSize
+    · -- Case m ≥ 1: Use c₁ and g₃ (symmetric to k ≥ 1 case)
+      push_neg at hk; have hm : m ≥ 1 := by omega
+      have hc₁_in_univ : c₁ n k m hm ∈ (Set.univ : Set (Omega n k m)) := Set.mem_univ _
+      rw [← hCover] at hc₁_in_univ
+      obtain ⟨B, hB_mem, hc₁_in_B⟩ := Set.mem_sUnion.mp hc₁_in_univ
+      have hDich₁ := perm_image_preserves_or_disjoint (g₁ n k m) B BS.blocks hDisj hB_mem (hInv₁ B hB_mem)
+      have hDich₂ := perm_image_preserves_or_disjoint (g₂ n k m) B BS.blocks hDisj hB_mem (hInv₂ B hB_mem)
+      have hDich₃ := perm_image_preserves_or_disjoint (g₃ n k m) B BS.blocks hDisj hB_mem (hInv₃ B hB_mem)
+      rcases hDich₃ with hg₃_pres | hg₃_disj
+      · -- Case 1: g₃(B) = B, so supp(g₃) ⊆ B
+        have hSupp₃ := lemma11_3_tail_C_in_block hm B hc₁_in_B hg₃_pres
+        rcases hDich₂ with hg₂_pres | hg₂_disj
+        · -- Case 1a: g₂ also preserves B
+          have h1_in_B : (⟨1, by omega⟩ : Omega n k m) ∈ B := hSupp₃ elem1_in_support_g₃
+          have hSupp₂ : (↑(g₂ n k m).support : Set _) ⊆ B := by
+            have hCyc := g₂_isCycle n k m; have hMeet : (↑(g₂ n k m).support ∩ B).Nonempty :=
+              ⟨⟨1, by omega⟩, elem1_in_support_g₂, h1_in_B⟩
+            exact (cycle_support_subset_or_disjoint hCyc hg₂_pres).resolve_right
+              (fun hD => Set.not_nonempty_iff_eq_empty.mpr (Set.disjoint_iff_inter_eq_empty.mp hD) hMeet)
+          rcases hDich₁ with hg₁_pres | hg₁_disj
+          · -- Case 1a-i: All supports in B, so B = Ω
+            have hSupp₁ : (↑(g₁ n k m).support : Set _) ⊆ B := by
+              have hCyc := g₁_isCycle n k m (by omega); have hMeet : (↑(g₁ n k m).support ∩ B).Nonempty :=
+                ⟨⟨0, by omega⟩, elem0_in_support_g₁, hSupp₂ elem0_in_support_g₂⟩
+              exact (cycle_support_subset_or_disjoint hCyc hg₁_pres).resolve_right
+                (fun hD => Set.not_nonempty_iff_eq_empty.mpr (Set.disjoint_iff_inter_eq_empty.mp hD) hMeet)
+            have hB_eq := case1a_i_supports_cover_univ B hSupp₁ hSupp₂ hSupp₃
+            have hBS_eq : BS.blockSize = 6 + n + k + m := by
+              have hCard := BS.allSameSize B hB_mem; rw [hB_eq] at hCard
+              simp only [Set.ncard_univ, Omega, Nat.card_eq_fintype_card, Fintype.card_fin] at hCard
+              exact hCard.symm
+            exact Nat.lt_irrefl _ (hBS_eq ▸ hNT.2)
+          · -- Case 1a-ii: g₁(B) ≠ B contradicts via fixed point
+            exact case1b_impossible_g₁ B hSupp₃ hg₁_disj
+        · -- Case 1b: g₂(B) ≠ B contradicts via fixed point (elem 5 fixed by g₂, in supp(g₃))
+          exact case1b_impossible_g₂_from_g₃ B hSupp₃ hg₂_disj
+      · -- Case 2: g₃(B) ≠ B, by fixed point argument g₁, g₂ preserve B
+        have hD₁ : ¬PreservesSet (g₁ n k m) B → Disjoint (g₁ n k m '' B) B := fun h => hDich₁.resolve_left h
+        have hD₂ : ¬PreservesSet (g₂ n k m) B → Disjoint (g₂ n k m '' B) B := fun h => hDich₂.resolve_left h
+        obtain ⟨hg₁_pres, hg₂_pres⟩ := case2_forces_stabilization_C hm B hc₁_in_B hD₁ hD₂
+        have hSize := hNT.1; have hB_size := BS.allSameSize B hB_mem; rw [← hB_size] at hSize
+        exact case2_impossible_C hm B hg₃_disj hc₁_in_B hg₁_pres hg₂_pres hSize
