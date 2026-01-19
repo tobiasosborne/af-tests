@@ -1,62 +1,80 @@
-# Handoff: 2026-01-19 (Session 22)
+# Handoff: 2026-01-19 (Session 23)
 
 ## Completed This Session
 
-- **Eliminated `explicit_le_closure` sorry** in `Lemma03_Explicit.lean`
-  - Added word lists (`gensList`, `words2List`, `words3List`) for generator products
-  - All 24 H₆ elements proven as products of ≤3 generators via `native_decide`
+- **Analyzed `case2_B_ncard_le_one` theorem** in `Lemma11_5_Case2_Helpers.lean`
+  - **CRITICAL FINDING**: The theorem as stated is FALSE for n >= 3
+  - Counterexample: B = {6, 8} for n = 3 satisfies all hypotheses but |B| = 2
+  - Root cause: `g_1(B) cap B = emptyset` does NOT imply `g_1^2(B) cap B = emptyset`
+  - The AF proof (Node 1.9.5) uses a different approach - does NOT claim |B| <= 1
 
-- **Closed stale beads issues**: af-41a, af-8zu, af-auz (already resolved)
+- **Created issue af-tests-5jc** to track the required redesign
 
-- **Analyzed Case 2 proof** in `Lemma11_5_Case2.lean`
-  - Expanded disjointness analysis
-  - Documented orbit structure argument from AF proof Node 1.9.5
+- **Updated documentation** with detailed explanation of the bug and correct approach
 
 ## Current State
 
-- **Build status**: PASSING (1888 jobs)
-- **Sorry count**: **8** (down from 9)
-- **Open P0 issues**: None (LOC violations resolved in Session 21)
+- **Build status**: PASSING
+- **Sorry count**: **8** (unchanged - this sorry cannot be eliminated, needs redesign)
+- **Open P0 issues**: None
+- **Open P1 issues**: 1 (af-tests-5jc - theorem redesign)
+
+## The Case 2 Bug Explained
+
+The theorem `case2_B_ncard_le_one` attempts to prove |B| <= 1 given:
+1. B cap supp(g_2) = emptyset
+2. B cap supp(g_3) = emptyset
+3. g_1(B) cap B = emptyset
+4. a_1 in B
+
+For n = 3, B = {6, 8} satisfies all these but:
+- g_1({6, 8}) = {7, 0}
+- g_1^2({6, 8}) = {8, 5}
+- {8, 5} cap {6, 8} = {8} != emptyset
+
+So B cannot be a proper block in a g_1-invariant block system, but the theorem doesn't require that!
+
+The correct approach (per AF Node 1.9.5) requires B to be a proper block where the FULL orbit under g_1 consists of pairwise disjoint sets.
 
 ## Remaining Sorries
 
-| File | Line | Description | Difficulty |
-|------|------|-------------|------------|
-| Lemma03.lean | 138 | H₆_iso_S4 (tetrahedral isomorphism) | Hard |
-| Lemma11.lean | 82 | block_to_system (type coercion smul↔image) | Medium |
-| Lemma11_5.lean | 156 | Symmetric case (k≥1 or m≥1) | Easy |
-| Lemma11_5_Case2.lean | 198 | case2_impossible (orbit analysis) | Hard |
+| File | Line | Description | Status |
+|------|------|-------------|--------|
+| Lemma03.lean | 138 | H_6_iso_S4 (tetrahedral isomorphism) | Hard |
+| Lemma11.lean | 82 | block_to_system (type coercion) | Medium |
+| Lemma11_5.lean | 156 | Symmetric case (k>=1 or m>=1) | Easy |
+| Lemma11_5_Case2_Helpers.lean | 155 | case2_B_ncard_le_one | **BLOCKED - needs redesign** |
 | MainTheorem.lean | 109, 117, 138, 153 | Main theorem assembly | Medium |
 
 ## Next Steps (Priority Order)
 
-1. **Lemma11_5.lean:156** - Symmetric case: copy n≥1 proof for k≥1/m≥1 with generator relabeling
+1. **Redesign case2_impossible** (af-tests-5jc)
+   - Option A: Add hypothesis that B is a proper block (orbit pairwise disjoint)
+   - Option B: Follow AF proof - use orbit structure with element 0 in supp(g_1) cap supp(g_2)
+   - The correct contradiction is |B| = N (full space), not |B| <= 1
 
-2. **Lemma11.lean:82** - `block_to_system`: type coercion between `IsBlock` (smul) and `BlockSystemOn` (image)
+2. **Lemma11_5.lean:156** - Symmetric case for k>=1/m>=1
 
-3. **Lemma11_5_Case2.lean:198** - `case2_impossible`: complex orbit analysis from AF proof Node 1.9.5
+3. **Lemma11.lean:82** - `block_to_system` type coercion
 
-4. **MainTheorem.lean** - Assembly of lemmas (depends on primitivity chain)
+4. **MainTheorem.lean** - Assembly of lemmas
 
-5. **Lemma03.lean:138** - H₆_iso_S4: construct explicit tetrahedral isomorphism
+5. **Lemma03.lean:138** - H_6_iso_S4 tetrahedral isomorphism
 
 ## Known Issues / Gotchas
 
-- **Beads prefix mismatch**: `bd sync` fails. Workaround: `git push` directly, then `bd close <id>`
+- **Beads prefix mismatch**: `bd sync` fails with prefix error. Use `--rename-on-import` flag.
 
-- **Case 2 complexity**: `case2_impossible` theorem may need block system as parameter. AF proof uses the fact that elements fixed by g₁ must be in some block B' ≠ B, leading to partition contradiction.
+- **Case 2 is fundamentally broken**: The current approach cannot work without additional block system hypotheses.
 
 - **Index convention**: AF 1-indexed, Lean 0-indexed. AF {1,4,6} = Lean {0,3,5}
 
 ## Files Modified This Session
 
-- `AfTests/BaseCase/Lemma03_Explicit.lean` (sorry eliminated)
-- `AfTests/Primitivity/Lemma11_5.lean` (minor cleanup)
-- `AfTests/Primitivity/Lemma11_5_Case2.lean` (expanded proof structure)
+- `AfTests/Primitivity/Lemma11_5_Case2_Helpers.lean` (documented bug, updated docstring)
 
 ## Issue Status
 
-- **af-tests-qvq** (Lemma11_5): IN PROGRESS - 2 sorries remaining
-- **af-v3z, af-1n0** (Lemma03): CLOSED in Session 21
+- **af-tests-5jc** (case2_B_ncard_le_one redesign): OPEN - P1 bug
+- **af-tests-qvq** (Lemma11_5): IN PROGRESS - blocked by af-tests-5jc
 - **af-5zd** (Lemma11 H_primitive): OPEN
-- **af-tests-811, af-tests-ery** (LOC): CLOSED in Session 21
