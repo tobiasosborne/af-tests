@@ -7,6 +7,7 @@ import AfTests.Primitivity.Lemma11_2
 import Mathlib.GroupTheory.GroupAction.Basic
 import Mathlib.GroupTheory.GroupAction.Period
 import Mathlib.Algebra.Group.Subgroup.ZPowers.Basic
+import Mathlib.Data.ZMod.QuotientGroup
 
 /-!
 # Lemma 11.4: Block Orbit
@@ -114,17 +115,32 @@ noncomputable def setPeriod (σ : Perm α) (B : Set α) : ℕ := MulAction.perio
 theorem setPeriod_dvd_orderOf (σ : Perm α) (B : Set α) : setPeriod σ B ∣ orderOf σ :=
   MulAction.period_dvd_orderOf σ B
 
+/-- blockOrbit equals the MulAction orbit under zpowers -/
+theorem blockOrbit_eq_MulAction_orbit (σ : Perm α) (B : Set α) :
+    blockOrbit σ B = (MulAction.orbit (Subgroup.zpowers σ) B : Set (Set α)) := by
+  ext C
+  rw [blockOrbit_eq_orbit]
+  simp only [MulAction.mem_orbit_iff, Set.mem_setOf_eq]
+  constructor
+  · rintro ⟨k, rfl⟩
+    exact ⟨⟨σ ^ k, ⟨k, rfl⟩⟩, rfl⟩
+  · rintro ⟨⟨_, ⟨k, rfl⟩⟩, rfl⟩
+    exact ⟨k, rfl⟩
+
+/-- Orbit ncard equals period via minimalPeriod relationship -/
+theorem orbit_ncard_eq_period (σ : Perm α) (B : Set α) :
+    (MulAction.orbit (Subgroup.zpowers σ) B : Set (Set α)).ncard = MulAction.period σ B := by
+  rw [MulAction.period_eq_minimalPeriod]
+  -- The orbit is finite since Set α is finite (Fintype α implies Fintype (Set α))
+  haveI : Fintype (Set α) := Set.fintype
+  haveI : Fintype ↑(MulAction.orbit (↥(Subgroup.zpowers σ)) B) := Fintype.ofFinite _
+  rw [Set.ncard_eq_toFinset_card', Set.toFinset_card, MulAction.minimalPeriod_eq_card]
+
 /-- The orbit size equals the period -/
 theorem blockOrbitSize_eq_setPeriod {σ : Perm α} (hσ : σ.IsCycle) (B : Set α) :
     blockOrbitSize σ B = setPeriod σ B := by
-  -- The orbit is { B, σ • B, σ² • B, ..., σ^(p-1) • B } where p = period
-  -- This has exactly p elements
-  unfold blockOrbitSize blockOrbit setPeriod
-  -- For finite α, the orbit is finite and its ncard equals the period
-  have hB_orbit : blockOrbit σ B = { C | ∃ k : ℤ, C = σ ^ k • B } := blockOrbit_eq_orbit σ B
-  -- The orbit under a cyclic group has size = period
-  -- The orbit { σ^k • B | k : ℤ } = { σ^k • B | k ∈ Fin (period σ B) } for nonzero period
-  sorry
+  unfold blockOrbitSize setPeriod
+  rw [blockOrbit_eq_MulAction_orbit, orbit_ncard_eq_period]
 
 /-- **Block orbit divides cycle length**
 
@@ -158,22 +174,79 @@ theorem orbit_blocks_meet_support {σ : Perm α} (hσ : σ.IsCycle)
 
 /-- The orbit blocks partition the support -/
 theorem orbit_blocks_partition_support {σ : Perm α} (hσ : σ.IsCycle)
-    {B : Set α} {Blocks : Set (Set α)} (hInv : BlockSystemInvariant σ Blocks)
-    (hB : B ∈ Blocks) (hMeet : (B ∩ (σ.support : Set α)).Nonempty)
-    (hDisj : Blocks.PairwiseDisjoint id) :
+    {B : Set α} {Blocks : Set (Set α)} (_hInv : BlockSystemInvariant σ Blocks)
+    (_hB : B ∈ Blocks) (hMeet : (B ∩ (σ.support : Set α)).Nonempty)
+    (_hDisj : Blocks.PairwiseDisjoint id) :
     (σ.support : Set α) = ⋃ C ∈ blockOrbit σ B, (C ∩ (σ.support : Set α)) := by
-  sorry
+  ext x
+  simp only [Set.mem_iUnion, Set.mem_inter_iff]
+  constructor
+  · intro hx
+    obtain ⟨y, hyB, hySupp⟩ := hMeet
+    -- Use that σ is a cycle: there exists k such that σ^k(y) = x
+    have hy_ne : σ y ≠ y := Perm.mem_support.mp hySupp
+    have hx_ne : σ x ≠ x := Perm.mem_support.mp hx
+    obtain ⟨k, hk⟩ := hσ.sameCycle hy_ne hx_ne
+    -- σ^k(y) = x is in σ^k(B) ∩ support
+    refine ⟨(σ ^ k) '' B, ⟨k, rfl⟩, ?_, ?_⟩
+    · rw [← hk]; exact mem_image_of_mem _ hyB
+    · rw [← hk]; exact zpow_apply_mem_support.mpr hySupp
+  · intro ⟨_, _, _, hxSupp⟩
+    exact hxSupp
+
+/-- σ maps B ∩ support to (σ B) ∩ support bijectively -/
+theorem sigma_preserves_intersection_card (σ : Perm α) (B : Set α) :
+    (σ '' B ∩ (σ.support : Set α)).ncard = (B ∩ (σ.support : Set α)).ncard := by
+  -- Key fact: σ '' B ∩ support = σ '' (B ∩ support) since σ preserves support
+  have heq : σ '' B ∩ (σ.support : Set α) = σ '' (B ∩ σ.support) := by
+    ext y
+    constructor
+    · rintro ⟨⟨x, hxB, rfl⟩, hyS⟩
+      exact ⟨x, ⟨hxB, Perm.apply_mem_support.mp hyS⟩, rfl⟩
+    · rintro ⟨x, ⟨hxB, hxS⟩, rfl⟩
+      exact ⟨⟨x, hxB, rfl⟩, Perm.apply_mem_support.mpr hxS⟩
+  rw [heq]
+  exact Set.ncard_image_of_injective _ σ.injective
+
+/-- All blocks in the orbit have the same intersection size with support -/
+theorem orbit_blocks_same_card (σ : Perm α) (B : Set α) (k : ℤ) :
+    ((σ ^ k) '' B ∩ (σ.support : Set α)).ncard = (B ∩ (σ.support : Set α)).ncard := by
+  -- Key: (σ^k '' B) ∩ support = σ^k '' (B ∩ support), and σ^k is a bijection
+  have heq : (σ ^ k) '' B ∩ (σ.support : Set α) = (σ ^ k) '' (B ∩ σ.support) := by
+    ext y
+    simp only [Set.mem_inter_iff, Set.mem_image]
+    constructor
+    · rintro ⟨⟨x, hxB, rfl⟩, hyS⟩
+      refine ⟨x, ⟨hxB, ?_⟩, rfl⟩
+      exact zpow_apply_mem_support.mp hyS
+    · rintro ⟨x, ⟨hxB, hxS⟩, rfl⟩
+      exact ⟨⟨x, hxB, rfl⟩, zpow_apply_mem_support.mpr hxS⟩
+  rw [heq]
+  exact Set.ncard_image_of_injective _ (σ ^ k).injective
 
 /-- **Support intersection cardinality**
 
     Each block in the orbit contains exactly ℓ/r elements of supp(σ),
-    where ℓ is the cycle length and r is the orbit size. -/
+    where ℓ is the cycle length and r is the orbit size.
+
+    Proof outline (TODO):
+    1. All orbit blocks have equal intersection size with support (orbit_blocks_same_card)
+    2. Orbit blocks partition the support (orbit_blocks_partition_support)
+    3. So cycleLength = blockOrbitSize × (B ∩ support).ncard
+    4. Therefore (B ∩ support).ncard = cycleLength / blockOrbitSize -/
 theorem block_support_intersection_card {σ : Perm α} (hσ : σ.IsCycle)
-    {B : Set α} {Blocks : Set (Set α)} (hInv : BlockSystemInvariant σ Blocks)
-    (hB : B ∈ Blocks) (hMeet : (B ∩ (σ.support : Set α)).Nonempty)
-    (hDisj : Blocks.PairwiseDisjoint id) :
+    {B : Set α} {Blocks : Set (Set α)} (_hInv : BlockSystemInvariant σ Blocks)
+    (_hB : B ∈ Blocks) (hMeet : (B ∩ (σ.support : Set α)).Nonempty)
+    (_hDisj : Blocks.PairwiseDisjoint id) :
     (B ∩ (σ.support : Set α)).ncard = cycleLength σ / blockOrbitSize σ B := by
-  -- By symmetry: σ cycles both blocks and support elements
+  -- All orbit blocks have the same intersection size
+  have _heq_card : ∀ C ∈ blockOrbit σ B, (C ∩ ↑σ.support).ncard = (B ∩ ↑σ.support).ncard := by
+    intro C hC
+    obtain ⟨k, rfl⟩ := hC
+    exact orbit_blocks_same_card σ B k
+  -- The orbit size divides the cycle length
+  have _hdiv := block_orbit_divides_cycle_length hσ _hInv _hB hMeet
+  -- Requires cardinality arithmetic over finite sums - see proof outline above
   sorry
 
 -- ============================================

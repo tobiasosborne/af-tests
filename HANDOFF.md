@@ -1,87 +1,70 @@
-# Handoff: 2026-01-19 (Session 16)
+# Handoff: 2026-01-19 (Session 17)
 
 ## Completed This Session
 
-### Lemma11_4.lean - Block Orbit Divisibility
-1. **Restructured proof strategy** for `block_orbit_divides_cycle_length`
-   - Added import `Mathlib.GroupTheory.GroupAction.Period`
-   - Opened `scoped Pointwise` for set action `σ • B = σ '' B`
-   - Introduced helper lemmas:
-     - `perm_smul_set_eq_image`: Shows `σ • B = σ '' B` via pointwise action
-     - `blockOrbit_eq_orbit`: Connects blockOrbit to MulAction orbit
-     - `setPeriod`: Wrapper for `MulAction.period σ B`
-     - `setPeriod_dvd_orderOf`: Period divides orderOf (from mathlib)
+### Lemma11_4.lean - Block Orbit (Filled 2 of 3 sorries)
 
-2. **Proof structure established** for main theorem:
-   ```lean
-   block_orbit_divides_cycle_length :=
-     blockOrbitSize = setPeriod  -- (SORRY: line 127)
-     → setPeriod ∣ orderOf σ     -- (mathlib: period_dvd_orderOf)
-     → orderOf σ = cycleLength   -- (mathlib: IsCycle.orderOf)
-   ```
+1. **Filled `blockOrbitSize_eq_setPeriod`** (was line 127)
+   - Added import `Mathlib.Data.ZMod.QuotientGroup` for `MulAction.minimalPeriod_eq_card`
+   - Added helper lemmas:
+     - `blockOrbit_eq_MulAction_orbit`: Shows blockOrbit = MulAction.orbit over zpowers
+     - `orbit_ncard_eq_period`: Uses `MulAction.minimalPeriod_eq_card` to get ncard = period
+   - Key insight: orbit ncard = Fintype.card = minimalPeriod = period
 
-3. **Key insight documented**: The orbit size equals the period because:
-   - Orbit = { σ^k • B | k ∈ ℤ } = { σ^k • B | k ∈ {0,...,p-1} } where p = period
-   - These p elements are distinct (by definition of period)
-   - Use `periodicOrbit_length` from `Mathlib.Dynamics.PeriodicPts.Defs`
+2. **Filled `orbit_blocks_partition_support`** (was line 165)
+   - Uses `IsCycle.sameCycle` to get transitivity: for any x ∈ support, exists k with σ^k(y) = x
+   - Then x ∈ (σ^k '' B) ∩ support, showing support ⊆ union
+   - Reverse inclusion is trivial
+
+3. **Documented `block_support_intersection_card`** (line 250, still sorry)
+   - Added helper lemma `orbit_blocks_same_card`: all orbit blocks have equal intersection size with support
+   - Added `sigma_preserves_intersection_card`: σ preserves |B ∩ support| via bijection
+   - Proof outline documented in file - requires cardinality arithmetic over finite sums
 
 ## Current State
 
-- **Build status**: PASSING (with sorries)
-- **Sorry count**: 11 total
-- **Open P0 blockers**: None
+- **Build status**: PASSING (with 1 sorry in Lemma11_4.lean)
+- **Sorry count in Lemma11_4**: 1 (down from 3)
+- **LOC violation**: Lemma11_4.lean is 271 lines (P0 issue created: af-tests-bqj)
 
-## Remaining Sorries in Lemma11_4.lean (3)
+## Remaining Sorry in Lemma11_4.lean
 
 | Line | Lemma | Strategy |
 |------|-------|----------|
-| 127 | `blockOrbitSize_eq_setPeriod` | Show ncard of orbit = minimalPeriod using `periodicOrbit_length` and `period_eq_minimalPeriod` |
-| 165 | `orbit_blocks_partition_support` | Show orbit blocks cover supp(σ) using cycle transitivity |
-| 177 | `block_support_intersection_card` | Counting: ℓ elements / r blocks = ℓ/r per block |
+| 250 | `block_support_intersection_card` | Has `orbit_blocks_same_card` helper. Needs: (1) orbit blocks pairwise disjoint, (2) use `Set.Finite.ncard_biUnion` for sum, (3) arithmetic: cycleLength = blockOrbitSize × |B ∩ support| |
 
-## Key Mathlib Lemmas Identified
+## Key Lemmas Added
 
 ```lean
--- From Mathlib.GroupTheory.GroupAction.Period
-period_dvd_orderOf (m : M) (a : α) : period m a ∣ orderOf m
-period_eq_minimalPeriod : period m a = minimalPeriod (m • ·) a
-
--- From Mathlib.Dynamics.PeriodicPts.Defs
-periodicOrbit_length : (periodicOrbit f x).length = minimalPeriod f x
-nodup_periodicOrbit : (periodicOrbit f x).Nodup
-mem_periodicOrbit_iff (hx) : y ∈ periodicOrbit f x ↔ ∃ n, f^[n] x = y
-
--- From Mathlib.GroupTheory.Perm.Cycle.Basic
-IsCycle.orderOf : orderOf σ = σ.support.card
+-- New helpers in Lemma11_4.lean
+blockOrbit_eq_MulAction_orbit : blockOrbit σ B = MulAction.orbit (zpowers σ) B
+orbit_ncard_eq_period : (orbit zpowers B).ncard = MulAction.period σ B
+sigma_preserves_intersection_card : (σ '' B ∩ support).ncard = (B ∩ support).ncard
+orbit_blocks_same_card : ((σ^k '' B) ∩ support).ncard = (B ∩ support).ncard
 ```
 
 ## Next Steps (Priority Order)
 
-1. **Complete `blockOrbitSize_eq_setPeriod`** (line 127)
-   - Use `period_eq_minimalPeriod` to connect MulAction.period to minimalPeriod
-   - Use `periodicOrbit_length` and show blockOrbit equals periodicOrbit's underlying set
-   - Key: `ncard {σ^k • B | k} = length (periodicOrbit (σ • ·) B) = minimalPeriod = period`
+1. **Refactor Lemma11_4.lean** (af-tests-bqj, P0)
+   - Extract helper lemmas to `Lemma11_4_Helpers.lean`
+   - Target: main file under 200 LOC
 
-2. **Complete `orbit_blocks_partition_support`** (line 165)
-   - Use cycle's transitivity on support
-   - For any x ∈ supp(σ), exists y ∈ B ∩ supp(σ), exists k s.t. σ^k(y) = x
-   - Then x ∈ σ^k(B) ∩ supp(σ)
-
-3. **Complete `block_support_intersection_card`** (line 177)
-   - Uses the partition + orbit size divides cycle length
-   - Counting argument: r blocks partition ℓ elements evenly
+2. **Complete `block_support_intersection_card`** (af-tests-2hl)
+   - Need to show orbit blocks are pairwise disjoint (inherit from block system)
+   - Use `Set.Finite.ncard_biUnion` for cardinality sum
+   - Conclude with division arithmetic
 
 ## Files Modified This Session
 
-- `AfTests/Primitivity/Lemma11_4.lean` - Major restructuring with Period-based approach
+- `AfTests/Primitivity/Lemma11_4.lean` - Filled 2 sorries, added Period-based proofs
 
 ## Known Issues / Gotchas
 
-- **Pointwise scope required**: Must use `open scoped Pointwise` for `σ • B` notation on sets
-- **Period vs minimalPeriod**: `MulAction.period` = `Function.minimalPeriod` (see `period_eq_minimalPeriod`)
-- **zpow vs pow orbit**: Integer zpowers give same orbit as nat powers for finite types
-- **LOC Status**: Lemma11_4.lean is ~195 lines (under 200 limit)
+- **LOC exceeded**: 271 lines (limit 200) - helper lemmas should be extracted
+- **Fintype instance**: Need `Set.fintype` for `MulAction.minimalPeriod_eq_card`
+- **Cardinality arithmetic**: `finsum` machinery needed for partition argument
 
 ## Issue Status
 
-- **af-tests-2hl** (Lemma11_4): IN_PROGRESS - reduced from 6 to 3 sorries, proof strategy established
+- **af-tests-2hl** (Lemma11_4): IN_PROGRESS - 1 sorry remaining (was 3)
+- **af-tests-bqj** (Refactor): OPEN - Lemma11_4.lean exceeds 200 LOC
