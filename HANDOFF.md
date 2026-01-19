@@ -1,63 +1,68 @@
-# Handoff: 2026-01-19 (Session 5)
+# Handoff: 2026-01-19 (Session 6)
 
 ## Completed This Session
 
-### Sorry Elimination Analysis (Phase 3.2)
+### Sorry Elimination (Phase 3.2-3.4 continued)
 
-Worked on issue `af-tests-3gf` (Phase 3.2: Eliminate easy sorries).
+**Successfully eliminated**: 2 sorries
 
-**Successfully eliminated**: 1 sorry
-- `blockOrbit_closed` in `Lemma11_4.lean:67` - Proved using `zpow_add` and `Set.image_comp`
+1. **inv_preserves_B₀** in `Lemma03.lean:66`
+   - Proved using `Finset.surjOn_of_injOn_of_card_le`
+   - Key insight: injective function on finite set B₀ implies surjectivity
+   - Used Set.InjOn to show block mapping is injective, then derived surjectivity
 
-**Analyzed but NOT easy**:
-The remaining sorries require substantive mathematical proofs, not simple tactics:
+2. **core_connected** in `Lemma05.lean:148`
+   - Proved that generators act consistently on core elements {0,1,2,3,4,5} for any n,k,m
+   - Added helper lemmas: g₁_list_getElem_*, g₂_list_getElem_*
+   - Used `List.formPerm_apply_lt_getElem` to establish generator actions
+   - Proved g₁_general_action_{0,5,3}, g₂_inv_general_action_{0,4,3}
+   - Showed reach_from_0_general: all core elements reachable from 0
 
-1. **inv_preservesB₀** (Lemma03, Lemma11_1): Requires reasoning about finite bijections on B₀
-2. **zpowers_card_eq_cycle_length** (Lemma11_4): Needs mathlib lemmas about cyclic group orders
-3. **block_orbit_divides_cycle_length** (Lemma11_4): Requires Orbit-Stabilizer theorem
-4. **orbit_blocks_meet_support** (Lemma11_4): Needs cycle support properties
-5. **orbit_blocks_partition_support** (Lemma11_4): Partition arguments
-6. **block_support_intersection_card** (Lemma11_4): Cardinality calculations
-7. **tailA_not_in_support_g₂/g₃** (Lemma11_5): formPerm membership reasoning
-8. **Transitivity lemmas** (Lemma05): Graph connectivity proofs
-9. **3-cycle constructions** (MainTheorem): Case analysis for k≥1
-
-**Conclusion**: Most sorries are Phase 3.3-3.4 difficulty (medium/hard), not suitable for
-simple tactics like `native_decide`, `decide`, `simp`, `omega`, or `exact?`.
+**Deferred (too complex for this session)**:
+- H₆_iso_S4 (Lemma03): Requires constructing explicit isomorphism H₆ ≅ S₄
+- H₆_card_eq_24 (Lemma03): Follows from H₆_iso_S4
 
 ## Current State
 
 - **Build status**: PASSING (0 errors)
-- **Sorry count**: 26 (down from 27)
+- **Sorry count**: 24 (down from 26)
 - **Open blockers**: None
 
 ## Sorry Distribution (Updated)
 ```
 MainTheorem.lean:  3 (k-only and mixed cases)
-Lemma05.lean:      6 (transitivity)
-Lemma11_4.lean:    5 (block orbit) - was 6, eliminated 1
+Lemma05.lean:      5 (transitivity) - was 6, eliminated 1
+Lemma11_4.lean:    5 (block orbit)
 Lemma11_5.lean:    5 (no nontrivial blocks)
 Lemma11_1.lean:    3 (block system uniqueness)
-Lemma03.lean:      3 (H₆ ≅ S₄)
+Lemma03.lean:      2 (H₆ ≅ S₄) - was 3, eliminated 1
 Lemma11.lean:      1 (main primitivity)
 ```
 
 ## Next Steps (Priority Order)
 
-1. **Phase 3.3 (Medium sorries)**: zpowers_card_eq_cycle_length, orbit-stabilizer applications
-2. **Phase 3.4 (Hard sorries)**: transitivity, inv_preservesB₀, MainTheorem cases
-3. **Lemma03**: Complete H₆ ≅ S₄ proof
-4. **Lemma11 chain**: 11_1 → 11_4 → 11_5 → 11
+1. **Lemma05 tail connections**: a_tail_connected_to_core, b_tail_connected_to_core, c_tail_connected_to_core
+2. **Lemma03 H₆_iso_S4**: Complex - needs explicit isomorphism construction
+3. **Lemma11 chain**: 11_1 → 11_4 → 11_5 → 11
+4. **MainTheorem**: k-only and mixed cases
 
 ## Files Modified This Session
 
-- `AfTests/Primitivity/Lemma11_4.lean` - Eliminated `blockOrbit_closed` sorry
+- `AfTests/BaseCase/Lemma03.lean` - Eliminated inv_preserves_B₀ sorry
+- `AfTests/Transitivity/Lemma05.lean` - Eliminated core_connected sorry, added helper lemmas
 - `HANDOFF.md` - Updated
 
-## Known Issues / Gotchas
+## Technical Notes
 
-- Most "easy" sorries were already eliminated in previous sessions
-- Remaining sorries require careful mathematical constructions
-- `inv_preservesB₀` needs bijection reasoning on finite 3-element set
+### inv_preserves_B₀ proof approach
+- Used Finset.surjOn_of_injOn_of_card_le to show block mapping is surjective
+- For any B ∈ B₀, get B' ∈ B₀ such that B'.image g = B
+- Then B.image g⁻¹ = B' by equivalence properties
+
+### core_connected proof approach
+- Showed g₁(0)=5, g₁(5)=3, g₁(3)=2 using formPerm properties
+- Showed g₂⁻¹(0)=4, g₂⁻¹(4)=3, g₂⁻¹(3)=1
+- From 0, can reach: 1 via g₂⁻³, 2 via g₁³, 3 via g₁², 4 via g₂⁻¹, 5 via g₁
+- Combined with inverse to show any x can reach any y
 
 Run `bd ready` to see available tasks.
