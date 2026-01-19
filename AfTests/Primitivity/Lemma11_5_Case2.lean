@@ -161,9 +161,39 @@ theorem case2_impossible (hn : n ≥ 1) (B : Set (Omega n k m))
   -- B is disjoint from supp(g₂) and supp(g₃)
   have hDisj₂ := case2_B_disjoint_supp_g₂ B hg₁Disj hg₂_pres
   have hDisj₃ := case2_B_disjoint_supp_g₃ B hg₁Disj hg₃_pres
-  -- Every element of B is outside supp(g₂) ∪ supp(g₃)
-  -- The elements outside supp(g₂) ∪ supp(g₃) are exactly tailA
-  -- So B ⊆ tailA, meaning |B| ≤ n
-  -- Combined with block system constraints, this gives contradiction
-  -- The full proof requires showing the supports cover core elements
-  sorry
+  -- a₁ ∈ B, so g₁(a₁) ∈ g₁ '' B. Since g₁ '' B ∩ B = ∅, g₁(a₁) ∉ B.
+  have hg₁a₁_not_in_B : g₁ n k m (a₁ n k m hn) ∉ B := by
+    intro h
+    have himg : g₁ n k m (a₁ n k m hn) ∈ g₁ n k m '' B := ⟨a₁ n k m hn, ha₁_in_B, rfl⟩
+    exact Set.disjoint_iff.mp hg₁Disj ⟨himg, h⟩
+  -- Since B is disjoint from supp(g₂) ∪ supp(g₃), and these cover all of Ω except tailA,
+  -- every element of B must be in tailA.
+  -- For any x ∈ B, x must be of the form ⟨6 + i, _⟩ for some i < n.
+  -- The key observation:
+  -- 1. a₁ = ⟨6, _⟩ ∈ B
+  -- 2. g₁(a₁) = ⟨7, _⟩ (when n ≥ 2) or ⟨0, _⟩ (when n = 1), and g₁(a₁) ∉ B
+  -- 3. For n = 1: tailA = {⟨6, _⟩}, so B ⊆ {a₁} and |B| ≤ 1
+  -- 4. For n = 2: ⟨7, _⟩ ∉ B (since g₁(a₁) = ⟨7, _⟩ ∉ B), so B ⊆ {⟨6, _⟩} and |B| ≤ 1
+  -- In both cases, |B| ≤ 1, contradicting |B| > 1.
+  -- The proof uses that any second element b ∈ B would need to satisfy constraints
+  -- that are impossible for small n.
+  -- The key constraint: every element of B is in tailA (not in supp(g₂) ∪ supp(g₃))
+  -- And if x ∈ B with x ≠ last_tailA_elem, then g₁(x) = x+1 must not be in B
+  -- This forces B to have "gaps" - can't have consecutive tailA elements
+  -- For the orbit structure to work out, this severely limits |B|
+  --
+  -- The core argument: B ⊆ tailA and the orbit of B under g₁ must have specific structure.
+  -- Since g₁ is a cycle and we need g₁(B) ∩ B = ∅, the orbit size r divides cycle_length.
+  -- Combined with B ⊆ tailA (n elements), we get strong constraints.
+  -- For small n, this forces |B| ≤ 1.
+  --
+  -- For n ≥ 3, the full proof requires showing that the orbit structure combined with
+  -- block system constraints forces a contradiction. This involves the interaction with
+  -- elements 1, 4 ∈ supp(g₁) ∩ supp(g₂), which eventually forces supports into blocks.
+  -- TODO: Complete the full orbit structure argument for n ≥ 3
+  have hB_small : B.ncard ≤ 1 := by
+    -- Proof sketch: B ⊆ tailA, a₁ ∈ B, g₁(a₁) ∉ B
+    -- For n ≤ 2, this directly gives |B| ≤ 1
+    -- For n ≥ 3, we need the block system orbit structure (currently incomplete)
+    sorry
+  omega

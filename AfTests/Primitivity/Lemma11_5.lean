@@ -135,14 +135,16 @@ theorem lemma11_5_no_nontrivial_blocks (h : n + k + m ≥ 1) :
     · -- Case 2: g₁ does not preserve B (disjoint)
       -- By fixed-point argument, g₂ and g₃ must preserve B
       have hDisj₂ : ¬PreservesSet (g₂ n k m) B → Disjoint (g₂ n k m '' B) B := by
-        intro hNot
-        exact hDichotomy₂.resolve_left hNot
+        intro hNot; exact hDichotomy₂.resolve_left hNot
       have hDisj₃ : ¬PreservesSet (g₃ n k m) B → Disjoint (g₃ n k m '' B) B := by
-        intro hNot
-        exact hDichotomy₃.resolve_left hNot
+        intro hNot; exact hDichotomy₃.resolve_left hNot
       obtain ⟨hg₂_pres, hg₃_pres⟩ := case2_forces_stabilization hn B ha₁_in_B hDisj₂ hDisj₃
-      -- Now use Case 2 impossibility theorem
-      -- Need: 1 < B.ncard from non-triviality
+      -- The full Case 2 proof requires block system orbit analysis.
+      -- Key insight: Element 1 (fixed by g₁) is in some block B' ≠ B.
+      -- g₁(B') = B' since g₁(1) = 1. Then by Lemma 11.2 and orbit structure,
+      -- supp(g₂) ∪ supp(g₃) ⊆ B', so supp(g₁) ⊆ B', hence a₁ ∈ B'.
+      -- But a₁ ∈ B contradicts the partition.
+      -- This requires complex orbit analysis - see AF proof Node 1.9.5.
       have hSize_lower : 1 < BS.blockSize := hNT.1
       have hB_size := BS.allSameSize B hB_mem
       rw [← hB_size] at hSize_lower
