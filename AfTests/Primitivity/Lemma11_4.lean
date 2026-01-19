@@ -3,7 +3,7 @@ Copyright (c) 2026. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: AF-Tests Project
 -/
-import AfTests.Primitivity.Lemma11_4_Period
+import AfTests.Primitivity.Lemma11_4_Helpers
 
 /-!
 # Lemma 11.4: Block Orbit
@@ -98,16 +98,50 @@ theorem orbit_blocks_same_card (σ : Perm α) (B : Set α) (k : ℤ) :
     Proof: All orbit blocks have equal intersection size with support,
     orbit blocks partition the support, so cycleLength = blockOrbitSize × size.  -/
 theorem block_support_intersection_card {σ : Perm α} (hσ : σ.IsCycle)
-    {B : Set α} {Blocks : Set (Set α)} (_hInv : BlockSystemInvariant σ Blocks)
-    (_hB : B ∈ Blocks) (hMeet : (B ∩ (σ.support : Set α)).Nonempty)
-    (_hDisj : Blocks.PairwiseDisjoint id) :
+    {B : Set α} {Blocks : Set (Set α)} (hInv : BlockSystemInvariant σ Blocks)
+    (hB : B ∈ Blocks) (hMeet : (B ∩ (σ.support : Set α)).Nonempty)
+    (hDisj : Blocks.PairwiseDisjoint id) :
     (B ∩ (σ.support : Set α)).ncard = cycleLength σ / blockOrbitSize σ B := by
-  have _heq_card : ∀ C ∈ blockOrbit σ B, (C ∩ ↑σ.support).ncard = (B ∩ ↑σ.support).ncard := by
+  have heq_card : ∀ C ∈ blockOrbit σ B, (C ∩ ↑σ.support).ncard = (B ∩ ↑σ.support).ncard := by
     intro C hC
     obtain ⟨k, rfl⟩ := hC
     exact orbit_blocks_same_card σ B k
-  have _hdiv := block_orbit_divides_cycle_length hσ _hInv _hB hMeet
-  sorry
+  have hdiv := block_orbit_divides_cycle_length hσ hInv hB hMeet
+  -- Finiteness
+  have hFin : Blocks.Finite := Set.Finite.subset Set.finite_univ (Set.subset_univ _)
+  have hOrbitFin : (blockOrbit σ B).Finite := Set.Finite.subset Set.finite_univ (Set.subset_univ _)
+  -- Positivity
+  have hpos : 0 < blockOrbitSize σ B := by
+    unfold blockOrbitSize; rw [Set.ncard_pos]
+    exact ⟨B, ⟨0, by simp⟩⟩
+  have hne : blockOrbitSize σ B ≠ 0 := Nat.pos_iff_ne_zero.mp hpos
+  -- Get the partition and disjointness
+  have hpart := orbit_blocks_partition_support hσ hInv hB hMeet hDisj
+  have hDisjOrbit := orbit_intersections_pairwise_disjoint hInv hFin hB hDisj
+  have hFinInter : ∀ C ∈ blockOrbit σ B, (C ∩ ↑σ.support).Finite := by
+    intro C _; exact Set.Finite.subset (Set.toFinite σ.support) Set.inter_subset_right
+  -- Key: cycleLength = blockOrbitSize * (B ∩ support).ncard
+  have hprod : cycleLength σ = blockOrbitSize σ B * (B ∩ ↑σ.support).ncard := by
+    -- First show: (⋃ C ∈ orbit, C ∩ support).ncard = blockOrbitSize * (B ∩ support).ncard
+    have hunion_ncard : (⋃ C ∈ blockOrbit σ B, C ∩ ↑σ.support).ncard =
+        blockOrbitSize σ B * (B ∩ ↑σ.support).ncard := by
+      rw [Set.Finite.ncard_biUnion hOrbitFin hFinInter hDisjOrbit]
+      rw [finsum_mem_eq_finite_toFinset_sum _ hOrbitFin]
+      rw [Finset.sum_eq_card_nsmul (b := (B ∩ ↑σ.support).ncard)]
+      · simp only [smul_eq_mul]
+        unfold blockOrbitSize
+        rw [Set.ncard_eq_toFinset_card _ hOrbitFin]
+      · intro C hC
+        simp only [Set.Finite.mem_toFinset] at hC
+        exact heq_card C hC
+    -- Now use: support = ⋃ C ∈ orbit, C ∩ support
+    unfold cycleLength
+    rw [← Set.ncard_coe_Finset]
+    conv_lhs => rw [hpart]
+    exact hunion_ncard
+  -- Conclude using eq_div_iff
+  rw [Nat.eq_div_iff_mul_eq_left hne hdiv, mul_comm]
+  exact hprod
 
 -- ============================================
 -- MAIN LEMMA

@@ -1,62 +1,58 @@
-# Handoff: 2026-01-19 (Session 18)
+# Handoff: 2026-01-19 (Session 19)
 
 ## Completed This Session
 
-### 1. Refactored Lemma11_4.lean (P0 - af-tests-bqj) ✅
+### Eliminated Lemma11_4 Sorry (af-tests-2hl) ✅
 
-Split 271-line file into 3 files under 200 LOC each:
+Filled the remaining sorry in `block_support_intersection_card` (Lemma11_4.lean:110).
 
-| File | Lines | Contents |
-|------|-------|----------|
-| `Lemma11_4_Defs.lean` | 64 | BlockSystemInvariant, blockOrbit, blockOrbitSize, cycleLength |
-| `Lemma11_4_Period.lean` | 111 | Period machinery, zpowers equivalence, divisibility proof |
-| `Lemma11_4.lean` | 131 | Support distribution, main theorem |
+**Proof Strategy:**
+1. Used `orbit_blocks_partition_support` to show support = ⋃ C ∈ orbit (C ∩ support)
+2. Applied `Set.Finite.ncard_biUnion` for disjoint union ncard calculation
+3. Used `Finset.sum_eq_card_nsmul` to simplify sum of equal values
+4. Concluded with `Nat.eq_div_iff_mul_eq_left` for division equality
 
-### 2. Sorry Analysis (af-tests-3gf)
-
-Analyzed all 9 remaining sorries - **none are "easy"** (native_decide/simp/omega):
-
-| File | Line | Difficulty | Reason |
-|------|------|------------|--------|
-| Lemma03.lean | 197 | Hard | Explicit S₄ isomorphism construction |
-| Lemma03.lean | 208 | Medium | Fintype.card H₆ = 24 (needs decidable membership) |
-| Lemma11.lean | 82 | Medium | block_to_system type coercions |
-| Lemma11_4.lean | 110 | Medium | Cardinality arithmetic |
-| Lemma11_5.lean | 148 | Hard | Main contradiction proof |
-| MainTheorem.lean | 109 | Medium | cycleType proof for general n,k |
-| MainTheorem.lean | 117 | Medium | cycleType proof for general n,m |
-| MainTheorem.lean | 138 | Medium | 3-cycle existence (k≥1, n=m=0) |
-| MainTheorem.lean | 153 | Medium | 3-cycle existence (k≥1, m≥1) |
-
-### 3. Documented block_to_system Strategy (Lemma11.lean:82)
-
-Attempted proof but hit type coercion complexity. Added detailed strategy comments:
-- Use `IsBlock.isBlockSystem` for mathlib block system
-- Convert between subgroup smul (g • B) and permutation image (g '' B)
-- Key challenge: reconciling mathlib's Setoid.IsPartition with local BlockSystemOn
+**Key Helper Lemmas (new file `Lemma11_4_Helpers.lean`):**
+- `blockOrbit_subset_blocks`: Block orbit ⊆ Blocks (requires zpow invariance)
+- `orbit_intersections_pairwise_disjoint`: Orbit intersections with support are disjoint
+- Supporting lemmas for positive/negative/integer power invariance
 
 ## Current State
 
 - **Build status**: PASSING
-- **Sorry count**: 9
+- **Sorry count**: 8 (down from 9)
 - **Open P0 issues**: 0
 - **All files under 200 LOC**: ✅
 
+### Remaining Sorries
+
+| File | Line | Difficulty | Description |
+|------|------|------------|-------------|
+| Lemma03.lean | 197 | Hard | Explicit S₄ isomorphism construction |
+| Lemma03.lean | 208 | Medium | Fintype.card H₆ = 24 |
+| Lemma11.lean | 82 | Medium | block_to_system type coercions |
+| Lemma11_5.lean | 148 | Hard | Main contradiction proof |
+| MainTheorem.lean | 109 | Medium | cycleType proof (general n,k) |
+| MainTheorem.lean | 117 | Medium | cycleType proof (general n,m) |
+| MainTheorem.lean | 138 | Medium | 3-cycle existence (k≥1, n=m=0) |
+| MainTheorem.lean | 153 | Medium | 3-cycle existence (k≥1, m≥1) |
+
 ## Next Steps (Priority Order)
 
-1. **Fill Lemma11_4 sorry** (af-tests-2hl) - cardinality arithmetic
-2. **Fill Lemma03 sorries** (af-v3z, af-1n0) - H₆ isomorphism and cardinality
-3. **Fill block_to_system** (Lemma11.lean:82) - type coercion resolution
+1. **Lemma11_5.lean** (af-tests-qvq) - Now unblocked by Lemma11_4 completion
+2. **Lemma03.lean** (af-v3z, af-1n0) - H₆ isomorphism and cardinality
+3. **Lemma11.lean** (af-5zd) - H_primitive (block_to_system)
+4. **MainTheorem.lean** - Final assembly
 
 ## Files Modified This Session
 
-- `AfTests/Primitivity/Lemma11_4.lean` - Refactored (271→131 lines)
-- `AfTests/Primitivity/Lemma11_4_Defs.lean` - NEW (64 lines)
-- `AfTests/Primitivity/Lemma11_4_Period.lean` - NEW (111 lines)
-- `AfTests/Primitivity/Lemma11.lean` - Improved block_to_system documentation
+- `AfTests/Primitivity/Lemma11_4.lean` - Filled sorry, added helper import
+- `AfTests/Primitivity/Lemma11_4_Helpers.lean` - NEW (122 lines)
 
 ## Issue Status
 
-- **af-tests-bqj** (P0 Refactor): CLOSED ✅
-- **af-tests-3gf** (Easy sorries): IN_PROGRESS - no easy sorries found
-- **af-tests-2hl** (Lemma11_4): OPEN - 1 sorry remaining
+- **af-tests-2hl** (Lemma11_4 sorries): CLOSED ✅
+- **af-tests-qvq** (Lemma11_5): OPEN - now unblocked
+- **af-v3z** (Lemma03 H₆_iso_S4): OPEN
+- **af-1n0** (Lemma03 H₆_card): OPEN
+- **af-5zd** (Lemma11 H_primitive): OPEN
