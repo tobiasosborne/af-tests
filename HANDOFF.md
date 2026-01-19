@@ -1,55 +1,59 @@
-# Handoff: 2026-01-19 (Session 8)
+# Handoff: 2026-01-19 (Session 9)
 
 ## Completed This Session
 
-### P0 Refactoring: Lemma05.lean
+### P0 Refactoring: Lemma05.lean (from Session 8)
+Refactored 462-line file into 5 modules under 200 LOC limit.
 
-**Fixed**: Refactored 462-line Lemma05.lean into 5 modules under 200 LOC limit
+### Lemma03 Kernel Analysis
+Added infrastructure for proving |H₆| = 24:
+- `g₁_sq`, `g₂_sq`, `g₃_sq`: Generator squares are double transpositions
+- `kernelElements_subset_H₆`: All 4 kernel elements {1, g₁², g₂², g₃²} are in H₆
+- `kernelElements_fix_blocks`: Kernel elements map to identity under blockAction
 
-| File | Lines | Content |
-|------|-------|---------|
-| `Lemma05Base.lean` | 105 | Base case transitivity (H₆ on Fin 6) |
-| `Lemma05ListProps.lean` | 118 | List element properties for g₁, g₂, g₃ |
-| `Lemma05CoreActions.lean` | 143 | Generator actions on core elements {0-5} |
-| `Lemma05TailConnect.lean` | 140 | Tail vertices connecting to core |
-| `Lemma05.lean` | 79 | Main `H_isPretransitive` theorem |
+### Sorry Elimination
+- **Lemma11_1.lean**: Eliminated `inv_preservesB₀` sorry by reusing Lemma03.inv_preserves_B₀
+- Closed stale issues af-56m and af-354 (Lemma05 sorries already eliminated)
 
 ## Current State
 
 - **Build status**: PASSING (1867 jobs)
-- **Sorry count**: 21
+- **Sorry count**: 19 (down from 21)
 - **Open P0 blockers**: None
 
 ## Sorry Distribution
 ```
-MainTheorem.lean:  4 (k-only and mixed cases)
+MainTheorem.lean:  3 (k-only and mixed cases)
 Lemma11_5.lean:    5 (no nontrivial blocks)
 Lemma11_4.lean:    5 (block orbit)
-Lemma11_1.lean:    2 (block system uniqueness)
-Lemma03.lean:      2 (H₆ ≅ S₄)
+Lemma11_1.lean:    1 (size-2 case in unique block system)
+Lemma03.lean:      2 (H₆_iso_S4, H₆_card_eq_24)
 Lemma11.lean:      1 (main primitivity)
+no_size3_block:    1 (in Lemma11_1)
 Lemma05.lean:      0 (COMPLETE!)
 ```
 
 ## Next Steps (Priority Order)
 
-1. **Lemma03**: H₆_iso_S4 and H₆_card_eq_24 - complex isomorphism construction
+1. **Lemma03**: Complete H₆_iso_S4 and H₆_card_eq_24
+   - Strategy: First Isomorphism Theorem (|ker φ| × |im φ| = 4 × 6 = 24)
+   - Kernel analysis is done, need to formalize the homomorphism φ
 
-2. **Lemma11 chain**: 11_1 → 11_4 → 11_5 → 11
+2. **Lemma11_1**: no_size3_block_system and size-2 uniqueness case
 
-3. **MainTheorem**: k-only and mixed cases
+3. **Lemma11 chain**: 11_4 → 11_5 → 11
+
+4. **MainTheorem**: k-only and mixed cases
 
 ## Files Modified This Session
 
-- `AfTests/Transitivity/Lemma05.lean` - Refactored to import submodules
-- `AfTests/Transitivity/Lemma05Base.lean` - NEW: Base case transitivity
-- `AfTests/Transitivity/Lemma05ListProps.lean` - NEW: List element properties
-- `AfTests/Transitivity/Lemma05CoreActions.lean` - NEW: Generator actions on core
-- `AfTests/Transitivity/Lemma05TailConnect.lean` - NEW: Tail-to-core connections
+- `AfTests/BaseCase/Lemma03.lean` - Added kernel analysis (g₁², g₂², g₃², membership, fix blocks)
+- `AfTests/Primitivity/Lemma11_1.lean` - Eliminated inv_preservesB₀ sorry, added Lemma03 import
 
 ## Known Issues / Gotchas
 
-- Style warnings remain (native_decide, deprecated Perm.inv_apply_self, long lines) but are non-blocking
-- Lemma05 transitivity is complete but split across multiple files for LOC compliance
+- Lemma03.lean is at 210 lines (slightly over 200 LOC limit)
+- H₆_iso_S4 needs explicit isomorphism via tetrahedral action or cardinality argument
+- Style warnings (native_decide, deprecated functions) are non-blocking
 
 Run `bd ready` to see available tasks.
