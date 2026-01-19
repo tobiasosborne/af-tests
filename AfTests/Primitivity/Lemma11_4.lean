@@ -64,7 +64,9 @@ theorem blockOrbit_closed {σ : Perm α} {B : Set α} {C : Set α}
   obtain ⟨k, rfl⟩ := hC
   use k + 1
   -- σ '' (σ^k '' B) = σ^(k+1) '' B
-  sorry
+  -- Rewrite: k+1 = 1+k, then zpow_add, then image_image
+  rw [show k + 1 = 1 + k from add_comm k 1, zpow_add, zpow_one, ← Set.image_comp]
+  rfl
 
 -- ============================================
 -- SECTION 3: CYCLE LENGTH AND ORBIT DIVISIBILITY
