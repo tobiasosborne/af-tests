@@ -60,10 +60,41 @@ theorem inv_preserves_B₀ (g : Equiv.Perm (Fin 6))
     (hg : ∀ B ∈ B₀, B.image g ∈ B₀) : ∀ B ∈ B₀, B.image (g⁻¹ : Equiv.Perm (Fin 6)) ∈ B₀ := by
   -- g induces a bijection on B₀ (3 blocks), so g⁻¹ does too.
   -- For each B ∈ B₀, there exists B' ∈ B₀ with B'.image g = B, so B.image g⁻¹ = B'.
-  -- Proof: g is a bijection on Fin 6, and maps each block to a block.
-  -- Since B₀ has 3 elements and g restricted to B₀ is injective (as g is a bijection),
-  -- it must be surjective, so every block has a preimage under g.
-  sorry  -- TODO: Combinatorial argument on finite set
+  intro B hB
+  -- The map B ↦ B.image g is injective on B₀ (since g is injective)
+  have inj : Set.InjOn (Finset.image g) B₀ := by
+    intro B₁ hB₁ B₂ hB₂ heq
+    ext x
+    constructor
+    · intro hx
+      have h1 : g x ∈ B₁.image g := Finset.mem_image_of_mem g hx
+      rw [heq] at h1
+      obtain ⟨y, hy, heq'⟩ := Finset.mem_image.mp h1
+      exact g.injective heq' ▸ hy
+    · intro hx
+      have h2 : g x ∈ B₂.image g := Finset.mem_image_of_mem g hx
+      rw [← heq] at h2
+      obtain ⟨y, hy, heq'⟩ := Finset.mem_image.mp h2
+      exact g.injective heq' ▸ hy
+  -- The map is surjective because it's injective on a finite set mapping to itself
+  have surj : Set.SurjOn (Finset.image g) B₀ B₀ := by
+    apply Finset.surjOn_of_injOn_of_card_le
+    · exact fun B hB => hg B hB
+    · exact inj
+    · exact le_refl _
+  -- Get the preimage block B' such that B'.image g = B
+  obtain ⟨B', hB', heq⟩ := surj hB
+  -- Show B.image g⁻¹ = B'
+  convert hB' using 1
+  rw [← heq]
+  ext x
+  simp only [Finset.mem_image, Equiv.Perm.coe_inv]
+  constructor
+  · rintro ⟨y, ⟨z, hz, rfl⟩, rfl⟩
+    simp only [Equiv.symm_apply_apply]
+    exact hz
+  · intro hx
+    exact ⟨g x, ⟨x, hx, rfl⟩, g.symm_apply_apply x⟩
 
 /-- If g, h preserve B₀, then g * h preserves B₀ -/
 theorem mul_preserves_B₀ (g h : Equiv.Perm (Fin 6))
