@@ -6,6 +6,7 @@ Authors: AF-Tests Project
 import AfTests.Core
 import AfTests.ThreeCycle.Lemma06
 import AfTests.ThreeCycle.Lemma07
+import AfTests.BaseCase.Lemma03
 import Mathlib.GroupTheory.Perm.Cycle.Concrete
 
 /-!
@@ -115,13 +116,46 @@ theorem c₁₂_times_c₁₃_inv_mem_H : c₁₂_times_c₁₃_inv 0 0 0 ∈ H 
   · exact commutator_g₁_g₂_mem_H
   · exact Subgroup.inv_mem _ commutator_g₁_g₃_mem_H
 
-/-- The 3-cycle c[0, 1, 5] is in H -/
-theorem first_3cycle_L9_mem_H : first_3cycle_L9 ∈ H 0 0 0 := by
-  sorry -- Requires extraction from product of disjoint cycles
+-- ============================================
+-- BASE CASE ANALYSIS: Individual 3-cycles NOT in H₆
+-- ============================================
 
-/-- The 3-cycle c[2, 3, 4] is in H -/
-theorem second_3cycle_L9_mem_H : second_3cycle_L9 ∈ H 0 0 0 := by
-  sorry -- Requires extraction from product of disjoint cycles
+/-! ### Important: Base Case Structure
+
+In the base case (n=k=m=0), H₆ ≅ S₄ with |H₆| = 24 (Lemma 3-4).
+H₆ preserves the block structure B₀ = {{0,3}, {1,4}, {2,5}} (Lemma 1-3).
+
+The individual 3-cycles c[0,1,5] and c[2,3,4] are NOT in H₆ because they
+break this block structure:
+- c[0,1,5] maps Block1 = {0,3} to {1,3}, which is not a block
+- c[2,3,4] maps Block3 = {2,5} to {3,5}, which is not a block
+
+The PRODUCT c[0,1,5] * c[2,3,4] = c₁₂ * c₁₃⁻¹ IS in H₆, but the individual
+cycles cannot be extracted in the base case.
+
+For the general case (n+k+m ≥ 1), the Main Theorem uses a different strategy:
+squaring (c₁₂ * c₁₃⁻¹)² eliminates 2-cycles and yields a single 3-cycle.
+See MainTheorem.lean for the correct 3-cycle extraction. -/
+
+/-- c[0,1,5] does NOT preserve block B₀ - it maps {0,3} to {1,3} -/
+theorem first_3cycle_L9_breaks_blocks :
+    Block1.image first_3cycle_L9 ∉ B₀ := by native_decide
+
+/-- c[2,3,4] does NOT preserve block B₀ - it maps {2,5} to {3,5} -/
+theorem second_3cycle_L9_breaks_blocks :
+    Block3.image second_3cycle_L9 ∉ B₀ := by native_decide
+
+/-- c[0,1,5] is NOT in H₆ (base case) because it breaks the block structure -/
+theorem first_3cycle_L9_not_mem_H₆ : first_3cycle_L9 ∉ H 0 0 0 := by
+  intro h
+  have hpres := AfTests.BaseCase.H₆_imprimitive ⟨first_3cycle_L9, h⟩ Block1 Block1_mem_B₀
+  exact first_3cycle_L9_breaks_blocks hpres
+
+/-- c[2,3,4] is NOT in H₆ (base case) because it breaks the block structure -/
+theorem second_3cycle_L9_not_mem_H₆ : second_3cycle_L9 ∉ H 0 0 0 := by
+  intro h
+  have hpres := AfTests.BaseCase.H₆_imprimitive ⟨second_3cycle_L9, h⟩ Block3 Block3_mem_B₀
+  exact second_3cycle_L9_breaks_blocks hpres
 
 -- ============================================
 -- 3-CYCLE PROPERTIES

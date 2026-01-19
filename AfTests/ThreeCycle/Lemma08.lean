@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: AF-Tests Project
 -/
 import AfTests.Core
+import AfTests.BaseCase.Lemma03
 import Mathlib.GroupTheory.Perm.Cycle.Concrete
 
 /-!
@@ -102,14 +103,43 @@ theorem commutator_g₂_g₃_mem_H : commutator_g₂_g₃ 0 0 0 ∈ H 0 0 0 := b
     · exact g₂_mem_H 0 0 0
   · exact g₃_mem_H 0 0 0
 
-/-- The 3-cycle c[0, 5, 1] is in H.
-    NOTE: Extracting individual 3-cycles from a product of disjoint 3-cycles
-    requires Lemma09's technique: combining commutators and squaring.
-    This is Phase 3 work - see Lemma09 for the extraction method. -/
-theorem first_3cycle_g₂g₃_mem_H : first_3cycle_g₂g₃ ∈ H 0 0 0 := by
-  sorry -- Phase 3: requires Lemma09 extraction method
+-- ============================================
+-- BASE CASE ANALYSIS: Individual 3-cycles NOT in H₆
+-- ============================================
 
-/-- The 3-cycle c[2, 4, 3] is in H.
-    NOTE: See first_3cycle_g₂g₃_mem_H for explanation. -/
-theorem second_3cycle_g₂g₃_mem_H : second_3cycle_g₂g₃ ∈ H 0 0 0 := by
-  sorry -- Phase 3: requires Lemma09 extraction method
+/-! ### Important: Base Case Structure
+
+In the base case (n=k=m=0), H₆ ≅ S₄ with |H₆| = 24 (Lemma 3-4).
+H₆ preserves the block structure B₀ = {{0,3}, {1,4}, {2,5}} (Lemma 1-3).
+
+The individual 3-cycles c[0,5,1] and c[2,4,3] are NOT in H₆ because they
+break this block structure:
+- c[0,5,1] maps Block1 = {0,3} to {3,5}, which is not a block
+- c[2,4,3] maps Block3 = {2,5} to {4,5}, which is not a block
+
+The PRODUCT c[0,5,1] * c[2,4,3] = [g₂,g₃] IS in H₆, but the individual
+cycles cannot be extracted in the base case.
+
+For the general case (n+k+m ≥ 1), the Main Theorem uses a different strategy:
+squaring (c₁₂ * c₁₃⁻¹)² eliminates 2-cycles and yields a single 3-cycle.
+See MainTheorem.lean for the correct 3-cycle extraction. -/
+
+/-- c[0,5,1] does NOT preserve block B₀ - it maps {0,3} to {3,5} -/
+theorem first_3cycle_g₂g₃_breaks_blocks :
+    Block1.image first_3cycle_g₂g₃ ∉ B₀ := by native_decide
+
+/-- c[2,4,3] does NOT preserve block B₀ - it maps {2,5} to {4,5} -/
+theorem second_3cycle_g₂g₃_breaks_blocks :
+    Block3.image second_3cycle_g₂g₃ ∉ B₀ := by native_decide
+
+/-- c[0,5,1] is NOT in H₆ (base case) because it breaks the block structure -/
+theorem first_3cycle_g₂g₃_not_mem_H₆ : first_3cycle_g₂g₃ ∉ H 0 0 0 := by
+  intro h
+  have hpres := AfTests.BaseCase.H₆_imprimitive ⟨first_3cycle_g₂g₃, h⟩ Block1 Block1_mem_B₀
+  exact first_3cycle_g₂g₃_breaks_blocks hpres
+
+/-- c[2,4,3] is NOT in H₆ (base case) because it breaks the block structure -/
+theorem second_3cycle_g₂g₃_not_mem_H₆ : second_3cycle_g₂g₃ ∉ H 0 0 0 := by
+  intro h
+  have hpres := AfTests.BaseCase.H₆_imprimitive ⟨second_3cycle_g₂g₃, h⟩ Block3 Block3_mem_B₀
+  exact second_3cycle_g₂g₃_breaks_blocks hpres

@@ -67,6 +67,15 @@ theorem blocks_cover : Block1 ∪ Block2 ∪ Block3 = Finset.univ := by
 /-- B₀ has exactly 3 blocks -/
 theorem B₀_card : B₀.card = 3 := by decide
 
+/-- Block1 is in B₀ -/
+theorem Block1_mem_B₀ : Block1 ∈ B₀ := by decide
+
+/-- Block2 is in B₀ -/
+theorem Block2_mem_B₀ : Block2 ∈ B₀ := by decide
+
+/-- Block3 is in B₀ -/
+theorem Block3_mem_B₀ : Block3 ∈ B₀ := by decide
+
 /-- Given a point in Fin 6, return which block it belongs to (0, 1, or 2) -/
 def blockIndex (x : Fin 6) : Fin 3 :=
   if x ∈ Block1 then 0
