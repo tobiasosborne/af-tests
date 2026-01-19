@@ -1,95 +1,73 @@
 # Handoff: 2026-01-19 (Session 3)
 
 ## Completed This Session
-- **Phase 3.1 Audit**: Complete sorry analysis (33 actual sorries)
+- **Phase 3.1 Audit**: Complete sorry analysis (33 → 36 sorries after restructure)
 - **Created 33 beads issues**: One issue per sorry location with descriptions
 - **Added dependencies**: Lemma06/07/08 issues blocked by Lemma09 issues
+- **MAJOR DISCOVERY**: MainTheorem IsThreeCycle hypothesis was INCORRECT
+
+## Key Discovery: 3-Cycle Extraction Bug
+
+The original claim `(c₁₂ * c₁₃⁻¹)² is a 3-cycle when n + k + m ≥ 1` is **FALSE**.
+
+| n | k | m | cycleType | Status |
+|---|---|---|-----------|--------|
+| 1 | * | 0 | {3} | ✓ Works |
+| * | 0 | 1 | {3} | ✓ Works (use c₁₃*c₂₃⁻¹) |
+| 0 | 1 | 0 | {3,3} | ✗ Need complex construction |
+| 1 | 1 | 1 | {3,3} | ✗ Need complex construction |
+
+**Working constructions:**
+- `n ≥ 1 ∧ m = 0`: `(c₁₂ * c₁₃⁻¹)²`
+- `m ≥ 1 ∧ k = 0`: `(c₁₃ * c₂₃⁻¹)²`
+
+**Unsolved cases** (need conjugation or iterated commutators):
+- `k ≥ 1 ∧ n = m = 0`
+- `k ≥ 1 ∧ m ≥ 1`
 
 ## Current State
 - **Build status**: PASSING
-- **Sorry count**: 33
+- **Sorry count**: 36 (was 33, +3 from MainTheorem restructure)
 - **Open blockers**: None (no P0 issues)
-- **Phase 2.7**: COMPLETE (MainTheorem structure done)
 - **Phase 3.1**: COMPLETE (Audit done)
 
-## Sorry Audit Summary (33 total)
-
-### By File
-| File | Count | Type |
-|------|-------|------|
-| Lemma05.lean | 6 | Transitivity (orbit/graph) |
-| Lemma11_4.lean | 6 | Block orbit (orbit-stabilizer) |
-| Lemma11_5.lean | 5 | No nontrivial blocks |
-| Lemma11_1.lean | 4 | Block system uniqueness |
-| Lemma03.lean | 3 | H₆ ≅ S₄ structure |
-| Lemma09.lean | 2 | 3-cycle extraction |
-| Lemma06.lean | 2 | [g₁,g₂] 3-cycle (needs L09) |
-| Lemma07.lean | 2 | [g₁,g₃] 3-cycle (needs L09) |
-| Lemma08.lean | 2 | [g₂,g₃] 3-cycle (needs L09) |
-| Lemma11.lean | 1 | Main primitivity |
-| MainTheorem.lean | 1 | IsThreeCycle proof |
-
-### By Difficulty
-
-**EASY** (2 sorries) - Direct proofs:
-- `MainTheorem:88` - `native_decide` for concrete case
-- `Lemma03:66` - Combinatorial finite set argument
-
-**MEDIUM** (8 sorries) - Need some proof work:
-- `Lemma09:120,124` - 3-cycle extraction from products
-- `Lemma06:110,115` - Depends on Lemma09
-- `Lemma07:110,115` - Depends on Lemma09
-- `Lemma08:110,115` - Depends on Lemma09
-
-**HARD** (23 sorries) - Complex mathematical reasoning:
-- `Lemma03:101,112` - First isomorphism theorem
-- `Lemma05:148,156,164,172,178,188` - Orbit/graph connectivity
-- `Lemma11_1:123,144,193` - Block system uniqueness
-- `Lemma11_4:67,79,90,102,110,122` - Orbit-stabilizer theorem
-- `Lemma11_5:84,89,120,130,148` - Primitivity argument
-- `Lemma11:80` - Assembly of sub-lemmas
-
-### Dependency Chain
+## Sorry Distribution
 ```
-Lemma09 (2) → Lemma06,07,08 (6) → MainTheorem 3-cycle membership
-Lemma11_1,2,3,4 → Lemma11_5 → Lemma11 → MainTheorem primitivity
-Lemma05 → MainTheorem transitivity
+MainTheorem.lean:  4 (restructured with case analysis)
+Lemma05.lean:      6 (transitivity)
+Lemma11_4.lean:    6 (block orbit)
+Lemma11_5.lean:    5 (no nontrivial blocks)
+Lemma11_1.lean:    3 (block system uniqueness)
+Lemma03.lean:      3 (H₆ ≅ S₄)
+Lemma09.lean:      2 (3-cycle extraction)
+Lemma06,07,08:     6 (depend on L09)
+Lemma11.lean:      1 (main primitivity)
 ```
 
 ## Next Steps (Priority Order)
-1. **Phase 3.2**: Eliminate easy sorries (Lemma03:66, MainTheorem:88)
-2. **Phase 3.3**: Tackle Lemma09 (unblocks 6 more sorries)
-3. **Phase 3.4**: Work on Lemma05 transitivity
-4. **Phase 3.5**: Lemma11 chain (most complex)
-
-## Key Lemmas Status
-```
-Core:        Omega ✓, Generators ✓, GroupH ✓, Blocks ✓
-BaseCase:    Lemma01 ✓, Lemma02 ✓, Lemma03 ✓, Lemma04 ✓
-Transitivity: Lemma05 (6 sorries)
-ThreeCycle:  Lemma06 (2), Lemma07 (2), Lemma09 (2) - 3-cycle extraction
-Primitivity: Lemma10 ✓, Lemma11 (1), Lemma11_1 ✓
-             Lemma11_2 ✓, Lemma11_3 ✓
-             Lemma11_4 (6 sorries), Lemma11_5 (5 sorries)
-SignAnal:    Lemma12 ✓, Lemma13 ✓, Lemma14 ✓, Lemma15 ✓
-Main:        MainTheorem (1 sorry - IsThreeCycle)
-```
+1. **Research**: Solve k-only and mixed cases for H_contains_threecycle
+2. **Lemma03:66**: Finite combinatorics proof
+3. **Lemma09**: 3-cycle extraction (unblocks 6 sorries)
+4. **Lemma05**: Transitivity proofs
+5. **Lemma11 chain**: Most complex
 
 ## Files Modified This Session
-- `HANDOFF.md` - Updated with Phase 3.1 audit results
+- `AfTests/MainTheorem.lean` - Major restructure with case analysis
+- `HANDOFF.md` - Updated with discovery
+- `.beads/` - 4 new issues for MainTheorem sorries
 
 ## Known Issues / Gotchas
-- 3-cycle extraction requires n + k + m ≥ 1; base case has no 3-cycles
-- `native_decide` works for specific n,k,m values but not parametrically
-- Lemma09 is the key bottleneck - unblocks Lemma06,07,08
-- Lemma11 chain (11_1 through 11_5) is the most complex dependency chain
-- Lemma05 transitivity proofs require orbit/graph connectivity arguments
+- **CRITICAL**: 3-cycle extraction does NOT work for all n+k+m≥1
+- `native_decide` works for concrete values but not parametric proofs
+- Lemma09 remains key bottleneck for Lemma06,07,08
+- New issues: af-3ht, af-ny8, af-268, af-6hl for MainTheorem cases
 
-## Recommended Attack Order
-1. MainTheorem:88 - Quick win with `native_decide`
-2. Lemma03:66 - Finite combinatorics (manageable)
-3. Lemma09 - Unlocks 6 downstream sorries
-4. Lemma05 - Transitivity (independent of Lemma09/11 chains)
-5. Lemma11_* chain - Save for last, most complex
+## New Issues Created This Session
+| ID | Title |
+|----|-------|
+| af-3ht | Parametric proof for n≥1, m=0 case |
+| af-ny8 | Parametric proof for m≥1, k=0 case |
+| af-268 | k≥1, n=m=0 case (needs research) |
+| af-6hl | k≥1, m≥1 mixed case (needs research) |
 
 Run `bd ready` to see available tasks.
