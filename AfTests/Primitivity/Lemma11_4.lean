@@ -78,7 +78,9 @@ noncomputable def cycleLength (σ : Perm α) : ℕ := σ.support.card
 /-- For a cycle, the cyclic subgroup has order equal to the cycle length -/
 theorem zpowers_card_eq_cycle_length {σ : Perm α} (hσ : σ.IsCycle) :
     Nat.card (Subgroup.zpowers σ) = cycleLength σ := by
-  sorry
+  -- Use mathlib's result that orderOf σ = #σ.support for cycles
+  simp only [cycleLength, Nat.card_eq_fintype_card, Fintype.card_zpowers]
+  exact hσ.orderOf
 
 /-- **Block orbit divides cycle length**
 

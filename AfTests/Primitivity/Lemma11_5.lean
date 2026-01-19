@@ -78,15 +78,51 @@ theorem fixed_outside_support {α : Type*} [DecidableEq α] [Fintype α]
   simp only [Finset.mem_coe, mem_support, ne_eq, not_not] at hx
   exact hx
 
+/-- Tail A elements are not in the g₂ cycle list -/
+theorem tailA_not_in_g₂_list (i : Fin n) :
+    (⟨6 + i.val, by omega⟩ : Omega n k m) ∉ g₂CoreList n k m ++ tailBList n k m := by
+  intro h
+  simp only [List.mem_append, g₂CoreList, tailBList, List.mem_cons,
+    List.mem_map, List.mem_finRange, List.not_mem_nil, or_false] at h
+  rcases h with h | h
+  · -- In core list [1, 3, 4, 0]
+    rcases h with h | h | h | h
+    all_goals simp only [Fin.ext_iff] at h; omega
+  · -- In tailBList (which starts at 6+n, but i < n so 6+i < 6+n)
+    obtain ⟨j, _, hj⟩ := h
+    simp only [Fin.ext_iff] at hj
+    have := i.isLt  -- i < n
+    omega
+
 /-- Tail A elements are not in supp(g₂) -/
 theorem tailA_not_in_support_g₂ (hn : n ≥ 1) (i : Fin n) :
     (⟨6 + i.val, by omega⟩ : Omega n k m) ∉ (g₂ n k m).support := by
-  sorry
+  simp only [g₂, Equiv.Perm.mem_support, ne_eq, not_not]
+  apply List.formPerm_apply_of_not_mem
+  exact tailA_not_in_g₂_list i
+
+/-- Tail A elements are not in the g₃ cycle list -/
+theorem tailA_not_in_g₃_list (i : Fin n) :
+    (⟨6 + i.val, by omega⟩ : Omega n k m) ∉ g₃CoreList n k m ++ tailCList n k m := by
+  intro h
+  simp only [List.mem_append, g₃CoreList, tailCList, List.mem_cons,
+    List.mem_map, List.mem_finRange, List.not_mem_nil, or_false] at h
+  rcases h with h | h
+  · -- In core list [2, 4, 5, 1]
+    rcases h with h | h | h | h
+    all_goals simp only [Fin.ext_iff] at h; omega
+  · -- In tailCList (which starts at 6+n+k, but i < n so 6+i < 6+n+k)
+    obtain ⟨j, _, hj⟩ := h
+    simp only [Fin.ext_iff] at hj
+    have := i.isLt  -- i < n
+    omega
 
 /-- Tail A elements are not in supp(g₃) -/
 theorem tailA_not_in_support_g₃ (hn : n ≥ 1) (i : Fin n) :
     (⟨6 + i.val, by omega⟩ : Omega n k m) ∉ (g₃ n k m).support := by
-  sorry
+  simp only [g₃, Equiv.Perm.mem_support, ne_eq, not_not]
+  apply List.formPerm_apply_of_not_mem
+  exact tailA_not_in_g₃_list i
 
 /-- g₂ fixes tail A elements -/
 theorem g₂_fixes_tailA (hn : n ≥ 1) (i : Fin n) :
