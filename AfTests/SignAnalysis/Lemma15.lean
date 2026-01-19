@@ -40,25 +40,19 @@ namespace AfTests.SignAnalysis
 
 open Equiv Equiv.Perm Subgroup
 
--- ============================================
--- SECTION 1: INDEX-2 DICHOTOMY
--- ============================================
-
-/-- The alternating group has index 2 in the symmetric group.
-    This is `alternatingGroup.index_eq_two` in mathlib. -/
+/-- The alternating group has index 2 in the symmetric group. -/
 theorem alternatingGroup_index_two (α : Type*) [Fintype α] [DecidableEq α] [Nontrivial α] :
-    (alternatingGroup α).index = 2 :=
-  alternatingGroup.index_eq_two
+    (alternatingGroup α).index = 2 := alternatingGroup.index_eq_two
 
-/-- If a subgroup G contains Aₙ, then G has index 1 or 2 in Sₙ.
-    This is a consequence of Lagrange's theorem: G.index divides Aₙ.index = 2. -/
+/-- If G contains Aₙ, then G.index ∈ {1, 2} (Lagrange). -/
 theorem index_of_supergroup_alternating (α : Type*) [Fintype α] [DecidableEq α] [Nontrivial α]
     {G : Subgroup (Perm α)} (hG : alternatingGroup α ≤ G) :
     G.index = 1 ∨ G.index = 2 := by
   have hDiv := index_dvd_of_le hG
   rw [alternatingGroup_index_two] at hDiv
-  -- Phase 2: prove from divisibility that G.index ∈ {1, 2}
-  sorry
+  -- Divisors of 2 are exactly {1, 2} by Nat.dvd_prime
+  rw [Nat.dvd_prime Nat.prime_two] at hDiv
+  exact hDiv
 
 /-- **Index-2 Dichotomy**: If Aₙ ≤ G ≤ Sₙ, then G = Aₙ or G = Sₙ -/
 theorem alternating_or_symmetric (α : Type*) [Fintype α] [DecidableEq α] [Nontrivial α]
@@ -68,42 +62,19 @@ theorem alternating_or_symmetric (α : Type*) [Fintype α] [DecidableEq α] [Non
   · right
     exact index_eq_one.mp hIdx
   · left
-    have hIdx' : (alternatingGroup α).index = 2 := alternatingGroup_index_two α
-    exact le_antisymm (by sorry) hG  -- Phase 2: prove G ≤ Aₙ from index
-
--- ============================================
--- SECTION 2: SIGN CHARACTERIZATION
--- ============================================
-
-/-- Membership in alternating group is characterized by sign = 1 -/
-theorem mem_alternating_iff_sign_one {α : Type*} [Fintype α] [DecidableEq α]
-    (σ : Perm α) : σ ∈ alternatingGroup α ↔ Perm.sign σ = 1 :=
-  mem_alternatingGroup
-
-/-- G ⊆ Aₙ iff all elements of G have sign 1 -/
-theorem subgroup_le_alternating_iff {α : Type*} [Fintype α] [DecidableEq α]
-    (G : Subgroup (Perm α)) :
-    G ≤ alternatingGroup α ↔ ∀ g ∈ G, Perm.sign g = 1 := by
-  constructor
-  · intro hLe g hg
-    exact mem_alternatingGroup.mp (hLe hg)
-  · intro hAll g hg
-    exact mem_alternatingGroup.mpr (hAll g hg)
+    -- Both have index 2, so they're equal via relIndex argument
+    have hIdx' := alternatingGroup_index_two α
+    have hRel : (alternatingGroup α).relIndex G = 1 := by
+      have h := relIndex_mul_index hG; rw [hIdx, hIdx'] at h; omega
+    exact le_antisymm (relIndex_eq_one.mp hRel) hG
 
 /-- G ⊆ Aₙ iff generators have sign 1 (for closure-generated subgroups) -/
 theorem closure_le_alternating_iff {α : Type*} [Fintype α] [DecidableEq α]
     (S : Set (Perm α)) :
     closure S ≤ alternatingGroup α ↔ ∀ g ∈ S, Perm.sign g = 1 := by
   rw [closure_le]
-  constructor
-  · intro h g hg
-    exact mem_alternatingGroup.mp (h hg)
-  · intro h g hg
-    exact mem_alternatingGroup.mpr (h g hg)
-
--- ============================================
--- SECTION 3: APPLICATION TO H
--- ============================================
+  exact ⟨fun h g hg => mem_alternatingGroup.mp (h hg),
+         fun h g hg => mem_alternatingGroup.mpr (h g hg)⟩
 
 /-- H is contained in Aₙ iff all three generators are even -/
 theorem H_le_alternating_iff (n k m : ℕ) :
@@ -191,7 +162,10 @@ theorem lemma15_H_classification (n k m : ℕ) (hPrim : n + k + m ≥ 1)
     · intro hEq hOdd
       have hAlt := lemma15_H_eq_alternating n k m hPrim hOdd h3cycle
       rw [hEq] at hAlt
-      sorry  -- Phase 2: prove ⊤ ≠ Aₙ
+      -- ⊤ = Aₙ contradicts index_alternating = 2 ≠ 1 = index_top
+      have hIdx : (alternatingGroup (Omega n k m)).index = 2 := alternatingGroup_index_two _
+      rw [← hAlt, index_top] at hIdx
+      omega
     · intro hNotOdd
       exact lemma15_H_eq_symmetric n k m hPrim hNotOdd h3cycle
 
