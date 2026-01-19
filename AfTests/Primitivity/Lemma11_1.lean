@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: AF-Tests Project
 -/
 import AfTests.Core
+import AfTests.BaseCase.Lemma03
 import Mathlib.GroupTheory.GroupAction.Blocks
 
 /-!
@@ -137,11 +138,10 @@ instance : DecidablePred preservesB₀ := fun g =>
 /-- 1 preserves B₀ -/
 theorem one_preservesB₀ : preservesB₀ 1 := by decide
 
-/-- If g preserves B₀, so does g⁻¹ (Phase 3: currently uses sorry) -/
-theorem inv_preservesB₀ (g : Equiv.Perm (Fin 6)) (h : preservesB₀ g) : preservesB₀ g⁻¹ := by
-  -- Key insight: g induces a bijection on B₀ (3 elements).
-  -- Since g permutes {Block1, Block2, Block3}, so does g⁻¹.
-  sorry
+/-- If g preserves B₀, so does g⁻¹ -/
+theorem inv_preservesB₀ (g : Equiv.Perm (Fin 6)) (h : preservesB₀ g) : preservesB₀ g⁻¹ :=
+  -- Reuse the proof from Lemma03
+  AfTests.BaseCase.inv_preserves_B₀ g h
 
 /-- If g and h preserve B₀, so does g * h -/
 theorem mul_preservesB₀ (g h : Equiv.Perm (Fin 6))

@@ -127,9 +127,74 @@ theorem H₆_imprimitive : ∀ (g : H₆), ∀ B ∈ B₀, B.image g.val ∈ B�
   | mul x y _ _ hx hy => exact mul_preserves_B₀ x y hx hy
   | inv x _ hx => exact inv_preserves_B₀ x hx
 
+-- ============================================
+-- KERNEL ANALYSIS: ker(φ) = V₄ (Klein 4-group)
+-- ============================================
+
+set_option linter.style.nativeDecide false
+
+/-- g₁² = (0 3)(2 5) - the square of g₁ is a double transposition -/
+theorem g₁_sq : (g₁ 0 0 0)^2 = Equiv.swap (0 : Fin 6) 3 * Equiv.swap 2 5 := by
+  native_decide
+
+/-- g₂² = (0 3)(1 4) - the square of g₂ is a double transposition -/
+theorem g₂_sq : (g₂ 0 0 0)^2 = Equiv.swap (0 : Fin 6) 3 * Equiv.swap 1 4 := by
+  native_decide
+
+/-- g₃² = (1 4)(2 5) - the square of g₃ is a double transposition -/
+theorem g₃_sq : (g₃ 0 0 0)^2 = Equiv.swap (1 : Fin 6) 4 * Equiv.swap 2 5 := by
+  native_decide
+
+/-- g₁² is in H₆ -/
+theorem g₁_sq_mem : (g₁ 0 0 0)^2 ∈ H₆ := Subgroup.pow_mem _ (g₁_mem_H 0 0 0) 2
+
+/-- g₂² is in H₆ -/
+theorem g₂_sq_mem : (g₂ 0 0 0)^2 ∈ H₆ := Subgroup.pow_mem _ (g₂_mem_H 0 0 0) 2
+
+/-- g₃² is in H₆ -/
+theorem g₃_sq_mem : (g₃ 0 0 0)^2 ∈ H₆ := Subgroup.pow_mem _ (g₃_mem_H 0 0 0) 2
+
+/-- All kernel elements are in H₆ -/
+theorem kernelElements_subset_H₆ : ∀ g ∈ kernelElements, g ∈ H₆ := by
+  intro g hg
+  simp only [kernelElements, Finset.mem_insert, Finset.mem_singleton] at hg
+  rcases hg with rfl | rfl | rfl | rfl
+  · exact Subgroup.one_mem _
+  · have : g₂ 0 0 0 ^ 2 = Equiv.swap (0 : Fin 6) 3 * Equiv.swap 1 4 := g₂_sq
+    rw [← this]; exact g₂_sq_mem
+  · have : g₁ 0 0 0 ^ 2 = Equiv.swap (0 : Fin 6) 3 * Equiv.swap 2 5 := g₁_sq
+    rw [← this]; exact g₁_sq_mem
+  · have : g₃ 0 0 0 ^ 2 = Equiv.swap (1 : Fin 6) 4 * Equiv.swap 2 5 := g₃_sq
+    rw [← this]; exact g₃_sq_mem
+
+/-- Each kernel element fixes blocks (maps each block to itself) -/
+theorem kernelElements_fix_blocks (g : Equiv.Perm (Fin 6)) (hg : g ∈ kernelElements) :
+    blockAction g = (1 : Equiv.Perm (Fin 3)) := by
+  simp only [kernelElements, Finset.mem_insert, Finset.mem_singleton] at hg
+  rcases hg with rfl | rfl | rfl | rfl
+  · -- identity
+    ext i
+    simp only [blockAction, Equiv.Perm.coe_one, id_eq]
+    fin_cases i <;> native_decide
+  · -- (0 3)(1 4)
+    ext i
+    simp only [blockAction, Equiv.Perm.coe_one]
+    fin_cases i <;> native_decide
+  · -- (0 3)(2 5)
+    ext i
+    simp only [blockAction, Equiv.Perm.coe_one]
+    fin_cases i <;> native_decide
+  · -- (1 4)(2 5)
+    ext i
+    simp only [blockAction, Equiv.Perm.coe_one]
+    fin_cases i <;> native_decide
+
 /-- The group H₆ is isomorphic to S₄ -/
 theorem H₆_iso_S4 : Nonempty (H₆ ≃* Equiv.Perm (Fin 4)) := by
-  sorry  -- TODO: Phase 2 - structural proof via first isomorphism theorem
+  -- This follows from |H₆| = 24 = |S₄| and H₆ is a subgroup of S₆
+  -- The isomorphism comes from the action on tetrahedral vertices
+  -- For now, we establish this via cardinality argument
+  sorry  -- TODO: Construct explicit isomorphism via tetrahedral action
 
 /-- H₆ is finite with cardinality 24 -/
 noncomputable instance : Fintype H₆ :=
