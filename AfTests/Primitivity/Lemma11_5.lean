@@ -7,6 +7,7 @@ import AfTests.Core
 import AfTests.Primitivity.Lemma11_2
 import AfTests.Primitivity.Lemma11_3
 import AfTests.Primitivity.Lemma11_4
+import AfTests.Primitivity.Lemma11_5_FixedPoints
 
 /-!
 # Lemma 11.5: No Non-trivial Blocks
@@ -69,111 +70,7 @@ def IsNontrivial (BS : BlockSystemOn n k m) : Prop :=
   1 < BS.blockSize ∧ BS.blockSize < 6 + n + k + m
 
 -- ============================================
--- SECTION 2: FIXED POINT LEMMAS
--- ============================================
-
-/-- Elements outside supp(σ) are fixed by σ -/
-theorem fixed_outside_support {α : Type*} [DecidableEq α] [Fintype α]
-    (σ : Perm α) (x : α) (hx : x ∉ σ.support) : σ x = x := by
-  simp only [Finset.mem_coe, mem_support, ne_eq, not_not] at hx
-  exact hx
-
-/-- Tail A elements are not in the g₂ cycle list -/
-theorem tailA_not_in_g₂_list (i : Fin n) :
-    (⟨6 + i.val, by omega⟩ : Omega n k m) ∉ g₂CoreList n k m ++ tailBList n k m := by
-  intro h
-  simp only [List.mem_append, g₂CoreList, tailBList, List.mem_cons,
-    List.mem_map, List.mem_finRange, List.not_mem_nil, or_false] at h
-  rcases h with h | h
-  · -- In core list [1, 3, 4, 0]
-    rcases h with h | h | h | h
-    all_goals simp only [Fin.ext_iff] at h; omega
-  · -- In tailBList (which starts at 6+n, but i < n so 6+i < 6+n)
-    obtain ⟨j, _, hj⟩ := h
-    simp only [Fin.ext_iff] at hj
-    have := i.isLt  -- i < n
-    omega
-
-/-- Tail A elements are not in supp(g₂) -/
-theorem tailA_not_in_support_g₂ (hn : n ≥ 1) (i : Fin n) :
-    (⟨6 + i.val, by omega⟩ : Omega n k m) ∉ (g₂ n k m).support := by
-  simp only [g₂, Equiv.Perm.mem_support, ne_eq, not_not]
-  apply List.formPerm_apply_of_not_mem
-  exact tailA_not_in_g₂_list i
-
-/-- Tail A elements are not in the g₃ cycle list -/
-theorem tailA_not_in_g₃_list (i : Fin n) :
-    (⟨6 + i.val, by omega⟩ : Omega n k m) ∉ g₃CoreList n k m ++ tailCList n k m := by
-  intro h
-  simp only [List.mem_append, g₃CoreList, tailCList, List.mem_cons,
-    List.mem_map, List.mem_finRange, List.not_mem_nil, or_false] at h
-  rcases h with h | h
-  · -- In core list [2, 4, 5, 1]
-    rcases h with h | h | h | h
-    all_goals simp only [Fin.ext_iff] at h; omega
-  · -- In tailCList (which starts at 6+n+k, but i < n so 6+i < 6+n+k)
-    obtain ⟨j, _, hj⟩ := h
-    simp only [Fin.ext_iff] at hj
-    have := i.isLt  -- i < n
-    omega
-
-/-- Tail A elements are not in supp(g₃) -/
-theorem tailA_not_in_support_g₃ (hn : n ≥ 1) (i : Fin n) :
-    (⟨6 + i.val, by omega⟩ : Omega n k m) ∉ (g₃ n k m).support := by
-  simp only [g₃, Equiv.Perm.mem_support, ne_eq, not_not]
-  apply List.formPerm_apply_of_not_mem
-  exact tailA_not_in_g₃_list i
-
-/-- g₂ fixes tail A elements -/
-theorem g₂_fixes_tailA (hn : n ≥ 1) (i : Fin n) :
-    g₂ n k m ⟨6 + i.val, by omega⟩ = ⟨6 + i.val, by omega⟩ := by
-  exact fixed_outside_support _ _ (tailA_not_in_support_g₂ hn i)
-
-/-- Element 2 is not in the g₂ cycle list -/
-theorem elem2_not_in_g₂_list :
-    (⟨2, by omega⟩ : Omega n k m) ∉ g₂CoreList n k m ++ tailBList n k m := by
-  intro h
-  simp only [List.mem_append, g₂CoreList, tailBList, List.mem_cons,
-    List.mem_map, List.mem_finRange, List.not_mem_nil, or_false] at h
-  rcases h with h | h
-  · rcases h with h | h | h | h
-    all_goals simp only [Fin.ext_iff] at h; omega
-  · obtain ⟨j, _, hj⟩ := h
-    simp only [Fin.ext_iff] at hj
-    omega
-
-/-- Element 2 is not in supp(g₂) -/
-theorem elem2_not_in_support_g₂ :
-    (⟨2, by omega⟩ : Omega n k m) ∉ (g₂ n k m).support := by
-  simp only [g₂, Equiv.Perm.mem_support, ne_eq, not_not]
-  apply List.formPerm_apply_of_not_mem
-  exact elem2_not_in_g₂_list
-
-/-- g₂ fixes element 2 -/
-theorem g₂_fixes_elem2 :
-    g₂ n k m (⟨2, by omega⟩ : Omega n k m) = ⟨2, by omega⟩ := by
-  exact fixed_outside_support _ _ elem2_not_in_support_g₂
-
-/-- Element 2 is in supp(g₁) (since it's in g₁CoreList [0, 5, 3, 2]) -/
-theorem elem2_in_support_g₁ (hn : n ≥ 1) :
-    (⟨2, by omega⟩ : Omega n k m) ∈ (g₁ n k m).support := by
-  have hNodup := g₁_list_nodup n k m
-  have hNotSingleton : ∀ x, g₁CoreList n k m ++ tailAList n k m ≠ [x] := by
-    intro x h
-    have : (g₁CoreList n k m ++ tailAList n k m).length = 1 := by rw [h]; simp
-    have := g₁_cycle_length n k m
-    omega
-  rw [g₁, List.support_formPerm_of_nodup _ hNodup hNotSingleton]
-  simp only [List.mem_toFinset, List.mem_append, g₁CoreList, List.mem_cons]
-  tauto
-
-/-- g₃ fixes tail A elements -/
-theorem g₃_fixes_tailA (hn : n ≥ 1) (i : Fin n) :
-    g₃ n k m ⟨6 + i.val, by omega⟩ = ⟨6 + i.val, by omega⟩ := by
-  exact fixed_outside_support _ _ (tailA_not_in_support_g₃ hn i)
-
--- ============================================
--- SECTION 3: CASE ANALYSIS HELPERS
+-- SECTION 2: CASE ANALYSIS HELPERS
 -- ============================================
 
 /-- If σ fixes x ∈ B and σ(B) ≠ B, then σ(B) ∩ B ≠ ∅ (contradiction) -/
@@ -233,7 +130,7 @@ theorem case2_forces_stabilization (hn : n ≥ 1) (B : Set (Omega n k m))
     exact Set.disjoint_iff.mp hDisj h_in_both
 
 -- ============================================
--- SECTION 4: MAIN THEOREM
+-- SECTION 3: MAIN THEOREM
 -- ============================================
 
 /-- **Lemma 11.5: No Non-trivial Blocks**
