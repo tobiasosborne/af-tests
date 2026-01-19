@@ -15,27 +15,10 @@ import Mathlib.GroupTheory.SpecificGroups.Alternating
 /-!
 # Main Theorem: H = Aₙ or H = Sₙ
 
-For n + k + m ≥ 1, let N = 6 + n + k + m and H = ⟨g₁, g₂, g₃⟩ where:
-- g₁ = (1 6 4 3 a₁...aₙ)
-- g₂ = (1 2 4 5 b₁...bₖ)
-- g₃ = (5 6 2 3 c₁...cₘ)
+For n + k + m ≥ 1, H = Aₙ if n, k, m are all odd, and H = Sₙ otherwise.
 
-Then H = Aₙ if n, k, m are all odd, and H = Sₙ otherwise.
-
-## Proof Overview
-
-The proof combines five validated lemmas and one classical theorem:
-
-1. **Transitivity (Lemma 5)**: H acts transitively on Ω via support graph connectivity
-2. **Primitivity (Lemma 11)**: When n + k + m ≥ 1, H acts primitively on Ω
-3. **3-Cycle Existence (Lemma 9)**: H contains a 3-cycle (from commutators)
-4. **Jordan's Theorem (Lemma 12)**: Primitive + 3-cycle → H ≥ Aₙ
-5. **Generator Parity (Lemma 14)**: sign(gᵢ) depends on tail length parity
-6. **Classification (Lemma 15)**: H = Aₙ iff all generators even; H = Sₙ otherwise
-
-## Reference
-
-See `examples/lemmas/main_theorem.md` for the natural language proof.
+Proof: Transitivity (L5) + Primitivity (L11) + 3-cycle (L9) + Jordan (L12) → H ≥ Aₙ.
+Generator parity (L14) + Classification (L15) → H = Aₙ or Sₙ.
 -/
 
 namespace AfTests.MainTheorem
@@ -61,15 +44,55 @@ instance omega_nontrivial' (n k m : ℕ) : Nontrivial (Omega n k m) := by
 -- SECTION 2: THREE-CYCLE IN H
 -- ============================================
 
-/-- H contains a 3-cycle.
+/-- The commutator [g₁, g₂] is in H for any n, k, m -/
+theorem commutator_g₁_g₂_mem_H (n k m : ℕ) :
+    commutator_g₁_g₂ n k m ∈ H n k m := by
+  unfold commutator_g₁_g₂
+  apply Subgroup.mul_mem
+  · apply Subgroup.mul_mem
+    · apply Subgroup.mul_mem
+      · exact Subgroup.inv_mem _ (g₁_mem_H n k m)
+      · exact Subgroup.inv_mem _ (g₂_mem_H n k m)
+    · exact g₁_mem_H n k m
+  · exact g₂_mem_H n k m
 
-    This follows from Lemma 9: the product c₁₂ * c₁₃⁻¹ is a product of
-    two disjoint 3-cycles in the base case. Using conjugation, we can
-    extract individual 3-cycles from H. -/
-theorem H_contains_threecycle (n k m : ℕ) :
-    ∃ σ : Perm (Omega n k m), σ.IsThreeCycle ∧ σ ∈ H n k m := by
-  -- Phase 2: Prove via embedding from base case or direct construction
+/-- The commutator [g₁, g₃] is in H for any n, k, m -/
+theorem commutator_g₁_g₃_mem_H (n k m : ℕ) :
+    commutator_g₁_g₃ n k m ∈ H n k m := by
+  unfold commutator_g₁_g₃
+  apply Subgroup.mul_mem
+  · apply Subgroup.mul_mem
+    · apply Subgroup.mul_mem
+      · exact Subgroup.inv_mem _ (g₁_mem_H n k m)
+      · exact Subgroup.inv_mem _ (g₃_mem_H n k m)
+    · exact g₁_mem_H n k m
+  · exact g₃_mem_H n k m
+
+/-- The product c₁₂ * c₁₃⁻¹ is in H -/
+theorem c₁₂_times_c₁₃_inv_mem_H (n k m : ℕ) :
+    c₁₂_times_c₁₃_inv n k m ∈ H n k m := by
+  unfold c₁₂_times_c₁₃_inv c₁₂ c₁₃
+  apply Subgroup.mul_mem
+  · exact commutator_g₁_g₂_mem_H n k m
+  · exact Subgroup.inv_mem _ (commutator_g₁_g₃_mem_H n k m)
+
+/-- The squared product (c₁₂ * c₁₃⁻¹)² is in H -/
+theorem c₁₂_times_c₁₃_inv_squared_mem_H (n k m : ℕ) :
+    (c₁₂_times_c₁₃_inv n k m) ^ 2 ∈ H n k m :=
+  Subgroup.pow_mem _ (c₁₂_times_c₁₃_inv_mem_H n k m) 2
+
+/-- (c₁₂ * c₁₃⁻¹)² is a 3-cycle when n + k + m ≥ 1.
+    Squaring kills 2-cycles, leaves 3-cycle. Verified: n=1,k=0,m=0 → c[0,5,1]. -/
+theorem c₁₂_times_c₁₃_inv_squared_isThreeCycle (n k m : ℕ) (h : n + k + m ≥ 1) :
+    ((c₁₂_times_c₁₃_inv n k m) ^ 2).IsThreeCycle := by
   sorry
+
+/-- H contains a 3-cycle when n + k + m ≥ 1 (from squaring c₁₂ * c₁₃⁻¹) -/
+theorem H_contains_threecycle (n k m : ℕ) (h : n + k + m ≥ 1) :
+    ∃ σ : Perm (Omega n k m), σ.IsThreeCycle ∧ σ ∈ H n k m :=
+  ⟨(c₁₂_times_c₁₃_inv n k m) ^ 2,
+   c₁₂_times_c₁₃_inv_squared_isThreeCycle n k m h,
+   c₁₂_times_c₁₃_inv_squared_mem_H n k m⟩
 
 -- ============================================
 -- SECTION 3: MAIN THEOREM COMPONENTS
@@ -85,15 +108,15 @@ theorem step2_primitive (n k m : ℕ) (h : n + k + m ≥ 1) :
     MulAction.IsPreprimitive (H n k m) (Omega n k m) :=
   AfTests.Primitivity.lemma11_H_isPrimitive h
 
-/-- Step 3: H contains a 3-cycle (Lemma 9) -/
-theorem step3_threecycle (n k m : ℕ) :
+/-- Step 3: H contains a 3-cycle when n + k + m ≥ 1 (Lemma 9) -/
+theorem step3_threecycle (n k m : ℕ) (h : n + k + m ≥ 1) :
     ∃ σ : Perm (Omega n k m), σ.IsThreeCycle ∧ σ ∈ H n k m :=
-  H_contains_threecycle n k m
+  H_contains_threecycle n k m h
 
 /-- Step 4: H ≥ Aₙ by Jordan's theorem (Lemma 12) -/
 theorem step4_jordan (n k m : ℕ) (h : n + k + m ≥ 1) :
     alternatingGroup (Omega n k m) ≤ H n k m :=
-  SignAnalysis.H_contains_alternating n k m h (step3_threecycle n k m)
+  SignAnalysis.H_contains_alternating n k m h (step3_threecycle n k m h)
 
 /-- Step 5: Generator parity (Lemma 14) -/
 theorem step5_parity (n k m : ℕ) :
@@ -108,31 +131,21 @@ theorem step5_parity (n k m : ℕ) :
 -- SECTION 4: MAIN THEOREM
 -- ============================================
 
-/-- **Main Theorem: H = Aₙ when all generators are even**
-
-    For n + k + m ≥ 1, if n, k, m are all odd, then H = Aₙ. -/
+/-- H = Aₙ when n, k, m all odd -/
 theorem main_theorem_alternating (n k m : ℕ) (hPrim : n + k + m ≥ 1)
-    (hOdd : Odd n ∧ Odd k ∧ Odd m) :
-    H n k m = alternatingGroup (Omega n k m) :=
-  SignAnalysis.lemma15_H_eq_alternating n k m hPrim hOdd (step3_threecycle n k m)
+    (hOdd : Odd n ∧ Odd k ∧ Odd m) : H n k m = alternatingGroup (Omega n k m) :=
+  SignAnalysis.lemma15_H_eq_alternating n k m hPrim hOdd (step3_threecycle n k m hPrim)
 
-/-- **Main Theorem: H = Sₙ when some generator is odd**
-
-    For n + k + m ≥ 1, if not all of n, k, m are odd, then H = Sₙ. -/
+/-- H = Sₙ when not all odd -/
 theorem main_theorem_symmetric (n k m : ℕ) (hPrim : n + k + m ≥ 1)
-    (hNotAllOdd : ¬(Odd n ∧ Odd k ∧ Odd m)) :
-    H n k m = ⊤ :=
-  SignAnalysis.lemma15_H_eq_symmetric n k m hPrim hNotAllOdd (step3_threecycle n k m)
+    (hNotAllOdd : ¬(Odd n ∧ Odd k ∧ Odd m)) : H n k m = ⊤ :=
+  SignAnalysis.lemma15_H_eq_symmetric n k m hPrim hNotAllOdd (step3_threecycle n k m hPrim)
 
-/-- **Main Theorem: Classification of H**
-
-    For n + k + m ≥ 1:
-    - H = Aₙ ⟺ n, k, m are all odd
-    - H = Sₙ ⟺ not all of n, k, m are odd -/
+/-- Classification: H = Aₙ ⟺ all odd; H = Sₙ ⟺ not all odd -/
 theorem main_theorem (n k m : ℕ) (hPrim : n + k + m ≥ 1) :
     (H n k m = alternatingGroup (Omega n k m) ↔ (Odd n ∧ Odd k ∧ Odd m)) ∧
     (H n k m = ⊤ ↔ ¬(Odd n ∧ Odd k ∧ Odd m)) :=
-  SignAnalysis.lemma15_H_classification n k m hPrim (step3_threecycle n k m)
+  SignAnalysis.lemma15_H_classification n k m hPrim (step3_threecycle n k m hPrim)
 
 -- ============================================
 -- SECTION 5: SPECIFIC INSTANCES
