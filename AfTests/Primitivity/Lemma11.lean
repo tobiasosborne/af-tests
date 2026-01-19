@@ -68,15 +68,15 @@ instance omega_nontrivial (n k m : ℕ) : Nontrivial (Omega n k m) := by
 theorem block_to_system (hne : n + k + m ≥ 1)
     {B : Set (Omega n k m)} (hB : IsBlock (H n k m) B) (hNT : ¬IsTrivialBlock B) :
     ∃ BS : BlockSystemOn n k m, IsHInvariant BS ∧ IsNontrivial BS := by
-  -- B is non-trivial: not subsingleton and not univ
-  rw [trivialBlock_iff_subsingleton_or_univ, not_or] at hNT
-  obtain ⟨hNotSub, hNotUniv⟩ := hNT
-  -- B has at least 2 elements
-  rw [Set.not_subsingleton_iff] at hNotSub
-  obtain ⟨x, hx, y, hy, hxy⟩ := hNotSub
-  -- Construct the block system from B's orbit under H
-  -- The translates {g • B | g ∈ H} partition Omega
-  -- Uses mathlib's IsBlock.isBlockSystem for the partition structure
+  -- Strategy: Use mathlib's IsBlock.isBlockSystem to get the partition structure,
+  -- then convert to our BlockSystemOn type.
+  --
+  -- The blocks are {g • B | g ∈ H}, which form a partition by IsBlock.isBlockSystem.
+  -- Key steps needed:
+  -- 1. Extract Setoid.IsPartition → PairwiseDisjoint + sUnion = univ
+  -- 2. Show all blocks have same ncard (bijection preserves cardinality)
+  -- 3. Show generators preserve the block system (g_i • (g • B) = (g_i * g) • B ∈ blocks)
+  -- 4. Show 1 < B.ncard < |Ω| from non-triviality
   sorry
 
 /-- When n + k + m ≥ 1, all H-blocks on Omega are trivial.

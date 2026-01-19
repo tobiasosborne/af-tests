@@ -103,7 +103,12 @@ theorem orbit_blocks_meet_support {σ : Perm α} (hσ : σ.IsCycle)
     {C : Set α} (hC : C ∈ blockOrbit σ B) :
     (C ∩ (σ.support : Set α)).Nonempty := by
   -- σ permutes supp(σ), so σⁱ(B) ∩ supp(σ) ≠ ∅
-  sorry
+  obtain ⟨x, hxB, hxSupp⟩ := hMeet
+  obtain ⟨k, rfl⟩ := hC
+  -- (σ^k) x is in C = (σ^k) '' B
+  refine ⟨(σ ^ k) x, mem_image_of_mem _ hxB, ?_⟩
+  -- (σ^k) x is in support since x is in support and σ permutes its support
+  exact zpow_apply_mem_support.mpr hxSupp
 
 /-- The orbit blocks partition the support -/
 theorem orbit_blocks_partition_support {σ : Perm α} (hσ : σ.IsCycle)
