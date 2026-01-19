@@ -5,6 +5,7 @@ Authors: AF-Tests Project
 -/
 import AfTests.Primitivity.Lemma11_2
 import Mathlib.GroupTheory.GroupAction.Basic
+import Mathlib.GroupTheory.GroupAction.Period
 import Mathlib.Algebra.Group.Subgroup.ZPowers.Basic
 
 /-!
@@ -31,6 +32,7 @@ See `examples/lemmas/lemma11_4_block_orbit.md` for the natural language proof.
 -/
 
 open Equiv Equiv.Perm Set MulAction
+open scoped Pointwise
 
 variable {α : Type*} [DecidableEq α] [Fintype α]
 
@@ -82,6 +84,48 @@ theorem zpowers_card_eq_cycle_length {σ : Perm α} (hσ : σ.IsCycle) :
   simp only [cycleLength, Nat.card_eq_fintype_card, Fintype.card_zpowers]
   exact hσ.orderOf
 
+/-- The pointwise action: σ • B = σ '' B for permutations acting on sets -/
+theorem perm_smul_set_eq_image (σ : Perm α) (B : Set α) : σ • B = σ '' B := by
+  ext x
+  simp only [Set.mem_smul_set, Set.mem_image]
+  constructor
+  · rintro ⟨y, hy, rfl⟩
+    exact ⟨y, hy, Perm.smul_def σ y⟩
+  · rintro ⟨y, hy, rfl⟩
+    exact ⟨y, hy, (Perm.smul_def σ y).symm⟩
+
+/-- The orbit under zpowers is exactly the block orbit -/
+theorem blockOrbit_eq_orbit (σ : Perm α) (B : Set α) :
+    blockOrbit σ B = { C | ∃ k : ℤ, C = σ ^ k • B } := by
+  ext C
+  simp only [blockOrbit, Set.mem_setOf_eq]
+  constructor
+  · rintro ⟨k, rfl⟩
+    use k
+    rw [perm_smul_set_eq_image]
+  · rintro ⟨k, rfl⟩
+    use k
+    rw [perm_smul_set_eq_image]
+
+/-- The period of σ acting on a set B (via pointwise action) -/
+noncomputable def setPeriod (σ : Perm α) (B : Set α) : ℕ := MulAction.period σ B
+
+/-- Period divides orderOf for permutation action on sets -/
+theorem setPeriod_dvd_orderOf (σ : Perm α) (B : Set α) : setPeriod σ B ∣ orderOf σ :=
+  MulAction.period_dvd_orderOf σ B
+
+/-- The orbit size equals the period -/
+theorem blockOrbitSize_eq_setPeriod {σ : Perm α} (hσ : σ.IsCycle) (B : Set α) :
+    blockOrbitSize σ B = setPeriod σ B := by
+  -- The orbit is { B, σ • B, σ² • B, ..., σ^(p-1) • B } where p = period
+  -- This has exactly p elements
+  unfold blockOrbitSize blockOrbit setPeriod
+  -- For finite α, the orbit is finite and its ncard equals the period
+  have hB_orbit : blockOrbit σ B = { C | ∃ k : ℤ, C = σ ^ k • B } := blockOrbit_eq_orbit σ B
+  -- The orbit under a cyclic group has size = period
+  -- The orbit { σ^k • B | k : ℤ } = { σ^k • B | k ∈ Fin (period σ B) } for nonzero period
+  sorry
+
 /-- **Block orbit divides cycle length**
 
     If σ is a cycle and B is a block with B ∩ supp(σ) ≠ ∅ in a σ-invariant
@@ -90,8 +134,10 @@ theorem block_orbit_divides_cycle_length {σ : Perm α} (hσ : σ.IsCycle)
     {B : Set α} {Blocks : Set (Set α)} (hInv : BlockSystemInvariant σ Blocks)
     (hB : B ∈ Blocks) (hMeet : (B ∩ (σ.support : Set α)).Nonempty) :
     blockOrbitSize σ B ∣ cycleLength σ := by
-  -- By Orbit-Stabilizer theorem
-  sorry
+  -- Strategy: blockOrbitSize = period σ B divides orderOf σ = cycleLength σ
+  rw [blockOrbitSize_eq_setPeriod hσ]
+  calc setPeriod σ B ∣ orderOf σ := setPeriod_dvd_orderOf σ B
+    _ = cycleLength σ := by unfold cycleLength; exact hσ.orderOf
 
 -- ============================================
 -- SECTION 4: SUPPORT DISTRIBUTION

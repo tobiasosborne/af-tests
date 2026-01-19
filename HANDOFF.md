@@ -1,66 +1,87 @@
-# Handoff: 2026-01-19 (Session 15)
+# Handoff: 2026-01-19 (Session 16)
 
 ## Completed This Session
 
-### Issue Triage
-1. **af-yca [CLOSED]**: `block_inv_preserves` in Lemma11_1.lean
-   - Already fixed in previous session (uses `AfTests.BaseCase.inv_preserves_B₀`)
-   - Verified file builds with no sorries in Lemma11_1.lean
+### Lemma11_4.lean - Block Orbit Divisibility
+1. **Restructured proof strategy** for `block_orbit_divides_cycle_length`
+   - Added import `Mathlib.GroupTheory.GroupAction.Period`
+   - Opened `scoped Pointwise` for set action `σ • B = σ '' B`
+   - Introduced helper lemmas:
+     - `perm_smul_set_eq_image`: Shows `σ • B = σ '' B` via pointwise action
+     - `blockOrbit_eq_orbit`: Connects blockOrbit to MulAction orbit
+     - `setPeriod`: Wrapper for `MulAction.period σ B`
+     - `setPeriod_dvd_orderOf`: Period divides orderOf (from mathlib)
 
-### Investigation Work
-1. **block_to_system proof attempt** (Lemma11.lean:77)
-   - Investigated using mathlib's `IsBlock.isBlockSystem` to construct BlockSystemOn
-   - Complex type bridging required between mathlib's `IsBlockSystem` and local `BlockSystemOn`
-   - Documented strategy in code comments for future work
+2. **Proof structure established** for main theorem:
+   ```lean
+   block_orbit_divides_cycle_length :=
+     blockOrbitSize = setPeriod  -- (SORRY: line 127)
+     → setPeriod ∣ orderOf σ     -- (mathlib: period_dvd_orderOf)
+     → orderOf σ = cycleLength   -- (mathlib: IsCycle.orderOf)
+   ```
 
-2. **H₆_card_eq_24 investigation** (Lemma03.lean)
-   - Explored computational enumeration approach
-   - Requires careful element enumeration (24 distinct permutations)
-   - First isomorphism theorem approach also viable but needs homomorphism setup
+3. **Key insight documented**: The orbit size equals the period because:
+   - Orbit = { σ^k • B | k ∈ ℤ } = { σ^k • B | k ∈ {0,...,p-1} } where p = period
+   - These p elements are distinct (by definition of period)
+   - Use `periodicOrbit_length` from `Mathlib.Dynamics.PeriodicPts.Defs`
 
 ## Current State
 
-- **Build status**: PASSING
-- **Sorry count**: 11 (unchanged)
+- **Build status**: PASSING (with sorries)
+- **Sorry count**: 11 total
 - **Open P0 blockers**: None
 
-## Sorry Distribution
-```
-MainTheorem.lean:  4 (k-only case, mixed cases, 3-cycle proofs)
-Lemma03.lean:      2 (H₆_iso_S4, H₆_card_eq_24)
-Lemma11_4.lean:    3 (block_orbit_divides, partition, intersection_card)
-Lemma11_5.lean:    1 (main no_nontrivial_blocks)
-Lemma11.lean:      1 (block_to_system)
+## Remaining Sorries in Lemma11_4.lean (3)
+
+| Line | Lemma | Strategy |
+|------|-------|----------|
+| 127 | `blockOrbitSize_eq_setPeriod` | Show ncard of orbit = minimalPeriod using `periodicOrbit_length` and `period_eq_minimalPeriod` |
+| 165 | `orbit_blocks_partition_support` | Show orbit blocks cover supp(σ) using cycle transitivity |
+| 177 | `block_support_intersection_card` | Counting: ℓ elements / r blocks = ℓ/r per block |
+
+## Key Mathlib Lemmas Identified
+
+```lean
+-- From Mathlib.GroupTheory.GroupAction.Period
+period_dvd_orderOf (m : M) (a : α) : period m a ∣ orderOf m
+period_eq_minimalPeriod : period m a = minimalPeriod (m • ·) a
+
+-- From Mathlib.Dynamics.PeriodicPts.Defs
+periodicOrbit_length : (periodicOrbit f x).length = minimalPeriod f x
+nodup_periodicOrbit : (periodicOrbit f x).Nodup
+mem_periodicOrbit_iff (hx) : y ∈ periodicOrbit f x ↔ ∃ n, f^[n] x = y
+
+-- From Mathlib.GroupTheory.Perm.Cycle.Basic
+IsCycle.orderOf : orderOf σ = σ.support.card
 ```
 
 ## Next Steps (Priority Order)
 
-1. **Lemma11_4**: Complete block orbit sorries (3 remaining)
-   - `block_orbit_divides_cycle_length` - needs orbit-stabilizer theorem
-   - `orbit_blocks_partition_support` - needs block partition setup
-   - `block_support_intersection_card` - depends on above two
+1. **Complete `blockOrbitSize_eq_setPeriod`** (line 127)
+   - Use `period_eq_minimalPeriod` to connect MulAction.period to minimalPeriod
+   - Use `periodicOrbit_length` and show blockOrbit equals periodicOrbit's underlying set
+   - Key: `ncard {σ^k • B | k} = length (periodicOrbit (σ • ·) B) = minimalPeriod = period`
 
-2. **Lemma11.lean**: Complete `block_to_system`
-   - Use `IsBlock.isBlockSystem` for mathlib block system
-   - Bridge types: mathlib's `Set.range (g • B)` → local `BlockSystemOn`
-   - Show H-invariance via generator closure property
+2. **Complete `orbit_blocks_partition_support`** (line 165)
+   - Use cycle's transitivity on support
+   - For any x ∈ supp(σ), exists y ∈ B ∩ supp(σ), exists k s.t. σ^k(y) = x
+   - Then x ∈ σ^k(B) ∩ supp(σ)
 
-3. **Lemma03**: Complete H₆_iso_S4 and H₆_card_eq_24
-   - Option A: Explicit enumeration of 24 elements
-   - Option B: First isomorphism theorem (ker = V₄, im = S₃)
-
-4. **Lemma11_5**: Complete `no_nontrivial_blocks`
-   - Depends on Lemma11_4 completion
+3. **Complete `block_support_intersection_card`** (line 177)
+   - Uses the partition + orbit size divides cycle length
+   - Counting argument: r blocks partition ℓ elements evenly
 
 ## Files Modified This Session
 
-- `AfTests/Primitivity/Lemma11.lean` - Added strategy comments for block_to_system
+- `AfTests/Primitivity/Lemma11_4.lean` - Major restructuring with Period-based approach
 
 ## Known Issues / Gotchas
 
-- **LOC Status**: All files under 200 LOC limit
-- `native_decide` linter warnings (expected, disabled with `set_option`)
-- Subgroup smul action on Sets requires explicit setup for mathlib integration
-- `IsBlock.isBlockSystem` produces `Set.range (g • B)` where smul is subgroup-typed
+- **Pointwise scope required**: Must use `open scoped Pointwise` for `σ • B` notation on sets
+- **Period vs minimalPeriod**: `MulAction.period` = `Function.minimalPeriod` (see `period_eq_minimalPeriod`)
+- **zpow vs pow orbit**: Integer zpowers give same orbit as nat powers for finite types
+- **LOC Status**: Lemma11_4.lean is ~195 lines (under 200 limit)
 
-Run `bd ready` to see available tasks.
+## Issue Status
+
+- **af-tests-2hl** (Lemma11_4): IN_PROGRESS - reduced from 6 to 3 sorries, proof strategy established
