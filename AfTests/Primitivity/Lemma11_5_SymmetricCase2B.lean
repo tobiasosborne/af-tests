@@ -89,8 +89,9 @@ theorem elem5_not_in_support_g₂ : (⟨5, by omega⟩ : Omega n k m) ∉ (g₂ 
 theorem g₂_fixes_elem5 : g₂ n k m (⟨5, by omega⟩ : Omega n k m) = ⟨5, by omega⟩ :=
   fixed_outside_support _ _ elem5_not_in_support_g₂
 
-/-- In Case 2B, B is disjoint from supp(g₁) -/
-theorem case2B_B_disjoint_supp_g₁ (hn : n ≥ 1) (B : Set (Omega n k m))
+/-- In Case 2B, B is disjoint from supp(g₁).
+    Uses element 5 which is in supp(g₁) (no n≥1 required) and fixed by g₂. -/
+theorem case2B_B_disjoint_supp_g₁ (B : Set (Omega n k m))
     (hg₂_disj : Disjoint (g₂ n k m '' B) B)
     (hg₁_pres : PreservesSet (g₁ n k m) B) :
     Disjoint (↑(g₁ n k m).support) B := by
@@ -98,11 +99,12 @@ theorem case2B_B_disjoint_supp_g₁ (hn : n ≥ 1) (B : Set (Omega n k m))
   rw [Set.not_disjoint_iff] at hMeet
   obtain ⟨x, hx_supp, hx_B⟩ := hMeet
   have hSupp := g₁_support_subset_if_meets B hg₁_pres ⟨x, hx_supp, hx_B⟩
-  have h2_in_supp : (⟨2, by omega⟩ : Omega n k m) ∈ (g₁ n k m).support := elem2_in_support_g₁ hn
-  have h2_in_B := hSupp h2_in_supp
-  have hFix := g₂_fixes_elem2 (n := n) (k := k) (m := m)
-  have h2_in_img : (⟨2, by omega⟩ : Omega n k m) ∈ g₂ n k m '' B := ⟨_, h2_in_B, hFix⟩
-  exact Set.disjoint_iff.mp hg₂_disj ⟨h2_in_img, h2_in_B⟩
+  -- Use element 5 which is in supp(g₁) and fixed by g₂
+  have h5_in_supp : (⟨5, by omega⟩ : Omega n k m) ∈ (g₁ n k m).support := elem5_in_support_g₁
+  have h5_in_B := hSupp h5_in_supp
+  have hFix := g₂_fixes_elem5 (n := n) (k := k) (m := m)
+  have h5_in_img : (⟨5, by omega⟩ : Omega n k m) ∈ g₂ n k m '' B := ⟨_, h5_in_B, hFix⟩
+  exact Set.disjoint_iff.mp hg₂_disj ⟨h5_in_img, h5_in_B⟩
 
 /-- In Case 2B, B is disjoint from supp(g₃) -/
 theorem case2B_B_disjoint_supp_g₃ (B : Set (Omega n k m))

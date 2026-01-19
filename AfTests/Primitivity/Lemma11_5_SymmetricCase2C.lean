@@ -41,8 +41,9 @@ theorem core_in_support_g₁_or_g₂ (x : Omega n k m) (hCore : isCore x) :
   · right; convert elem4_in_support_g₂ (n := n) (k := k) (m := m)
   · left; convert elem5_in_support_g₁ (n := n) (k := k) (m := m)
 
-/-- In Case 2C, B is disjoint from supp(g₁) -/
-theorem case2C_B_disjoint_supp_g₁ (hn : n ≥ 1) (B : Set (Omega n k m))
+/-- In Case 2C, B is disjoint from supp(g₁).
+    Uses element 0 which is in supp(g₁) (no n≥1 required) and fixed by g₃. -/
+theorem case2C_B_disjoint_supp_g₁ (B : Set (Omega n k m))
     (hg₃_disj : Disjoint (g₃ n k m '' B) B)
     (hg₁_pres : PreservesSet (g₁ n k m) B) :
     Disjoint (↑(g₁ n k m).support) B := by

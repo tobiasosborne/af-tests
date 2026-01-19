@@ -103,11 +103,11 @@ theorem H_contains_threecycle (n k m : ℕ) (h : n + k + m ≥ 1) :
              c₁₂_times_c₁₃_inv_squared_isThreeCycle_n_m0 n k hn,
              c₁₂_times_c₁₃_inv_squared_mem_H n k 0⟩
     · -- n = 0, m = 0, k ≥ 1: use [[g₁,g₂], g₂]²
-      subst hm
+      subst hm; push_neg at hn
       have hk : k ≥ 1 := by omega
-      exact ⟨(iteratedComm_g₂ 0 k 0) ^ 2,
-             iteratedComm_g₂_squared_isThreeCycle 0 k 0 hk,
-             Subgroup.pow_mem _ (iteratedComm_g₂_mem_H 0 k 0) 2⟩
+      exact ⟨(iteratedComm_g₂ n k 0) ^ 2,
+             iteratedComm_g₂_squared_isThreeCycle n k 0 hk,
+             Subgroup.pow_mem _ (iteratedComm_g₂_mem_H n k 0) 2⟩
   · by_cases hk : k = 0
     · -- m ≥ 1, k = 0: use (c₁₃ * c₂₃⁻¹)²
       subst hk

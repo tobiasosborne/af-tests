@@ -132,12 +132,12 @@ theorem case2_forces_stabilization_C (hm : m ≥ 1) (B : Set (Omega n k m))
 -- ============================================
 
 /-- Case 2 impossible for k >= 1 case -/
-theorem case2_impossible_B (hk : k ≥ 1) (hn : n ≥ 1) (B : Set (Omega n k m))
+theorem case2_impossible_B (hk : k ≥ 1) (B : Set (Omega n k m))
     (hg₂_disj : Disjoint (g₂ n k m '' B) B) (hb₁_in_B : b₁ n k m hk ∈ B)
     (hg₁_pres : PreservesSet (g₁ n k m) B) (hg₃_pres : PreservesSet (g₃ n k m) B)
     (hSize : 1 < B.ncard) : False := by
   -- B is disjoint from supp(g₁) and supp(g₃)
-  have hDisj₁ := case2B_B_disjoint_supp_g₁ hn B hg₂_disj hg₁_pres
+  have hDisj₁ := case2B_B_disjoint_supp_g₁ B hg₂_disj hg₁_pres
   have hDisj₃ := case2B_B_disjoint_supp_g₃ B hg₂_disj hg₃_pres
   -- For k = 1, B ⊆ tailB = {single element}, so |B| ≤ 1
   by_cases hk1 : k = 1
@@ -160,12 +160,12 @@ theorem case2_impossible_B (hk : k ≥ 1) (hn : n ≥ 1) (B : Set (Omega n k m))
     omega
 
 /-- Case 2 impossible for m >= 1 case -/
-theorem case2_impossible_C (hm : m ≥ 1) (hn : n ≥ 1) (B : Set (Omega n k m))
+theorem case2_impossible_C (hm : m ≥ 1) (B : Set (Omega n k m))
     (hg₃_disj : Disjoint (g₃ n k m '' B) B) (hc₁_in_B : c₁ n k m hm ∈ B)
     (hg₁_pres : PreservesSet (g₁ n k m) B) (hg₂_pres : PreservesSet (g₂ n k m) B)
     (hSize : 1 < B.ncard) : False := by
   -- B is disjoint from supp(g₁) and supp(g₂)
-  have hDisj₁ := case2C_B_disjoint_supp_g₁ hn B hg₃_disj hg₁_pres
+  have hDisj₁ := case2C_B_disjoint_supp_g₁ B hg₃_disj hg₁_pres
   have hDisj₂ := case2C_B_disjoint_supp_g₂ B hg₃_disj hg₂_pres
   -- For m = 1, B ⊆ tailC = {single element}, so |B| ≤ 1
   by_cases hm1 : m = 1
