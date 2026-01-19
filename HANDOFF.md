@@ -1,80 +1,62 @@
-# Handoff: 2026-01-19 (Session 20)
+# Handoff: 2026-01-19 (Session 22)
 
 ## Completed This Session
 
-### Lemma11_5 Progress (af-tests-qvq)
+- **Eliminated `explicit_le_closure` sorry** in `Lemma03_Explicit.lean`
+  - Added word lists (`gensList`, `words2List`, `words3List`) for generator products
+  - All 24 H₆ elements proven as products of ≤3 generators via `native_decide`
 
-Significant progress on the "no nontrivial blocks" proof. Created helper files and filled most cases.
+- **Closed stale beads issues**: af-41a, af-8zu, af-auz (already resolved)
 
-**New Files Created:**
-- `Lemma11_5_Cases.lean` - Block system bridge lemmas, cycle properties, Case 1a-ii helper
-- `Lemma11_5_SupportCover.lean` - Proves generator supports cover Ω (Case 1a-i helper)
-- `Lemma11_5_Case2.lean` - Case 2 analysis (g₁(B) ≠ B)
-
-**Cases Completed:**
-- Case 1: g₁(B) = B → supp(g₁) ⊆ B
-  - Case 1a: g₂(B) = B → supp(g₂) ⊆ B
-    - Case 1a-i: g₃(B) = B → B = Ω → contradiction ✅
-    - Case 1a-ii: g₃(B) ≠ B → fixed point contradiction ✅
-  - Case 1b: g₂(B) ≠ B → fixed point contradiction ✅
-- Case 2: g₁(B) ≠ B → forces g₂(B) = g₃(B) = B → partial (sorry in final step)
+- **Analyzed Case 2 proof** in `Lemma11_5_Case2.lean`
+  - Expanded disjointness analysis
+  - Documented orbit structure argument from AF proof Node 1.9.5
 
 ## Current State
 
-- **Build status**: PASSING
-- **Sorry count**: 8 (Lemma11_5 now has 2 remaining, down from 5)
-- **Open P0 issues**: 2 (LOC violations)
-- **LOC violations**: Lemma11_5.lean (232), Lemma11_5_Cases.lean (209)
+- **Build status**: PASSING (1888 jobs)
+- **Sorry count**: **8** (down from 9)
+- **Open P0 issues**: None (LOC violations resolved in Session 21)
 
-### Remaining Sorries in Lemma11_5 Family
+## Remaining Sorries
 
-| File | Line | Description |
-|------|------|-------------|
-| Lemma11_5.lean | 232 | n=0 case (symmetric argument using k≥1 or m≥1) |
-| Lemma11_5_Case2.lean | 169 | case2_impossible final step (B ⊆ tailA contradiction) |
-
-### Other Remaining Sorries
-
-| File | Line | Description |
-|------|------|-------------|
-| Lemma03.lean | 197 | Explicit S₄ isomorphism construction |
-| Lemma03.lean | 208 | Fintype.card H₆ = 24 |
-| Lemma11.lean | 82 | block_to_system type coercions |
-| MainTheorem.lean | 109 | cycleType proof (general n,k) |
-| MainTheorem.lean | 117 | cycleType proof (general n,m) |
-| MainTheorem.lean | 138 | 3-cycle existence (k≥1, n=m=0) |
-| MainTheorem.lean | 153 | 3-cycle existence (k≥1, m≥1) |
+| File | Line | Description | Difficulty |
+|------|------|-------------|------------|
+| Lemma03.lean | 138 | H₆_iso_S4 (tetrahedral isomorphism) | Hard |
+| Lemma11.lean | 82 | block_to_system (type coercion smul↔image) | Medium |
+| Lemma11_5.lean | 156 | Symmetric case (k≥1 or m≥1) | Easy |
+| Lemma11_5_Case2.lean | 198 | case2_impossible (orbit analysis) | Hard |
+| MainTheorem.lean | 109, 117, 138, 153 | Main theorem assembly | Medium |
 
 ## Next Steps (Priority Order)
 
-1. **P0**: Refactor Lemma11_5.lean (232 LOC) - af-tests-811
-2. **P0**: Refactor Lemma11_5_Cases.lean (209 LOC) - af-tests-ery
-3. Fill `case2_impossible` sorry (prove B ⊆ tailA → contradiction when n=1)
-4. Fill n=0 case sorry (symmetric argument using generator relabeling)
-5. Close af-tests-qvq when all Lemma11_5 sorries eliminated
+1. **Lemma11_5.lean:156** - Symmetric case: copy n≥1 proof for k≥1/m≥1 with generator relabeling
 
-## Key Insights for Case 2
+2. **Lemma11.lean:82** - `block_to_system`: type coercion between `IsBlock` (smul) and `BlockSystemOn` (image)
 
-The Case 2 argument (g₁(B) ≠ B) works as follows:
-1. Fixed-point argument forces g₂(B) = B and g₃(B) = B (elements a_i fixed by g₂, g₃)
-2. Elements 1 and 4 (0-indexed) are fixed by g₁, so cannot be in B
-3. If B ∩ supp(g₂) ≠ ∅, Lemma 11.2 gives supp(g₂) ⊆ B, including 1, 4 → contradiction
-4. Similarly B ∩ supp(g₃) = ∅
-5. Therefore B ⊆ tailA (the only elements outside supp(g₂) ∪ supp(g₃))
-6. When n = 1, |B| ≤ |tailA| = 1, contradicting non-triviality |B| > 1
+3. **Lemma11_5_Case2.lean:198** - `case2_impossible`: complex orbit analysis from AF proof Node 1.9.5
+
+4. **MainTheorem.lean** - Assembly of lemmas (depends on primitivity chain)
+
+5. **Lemma03.lean:138** - H₆_iso_S4: construct explicit tetrahedral isomorphism
+
+## Known Issues / Gotchas
+
+- **Beads prefix mismatch**: `bd sync` fails. Workaround: `git push` directly, then `bd close <id>`
+
+- **Case 2 complexity**: `case2_impossible` theorem may need block system as parameter. AF proof uses the fact that elements fixed by g₁ must be in some block B' ≠ B, leading to partition contradiction.
+
+- **Index convention**: AF 1-indexed, Lean 0-indexed. AF {1,4,6} = Lean {0,3,5}
 
 ## Files Modified This Session
 
-- `AfTests/Primitivity/Lemma11_5.lean` - Main theorem, proof structure
-- `AfTests/Primitivity/Lemma11_5_Cases.lean` - NEW (209 lines)
-- `AfTests/Primitivity/Lemma11_5_SupportCover.lean` - NEW (169 lines)
-- `AfTests/Primitivity/Lemma11_5_Case2.lean` - NEW (169 lines)
+- `AfTests/BaseCase/Lemma03_Explicit.lean` (sorry eliminated)
+- `AfTests/Primitivity/Lemma11_5.lean` (minor cleanup)
+- `AfTests/Primitivity/Lemma11_5_Case2.lean` (expanded proof structure)
 
 ## Issue Status
 
 - **af-tests-qvq** (Lemma11_5): IN PROGRESS - 2 sorries remaining
-- **af-tests-811** (LOC): NEW P0 - Lemma11_5.lean exceeds 200 LOC
-- **af-tests-ery** (LOC): NEW P0 - Lemma11_5_Cases.lean exceeds 200 LOC
-- **af-v3z** (Lemma03 H₆_iso_S4): OPEN
-- **af-1n0** (Lemma03 H₆_card): OPEN
+- **af-v3z, af-1n0** (Lemma03): CLOSED in Session 21
 - **af-5zd** (Lemma11 H_primitive): OPEN
+- **af-tests-811, af-tests-ery** (LOC): CLOSED in Session 21
