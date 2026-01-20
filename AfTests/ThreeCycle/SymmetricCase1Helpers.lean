@@ -112,4 +112,61 @@ theorem isThreeCycle_n2_m2 : ((c₁₃_times_c₂₃_inv 2 2) ^ 2).IsThreeCycle 
 theorem isThreeCycle_n3_m3 : ((c₁₃_times_c₂₃_inv 3 3) ^ 2).IsThreeCycle := by
   unfold IsThreeCycle c₁₃_times_c₂₃_inv; native_decide
 
+-- ============================================
+-- SECTION 5: threeCycle_3_4_5 action lemmas
+-- ============================================
+
+/-- threeCycle_3_4_5 maps 3 → 4 -/
+theorem threeCycle_3_eq_4 (n m : ℕ) :
+    threeCycle_3_4_5 n m ⟨3, by omega⟩ = ⟨4, by omega⟩ := by
+  unfold threeCycle_3_4_5
+  have hnd := threeCycle_list_nodup n m
+  have h_fp := List.formPerm_apply_lt_getElem _ hnd 0 (by simp)
+  simp only [List.getElem_cons_succ, List.getElem_cons_zero] at h_fp; exact h_fp
+
+/-- threeCycle_3_4_5 maps 4 → 5 -/
+theorem threeCycle_4_eq_5 (n m : ℕ) :
+    threeCycle_3_4_5 n m ⟨4, by omega⟩ = ⟨5, by omega⟩ := by
+  unfold threeCycle_3_4_5
+  have hnd := threeCycle_list_nodup n m
+  have h_fp := List.formPerm_apply_lt_getElem _ hnd 1 (by simp)
+  simp only [List.getElem_cons_succ, List.getElem_cons_zero] at h_fp; exact h_fp
+
+/-- threeCycle_3_4_5 maps 5 → 3 -/
+theorem threeCycle_5_eq_3 (n m : ℕ) :
+    threeCycle_3_4_5 n m ⟨5, by omega⟩ = ⟨3, by omega⟩ := by
+  unfold threeCycle_3_4_5
+  have hnd := threeCycle_list_nodup n m
+  have h_fp := List.formPerm_apply_getElem _ hnd 2 (by simp)
+  simp only [List.length_cons, List.length_nil, Nat.reduceAdd,
+    show (2 + 1) % 3 = 0 by native_decide,
+    List.getElem_cons_succ, List.getElem_cons_zero] at h_fp
+  exact h_fp
+
+/-- threeCycle_3_4_5 fixes 0 -/
+theorem threeCycle_fixes_0 (n m : ℕ) : threeCycle_3_4_5 n m ⟨0, by omega⟩ = ⟨0, by omega⟩ := by
+  unfold threeCycle_3_4_5; apply List.formPerm_apply_of_notMem
+  simp only [List.mem_cons, List.not_mem_nil, Fin.mk.injEq, or_false, not_or]
+  refine ⟨?_, ?_, ?_⟩ <;> omega
+
+/-- threeCycle_3_4_5 fixes 1 -/
+theorem threeCycle_fixes_1 (n m : ℕ) : threeCycle_3_4_5 n m ⟨1, by omega⟩ = ⟨1, by omega⟩ := by
+  unfold threeCycle_3_4_5; apply List.formPerm_apply_of_notMem
+  simp only [List.mem_cons, List.not_mem_nil, Fin.mk.injEq, or_false, not_or]
+  refine ⟨?_, ?_, ?_⟩ <;> omega
+
+/-- threeCycle_3_4_5 fixes 2 -/
+theorem threeCycle_fixes_2 (n m : ℕ) : threeCycle_3_4_5 n m ⟨2, by omega⟩ = ⟨2, by omega⟩ := by
+  unfold threeCycle_3_4_5; apply List.formPerm_apply_of_notMem
+  simp only [List.mem_cons, List.not_mem_nil, Fin.mk.injEq, or_false, not_or]
+  refine ⟨?_, ?_, ?_⟩ <;> omega
+
+/-- threeCycle_3_4_5 fixes all elements with index ≥ 6 -/
+theorem threeCycle_fixes_ge6 (n m : ℕ) (x : Omega n 0 m) (hx : x.val ≥ 6) :
+    threeCycle_3_4_5 n m x = x := by
+  unfold threeCycle_3_4_5; apply List.formPerm_apply_of_notMem
+  simp only [List.mem_cons, List.not_mem_nil, or_false, not_or]
+  refine ⟨?_, ?_, ?_⟩
+  all_goals intro h; simp only [Fin.ext_iff] at h; omega
+
 end AfTests.SymmetricCase1
