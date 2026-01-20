@@ -39,16 +39,56 @@ All files compile with sorries as placeholders.
 
 ## Next Steps (Priority Order)
 
-### 1. sq_fixes_tailA (Most Complex)
-**Key Insight**: c₁₂ maps tailA elements in 2-cycles, not identity!
-- For x = 5+n (last tailA): c₁₂(5+n) = 4, c₁₂(4) = 0, c₁₂(0) = 5+n
-- This forms a 3-cycle: (5+n, 4, 0)
-- Need to show that (c₁₂ * c₁₃⁻¹)² eliminates this via squaring
+### 1. sq_fixes_tailA - CORRECTED ANALYSIS (Session 31)
 
-**Strategy**:
-- Analyze c₁₂ * c₁₃⁻¹ action on tailA
-- Show it has order dividing 2 on tailA elements
-- Therefore squaring gives identity
+**⚠️ PREVIOUS HANDOFF WAS WRONG** - The cycle structure was incorrectly described.
+
+**VERIFIED COMPUTATIONALLY** (via #eval in Lean):
+
+The product `c₁₂ * c₁₃⁻¹` has cycle structure (for m=0):
+```
+Core: (0 1 5) 3-cycle, (2 3) 2-cycle
+TailA + element 4: varies by n
+```
+
+**Actual action table for n=2, k=0, m=0:**
+| x | (c₁₂*c₁₃⁻¹)(x) | Notes |
+|---|----------------|-------|
+| 0 | 1 | 3-cycle |
+| 1 | 5 | 3-cycle |
+| 2 | 3 | 2-cycle |
+| 3 | 2 | 2-cycle |
+| 4 | 7 | 2-cycle with last tailA! |
+| 5 | 0 | 3-cycle |
+| 6 | 6 | FIXED! |
+| 7 | 4 | 2-cycle with 4 |
+
+**Key Pattern by n:**
+- n=1: tailA={6}, and 4↔6 is a 2-cycle
+- n=2: tailA={6,7}, element 6 FIXED, 4↔7 is a 2-cycle
+- n=3: tailA={6,7,8}, elements 6,7 FIXED, 4↔8 is a 2-cycle
+- General: First tailA elements fixed, LAST tailA (5+n) forms 2-cycle with 4
+
+**Why sq_fixes_tailA is TRUE:**
+- Most tailA elements are FIXED by c₁₂*c₁₃⁻¹ (not in 2-cycles!)
+- Only the LAST tailA element (5+n) forms 2-cycle with core element 4
+- Squaring eliminates all 2-cycles → all tailA fixed
+
+**Proof Strategy:**
+1. Case x = 5+n (last tailA): Show 4↔(5+n) 2-cycle, squaring gives identity
+2. Case 6 ≤ x < 5+n: Show c₁₂*c₁₃⁻¹ fixes x directly (no squaring needed)
+
+**WARNING: 200 LOC LIMIT**
+- TailLemmas.lean is at 194 lines
+- Adding helper lemmas for full structural proof exceeds limit
+- Consider: Create TailAHelpers.lean for helper lemmas, or use more compact proof style
+
+**Commutator conventions (CRITICAL):**
+```lean
+commutator_g₁_g₂ = g₁⁻¹ * g₂⁻¹ * g₁ * g₂
+-- Application: commutator(x) = g₂(g₁(g₂⁻¹(g₁⁻¹(x))))
+-- In Lean: (f * g)(x) = f(g(x))  -- LEFT multiplication!
+```
 
 ### 2. Core Element Proofs (ThreeCycleProof.lean:121)
 For each element 0-5, prove:
@@ -93,8 +133,60 @@ g₃ = [2, 4, 5, 1, 6+n+k, ...]       -- core + tailC (empty when m=0)
 - ❌ Use `native_decide` for general n, k, m
 - ❌ Add files without checking LOC limit (200 lines max)
 - ❌ Leave debugging code or verbose comments
+- ❌ Trust the HANDOFF blindly - verify computationally with #eval!
 
 ## DO
 - ✅ Use structural lemmas about formPerm
 - ✅ Leverage existing Transitivity.g*_list_getElem_* lemmas
 - ✅ Factor reusable proofs into helper lemmas
+- ✅ Verify cycle structures with #eval before writing proofs
+
+## Session 31 Learnings (CRITICAL FOR NEXT AGENT)
+
+### What Was Attempted
+Tried to prove `sq_fixes_tailA` with full structural proof. Approach:
+1. Prove helper lemmas for each generator action
+2. Chain them to show c₁₃⁻¹ and c₁₂ actions
+3. Show 2-cycle structure and squaring
+
+### Why It Failed
+1. **LOC explosion**: Helper lemmas grew file to 351 lines (limit: 200)
+2. **Case complexity**: Different proofs needed for n=1 vs n≥2
+3. **Inverse tracing**: g₁⁻¹(5+n) = different values depending on n
+
+### What WOULD Work
+1. **Split file**: Create `TailAHelpers.lean` for intermediate lemmas
+2. **Minimal case split**: Only handle last tailA element specially
+3. **Computational verification**: Use #eval to double-check before proof
+
+### Useful Lean Commands for Debugging
+```lean
+-- Verify specific actions:
+#eval c₁₂_times_c₁₃_inv 2 0 0 ⟨7, by omega⟩  -- gives 4
+#eval (c₁₂_times_c₁₃_inv 2 0 0)^2 ⟨7, by omega⟩  -- gives 7 (fixed!)
+
+-- Check intermediate steps:
+#eval (commutator_g₁_g₃ 2 0 0)⁻¹ ⟨6, by omega⟩  -- c₁₃⁻¹(6)
+#eval commutator_g₁_g₂ 2 0 0 ⟨4, by omega⟩  -- c₁₂(4)
+```
+
+### Alternative Approach to Consider
+The core element sorry at **ThreeCycleProof.lean:121** might be EASIER:
+- It's `interval_cases x.val <;> sorry` for 6 cases (0-5)
+- Each case is independent
+- Can prove them one at a time with formPerm lemmas
+- Core elements have FIXED positions in all generator cycles
+
+### Key Helper Lemmas That Exist
+```lean
+-- In Transitivity/Lemma05ListProps.lean:
+Transitivity.g₁_list_getElem_tail  -- Access tailA elements in g₁ list
+Transitivity.g₂_list_getElem_tail  -- Access tailB elements in g₂ list
+
+-- In ThreeCycleExtractHelpers.lean:
+ThreeCycleExtract.g₃_fixes_val_ge_6  -- g₃ fixes elements ≥ 6 when m=0
+ThreeCycleExtract.g₃_m0_eq  -- g₃ = formPerm [2,4,5,1] when m=0
+
+-- In TailLemmas.lean:
+g₁_fixes_tailB, g₁_fixes_1  -- g₁ fixing lemmas
+```
