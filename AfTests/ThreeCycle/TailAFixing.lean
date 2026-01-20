@@ -197,5 +197,4 @@ theorem c₁₂_fixes_tailA_not_last (n k : ℕ) (x : Omega n k 0)
       simp only [h_next_val] at this; omega
   have hg₂_inv := g₂_inv_fixes_tailA n k (g₁ n k 0 x) hg₁x_tailA
   rw [hg₂_inv, Perm.inv_apply_self]
-
 end AfTests.TailAFixing

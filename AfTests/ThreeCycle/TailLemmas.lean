@@ -51,10 +51,6 @@ theorem g₁_inv_fixes_tailB (n k : ℕ) (x : Omega n k 0) (hx : 6 + n ≤ x.val
   have h := g₁_fixes_tailB n k x hx
   conv_lhs => rw [← h]; rw [Perm.inv_apply_self]
 
--- ============================================
--- SECTION 2: g₁ fixes element 1
--- ============================================
-
 /-- g₁ fixes element 1 (since 1 is not in g₁'s cycle) -/
 theorem g₁_fixes_1 (n k : ℕ) : g₁ n k 0 ⟨1, by omega⟩ = ⟨1, by omega⟩ := by
   unfold g₁
@@ -164,10 +160,6 @@ theorem c₁₃_inv_fixes_tailB (n k : ℕ) (x : Omega n k 0) (hx : 6 + n ≤ x.
   rw [hg₃_inv]
   have hg₁_inv' : (g₁ n k 0)⁻¹ x = x := g₁_inv_fixes_tailB n k x hx
   exact hg₁_inv'.symm
-
--- ============================================
--- SECTION 5: Product fixes tailB
--- ============================================
 
 /-- c₁₂ * c₁₃⁻¹ fixes tailB elements -/
 theorem product_fixes_tailB (n k : ℕ) (x : Omega n k 0) (hx : 6 + n ≤ x.val) :
