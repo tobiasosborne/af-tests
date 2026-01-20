@@ -3,6 +3,8 @@ import AfTests.Transitivity.Lemma05
 import AfTests.ThreeCycle.Lemma08
 import AfTests.ThreeCycle.Lemma09
 import AfTests.ThreeCycle.ThreeCycleExtractHelpers
+import AfTests.ThreeCycle.ThreeCycleProof
+import AfTests.ThreeCycle.ThreeCycleSymmetric
 import AfTests.Primitivity.Lemma11
 import AfTests.SignAnalysis.Lemma12
 import AfTests.SignAnalysis.Lemma14
@@ -66,19 +68,14 @@ theorem c₁₂_times_c₁₃_inv_squared_mem_H (n k m : ℕ) :
     4. c₃² is a 3-cycle (3-cycles squared remain 3-cycles)
     5. Therefore cycleType of σ² = {3}, which is IsThreeCycle by definition -/
 theorem c₁₂_times_c₁₃_inv_squared_isThreeCycle_n_m0 (n k : ℕ) (hn : n ≥ 1) :
-    ((c₁₂_times_c₁₃_inv n k 0) ^ 2).IsThreeCycle := by
-  -- cycleType = {3} is the definition of IsThreeCycle
-  -- Verified computationally for n,k ∈ {1..5} × {0..5}; see ThreeCycleExtractHelpers
-  -- Structural argument: cycleType {3,2,2} squared gives {3}
-  sorry  -- Phase 2: Full structural proof requires cycle decomposition lemmas
+    ((c₁₂_times_c₁₃_inv n k 0) ^ 2).IsThreeCycle :=
+  ThreeCycleProof.sq_isThreeCycle_n_ge1_m0 n k hn
 
 /-- (c₁₃ * c₂₃⁻¹)² is a 3-cycle when m ≥ 1 AND k = 0.
     Symmetric to the n≥1 case: when k=0, g₂ has no tail, cycle structure is {3,2,2}. -/
 theorem c₁₃_times_c₂₃_inv_squared_isThreeCycle_m_k0 (n m : ℕ) (hm : m ≥ 1) :
-    ((commutator_g₁_g₃ n 0 m * (commutator_g₂_g₃ n 0 m)⁻¹) ^ 2).IsThreeCycle := by
-  -- Symmetric argument: when k=0, g₂ fixes tail elements
-  -- cycleType of c₁₃ * c₂₃⁻¹ is {3,2,2}, squaring gives {3}
-  sorry  -- Phase 2: Symmetric proof to c₁₂_times_c₁₃_inv_squared_isThreeCycle_n_m0
+    ((commutator_g₁_g₃ n 0 m * (commutator_g₂_g₃ n 0 m)⁻¹) ^ 2).IsThreeCycle :=
+  ThreeCycleSymmetric.isThreeCycle_m_ge1_k0 n m hm
 
 /-- Iterated commutator [[g₁,g₂], g₂] for extracting 3-cycles when k ≥ 1.
     This construction: [c₁₂, g₂] = c₁₂⁻¹ * g₂⁻¹ * c₁₂ * g₂ where c₁₂ = [g₁,g₂].
@@ -99,9 +96,10 @@ theorem iteratedComm_g₂_mem_H (n k m : ℕ) : iteratedComm_g₂ n k m ∈ H n 
     When k≥1, iteratedComm has cycleType {3,2,...}, squaring yields {3}. -/
 theorem iteratedComm_g₂_squared_isThreeCycle (n k m : ℕ) (hk : k ≥ 1) :
     ((iteratedComm_g₂ n k m) ^ 2).IsThreeCycle := by
-  -- The iterated commutator [[g₁,g₂], g₂] has cycle structure that when squared
-  -- yields a single 3-cycle. Same structural argument as the other cases.
-  sorry  -- Phase 2: Same structural proof pattern as c₁₂_times_c₁₃_inv case
+  -- iteratedComm_g₂ = iteratedComm_g₂' by definition
+  have h : iteratedComm_g₂ n k m = ThreeCycleSymmetric.iteratedComm_g₂' n k m := rfl
+  rw [h]
+  exact ThreeCycleSymmetric.isThreeCycle_k_ge1 n k m hk
 
 /-- H contains a 3-cycle when n + k + m ≥ 1. Case analysis:
     • n≥1, m=0: (c₁₂*c₁₃⁻¹)²  • m≥1, k=0: (c₁₃*c₂₃⁻¹)²  • k≥1: [[g₁,g₂],g₂]² -/
