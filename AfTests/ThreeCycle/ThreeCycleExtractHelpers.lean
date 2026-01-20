@@ -135,6 +135,22 @@ theorem isThreeCycle_n1_k2 : ((c₁₂_times_c₁₃_inv 1 2 0) ^ 2).IsThreeCycl
 theorem isThreeCycle_n2_k3 : ((c₁₂_times_c₁₃_inv 2 3 0) ^ 2).IsThreeCycle :=
   card_support_eq_three_iff.mp sq_support_card_eq_three_n2_k3
 
+-- Additional computational proofs for extended coverage
+theorem isThreeCycle_n1_k1 : ((c₁₂_times_c₁₃_inv 1 1 0) ^ 2).IsThreeCycle := by
+  unfold IsThreeCycle; native_decide
+
+theorem isThreeCycle_n2_k2 : ((c₁₂_times_c₁₃_inv 2 2 0) ^ 2).IsThreeCycle := by
+  unfold IsThreeCycle; native_decide
+
+theorem isThreeCycle_n3_k3 : ((c₁₂_times_c₁₃_inv 3 3 0) ^ 2).IsThreeCycle := by
+  unfold IsThreeCycle; native_decide
+
+theorem isThreeCycle_n4_k0 : ((c₁₂_times_c₁₃_inv 4 0 0) ^ 2).IsThreeCycle := by
+  unfold IsThreeCycle; native_decide
+
+theorem isThreeCycle_n5_k5 : ((c₁₂_times_c₁₃_inv 5 5 0) ^ 2).IsThreeCycle := by
+  unfold IsThreeCycle; native_decide
+
 -- ============================================
 -- SECTION 5: Core restriction argument
 -- ============================================

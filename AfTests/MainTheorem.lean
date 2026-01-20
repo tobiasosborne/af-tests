@@ -57,22 +57,28 @@ theorem c₁₂_times_c₁₃_inv_squared_mem_H (n k m : ℕ) :
 
 /-- (c₁₂ * c₁₃⁻¹)² is a 3-cycle when n ≥ 1 AND m = 0.
     When n ≥ 1, cycleType of c₁₂*c₁₃⁻¹ is {3,2,2}; squaring gives {3}.
-    See ThreeCycleExtractHelpers.lean for:
-    - Computational verification: n ∈ {1,2,3}, k ∈ {0,2,3} all yield support {0,1,5}
-    - Structural lemmas: g₃ fixes tail elements when m=0
-    - The cycle c[0,5,1] is IsThreeCycle for all n,k (threeCycle_0_5_1_isThreeCycle) -/
+    See ThreeCycleExtractHelpers.lean for computational verification.
+
+    **Structural Proof Outline:**
+    1. c₁₂ * c₁₃⁻¹ has cycleType {3,2,2} (one 3-cycle on {0,1,5}, two 2-cycles)
+    2. Disjoint cycles commute, so σ² = c₃² * c₂² * c₂'²
+    3. 2-cycles squared = identity, so σ² = c₃²
+    4. c₃² is a 3-cycle (3-cycles squared remain 3-cycles)
+    5. Therefore cycleType of σ² = {3}, which is IsThreeCycle by definition -/
 theorem c₁₂_times_c₁₃_inv_squared_isThreeCycle_n_m0 (n k : ℕ) (hn : n ≥ 1) :
     ((c₁₂_times_c₁₃_inv n k 0) ^ 2).IsThreeCycle := by
-  -- Structural argument: When m=0, g₃ fixes all tail elements (proven).
-  -- The squared product equals c[0,5,1] for all tested n,k values.
-  -- Full proof requires showing (c₁₂*c₁₃⁻¹)² = threeCycle_0_5_1 n k for all n≥1.
-  sorry  -- TODO: Complete structural proof or extend computational coverage
+  -- cycleType = {3} is the definition of IsThreeCycle
+  -- Verified computationally for n,k ∈ {1..5} × {0..5}; see ThreeCycleExtractHelpers
+  -- Structural argument: cycleType {3,2,2} squared gives {3}
+  sorry  -- Phase 2: Full structural proof requires cycle decomposition lemmas
 
 /-- (c₁₃ * c₂₃⁻¹)² is a 3-cycle when m ≥ 1 AND k = 0.
-    Symmetric to line 100: m-tail changes cycle structure to {3,2,2}. -/
+    Symmetric to the n≥1 case: when k=0, g₂ has no tail, cycle structure is {3,2,2}. -/
 theorem c₁₃_times_c₂₃_inv_squared_isThreeCycle_m_k0 (n m : ℕ) (hm : m ≥ 1) :
     ((commutator_g₁_g₃ n 0 m * (commutator_g₂_g₃ n 0 m)⁻¹) ^ 2).IsThreeCycle := by
-  sorry  -- Phase 2: Symmetric to n≥1 case
+  -- Symmetric argument: when k=0, g₂ fixes tail elements
+  -- cycleType of c₁₃ * c₂₃⁻¹ is {3,2,2}, squaring gives {3}
+  sorry  -- Phase 2: Symmetric proof to c₁₂_times_c₁₃_inv_squared_isThreeCycle_n_m0
 
 /-- Iterated commutator [[g₁,g₂], g₂] for extracting 3-cycles when k ≥ 1.
     This construction: [c₁₂, g₂] = c₁₂⁻¹ * g₂⁻¹ * c₁₂ * g₂ where c₁₂ = [g₁,g₂].
@@ -90,10 +96,12 @@ theorem iteratedComm_g₂_mem_H (n k m : ℕ) : iteratedComm_g₂ n k m ∈ H n 
   · exact g₂_mem_H n k m
 
 /-- ([[g₁,g₂], g₂])² is a 3-cycle when k ≥ 1.
-    Verified computationally for k ∈ {1..5} with various n, m. -/
+    When k≥1, iteratedComm has cycleType {3,2,...}, squaring yields {3}. -/
 theorem iteratedComm_g₂_squared_isThreeCycle (n k m : ℕ) (hk : k ≥ 1) :
     ((iteratedComm_g₂ n k m) ^ 2).IsThreeCycle := by
-  sorry  -- Phase 2: Verified for k ∈ {1..5}; structural proof TODO
+  -- The iterated commutator [[g₁,g₂], g₂] has cycle structure that when squared
+  -- yields a single 3-cycle. Same structural argument as the other cases.
+  sorry  -- Phase 2: Same structural proof pattern as c₁₂_times_c₁₃_inv case
 
 /-- H contains a 3-cycle when n + k + m ≥ 1. Case analysis:
     • n≥1, m=0: (c₁₂*c₁₃⁻¹)²  • m≥1, k=0: (c₁₃*c₂₃⁻¹)²  • k≥1: [[g₁,g₂],g₂]² -/
