@@ -57,6 +57,30 @@ theorem threeCycle_1_2_3_isThreeCycle (n k m : ℕ) :
   · intro x h; have := congrArg List.length h; simp at this
 
 -- ============================================
+-- SECTION 2b: The 3-cycle (1, 5+n, 3) for n ≥ 1
+-- ============================================
+
+/-- The 3-cycle (1, 5+n, 3) on Omega n k m for n ≥ 1: sends 1→5+n→3→1 -/
+def threeCycle_1_5plusn_3 (n k m : ℕ) (hn : n ≥ 1) : Perm (Omega n k m) :=
+  [⟨1, by omega⟩, ⟨5 + n, by omega⟩, ⟨3, by omega⟩].formPerm
+
+theorem threeCycle_1_5plusn_3_list_nodup (n k m : ℕ) (hn : n ≥ 1) :
+    ([⟨1, by omega⟩, ⟨5 + n, by omega⟩, ⟨3, by omega⟩] : List (Omega n k m)).Nodup := by
+  simp only [List.nodup_cons, List.mem_cons, List.not_mem_nil, Fin.mk.injEq, or_false, not_or]
+  refine ⟨⟨by omega, by omega⟩, ⟨by omega, ⟨not_false, List.nodup_nil⟩⟩⟩
+
+/-- threeCycle_1_5plusn_3 is a 3-cycle -/
+theorem threeCycle_1_5plusn_3_isThreeCycle (n k m : ℕ) (hn : n ≥ 1) :
+    (threeCycle_1_5plusn_3 n k m hn).IsThreeCycle := by
+  unfold threeCycle_1_5plusn_3
+  rw [← card_support_eq_three_iff, List.support_formPerm_of_nodup _ (threeCycle_1_5plusn_3_list_nodup n k m hn)]
+  · simp only [List.toFinset_cons, List.toFinset_nil, Finset.insert_empty]
+    rw [Finset.card_insert_of_notMem, Finset.card_insert_of_notMem, Finset.card_singleton]
+    · simp only [Finset.mem_singleton, Fin.mk.injEq]; omega
+    · simp only [Finset.mem_insert, Finset.mem_singleton, Fin.mk.injEq, not_or]; omega
+  · intro x h; have := congrArg List.length h; simp at this
+
+-- ============================================
 -- SECTION 3: Computational verifications
 -- ============================================
 
