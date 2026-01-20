@@ -901,5 +901,84 @@ lean_local_search "declaration name"
 
 ---
 
-*Document Version: 2.0*
-*Last Updated: 2026-01-18*
+---
+
+## Appendix E: Current Status (Session 25)
+
+### Sorry Count: 6
+
+| File | Line | Description | Status | Approach |
+|------|------|-------------|--------|----------|
+| MainTheorem.lean | 65 | `c₁₂_times_c₁₃_inv_squared_isThreeCycle_n_m0` | **Ready** | Structural proof (Option A/B) |
+| MainTheorem.lean | 71 | `c₁₃_times_c₂₃_inv_squared_isThreeCycle_m_k0` | **Ready** | Symmetric to line 65 |
+| MainTheorem.lean | 92 | `iteratedComm_g₂_squared_isThreeCycle` | **Ready** | Same pattern |
+| Lemma11_5_SymmetricMain.lean | 159 | `case2_impossible_B` | **Blocked** | Needs redesign |
+| Lemma11_5_SymmetricMain.lean | 181 | `case2_impossible_C` | **Blocked** | Needs redesign |
+| Lemma11_5_Case2_Helpers.lean | 155 | `case2_B_ncard_le_one` | **FALSE** | Theorem is incorrect |
+
+### MainTheorem 3-Cycle Sorries: Proof Strategy
+
+**Key Insight**: Tail elements are fixed by [g₁, g₃] because they have disjoint support from g₃.
+
+#### Computational Verification (DONE)
+
+For ALL tested values (n,k ∈ {1,2,3,5,...}, m=0):
+- `((c₁₂_times_c₁₃_inv n k 0) ^ 2).support.card = 3`
+- The 3-cycle is always **(0 5 1)** on core elements
+- Element mappings: `0 → 5`, `5 → 1`, `1 → 0`
+- Before squaring: `cycleType = {3, 2, 2}` with support card 7
+
+#### Implementation Options
+
+**Option A: Full Structural Proof** (Recommended)
+1. Prove `g₃_fixes_tailA (n k : ℕ) (x : Omega n k 0) (hx : isTailA x) : g₃ n k 0 x = x`
+   - supp(g₃) = {1, 2, 4, 5} when m=0, tailA elements have indices ≥ 6
+2. Prove `commutator_g₁_g₃_fixes_tailA` (follows from Step 1)
+3. Prove the product c₁₂ * c₁₃⁻¹ has cycle type {3, 2, 2}
+4. Prove squaring eliminates 2-cycles → cycle type {3}
+5. Derive `IsThreeCycle` via `card_support_eq_three_iff`
+
+**Option B: Element-wise Proof**
+Prove the three mappings directly:
+```lean
+theorem sq_maps_0_to_5 (n k : ℕ) (hn : n ≥ 1) :
+    ((c₁₂_times_c₁₃_inv n k 0)^2) ⟨0, _⟩ = ⟨5, _⟩
+theorem sq_maps_5_to_1 (n k : ℕ) (hn : n ≥ 1) :
+    ((c₁₂_times_c₁₃_inv n k 0)^2) ⟨5, _⟩ = ⟨1, _⟩
+theorem sq_maps_1_to_0 (n k : ℕ) (hn : n ≥ 1) :
+    ((c₁₂_times_c₁₃_inv n k 0)^2) ⟨1, _⟩ = ⟨0, _⟩
+-- Plus: prove all other elements (core and tail) are fixed
+```
+
+**Option C: Bounded Computational Proof**
+For practical purposes, prove using `native_decide` for specific n values.
+
+### CRITICAL: Case 2 Theorem is FALSE
+
+The theorem `case2_B_ncard_le_one` in Lemma11_5_Case2_Helpers.lean is **provably false** for n ≥ 3.
+
+**Counterexample:** B = {6, 8} for n=3
+- B ⊆ tailA ✓
+- g₁(B) ∩ B = ∅ ✓ (since g₁({6,8}) = {7,5})
+- But |B| = 2 ≠ 1 ✗
+
+**Root Cause:** The hypothesis `g₁(B) ∩ B = ∅` does NOT imply `g₁²(B) ∩ B = ∅`.
+
+**Correct Approach (from AF Node 1.9.5):** The natural language proof requires B to be a **proper block in an H-invariant block system**, which enforces that the full orbit of B under g₁ consists of pairwise disjoint sets.
+
+**Required Fix:** Add hypothesis that B is part of a block system, not just that g₁(B) ∩ B = ∅.
+
+### Priority Order
+
+1. **MainTheorem 3-cycle proofs** (3 sorries, marked "Ready")
+   - Implement Option A or B
+   - These are independent of the Lemma11_5 issues
+
+2. **Lemma11_5 Case 2 redesign** (3 sorries, requires fundamental rework)
+   - Current theorem statements are incorrect
+   - Need to add block system hypothesis per AF Node 1.9.5
+
+---
+
+*Document Version: 3.0*
+*Last Updated: 2026-01-20*

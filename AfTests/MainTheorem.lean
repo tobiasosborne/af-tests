@@ -2,6 +2,7 @@ import AfTests.Core
 import AfTests.Transitivity.Lemma05
 import AfTests.ThreeCycle.Lemma08
 import AfTests.ThreeCycle.Lemma09
+import AfTests.ThreeCycle.ThreeCycleExtractHelpers
 import AfTests.Primitivity.Lemma11
 import AfTests.SignAnalysis.Lemma12
 import AfTests.SignAnalysis.Lemma14
@@ -56,13 +57,16 @@ theorem c₁₂_times_c₁₃_inv_squared_mem_H (n k m : ℕ) :
 
 /-- (c₁₂ * c₁₃⁻¹)² is a 3-cycle when n ≥ 1 AND m = 0.
     When n ≥ 1, cycleType of c₁₂*c₁₃⁻¹ is {3,2,2}; squaring gives {3}.
-    Verified: n,k ∈ {1..5} with m=0. General proof requires cycle analysis. -/
+    See ThreeCycleExtractHelpers.lean for:
+    - Computational verification: n ∈ {1,2,3}, k ∈ {0,2,3} all yield support {0,1,5}
+    - Structural lemmas: g₃ fixes tail elements when m=0
+    - The cycle c[0,5,1] is IsThreeCycle for all n,k (threeCycle_0_5_1_isThreeCycle) -/
 theorem c₁₂_times_c₁₃_inv_squared_isThreeCycle_n_m0 (n k : ℕ) (hn : n ≥ 1) :
     ((c₁₂_times_c₁₃_inv n k 0) ^ 2).IsThreeCycle := by
-  -- Mathematical proof: g₁ has n-tail elements, changing cycle structure.
-  -- c₁₂*c₁₃⁻¹ = (a b c)(d e)(f g) where (d e), (f g) are 2-cycles.
-  -- Squaring: 3-cycle² = 3-cycle, 2-cycle² = id. Result: single 3-cycle.
-  sorry  -- Phase 2: Computational for specific n,k; structural proof TODO
+  -- Structural argument: When m=0, g₃ fixes all tail elements (proven).
+  -- The squared product equals c[0,5,1] for all tested n,k values.
+  -- Full proof requires showing (c₁₂*c₁₃⁻¹)² = threeCycle_0_5_1 n k for all n≥1.
+  sorry  -- TODO: Complete structural proof or extend computational coverage
 
 /-- (c₁₃ * c₂₃⁻¹)² is a 3-cycle when m ≥ 1 AND k = 0.
     Symmetric to line 100: m-tail changes cycle structure to {3,2,2}. -/
