@@ -8,6 +8,8 @@ import AfTests.ThreeCycle.Lemma06
 import AfTests.ThreeCycle.Lemma07
 import AfTests.ThreeCycle.Lemma09
 import AfTests.ThreeCycle.ThreeCycleExtractHelpers
+import AfTests.ThreeCycle.TailAFixing
+import AfTests.ThreeCycle.TailALast
 import AfTests.Transitivity.Lemma05ListProps
 
 /-!
@@ -189,6 +191,16 @@ theorem sq_fixes_tailB (n k : ℕ) (x : Omega n k 0) (hx : 6 + n ≤ x.val) :
 theorem sq_fixes_tailA (n k : ℕ) (hn : n ≥ 1) (x : Omega n k 0)
     (hA : 6 ≤ x.val ∧ x.val < 6 + n) :
     (c₁₂_times_c₁₃_inv n k 0 ^ 2) x = x := by
-  sorry -- TODO: Structural proof - see TailAFixing.lean
+  by_cases hx_last : x.val = 5 + n
+  · -- Last tailA element: forms 2-cycle with 4, squaring fixes it
+    have hx_eq : x = ⟨5 + n, by omega⟩ := Fin.ext hx_last
+    rw [hx_eq]; exact TailALast.sq_fixes_last_tailA n k hn
+  · -- Not last: both c₁₂ and c₁₃⁻¹ fix x directly
+    have hA' : 6 ≤ x.val ∧ x.val < 5 + n := ⟨hA.1, by omega⟩
+    simp only [sq, Perm.mul_apply, c₁₂_times_c₁₃_inv, c₁₂, c₁₃]
+    rw [TailAFixing.c₁₃_inv_fixes_tailA n k x hA]
+    rw [TailAFixing.c₁₂_fixes_tailA_not_last n k x hA']
+    rw [TailAFixing.c₁₃_inv_fixes_tailA n k x hA]
+    exact TailAFixing.c₁₂_fixes_tailA_not_last n k x hA'
 
 end AfTests.TailLemmas
