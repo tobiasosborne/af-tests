@@ -7,6 +7,8 @@ import AfTests.Core
 import AfTests.ThreeCycle.Lemma06
 import AfTests.ThreeCycle.Lemma07
 import AfTests.ThreeCycle.Lemma08
+import AfTests.ThreeCycle.SymmetricCase1Helpers
+import AfTests.ThreeCycle.SymmetricCase2Helpers
 import Mathlib.GroupTheory.Perm.Cycle.Type
 
 /-!
@@ -48,10 +50,14 @@ Squaring eliminates 2-cycles, leaving a single 3-cycle.
 Verified for (n, m) ∈ {0..3} × {1..3} via native_decide. -/
 theorem isThreeCycle_m_ge1_k0 (n m : ℕ) (hm : m ≥ 1) :
     ((commutator_g₁_g₃ n 0 m * (commutator_g₂_g₃ n 0 m)⁻¹) ^ 2).IsThreeCycle := by
-  -- Symmetric structural argument to the n≥1, m=0 case
-  -- When k = 0, g₂ has no tail, so it fixes all tail elements
-  -- The product c₁₃ * c₂₃⁻¹ has 2-cycles that cancel when squared
-  sorry -- Structural proof TODO
+  -- STRUCTURAL PROOF APPROACH (symmetric to ThreeCycleProof.lean):
+  -- 1. Show squared product = SymmetricCase1.threeCycle_3_4_5 via extensionality
+  -- 2. Use SymmetricCase1.threeCycle_3_4_5_isThreeCycle
+  --
+  -- Key insight: when k = 0, g₂ = formPerm [1,3,4,0] (no tailB)
+  -- The squared product maps: 3→4→5→3, fixes all other elements
+  -- See SymmetricCase1Helpers.lean for computational verifications
+  sorry -- TODO: element-wise equality proof
 
 -- ============================================
 -- SECTION 2: Case k ≥ 1
@@ -72,9 +78,14 @@ a unique 3-cycle when squared.
 Verified for (n, k, m) ∈ {0..2} × {1..3} × {0..2} via native_decide. -/
 theorem isThreeCycle_k_ge1 (n k m : ℕ) (hk : k ≥ 1) :
     ((iteratedComm_g₂' n k m) ^ 2).IsThreeCycle := by
-  -- The iterated commutator has cycle structure that produces a 3-cycle when squared
-  -- Same structural argument as the other cases
-  sorry -- Structural proof TODO
+  -- STRUCTURAL PROOF APPROACH (similar to ThreeCycleProof.lean):
+  -- 1. Show squared product = SymmetricCase2.threeCycle_1_2_3 via extensionality
+  -- 2. Use SymmetricCase2.threeCycle_1_2_3_isThreeCycle
+  --
+  -- Key insight: [[g₁,g₂], g₂] = c₁₂⁻¹ * g₂⁻¹ * c₁₂ * g₂
+  -- The squared product maps: 1→2→3→1, fixes all other elements
+  -- See SymmetricCase2Helpers.lean for computational verifications
+  sorry -- TODO: element-wise equality proof
 
 -- ============================================
 -- SECTION 3: Computational Verifications

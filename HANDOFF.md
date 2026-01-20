@@ -1,28 +1,26 @@
-# Handoff: 2026-01-20 (Session 33)
+# Handoff: 2026-01-20 (Session 33 continued)
 
 ## Completed This Session
 
-### ThreeCycleProof.lean:121 Sorry ELIMINATED
-The 6 core element cases are now fully proven structurally.
+### Infrastructure for ThreeCycleSymmetric.lean Sorries
+Created helper files with computational verifications and structural lemmas:
 
-**Files Created:**
-- `CoreElementLemmas.lean` (168 lines): Generator actions on core elements {0,1,2,3,4,5}
-  - g₃ actions: g₃_5_eq_1, g₃_1_eq_2, g₃_fixes_3, g₃_inv_1_eq_5, g₃_inv_2_eq_1
-  - g₁ actions: g₁_5_eq_3, g₁_3_eq_2, g₁_inv_3_eq_5, g₁_inv_2_eq_3, g₁_2_eq_6, g₁_inv_6_eq_2
-  - g₂ actions: g₂_fixes_5, g₂_fixes_2, g₂_1_eq_3, g₂_3_eq_4, g₂_4_eq_0, g₂_inv_*
+**SymmetricCase1Helpers.lean** (115 lines):
+- `g₂_k0_eq`: g₂ when k=0 equals formPerm of core list only
+- `g₂_fixes_val_ge_6`: g₂ fixes elements ≥ 6 when k=0
+- `threeCycle_3_4_5`: The 3-cycle (3,4,5) definition
+- `threeCycle_3_4_5_isThreeCycle`: Proof it's a 3-cycle
+- Computational verifications for n∈{0..3}, m∈{1..3}
 
-- `ProductLemmas.lean` (152 lines): Commutator and product actions
-  - c₁₃⁻¹ actions: c₁₃_inv_0_eq_5, c₁₃_inv_1_eq_3, c₁₃_inv_2_eq_1, c₁₃_inv_3_eq_2, c₁₃_inv_5_eq_4
-  - c₁₂ actions: c₁₂_5_eq_1, c₁₂_3_eq_5, c₁₂_1_eq_3, c₁₂_2_eq_2, c₁₂_4_eq_0
-  - product actions: product_0_eq_1, product_1_eq_5, product_2_eq_3, product_3_eq_2, product_5_eq_0
+**SymmetricCase2Helpers.lean** (95 lines):
+- `iteratedComm_g₂'`: The iterated commutator [[g₁,g₂], g₂]
+- `threeCycle_1_2_3`: The 3-cycle (1,2,3) definition
+- `threeCycle_1_2_3_isThreeCycle`: Proof it's a 3-cycle
+- Computational verifications for various (n,k,m)
 
-**Files Updated:**
-- `ThreeCycleProof.lean` (185 lines): Added squared action theorems, filled interval_cases
-- `TailLemmas.lean` (198 lines): Trimmed from 206 lines
-- `TailAFixing.lean` (200 lines): Trimmed from 201 lines
-
-### LOC Violations FIXED
-All ThreeCycle files now under 200 LOC.
+**Updated ThreeCycleSymmetric.lean** (117 lines):
+- Added imports for helper files
+- Improved documentation on structural proof approach
 
 ---
 
@@ -30,111 +28,145 @@ All ThreeCycle files now under 200 LOC.
 
 ### Build Status: PASSING
 
-### Sorry Count: 6 total
+### Sorry Count: 6 total (unchanged)
 | Location | Description | Difficulty |
 |----------|-------------|------------|
-| ThreeCycleSymmetric.lean:54 | m≥1, k=0 case | Hard |
-| ThreeCycleSymmetric.lean:77 | k≥1 case | Hard |
+| ThreeCycleSymmetric.lean:57 | m≥1, k=0 case | Medium |
+| ThreeCycleSymmetric.lean:84 | k≥1 case | Medium |
 | Primitivity (4 sorries) | Includes known bug | N/A |
 
 ### No LOC Violations
 
 ---
 
-## Key Learnings This Session
+## 🎯 RECOMMENDED NEXT TARGET: ThreeCycleSymmetric.lean:57
 
-### 1. interval_cases Requires Named Hypothesis
-After `interval_cases x.val`, x isn't substituted in the goal. Fix:
+### Why This Sorry?
+- Helper infrastructure already created
+- Structural approach clearly documented
+- Symmetric to ThreeCycleProof.lean pattern
+
+### The Structural Proof Pattern
+
+Both sorries follow the same pattern as ThreeCycleProof.lean:
+
+1. **Prove squared product = threeCycle via extensionality**
+2. **Use threeCycle_isThreeCycle**
+
+### Case 1 (m≥1, k=0): Prove for each element
+
 ```lean
-interval_cases hv : x.val
-have hx : x = ⟨0, by omega⟩ := Fin.ext hv
-rw [hx, ...]
+-- Need to prove:
+(c₁₃_times_c₂₃_inv n m) ^ 2 = SymmetricCase1.threeCycle_3_4_5 n m
+
+-- Element-wise:
+| x.val | Expected result |
+|-------|-----------------|
+| 0     | 0 (fixed)       |
+| 1     | 1 (fixed)       |
+| 2     | 2 (fixed)       |
+| 3     | 4               |
+| 4     | 5               |
+| 5     | 3               |
+| ≥6    | x (fixed)       |
 ```
 
-### 2. c₁₃⁻¹ Proof Pattern (Inside-Out Rewriting)
-After `rw [Perm.inv_eq_iff_eq]`, goal becomes `⟨y⟩ = c₁₃(⟨x⟩)`.
-Must rewrite RHS from inside out:
-```lean
-theorem c₁₃_inv_0_eq_5 : (commutator_g₁_g₃ n k 0)⁻¹ ⟨0, _⟩ = ⟨5, _⟩ := by
-  rw [Perm.inv_eq_iff_eq]; unfold commutator_g₁_g₃; simp only [Perm.mul_apply]
-  -- Goal: ⟨0, _⟩ = g₁⁻¹(g₃⁻¹(g₁(g₃(5))))
-  rw [g₃_5_eq_1, g₁_fixes_1, g₃_inv_1_eq_5, g₁_inv_5_eq_0]
-```
+### Case 2 (k≥1): Prove for each element
 
-### 3. formPerm_apply_getElem Modular Arithmetic
-`simp` doesn't compute modular arithmetic well. Use explicit:
 ```lean
-show (3 + 1) % (0 + 1 + 1 + 1 + 1) = 0 by native_decide
-```
+-- Need to prove:
+(SymmetricCase2.iteratedComm_g₂' n k m) ^ 2 = SymmetricCase2.threeCycle_1_2_3 n k m
 
-### 4. Accessing tailAList Elements
-Use `Transitivity.g₁_list_getElem_tail` for tailA indexing:
-```lean
-have := Transitivity.g₁_list_getElem_tail n k 0 ⟨0, hn⟩
+-- Element-wise:
+| x.val | Expected result |
+|-------|-----------------|
+| 0     | 0 (fixed)       |
+| 1     | 2               |
+| 2     | 3               |
+| 3     | 1               |
+| 4     | 4 (fixed)       |
+| 5     | 5 (fixed)       |
+| ≥6    | x (fixed)       |
 ```
 
 ---
 
-## Next Recommended Target: ThreeCycleSymmetric.lean
+## Required Helper Lemmas
 
-### Why?
-- Completes the 3-cycle extraction for all parameter combinations
-- Two remaining sorries: m≥1/k=0 case and k≥1 case
-- Both require similar structural analysis to what we did for m=0
+### For Case 1 (m≥1, k=0)
 
-### Location
+Need lemmas similar to ProductLemmas.lean but for c₁₃ and c₂₃:
+
 ```lean
--- AfTests/ThreeCycle/ThreeCycleSymmetric.lean:54
-sorry -- Structural proof TODO (m≥1, k=0)
+-- Single application values:
+-- (c₁₃ * c₂₃⁻¹)(0) = 1, (c₁₃ * c₂₃⁻¹)(1) = 0, etc.
 
--- AfTests/ThreeCycle/ThreeCycleSymmetric.lean:77
-sorry -- Structural proof TODO (k≥1)
+-- Squared action lemmas:
+theorem sq_3_eq_4 : (c₁₃_times_c₂₃_inv n m ^ 2) ⟨3, _⟩ = ⟨4, _⟩
+theorem sq_4_eq_5 : (c₁₃_times_c₂₃_inv n m ^ 2) ⟨4, _⟩ = ⟨5, _⟩
+theorem sq_5_eq_3 : (c₁₃_times_c₂₃_inv n m ^ 2) ⟨5, _⟩ = ⟨3, _⟩
+-- etc. for fixed points
+```
+
+### For Case 2 (k≥1)
+
+Similar lemmas for the iterated commutator:
+
+```lean
+theorem sq_1_eq_2 : (iteratedComm_g₂' n k m ^ 2) ⟨1, _⟩ = ⟨2, _⟩
+theorem sq_2_eq_3 : (iteratedComm_g₂' n k m ^ 2) ⟨2, _⟩ = ⟨3, _⟩
+theorem sq_3_eq_1 : (iteratedComm_g₂' n k m ^ 2) ⟨3, _⟩ = ⟨1, _⟩
+-- etc.
+```
+
+---
+
+## Key Learnings
+
+### 1. Symmetry Between Cases
+
+| Case | Condition | Empty Tail | Product | 3-Cycle |
+|------|-----------|------------|---------|---------|
+| n≥1, m=0 | tailC empty | g₃ | c₁₂*c₁₃⁻¹ | (0,5,1) |
+| m≥1, k=0 | tailB empty | g₂ | c₁₃*c₂₃⁻¹ | (3,4,5) |
+| k≥1 | - | - | [[g₁,g₂],g₂] | (1,2,3) |
+
+### 2. Computational Verification First
+
+Use #eval to verify expected values before writing structural proofs:
+```lean
+#eval (c₁₃_times_c₂₃_inv 1 1 ^ 2) ⟨3, by omega⟩  -- expect 4
 ```
 
 ---
 
 ## Files Modified This Session
-- AfTests/ThreeCycle/CoreElementLemmas.lean (NEW)
-- AfTests/ThreeCycle/ProductLemmas.lean (NEW)
-- AfTests/ThreeCycle/ThreeCycleProof.lean (MODIFIED)
-- AfTests/ThreeCycle/TailLemmas.lean (MODIFIED)
-- AfTests/ThreeCycle/TailAFixing.lean (MODIFIED)
+- AfTests/ThreeCycle/SymmetricCase1Helpers.lean (NEW)
+- AfTests/ThreeCycle/SymmetricCase2Helpers.lean (NEW)
+- AfTests/ThreeCycle/ThreeCycleSymmetric.lean (MODIFIED)
+- AfTests/Scratch/SymmetricCycleVerify.lean (NEW, scratch)
 
 ---
 
-## Generator Cycle Reference
+## Generator Reference for Symmetric Cases
 
+### When k = 0 (Case 1)
 ```
-g₁ = formPerm [0, 5, 3, 2, 6, 7, ..., 5+n]     -- core + tailA
-g₂ = formPerm [1, 3, 4, 0, 6+n, ..., 5+n+k]   -- core + tailB
-g₃ = formPerm [2, 4, 5, 1]                     -- core only (when m=0)
-
-Cycle mappings:
-g₁: 0→5→3→2→6→...→(5+n)→0
-g₂: 1→3→4→0→(6+n)→...→(5+n+k)→1
-g₃: 2→4→5→1→2
+g₁ = formPerm [0, 5, 3, 2, 6, ..., 5+n]     (core + tailA)
+g₂ = formPerm [1, 3, 4, 0]                   (core only, no tailB!)
+g₃ = formPerm [2, 4, 5, 1, 6+n, ..., 5+n+m] (core + tailC)
 ```
 
-## Single Application Values (c₁₂*c₁₃⁻¹)
+### When k ≥ 1 (Case 2)
 ```
-| x.val | (c₁₂*c₁₃⁻¹)(x) |
-|-------|----------------|
-| 0     | 1              |
-| 1     | 5              |
-| 2     | 3              |
-| 3     | 2              |
-| 4     | 5+n            |
-| 5     | 0              |
+g₁, g₂, g₃ all have their normal structures
+iteratedComm_g₂' = c₁₂⁻¹ * g₂⁻¹ * c₁₂ * g₂ = [[g₁,g₂], g₂]
 ```
 
-## Squared Values (c₁₂*c₁₃⁻¹)²
-```
-| x.val | (c₁₂*c₁₃⁻¹)²(x) |
-|-------|-----------------|
-| 0     | 5               |
-| 1     | 0               |
-| 2     | 2               |
-| 3     | 3               |
-| 4     | 4               |
-| 5     | 1               |
-```
+---
+
+## Session Close Checklist
+- [x] Build passes
+- [x] No new LOC violations
+- [ ] HANDOFF.md updated
+- [ ] Changes committed and pushed
