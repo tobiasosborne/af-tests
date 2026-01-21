@@ -3,6 +3,46 @@
 ## Project Goal
 Prove H = ⟨g₁,g₂,g₃⟩ equals Aₙ (if n,k,m all odd) or Sₙ (otherwise) for Ω = Fin(6+n+k+m).
 
+## 🚨🚨🚨 MANDATORY: FOLLOW NATURAL LANGUAGE PROOFS 🚨🚨🚨
+
+**THIS IS THE MOST IMPORTANT RULE IN THIS PROJECT.**
+
+Every lemma has a corresponding natural language proof in `examples/lemmas/`. **YOU MUST:**
+
+1. **READ the NL proof BEFORE writing ANY Lean code**
+2. **MATCH your Lean code to the EXACT structure of the NL proof**
+3. **DO NOT invent new proof strategies**
+4. **DO NOT assume things the NL proof does not assume**
+
+### Why This Matters
+
+Previous agents wasted WEEKS by inventing their own proof strategies that were mathematically FALSE. For example:
+- The NL proof for Lemma 11.5 Case 2 says: "If g₂(B) ≠ B, then g₂(B) is disjoint from B. But a₁ ∈ both → CONTRADICTION. Therefore g₂(B) = B."
+- Agents coded it BACKWARDS, assuming g₂(B) was disjoint when it should be EQUAL
+- This led to false theorems that could never be proven
+
+### Before Writing Code for Any Lemma
+
+```bash
+# 1. Find the NL proof
+cat examples/lemmas/lemma<NN>_*.md
+
+# 2. Identify the EXACT logical structure
+# 3. Write Lean that mirrors that structure EXACTLY
+# 4. If the NL proof says X, your Lean code must say X
+```
+
+### Red Flags You're Deviating
+
+- You're introducing hypotheses not in the NL proof
+- You're using a different case structure than the NL proof
+- You're "simplifying" or "optimizing" the proof approach
+- You can't point to the exact NL proof node your code implements
+
+**STOP and re-read the NL proof if any of these apply.**
+
+---
+
 ## Critical Rules
 
 ### 200 LOC Limit

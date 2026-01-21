@@ -4,16 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: AF-Tests Project
 -/
 import AfTests.Primitivity.Lemma11_5_OrbitHelpers_Core
-import AfTests.Primitivity.Lemma11_5_OrbitHelpers_TailB
-import AfTests.Primitivity.Lemma11_5_OrbitHelpers_TailC
 
 /-!
 # Orbit Helpers Aggregator
 
-Re-exports helpers from Core, TailB, TailC, plus additional lemmas for orbit analysis.
+Re-exports helpers from Core, plus additional lemmas for orbit analysis.
 -/
 
-open Equiv Equiv.Perm Set OrbitCore OrbitTailB OrbitTailC
+open Equiv Equiv.Perm Set OrbitCore
 
 variable {n k m : ℕ}
 

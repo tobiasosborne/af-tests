@@ -1,104 +1,114 @@
-# Handoff: 2026-01-21 (Session 44)
+# Handoff: 2026-01-21 (Session 44) - CRITICAL
 
-## Completed This Session
+## 🚨🚨🚨 CRITICAL WARNING FOR ALL AGENTS 🚨🚨🚨
 
-### Proved Two Orbit Computation Sorries
-- **`g₂_pow_b₁_eq_tailB_elem`**: Proved using `List.formPerm_pow_apply_getElem`
-  - Shows g₂^j(b₁) = 6+n+j for j < k
-  - Key insight: Element at index 4+j in g₂ list is tailB[j]
+**THE LEAN FORMALIZATION WAS WRONG. AGENTS INVENTED THEIR OWN PROOF INSTEAD OF FOLLOWING THE NATURAL LANGUAGE PROOF.**
 
-- **`g₃_pow_c₁_eq_tailC_elem`**: Symmetric proof for g₃
-  - Shows g₃^j(c₁) = 6+n+k+j for j < m
+**BEFORE WRITING ANY CODE:**
+1. READ `examples/lemmas/lemma11_5_no_nontrivial_blocks.md`
+2. MATCH your Lean code to the EXACT structure of the natural language proof
+3. DO NOT INVENT NEW PROOF STRATEGIES
 
-### Critical Discovery: FALSE THEOREMS
+---
 
-**`g₂_pow_orbit_hits_core` and `g₃_pow_orbit_hits_core` ARE FALSE AS STATED!**
+## What Went Wrong
 
-**Counterexample** for j=6, k=8:
-- g₂ cycle length = 12
-- gcd(6, 12) = 6
-- Orbit of position 4 under +6 (mod 12) = {4, 10}
-- Both positions 4 and 10 are in tailB (positions 4-11 for k=8)
-- **The orbit NEVER exits tailB!**
+Previous agents created a "Case 2" proof that assumed:
+- `hg₂_disj : Disjoint (g₂ '' B) B` (g₂(B) disjoint from B)
 
-The theorem claims `∃ r ≥ 1, g₂^{rj}(b₁) ∉ tailB`, but for j=6, k=8 the orbit stays at {6+n, 6+n+6} forever.
+**BUT THE NATURAL LANGUAGE PROOF SAYS THE OPPOSITE!**
 
-**Root Cause**: When gcd(j, 4+k) ≥ 5, the orbit from position 4 only visits positions ≡ 4 (mod gcd), and none of {0,1,2,3} satisfy this.
+From Node 1.9.5:
+> "Since a₁ is in B, if g₂(B) ≠ B then g₂(B) is disjoint from B. But g₂(a₁) = a₁ means a₁ is in both B and g₂(B). **CONTRADICTION.** Therefore **g₂(B) = B**."
 
-**The theorem IS true when gcd(j, 4+k) ≤ 4** because:
-- gcd=1: 3 ≡ 4 (mod 1) ✓
-- gcd=2: 2 ≡ 4 (mod 2) ✓
-- gcd=3: 1 ≡ 4 (mod 3) ✓
-- gcd=4: 0 ≡ 4 (mod 4) ✓
+**Case 2 FORCES g₂(B) = B and g₃(B) = B via fixed-point argument!**
+
+The Lean code had it completely backwards.
+
+---
+
+## Files Deleted This Session
+
+WRONG files that assumed g₂(B) disjoint:
+- `Lemma11_5_OrbitHelpers_TailB.lean` - FALSE orbit theorem
+- `Lemma11_5_OrbitHelpers_TailC.lean` - FALSE orbit theorem
+- `Lemma11_5_SymmetricCase2B.lean` - wrong assumptions
+- `Lemma11_5_SymmetricCase2C.lean` - wrong assumptions
+- `Lemma11_5_SymmetricMain.lean` - wrong case2_impossible theorems
 
 ---
 
 ## Current State
 
-### Build Status: PASSING ✓
+### Build Status: BROKEN (missing functions after deletion)
 
-### Axiom Count: 0
+### What's Missing
 
-### Sorry Count: 5 total
-| Location | Description | Status |
-|----------|-------------|--------|
-| Lemma11_5_OrbitHelpers_TailB.lean:143 | `g₂_pow_orbit_hits_core` | **FALSE - needs redesign** |
-| Lemma11_5_OrbitHelpers_TailC.lean:140 | `g₃_pow_orbit_hits_core` | **FALSE - needs redesign** |
-| Lemma11_5_Case2.lean:170 | `case2_impossible` | Needs block hypothesis |
+Need to add to `Lemma11_5_SymmetricCases.lean`:
+```lean
+-- Case 2 for k≥1: g₂(B) ≠ B forces g₁(B) = B and g₃(B) = B
+theorem case2_forces_stabilization_B (hk : k ≥ 1) (B : Set (Omega n k m))
+    (hB₁ : b₁ n k m hk ∈ B)
+    (h₁Disj : ¬PreservesSet (g₁ n k m) B → Disjoint (g₁ n k m '' B) B)
+    (h₃Disj : ¬PreservesSet (g₃ n k m) B → Disjoint (g₃ n k m '' B) B) :
+    PreservesSet (g₁ n k m) B ∧ PreservesSet (g₃ n k m) B
+
+-- Case 2 for m≥1: g₃(B) ≠ B forces g₁(B) = B and g₂(B) = B
+theorem case2_forces_stabilization_C (hm : m ≥ 1) (B : Set (Omega n k m))
+    (hC₁ : c₁ n k m hm ∈ B)
+    (h₁Disj : ¬PreservesSet (g₁ n k m) B → Disjoint (g₁ n k m '' B) B)
+    (h₂Disj : ¬PreservesSet (g₂ n k m) B → Disjoint (g₂ n k m '' B) B) :
+    PreservesSet (g₁ n k m) B ∧ PreservesSet (g₂ n k m) B
+```
+
+### What Lemma11_5.lean SHOULD Do for Case 2
+
+Following the NL proof (Node 1.9.5):
+
+1. Case 2: g₁(B) ≠ B (for n≥1 case)
+2. a₁ ∈ B and a₁ is fixed by g₂ and g₃ (not in their supports)
+3. If g₂(B) ≠ B, then g₂(B) disjoint from B, but a₁ ∈ both → CONTRADICTION
+4. Therefore g₂(B) = B (forced!)
+5. Similarly g₃(B) = B (forced!)
+6. Now apply Lemma 11.2: since g₂(B) = B and B intersects supp(g₂), supp(g₂) ⊆ B
+7. Similarly supp(g₃) ⊆ B
+8. Together with orbit structure, this forces |B| = N, contradiction
+
+**THE KEY INSIGHT: Case 2 does NOT assume g₂(B) is disjoint - it PROVES g₂(B) = B!**
 
 ---
 
-## Key Technical Details
+## Correct Natural Language Proof Structure
 
-### Why This Breaks the Proof
+```
+Case 1: g₁(B) = B
+  → supp(g₁) ⊆ B (by Lemma 11.3)
+  Case 1a: g₂(B) = B
+    → supp(g₂) ⊆ B (by Lemma 11.2)
+    Case 1a-i: g₃(B) = B → supp(g₃) ⊆ B → B = Ω, contradiction
+    Case 1a-ii: g₃(B) ≠ B → fixed point on elem 0 gives contradiction
+  Case 1b: g₂(B) ≠ B
+    → fixed point on elem 3 (in supp(g₁) but not supp(g₂)) gives contradiction
 
-The proof strategy in `case2_impossible_B` (Lemma11_5_SymmetricMain.lean:136-193):
-1. Finds second element x ∈ B at distance j from b₁
-2. Shows g₂^j(B) = B using block property
-3. Iterates: g₂^{rj}(B) = B for all r
-4. Claims orbit eventually exits tailB ← **FALSE for gcd(j, 4+k) ≥ 5**
+Case 2: g₁(B) ≠ B
+  → a₁ ∈ B, and a₁ is fixed by g₂ and g₃
+  → If g₂(B) ≠ B, a₁ ∈ B ∩ g₂(B), contradiction with disjointness
+  → Therefore g₂(B) = B (FORCED!)
+  → Similarly g₃(B) = B (FORCED!)
+  → Then by Lemma 11.2 analysis, |B| = N, contradiction
+```
 
-### Potential Fixes
+---
 
-**Option 1**: Add hypothesis `Nat.gcd j (4 + k) ≤ 4`
-- Need to prove this holds in the call context (may not always be true)
+## Next Steps
 
-**Option 2**: Different proof strategy
-- Instead of orbit argument, use block system partition properties
-- The g₂ orbit of B visits (4+k)/|B| blocks total
-- Only k/|B| blocks can fit entirely in tailB
-- Since (4+k)/|B| > k/|B|, some block must intersect core
-- Derive contradiction from H-invariance constraints
-
-**Option 3**: Restrict to specific n,k,m values
-- The counterexamples require k ≥ 6 (for j=5) or k ≥ 8 (for j=6)
-- Small k cases might be handled separately
+1. Add `case2_forces_stabilization_B` and `_C` to SymmetricCases.lean
+2. Fix calls in Lemma11_5.lean to use correct Case 2 logic
+3. The Case 2 conclusion should use Lemma 11.2, NOT orbit arguments!
 
 ---
 
 ## Files Modified This Session
-- `Lemma11_5_OrbitHelpers_TailB.lean` (proved one sorry, documented false theorem)
-- `Lemma11_5_OrbitHelpers_TailC.lean` (proved one sorry, documented false theorem)
-
----
-
-## Next Session Priority
-
-### Task 1: Fix Case 2 Proof Strategy (P0)
-The orbit argument doesn't work. Need to either:
-1. Add gcd hypothesis and verify it's satisfied
-2. Find alternative proof that B ⊆ tailB leads to contradiction
-3. Use block counting argument (see Option 2 above)
-
-### Task 2: Understand Block System Constraints
-Key question: Can B = {6+n, 6+n+6} actually exist in a valid H-invariant block system?
-- Need to analyze if the counterexample scenario is actually reachable
-- The block system must partition ALL of Ω, not just tailB
-
----
-
-## Session Close Checklist
-- [x] Build passes
-- [x] HANDOFF.md updated
-- [ ] Changes committed and pushed
-- [ ] Beads synced
+- Deleted 5 wrong files
+- Modified `Lemma11_5_OrbitHelpers.lean` (removed bad imports)
+- Modified `Lemma11_5.lean` (removed bad import, still broken)
