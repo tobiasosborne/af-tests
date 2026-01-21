@@ -96,5 +96,5 @@ Files exceeding 200 LOC limit:
 ## Session Close Checklist
 - [x] Build passes
 - [x] HANDOFF.md updated
-- [ ] Changes committed and pushed
-- [ ] Beads synced
+- [x] Changes committed and pushed
+- [x] Beads synced
