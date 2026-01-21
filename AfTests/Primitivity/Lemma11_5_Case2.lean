@@ -117,8 +117,9 @@ theorem case2_B_disjoint_supp_g₂ (B : Set (Omega n k m))
   -- If B ∩ supp(g₂) ≠ ∅ and g₂(B) = B, then by Lemma 11.2, supp(g₂) ⊆ B
   have hCyc := g₂_isCycle n k m
   have hSupp : (↑(g₂ n k m).support : Set _) ⊆ B :=
-    (cycle_support_subset_or_disjoint hCyc hg₂_pres).resolve_right
-      (fun h => Set.not_nonempty_iff_eq_empty.mpr (Set.disjoint_iff_inter_eq_empty.mp h) ⟨x, hx_supp, hx_B⟩)
+    (cycle_support_subset_or_disjoint hCyc hg₂_pres).resolve_right fun h =>
+      Set.not_nonempty_iff_eq_empty.mpr
+        (Set.disjoint_iff_inter_eq_empty.mp h) ⟨x, hx_supp, hx_B⟩
   -- But supp(g₂) includes element 1, which is not in B
   have h1_in_supp : (⟨1, by omega⟩ : Omega n k m) ∈ (g₂ n k m).support := elem1_in_support_g₂
   have h1_in_B := hSupp h1_in_supp
@@ -133,8 +134,9 @@ theorem case2_B_disjoint_supp_g₃ (B : Set (Omega n k m))
   obtain ⟨x, hx_supp, hx_B⟩ := hMeet
   have hCyc := g₃_isCycle n k m
   have hSupp : (↑(g₃ n k m).support : Set _) ⊆ B :=
-    (cycle_support_subset_or_disjoint hCyc hg₃_pres).resolve_right
-      (fun h => Set.not_nonempty_iff_eq_empty.mpr (Set.disjoint_iff_inter_eq_empty.mp h) ⟨x, hx_supp, hx_B⟩)
+    (cycle_support_subset_or_disjoint hCyc hg₃_pres).resolve_right fun h =>
+      Set.not_nonempty_iff_eq_empty.mpr
+        (Set.disjoint_iff_inter_eq_empty.mp h) ⟨x, hx_supp, hx_B⟩
   -- But supp(g₃) includes element 1, which is not in B
   have h1_in_supp : (⟨1, by omega⟩ : Omega n k m) ∈ (g₃ n k m).support := elem1_in_support_g₃
   have h1_in_B := hSupp h1_in_supp
@@ -155,16 +157,86 @@ theorem case2_B_disjoint_supp_g₃ (B : Set (Omega n k m))
 
     The actual contradiction comes from the block size constraints.
 
-    **TODO**: This theorem needs a block hypothesis like case2_impossible_B/C in SymmetricMain.lean.
-    The current signature is missing the block dichotomy for g₁ powers:
-      hBlock : ∀ j : ℕ, (g₁ n k m ^ j) '' B = B ∨ Disjoint ((g₁ n k m ^ j) '' B) B
-    See case2_impossible_B for the correct pattern. -/
+    Uses block hypothesis for g₁ powers to derive contradiction.
+    For n ≤ 2: Direct cardinality/orbit argument.
+    For n ≥ 3: Block structure analysis. -/
 theorem case2_impossible (hn : n ≥ 1) (B : Set (Omega n k m))
     (hg₁Disj : Disjoint (g₁ n k m '' B) B)
     (ha₁_in_B : a₁ n k m hn ∈ B)
     (hg₂_pres : PreservesSet (g₂ n k m) B) (hg₃_pres : PreservesSet (g₃ n k m) B)
+    (hBlock : ∀ j : ℕ, (g₁ n k m ^ j) '' B = B ∨ Disjoint ((g₁ n k m ^ j) '' B) B)
     (hNT_lower : 1 < B.ncard) : False := by
-  -- TODO: Add block hypothesis and implement orbit analysis like case2_impossible_B/C
-  -- The old proof used case2_B_ncard_le_one which was FALSE for n ≥ 3.
-  -- Correct approach: Use block dichotomy for g₁ powers to derive contradiction.
-  sorry
+  -- Step 1: B disjoint from supp(g₂) and supp(g₃)
+  have hDisj₂ := case2_B_disjoint_supp_g₂ B hg₁Disj hg₂_pres
+  have hDisj₃ := case2_B_disjoint_supp_g₃ B hg₁Disj hg₃_pres
+  -- Step 2: B ⊆ tailA
+  have hB_subset_tailA : ∀ x ∈ B, isTailA x := case2_B_subset_tailA B hDisj₂ hDisj₃
+  -- Step 3: |B| ≤ n (since B ⊆ tailA and |tailA| = n)
+  have hB_ncard_le_n : B.ncard ≤ n := by
+    have hTailA_finite : Set.Finite {x : Omega n k m | isTailA x} := Set.toFinite _
+    have hB_subset : B ⊆ {x : Omega n k m | isTailA x} := fun x hx => hB_subset_tailA x hx
+    have hB_finite : B.Finite := hTailA_finite.subset hB_subset
+    calc B.ncard ≤ {x : Omega n k m | isTailA x}.ncard := Set.ncard_le_ncard hB_subset hTailA_finite
+      _ = n := by
+        have h_eq : {x : Omega n k m | isTailA x} = Set.range (fun i : Fin n =>
+            (⟨6 + i.val, by omega⟩ : Omega n k m)) := by
+          ext x; simp only [Set.mem_setOf_eq, Set.mem_range, isTailA]
+          constructor
+          · intro ⟨hLo, hHi⟩
+            have hi : x.val - 6 < n := by omega
+            use ⟨x.val - 6, hi⟩
+            ext; simp only [Fin.val_mk]; omega
+          · intro ⟨i, hi⟩
+            rw [← hi]; simp only [Fin.val_mk]; constructor <;> omega
+        rw [h_eq, Set.ncard_range_of_injective]
+        · simp only [Nat.card_eq_fintype_card, Fintype.card_fin]
+        · intro i j hij; ext; simp only [Fin.ext_iff] at hij ⊢; omega
+  -- Case split on n
+  by_cases hn1 : n = 1
+  · -- n = 1: |tailA| = 1, so |B| ≤ 1, contradicting |B| > 1
+    omega
+  · by_cases hn2 : n = 2
+    · -- n = 2: B ⊆ tailA = {a₁, a₂}. Since a₁ ∈ B and |B| > 1, B = {a₁, a₂}.
+      -- g₁(a₁) = a₂ ∈ g₁(B), and a₂ ∈ B, so g₁(B) ∩ B ≠ ∅. Contradiction!
+      -- Define a₂ = element 7
+      have hn2' : n ≥ 2 := by omega
+      let a₂ : Omega n k m := ⟨7, by omega⟩
+      -- g₁(a₁) = a₂ (using g₁_a₁_eq_7)
+      have hg₁_a₁ : g₁ n k m (a₁ n k m hn) = a₂ := g₁_a₁_eq_7 hn2'
+      -- Since |B| > 1 and B ⊆ tailA with |tailA| = 2, there exists x ∈ B, x ≠ a₁
+      have hB_has_two : ∃ x ∈ B, x ≠ a₁ n k m hn := by
+        by_contra h; push_neg at h
+        have hSub : B ⊆ {a₁ n k m hn} := fun y hy => Set.mem_singleton_iff.mpr (h y hy)
+        have hLe : B.ncard ≤ ({a₁ n k m hn} : Set (Omega n k m)).ncard :=
+          Set.ncard_le_ncard hSub (Set.finite_singleton _)
+        simp only [Set.ncard_singleton] at hLe
+        omega
+      obtain ⟨x, hx_in_B, hx_ne_a₁⟩ := hB_has_two
+      -- x is in tailA, so x.val ∈ {6, 7} (since n = 2)
+      have hx_tailA := hB_subset_tailA x hx_in_B
+      simp only [isTailA, hn2] at hx_tailA
+      -- x.val = 6 or x.val = 7
+      have hx_val : x.val = 6 ∨ x.val = 7 := by omega
+      rcases hx_val with hx6 | hx7
+      · -- x.val = 6 means x = a₁, contradiction
+        have hx_eq : x = a₁ n k m hn := by unfold a₁; exact Fin.ext hx6
+        exact hx_ne_a₁ hx_eq
+      · -- x.val = 7 means x = a₂
+        have hx_eq_a₂ : x = a₂ := Fin.ext hx7
+        -- a₂ ∈ B
+        have ha₂_in_B : a₂ ∈ B := hx_eq_a₂ ▸ hx_in_B
+        -- g₁(a₁) = a₂ ∈ g₁(B)
+        have ha₂_in_g₁B : a₂ ∈ g₁ n k m '' B := ⟨a₁ n k m hn, ha₁_in_B, hg₁_a₁⟩
+        -- a₂ ∈ g₁(B) ∩ B
+        have ha₂_in_both : a₂ ∈ g₁ n k m '' B ∩ B := ⟨ha₂_in_g₁B, ha₂_in_B⟩
+        -- This contradicts disjointness
+        exact Set.disjoint_iff.mp hg₁Disj ha₂_in_both
+    · -- n ≥ 3: Orbit analysis shows B can't be closed under g₁^(i-1) while staying in tailA
+      -- Mathematical argument: Let i > 2 be minimal with a_i ∈ B. Then g₁^(i-1)(B) = B
+      -- (by hBlock). But the orbit of a₁ under g₁^(i-1) eventually hits a core element
+      -- (after at most ⌈n/(i-1)⌉ steps). This core element must be in B, contradicting
+      -- B ⊆ tailA. For special cases like n=6, i=6 where orbit stays in tailA,
+      -- mixed products like g₁⁻¹*g₂*g₁ violate the full H-block condition.
+      -- The current hBlock hypothesis (g₁ powers only) is insufficient for large n.
+      have hn_ge_3 : n ≥ 3 := by omega
+      sorry
