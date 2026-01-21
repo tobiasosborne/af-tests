@@ -11,6 +11,7 @@ import AfTests.Primitivity.Lemma11_5_Defs
 import AfTests.Primitivity.Lemma11_5_CycleSupport
 import AfTests.Primitivity.Lemma11_5_Case2
 import AfTests.Primitivity.Lemma11_5_OrbitContinuation
+import AfTests.Primitivity.Lemma11_5_OrbitHelpers
 
 /-!
 # Lemma 11.5 Case 2: Correct Proof via Block B₁
@@ -129,6 +130,7 @@ theorem orbit_le_neg3_impossible (hn : n ≥ 1) (j : ℕ) (hj : j ≥ 2) (B₀ :
   -- The orbit eventually wraps around to cover supp(g₁)
   sorry
 
+set_option maxHeartbeats 600000 in
 /-- Case 2: main contradiction via orbit analysis -/
 theorem case2_correct (hn : n ≥ 1) (BS : BlockSystemOn n k m) (hInv : IsHInvariant BS)
     (B : Set (Omega n k m)) (hB : B ∈ BS.blocks)
@@ -211,14 +213,96 @@ theorem case2_correct (hn : n ≥ 1) (BS : BlockSystemOn n k m) (hInv : IsHInvar
               rw [hj, this]
               exact ⟨⟨3, by omega⟩, h3_in_g₂B₁, g₁_elem3_eq_elem2⟩
             exact elem2_not_tailA (hB_subset_tailA _ h2_in_C)
-          | succ _ => -- j ≥ 2: orbit eventually contains core elements
-            -- B₁ has |B₁| > 1 and B₁ ⊆ {1, 4} ∪ tailB (since B₁ ∩ supp(g₁) = ∅)
-            -- So either 4 ∈ B₁ or some tailB element ∈ B₁
-            -- Either way, C = g₁^j(g₂(B₁)) contains a non-tailA element:
-            -- - If 4 ∈ B₁ and k = 0: g₂(4) = 0, and g₁^j(0) eventually hits core
-            -- - If 4 ∈ B₁ and k ≥ 1: g₂(4) = b₁ ∈ tailB, g₁ fixes tailB, so b₁ ∈ C but b₁ ∉ tailA
-            -- - If tailB ∈ B₁: g₂ permutes tailB, g₁ fixes it, so tailB ∈ C but tailB ∩ tailA = ∅
-            sorry
+          | succ j'' => -- j ≥ 2: orbit eventually contains core elements
+            -- |B₁| > 1 since bijections preserve cardinality
+            have hB₁_size : 1 < B₁.ncard := by
+              have hCard_eq : C.ncard = B₁.ncard := by
+                have h1 : C.ncard = (g₂ n k m '' B₁).ncard := by
+                  rw [hj]; exact Set.ncard_image_of_injective _ (g₁ n k m ^ _).injective
+                have h2 : (g₂ n k m '' B₁).ncard = B₁.ncard :=
+                  Set.ncard_image_of_injective _ (g₂ n k m).injective
+                exact h1.trans h2
+              exact hCard_eq ▸ hSize
+            -- Get second element in B₁
+            obtain ⟨x, hx_in_B₁, hx_ne_1⟩ :=
+              Set.exists_ne_of_one_lt_ncard hB₁_size (⟨1, by omega⟩ : Omega n k m)
+            -- x ∉ supp(g₁) since B₁ ∩ supp(g₁) = ∅
+            have hx_not_supp : x ∉ (g₁ n k m).support := by
+              exact Set.disjoint_right.mp hDisj₁ hx_in_B₁
+            -- Classify x
+            have hx_cases := elem_not_in_support_g₁_cases x hx_not_supp
+            -- Since x ≠ 1, must be 4, tailB, or tailC
+            rcases hx_cases with hx1 | hx4 | hxB | hxC
+            · -- x.val = 1 contradicts x ≠ 1
+              exfalso; exact hx_ne_1 (Fin.ext hx1)
+            · -- x.val = 4: use block overlap at element 3
+              have hx_eq_4 : x = ⟨4, by omega⟩ := Fin.ext hx4
+              -- g₂(4) = 0 ∈ g₂(B₁)
+              have h0_in : (⟨0, by omega⟩ : Omega n k m) ∈ g₂ n k m '' B₁ :=
+                ⟨⟨4, by omega⟩, hx_eq_4 ▸ hx_in_B₁, g₂_elem4_eq_elem0'⟩
+              -- g₁(0) = 5 ∈ g₁(g₂(B₁))
+              have h5_in_g1g2B1 : (⟨5, by omega⟩ : Omega n k m) ∈ g₁ n k m '' (g₂ n k m '' B₁) :=
+                ⟨⟨0, by omega⟩, h0_in, g₁_elem0_eq_elem5⟩
+              -- g₁(5) = 3 ∈ g₁²(g₂(B₁))
+              have h3_in_g1sq : (⟨3, by omega⟩ : Omega n k m) ∈
+                  g₁ n k m '' (g₁ n k m '' (g₂ n k m '' B₁)) :=
+                ⟨⟨5, by omega⟩, h5_in_g1g2B1, g₁_elem5_eq_elem3⟩
+              -- g₂(B₁) and g₁²(g₂(B₁)) are both blocks
+              have hg1sq_block : g₁ n k m '' (g₁ n k m '' (g₂ n k m '' B₁)) ∈ BS.blocks :=
+                hInv₁ _ (hInv₁ _ hg₂B₁_block)
+              -- They share element 3
+              have h3_in_both : (⟨3, by omega⟩ : Omega n k m) ∈
+                  (g₂ n k m '' B₁) ∩ (g₁ n k m '' (g₁ n k m '' (g₂ n k m '' B₁))) :=
+                ⟨h3_in_g₂B₁, h3_in_g1sq⟩
+              -- They're different (g₂(B₁) = {3, 0}, g₁²(g₂(B₁)) = {6, 3})
+              have hDiff : g₂ n k m '' B₁ ≠ g₁ n k m '' (g₁ n k m '' (g₂ n k m '' B₁)) := by
+                intro heq
+                -- If equal: 6 = g₁²(3) ∈ g₁²(g₂(B₁)) = g₂(B₁)
+                -- 3 ∈ g₂(B₁) → g₁(3) = 2 ∈ g₁(g₂(B₁)) → g₁(2) = 6 ∈ g₁²(g₂(B₁)) = g₂(B₁)
+                have h6_in : (⟨6, by omega⟩ : Omega n k m) ∈ g₂ n k m '' B₁ := by
+                  rw [heq]
+                  exact ⟨⟨2, by omega⟩,
+                    ⟨⟨3, by omega⟩, h3_in_g₂B₁, g₁_elem3_eq_elem2⟩,
+                    g₁_elem2_eq_elem6 hn⟩
+                -- But 6 can't be in g₂(B₁)
+                obtain ⟨y, hy_in_B₁, hy_g₂⟩ := h6_in
+                have hy_not_supp : y ∉ (g₁ n k m).support :=
+                  Set.disjoint_right.mp hDisj₁ hy_in_B₁
+                have hy_cases := elem_not_in_support_g₁_cases y hy_not_supp
+                rcases hy_cases with hy1 | hy4 | hyB | hyC
+                · have heq : y = ⟨1, by omega⟩ := Fin.ext hy1
+                  rw [heq, g₂_elem1_eq_elem3] at hy_g₂
+                  simp only [Fin.ext_iff] at hy_g₂; omega
+                · have heq : y = ⟨4, by omega⟩ := Fin.ext hy4
+                  rw [heq, g₂_elem4_eq_elem0'] at hy_g₂
+                  simp only [Fin.ext_iff] at hy_g₂; omega
+                · have h_ne := g₂_image_not_6 hn y (Or.inr (Or.inr (Or.inl hyB)))
+                  simp only [Fin.ext_iff] at hy_g₂; omega
+                · have hFix := g₂_fixes_tailC y hyC
+                  rw [hFix] at hy_g₂
+                  simp only [isTailC, Fin.ext_iff] at hyC hy_g₂; omega
+              -- Different blocks must be disjoint
+              exact Set.disjoint_iff.mp (hDisj hg₂B₁_block hg1sq_block hDiff) h3_in_both
+            · -- x ∈ tailB: g₂(x) stays fixed by g₁ʲ, lands in C, but not in tailA
+              have hg₂x_in_g₂B₁ : g₂ n k m x ∈ g₂ n k m '' B₁ := ⟨x, hx_in_B₁, rfl⟩
+              rcases g₂_tailB_to_tailB_or_1 x hxB with hg₂x_tailB | hg₂x_eq_1
+              · -- g₂(x) ∈ tailB: g₁ fixes tailB
+                have hFix := g₁_zpow_fixes_tailB (Int.ofNat (j'' + 1 + 1)) _ hg₂x_tailB
+                have hg₂x_in_C : g₂ n k m x ∈ C := by
+                  rw [hj]; exact ⟨g₂ n k m x, hg₂x_in_g₂B₁, hFix⟩
+                exact tailB_not_tailA _ hg₂x_tailB (hB_subset_tailA _ hg₂x_in_C)
+              · -- g₂(x) = 1: g₁ fixes 1
+                have hFix : (g₁ n k m ^ (Int.ofNat (j'' + 1 + 1))) (⟨1, by omega⟩ : Omega n k m) =
+                    ⟨1, by omega⟩ := g₁_zpow_fixes_elem1 (Int.ofNat (j'' + 1 + 1))
+                have h1_in_C : (⟨1, by omega⟩ : Omega n k m) ∈ C := by
+                  rw [hj]; exact ⟨g₂ n k m x, hg₂x_in_g₂B₁, by rw [hg₂x_eq_1]; exact hFix⟩
+                exact elem1_not_tailA (hB_subset_tailA _ h1_in_C)
+            · -- x ∈ tailC: g₂ and g₁ both fix tailC
+              have hg₂_fix : g₂ n k m x = x := g₂_fixes_tailC x hxC
+              have hg₁_fix := g₁_zpow_fixes_tailC (Int.ofNat (j'' + 1 + 1)) x hxC
+              have hx_in_C : x ∈ C := by
+                rw [hj]; exact ⟨x, ⟨x, hx_in_B₁, hg₂_fix⟩, hg₁_fix⟩
+              exact tailC_disjoint_tailA x hxC (hB_subset_tailA _ hx_in_C)
       · -- j is negative (Int.negSucc j'): power is -(j'+1) = -1, -2, -3, ...
         cases j with
         | zero => -- j = -1
@@ -232,9 +316,50 @@ theorem case2_correct (hn : n ≥ 1) (BS : BlockSystemOn n k m) (hInv : IsHInvar
               simp only [Int.negSucc_eq, zpow_neg]
               exact ⟨⟨3, by omega⟩, h3_in_g₂B₁, g₁_pow2_inv_elem3_eq_elem0⟩
             exact elem0_not_tailA (hB_subset_tailA _ h0_in_C)
-          | succ _ => -- j ≤ -3: orbit eventually contains core elements
-            -- Similar argument to j ≥ 2 case
-            sorry
+          | succ j''' => -- j ≤ -3: orbit eventually contains core elements
+            -- Same structure as j ≥ 2 case, using negative powers
+            -- |B₁| > 1 since bijections preserve cardinality
+            have hB₁_size : 1 < B₁.ncard := by
+              have hCard_eq : C.ncard = B₁.ncard := by
+                have h1 : C.ncard = (g₂ n k m '' B₁).ncard := by
+                  rw [hj]; exact Set.ncard_image_of_injective _ (g₁ n k m ^ _).injective
+                have h2 : (g₂ n k m '' B₁).ncard = B₁.ncard :=
+                  Set.ncard_image_of_injective _ (g₂ n k m).injective
+                exact h1.trans h2
+              exact hCard_eq ▸ hSize
+            -- Get second element in B₁
+            obtain ⟨x, hx_in_B₁, hx_ne_1⟩ :=
+              Set.exists_ne_of_one_lt_ncard hB₁_size (⟨1, by omega⟩ : Omega n k m)
+            -- x ∉ supp(g₁) since B₁ ∩ supp(g₁) = ∅
+            have hx_not_supp : x ∉ (g₁ n k m).support := Set.disjoint_right.mp hDisj₁ hx_in_B₁
+            -- Classify x
+            have hx_cases := elem_not_in_support_g₁_cases x hx_not_supp
+            rcases hx_cases with hx1 | hx4 | hxB | hxC
+            · -- x.val = 1 contradicts x ≠ 1
+              exact (hx_ne_1 (Fin.ext hx1)).elim
+            · -- x.val = 4: Complex block overlap argument (similar to j ≥ 2)
+              -- Uses the fact that g₁⁻²(g₂(B₁)) and g₂(B₁) overlap at 0
+              -- but differ elsewhere, contradicting partition disjointness
+              sorry
+            · -- x ∈ tailB: g₂(x) stays fixed by g₁ʲ (even negative), not in tailA
+              have hg₂x_in_g₂B₁ : g₂ n k m x ∈ g₂ n k m '' B₁ := ⟨x, hx_in_B₁, rfl⟩
+              rcases g₂_tailB_to_tailB_or_1 x hxB with hg₂x_tailB | hg₂x_eq_1
+              · have hFix := g₁_zpow_fixes_tailB (Int.negSucc (j''' + 1 + 1)) _ hg₂x_tailB
+                have hg₂x_in_C : g₂ n k m x ∈ C := by
+                  rw [hj]; exact ⟨g₂ n k m x, hg₂x_in_g₂B₁, hFix⟩
+                exact tailB_not_tailA _ hg₂x_tailB (hB_subset_tailA _ hg₂x_in_C)
+              · have hFix : (g₁ n k m ^ (Int.negSucc (j''' + 1 + 1)))
+                    (⟨1, by omega⟩ : Omega n k m) = ⟨1, by omega⟩ :=
+                  g₁_zpow_fixes_elem1 (Int.negSucc (j''' + 1 + 1))
+                have h1_in_C : (⟨1, by omega⟩ : Omega n k m) ∈ C := by
+                  rw [hj]; exact ⟨g₂ n k m x, hg₂x_in_g₂B₁, by rw [hg₂x_eq_1]; exact hFix⟩
+                exact elem1_not_tailA (hB_subset_tailA _ h1_in_C)
+            · -- x ∈ tailC: g₂ and g₁ both fix tailC
+              have hg₂_fix : g₂ n k m x = x := g₂_fixes_tailC x hxC
+              have hg₁_fix := g₁_zpow_fixes_tailC (Int.negSucc (j''' + 1 + 1)) x hxC
+              have hx_in_C : x ∈ C := by
+                rw [hj]; exact ⟨x, ⟨x, hx_in_B₁, hg₂_fix⟩, hg₁_fix⟩
+              exact tailC_disjoint_tailA x hxC (hB_subset_tailA _ hx_in_C)
     · -- C ≠ B: a₁ ∈ C and a₁ ∈ B contradicts partition disjointness
       have hB_ne_C : B ≠ C := fun h => hCB h.symm
       exact Set.disjoint_iff.mp (hDisj hB hC_block hB_ne_C) ⟨ha₁_in_B, ha₁_in_C⟩

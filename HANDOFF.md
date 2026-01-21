@@ -1,36 +1,24 @@
-# Handoff: 2026-01-21 (Session 40)
+# Handoff: 2026-01-21 (Session 41)
 
 ## Completed This Session
 
-### Created OrbitHelpers.lean
-- New file: `AfTests/Primitivity/Lemma11_5_OrbitHelpers.lean` (85 lines)
-- Contains helper lemmas for orbit analysis:
-  - `g₁_sq_elem0_eq_elem3`: g₁²(0) = 3
-  - `g₂_elem4_eq_elem0'`: g₂(4) = 0 (for all k, not just k=0)
-  - `g₁_pow_fixes_elem1`: g₁^j(1) = 1 for all j
-  - `g₁_pow_fixes_tailB`: g₁^j(b) = b for tailB elements
-  - Supporting lemmas for the orbit contradiction proofs
+### Filled j≥2 Case Proof in Case2_Correct.lean
+- Implemented complete proof for j ≥ 2 branch (lines 216-304)
+- Uses block overlap argument at element 3 for x = 4 case
+- Uses fixed point arguments for tailB and tailC cases
+- Key structure:
+  - If 4 ∈ B₁: g₂(B₁) and g₁²(g₂(B₁)) overlap at 3, derive 6 ∈ g₂(B₁) → contradiction
+  - If x ∈ tailB: g₂(x) ∈ tailB ∪ {1}, g₁^j fixes → element in C not in tailA
+  - If x ∈ tailC: both g₁ and g₂ fix → x ∈ C but x ∉ tailA
 
-### Developed Detailed Proof Strategy for j ≥ 2 Case
-Key insight: For the j ≥ 2 case in `case2_correct`, the proof uses:
+### Filled j≤-3 Case Proof (tailB/tailC branches)
+- Implemented tailB and tailC cases (lines 344-362)
+- Same structure as j ≥ 2, using `Int.negSucc` powers
+- x = 4 case left as sorry (complex block overlap for negative powers)
 
-1. **|B₁| > 1** (from |B| > 1 since g₁, g₂ are bijections)
-2. **B₁ ⊆ {1, 4} ∪ tailB** (from B₁ ∩ supp(g₁) = ∅)
-3. **Either 4 ∈ B₁ or tailB ∩ B₁ ≠ ∅** (since |B₁| > 1 and 1 ∈ B₁)
-
-**Case 4 ∈ B₁:**
-- g₂(4) = 0 ∈ g₂(B₁)
-- g₁²(0) = 3 ∈ g₁²(g₂(B₁))
-- 3 ∈ g₂(B₁) (from g₂(1) = 3)
-- So 3 ∈ g₂(B₁) ∩ g₁²(g₂(B₁))
-- If g₂(B₁) ≠ g₁²(g₂(B₁)): partition disjointness contradiction
-- If g₂(B₁) = g₁²(g₂(B₁)): derive 6 = a₁ ∈ g₂(B₁), but 6 ∉ range(g₂|_{B₁})
-
-**Case tailB ∩ B₁ ≠ ∅:**
-- g₂ maps tailB cyclically: b₁→b₂→...→bₖ→1
-- g₁ fixes tailB elements and 1
-- So g₂(b) stays in C for all j ≥ 0
-- But tailB ∩ tailA = ∅ and 1 ∉ tailA → contradiction
+### Extended OrbitHelpers.lean
+- Added `g₁_zpow_fixes_tailC`: g₁^j fixes tailC elements for any integer j
+- File now at 248 lines (**exceeds 200 LOC limit - needs refactoring**)
 
 ---
 
@@ -40,94 +28,66 @@ Key insight: For the j ≥ 2 case in `case2_correct`, the proof uses:
 
 ### Axiom Count: 0 (all eliminated!)
 
-### Sorry Count: 7 total (including 1 known false)
+### Sorry Count: 6 total (including 1 known false)
 | Location | Description | Status |
 |----------|-------------|--------|
 | Lemma11_5_SymmetricMain.lean:159 | Primitivity (k≥2 case) | Needs orbit analysis |
 | Lemma11_5_SymmetricMain.lean:181 | Primitivity (m≥2 case) | Needs orbit analysis |
 | Lemma11_5_Case2_Helpers.lean:155 | FALSE FOR n≥3 | Do not use |
-| Lemma11_5_Case2_Correct.lean:103 | orbit_ge2_has_core | Strategy developed |
-| Lemma11_5_Case2_Correct.lean:130 | orbit_le_neg3_impossible | Needs similar analysis |
-| Lemma11_5_Case2_Correct.lean:221 | j≥2 orbit case | Strategy developed above |
-| Lemma11_5_Case2_Correct.lean:237 | j≤-3 orbit case | Symmetric to j≥2 |
+| Lemma11_5_Case2_Correct.lean:104 | orbit_ge2_has_core | May be redundant |
+| Lemma11_5_Case2_Correct.lean:131 | orbit_le_neg3_impossible | May be redundant |
+| Lemma11_5_Case2_Correct.lean:343 | j≤-3 x=4 case | Needs block overlap argument |
+
+**Progress**: Reduced from 7 to 6 sorries (j≥2/j≤-3 inline sorries eliminated)
 
 ---
 
 ## Key Technical Insights
 
-### g₂ Cycle Structure (IMPORTANT FIX)
-- g₂CoreList = [1, 3, 4, 0] (NOT [1, 3, 0, 4]!)
-- g₂ cycle: 1 → 3 → 4 → 0 → b₁ → b₂ → ... → bₖ → 1
-- So g₂(4) = 0 for ALL k (not just k=0)
-- The existing `g₂_elem4_eq_elem0` has hypothesis `hk : k = 0` which is unnecessary
+### Pattern Variable Naming in Lean 4
+- When using `cases` with `| succ _ =>`, the wildcard discards the variable
+- Use `| succ j'' =>` to capture the variable for use in explicit type annotations
+- Required for `Int.ofNat (j'' + 1 + 1)` and `Int.negSucc (j''' + 1 + 1)` in zpow calls
 
-### Orbit Structure of Element 3 under g₁
-- g₁⁰(3) = 3 (core)
-- g₁¹(3) = 2 (core)
-- g₁²(3) = 6 = a₁ (tailA if n ≥ 1)
-- g₁^(n+2)(3) = 0 (core)
-- Period is 4+n
+### Block Overlap Argument (j ≥ 2, x = 4)
+1. 4 ∈ B₁ → g₂(4) = 0 ∈ g₂(B₁)
+2. g₁²(0) = 3 → 3 ∈ g₁²(g₂(B₁))
+3. g₂(1) = 3 → 3 ∈ g₂(B₁)
+4. 3 ∈ g₂(B₁) ∩ g₁²(g₂(B₁))
+5. If different blocks: partition contradiction
+6. If same block: derive 6 ∈ g₂(B₁), but 6 can't be in range(g₂|_{B₁})
 
-### Orbit Structure of Element 0 under g₁
-- g₁⁰(0) = 0 (core)
-- g₁¹(0) = 5 (core)
-- g₁²(0) = 3 (core)
-- g₁³(0) = 2 (core)
-- g₁⁴(0) = 6 = a₁ (tailA if n ≥ 1)
-- Period is 4+n
-
-### Block B₁ Properties
-- 1 ∈ B₁ (by definition)
-- g₁(1) = 1, so g₁(B₁) = B₁
-- Either supp(g₁) ⊆ B₁ (→ a₁ ∈ B₁ ≠ B) or B₁ ∩ supp(g₁) = ∅
-- When B₁ ∩ supp(g₁) = ∅: B₁ ⊆ {1, 4} ∪ tailB
+### Fixed Point Arguments (tailB/tailC cases)
+- g₁ fixes tailB and tailC for all powers (positive and negative)
+- g₂ maps tailB → tailB ∪ {1}, fixes tailC
+- Elements stay fixed under g₁^j(g₂(⋅)), end up in C but not in tailA
 
 ---
 
 ## Files Modified This Session
-- `AfTests/Primitivity/Lemma11_5_OrbitHelpers.lean` (NEW - 85 lines)
+- `AfTests/Primitivity/Lemma11_5_OrbitHelpers.lean` (MODIFIED - now 248 lines)
+- `AfTests/Primitivity/Lemma11_5_Case2_Correct.lean` (MODIFIED - j≥2/j≤-3 proofs)
 - `HANDOFF.md` (UPDATED)
 
 ---
 
 ## Next Session Priority
 
-1. **P1: Fill j≥2 sorry in Case2_Correct.lean (line 221)**
-   - Use the detailed proof strategy above
-   - Key helper lemmas already in OrbitHelpers.lean
-   - Need to handle: size argument, overlap argument, tailB case
+1. **P0: Refactor OrbitHelpers.lean (exceeds 200 LOC)**
+   - Split into multiple files (e.g., OrbitHelpers_TailB.lean, OrbitHelpers_Core.lean)
+   - Current: 248 lines, limit: 200 lines
 
-2. **P1: Fill j≤-3 sorry (line 237)**
-   - Symmetric to j≥2, use same techniques
-   - For negative powers, trace backwards through orbit
+2. **P1: Fill j≤-3 x=4 sorry (line 343)**
+   - Similar to j≥2 x=4 case but for negative powers
+   - Use g₁⁻²(g₂(B₁)) overlap with g₂(B₁) at element 0
+   - Derive g₁⁻²(0) ∈ g₂(B₁) but g₁⁻²(0) is in supp(g₁) not in range(g₂|_{B₁})
 
-3. **P1: Fill orbit_ge2_has_core (line 103) and orbit_le_neg3_impossible (line 130)**
-   - These may be redundant after filling inline sorries
-   - Consider if they're still needed or can be removed
+3. **P2: Consider removing orbit_ge2_has_core and orbit_le_neg3_impossible**
+   - These helper theorems may be redundant now that inline proofs work
+   - Check if they're called anywhere; if not, remove them
 
-4. **P1: Fill SymmetricMain.lean sorries (lines 159, 181)**
+4. **P2: Fill SymmetricMain.lean sorries (lines 159, 181)**
    - Similar orbit structure arguments for k≥2 and m≥2 cases
-
----
-
-## Implementation Notes for Next Session
-
-### For j≥2 Case
-```lean
--- Key structure:
-by_cases h4_in_B₁ : (⟨4, by omega⟩ : Omega n k m) ∈ B₁
-· -- 4 ∈ B₁: use orbit overlap at element 3
-  have h0_in : 0 ∈ g₂(B₁) := ⟨4, h4_in_B₁, g₂_elem4_eq_elem0'⟩
-  have h3_in_g₁²g₂B₁ : 3 ∈ g₁²(g₂(B₁)) := ⟨0, h0_in, g₁_sq_elem0_eq_elem3⟩
-  -- 3 is also in g₂(B₁), derive partition contradiction
-· -- 4 ∉ B₁: tailB ∩ B₁ ≠ ∅, use fixed elements
-  -- g₂ maps tailB to tailB ∪ {1}, g₁ fixes both
-  -- Element in C that's not in tailA
-```
-
-### Helper Lemmas Needed
-- `g₂_tailB_to_tailB_or_1`: g₂ maps tailB element to tailB or 1
-- May need explicit index computation for g₂ cycle on tailB
 
 ---
 
