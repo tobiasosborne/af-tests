@@ -48,13 +48,88 @@ theorem g₂_elem1_eq_elem3' : g₂ n k m (⟨1, by omega⟩ : Omega n k m) = �
   simp only [h_len]
   have h_mod : (0 + 1) % (4 + k) = 1 := Nat.mod_eq_of_lt (by omega)
   simp only [h_mod]
-  -- Index 1 is in the first part (g₂CoreList has 4 elements)
   have h_core_len : (g₂CoreList n k m).length = 4 := by simp [g₂CoreList]
   rw [List.getElem_append_left (by rw [h_core_len]; omega : 1 < (g₂CoreList n k m).length)]
   simp [g₂CoreList]
 
-/-- Case 2: the orbit continuation eventually reaches a block preserved by g₁ with
-    non-empty support intersection, forcing supp(g₁) into that block and a₁ ≠ B. -/
+/-- Helper: element 2 is in supp(g₁) (local version) -/
+theorem elem2_in_support_g₁_local : (⟨2, by omega⟩ : Omega n k m) ∈ (g₁ n k m).support := by
+  have hNodup := g₁_list_nodup n k m
+  have hNotSingleton : ∀ y, g₁CoreList n k m ++ tailAList n k m ≠ [y] := by
+    intro y h; have := g₁_cycle_length n k m
+    have hlen : (g₁CoreList n k m ++ tailAList n k m).length = 1 := by rw [h]; rfl
+    omega
+  rw [g₁, List.support_formPerm_of_nodup _ hNodup hNotSingleton]
+  simp only [List.mem_toFinset, List.mem_append, g₁CoreList, List.mem_cons]; tauto
+
+/-- B₁ (containing 1) is disjoint from supp(g₁) implies B₁ ⊆ {1, 4} ∪ tailB -/
+theorem B₁_subset_complement_supp_g₁ (B₁ : Set (Omega n k m))
+    (hDisj₁ : Disjoint (↑(g₁ n k m).support) B₁)
+    (hDisj_tailC : ∀ x ∈ B₁, ¬isTailC x) :
+    ∀ x ∈ B₁, x.val = 1 ∨ x.val = 4 ∨ isTailB x := by
+  intro x hx
+  have hx_not_supp : x ∉ (g₁ n k m).support := fun h => Set.disjoint_iff.mp hDisj₁ ⟨h, hx⟩
+  have hx_not_tailC := hDisj_tailC x hx
+  rcases Omega.partition x with hCore | hA | hB | hC
+  · simp only [isCore] at hCore
+    have hCases : x.val = 0 ∨ x.val = 1 ∨ x.val = 2 ∨ x.val = 3 ∨ x.val = 4 ∨ x.val = 5 := by omega
+    rcases hCases with h0 | h1 | h2 | h3 | h4 | h5
+    · exfalso; have heq : x = ⟨0, by omega⟩ := Fin.ext h0; rw [heq] at hx_not_supp
+      exact hx_not_supp elem0_in_support_g₁
+    · left; exact h1
+    · exfalso; have heq : x = ⟨2, by omega⟩ := Fin.ext h2; rw [heq] at hx_not_supp
+      exact hx_not_supp elem2_in_support_g₁_local
+    · exfalso; have heq : x = ⟨3, by omega⟩ := Fin.ext h3; rw [heq] at hx_not_supp
+      exact hx_not_supp elem3_in_support_g₁
+    · right; left; exact h4
+    · exfalso; have heq : x = ⟨5, by omega⟩ := Fin.ext h5; rw [heq] at hx_not_supp
+      exact hx_not_supp elem5_in_support_g₁
+  · exfalso; have hx_supp : x ∈ (g₁ n k m).support := by
+      simp only [isTailA] at hA; obtain ⟨hLo, hHi⟩ := hA
+      have hi : x.val - 6 < n := by have := x.isLt; omega
+      convert tailA_in_support_g₁ (⟨x.val - 6, hi⟩ : Fin n) using 1
+      simp only [Fin.ext_iff]; omega
+    exact hx_not_supp hx_supp
+  · right; right; exact hB
+  · exact (hx_not_tailC hC).elim
+
+/-- When orbit index is ≥2, B = g₁^j(g₂(B₁)) contains core elements (not tailA) -/
+theorem orbit_ge2_has_core (hn : n ≥ 1) (j : ℕ) (hj : j ≥ 2) (B₀ : Set (Omega n k m))
+    (h3_in : (⟨3, by omega⟩ : Omega n k m) ∈ B₀)
+    (B : Set (Omega n k m)) (hB_tailA : ∀ x ∈ B, isTailA x)
+    (hB_eq : B = (g₁ n k m ^ j) '' B₀) : False := by
+  -- g₁²(3) = a₁ = 6, so g₁^j(3) is in tailA for j ≥ 2
+  -- But 0 ∈ g₁^{4+n}(B₀) since g₁ has period 4+n, contradicting B ⊆ tailA
+  sorry
+
+/-- When orbit index is -1, B = g₁⁻¹(g₂(B₁)) contains element 5 (core) -/
+theorem orbit_neg1_has_core (B₀ : Set (Omega n k m))
+    (h3_in : (⟨3, by omega⟩ : Omega n k m) ∈ B₀)
+    (B : Set (Omega n k m)) (hB_tailA : ∀ x ∈ B, isTailA x)
+    (hB_eq : B = (g₁ n k m).symm '' B₀) : False := by
+  have h5_in_B : (⟨5, by omega⟩ : Omega n k m) ∈ B := by
+    rw [hB_eq]; exact ⟨⟨3, by omega⟩, h3_in, g₁_inv_elem3_eq_elem5⟩
+  exact elem5_not_tailA (hB_tailA _ h5_in_B)
+
+/-- When orbit index is -2, B = g₁⁻²(g₂(B₁)) contains element 0 (core) -/
+theorem orbit_neg2_has_core (B₀ : Set (Omega n k m))
+    (h3_in : (⟨3, by omega⟩ : Omega n k m) ∈ B₀)
+    (B : Set (Omega n k m)) (hB_tailA : ∀ x ∈ B, isTailA x)
+    (hB_eq : B = (g₁ n k m ^ 2).symm '' B₀) : False := by
+  have h0_in_B : (⟨0, by omega⟩ : Omega n k m) ∈ B := by
+    rw [hB_eq]; exact ⟨⟨3, by omega⟩, h3_in, g₁_pow2_inv_elem3_eq_elem0⟩
+  exact elem0_not_tailA (hB_tailA _ h0_in_B)
+
+/-- When orbit index is ≤ -3, partition overlap gives contradiction -/
+theorem orbit_le_neg3_impossible (hn : n ≥ 1) (j : ℕ) (hj : j ≥ 2) (B₀ : Set (Omega n k m))
+    (h3_in : (⟨3, by omega⟩ : Omega n k m) ∈ B₀)
+    (B : Set (Omega n k m)) (hB_tailA : ∀ x ∈ B, isTailA x)
+    (hB_eq : B = (g₁ n k m ^ (j + 1 : ℕ)).symm '' B₀) : False := by
+  -- j ≤ -3 means we're at position -(j'+1) for j' ≥ 2
+  -- The orbit eventually wraps around to cover supp(g₁)
+  sorry
+
+/-- Case 2: main contradiction via orbit analysis -/
 theorem case2_correct (hn : n ≥ 1) (BS : BlockSystemOn n k m) (hInv : IsHInvariant BS)
     (B : Set (Omega n k m)) (hB : B ∈ BS.blocks)
     (ha₁_in_B : a₁ n k m hn ∈ B)
@@ -94,173 +169,72 @@ theorem case2_correct (hn : n ≥ 1) (BS : BlockSystemOn n k m) (hInv : IsHInvar
       ⟨⟨1, by omega⟩, h1_in_B₁, hg₂_1⟩
     have hg₂B₁_block : g₂ n k m '' B₁ ∈ BS.blocks := hInv₂ B₁ hB₁_mem
     have h3_in_supp : (⟨3, by omega⟩ : Omega n k m) ∈ (g₁ n k m).support := elem3_in_support_g₁
-    have hg₁g₂B₁_block : g₁ n k m '' (g₂ n k m '' B₁) ∈ BS.blocks := hInv₁ _ hg₂B₁_block
-    by_cases hg₁_pres_g₂B₁ : g₁ n k m '' (g₂ n k m '' B₁) = g₂ n k m '' B₁
-    · -- g₁ preserves g₂(B₁), and 3 ∈ g₂(B₁) ∩ supp(g₁), so supp(g₁) ⊆ g₂(B₁)
-      have hMeet : (↑(g₁ n k m).support ∩ (g₂ n k m '' B₁)).Nonempty :=
-        ⟨⟨3, by omega⟩, h3_in_supp, h3_in_g₂B₁⟩
-      have hSupp₃ : (↑(g₁ n k m).support : Set _) ⊆ g₂ n k m '' B₁ :=
-        (cycle_support_subset_or_disjoint hCyc hg₁_pres_g₂B₁).resolve_right
-          (fun hD => Set.not_nonempty_iff_eq_empty.mpr (Set.disjoint_iff_inter_eq_empty.mp hD) hMeet)
-      have ha₁_in_g₂B₁ : a₁ n k m hn ∈ g₂ n k m '' B₁ := hSupp₃ (a₁_mem_support_g₁ hn)
-      -- 3 ∉ B (since B ⊆ tailA and 3 is core)
-      have h3_not_in_B : (⟨3, by omega⟩ : Omega n k m) ∉ B := by
-        intro h3B; have := hB_subset_tailA _ h3B; simp only [isTailA] at this; omega
-      have hB_ne_g₂B₁ : B ≠ g₂ n k m '' B₁ := fun heq => h3_not_in_B (heq ▸ h3_in_g₂B₁)
-      exact Set.disjoint_iff.mp (hDisj hB hg₂B₁_block hB_ne_g₂B₁) ⟨ha₁_in_B, ha₁_in_g₂B₁⟩
-    · -- Orbit continuation: g₂(B₁) contains 3 ∈ supp(g₁), and g₁(g₂(B₁)) contains 2 ∈ supp(g₁)
-      -- Since B ⊆ tailA, B cannot be either of these (3, 2 are core elements)
-      -- The orbit of g₂(B₁) partitions supp(g₁), so a₁ must be in some orbit block
-      -- Either that block is B (contradiction via core elements) or not B (contradiction via partition)
-      have hMeet : ((g₂ n k m '' B₁) ∩ ↑(g₁ n k m).support).Nonempty :=
-        ⟨⟨3, by omega⟩, h3_in_g₂B₁, h3_in_supp⟩
-      -- a₁ is in supp(g₁), so by the orbit partition it must be in some orbit block
-      have ha₁_supp : a₁ n k m hn ∈ (g₁ n k m).support := a₁_mem_support_g₁ hn
-      have hCover_supp := orbit_covers_support BS hInvOrig (g₂ n k m '' B₁) hg₂B₁_block hMeet
-      have ha₁_in_orbit : a₁ n k m hn ∈ ⋃ C ∈ blockOrbit (g₁ n k m) (g₂ n k m '' B₁), C :=
-        hCover_supp ha₁_supp
-      simp only [Set.mem_iUnion] at ha₁_in_orbit
-      obtain ⟨C, hC_orbit, ha₁_in_C⟩ := ha₁_in_orbit
-      -- C is in the block system
-      have hBlksFin : BS.blocks.Finite := Set.Finite.subset Set.finite_univ (Set.subset_univ _)
-      have hC_block : C ∈ BS.blocks :=
-        blockOrbit_subset_blocks (g₁_block_system_invariant BS hInvOrig) hBlksFin hg₂B₁_block hC_orbit
-      -- Either C = B or C ≠ B
-      by_cases hCB : C = B
-      · -- C = B means B is in the orbit of g₂(B₁)
-        obtain ⟨j, hj⟩ := hC_orbit
-        -- We have hj : C = (g₁ ^ j) '' (g₂ '' B₁) and hCB : C = B
-        -- Key insight: g₂(B₁) contains 3 (core) and g₁(g₂(B₁)) contains 2 (core)
-        -- Since B ⊆ tailA, B cannot be g₂(B₁) or g₁(g₂(B₁))
-        -- For other orbit positions, use that first few blocks all contain core elements
-        have h3_not_tailA : ¬isTailA (⟨3, by omega⟩ : Omega n k m) := by
-          simp only [isTailA]; omega
-        have h2_not_tailA : ¬isTailA (⟨2, by omega⟩ : Omega n k m) := by
-          simp only [isTailA]; omega
-        -- 3 ∈ g₂(B₁), so if B = g₂(B₁) then B contains 3, contradicting B ⊆ tailA
-        have hB_ne_g₂B₁ : B ≠ g₂ n k m '' B₁ := by
-          intro heq
-          have h3_in_B : (⟨3, by omega⟩ : Omega n k m) ∈ B := heq ▸ h3_in_g₂B₁
-          exact h3_not_tailA (hB_subset_tailA _ h3_in_B)
-        -- g₁(3) = 2 ∈ g₁(g₂(B₁)), so if B = g₁(g₂(B₁)) then B contains 2
-        have h2_in_g₁g₂B₁ : (⟨2, by omega⟩ : Omega n k m) ∈ g₁ n k m '' (g₂ n k m '' B₁) :=
-          ⟨⟨3, by omega⟩, h3_in_g₂B₁, g₁_elem3_eq_elem2⟩
-        have hB_ne_g₁g₂B₁ : B ≠ g₁ n k m '' (g₂ n k m '' B₁) := by
-          intro heq
-          have h2_in_B : (⟨2, by omega⟩ : Omega n k m) ∈ B := heq ▸ h2_in_g₁g₂B₁
-          exact h2_not_tailA (hB_subset_tailA _ h2_in_B)
-        -- The orbit consists of g₁^j(g₂(B₁)) for j ∈ ℤ
-        -- We've shown j ≠ 0 and j ≠ 1. For other j, use Lemma 11.4 cardinality argument:
-        -- The support intersection size forces either:
-        -- (1) |B ∩ supp(g₁)| = 1 (r = n+4), but then B is essentially a singleton
-        --     since non-support elements include 1, tailB, tailC (not in tailA)
-        -- (2) |B ∩ supp(g₁)| ≥ 2 (r < n+4), but cosets hit core elements
-        -- Either way, B ⊆ tailA with |B| > 1 is impossible
-        -- The detailed proof is deferred to a helper using Lemma 11.4 machinery
-        rcases j with (j | j)
-        · -- j is a natural number (non-negative)
-          cases j with
-          | zero => -- j = 0: B = g₂(B₁)
-            -- hj : C = (g₁ ^ (0:ℤ)) '' (g₂ '' B₁) = g₂ '' B₁
-            have hC_eq : C = g₂ n k m '' B₁ := by
-              have h0 : Int.ofNat 0 = (0 : ℤ) := rfl
-              rw [h0, zpow_zero, Equiv.Perm.coe_one, Set.image_id] at hj
-              exact hj
-            exact hB_ne_g₂B₁ (hCB.symm.trans hC_eq)
-          | succ j' =>
-            cases j' with
-            | zero => -- j = 1: B = g₁(g₂(B₁))
-              have hC_eq : C = g₁ n k m '' (g₂ n k m '' B₁) := by
-                have h1 : Int.ofNat (0 + 1) = (1 : ℤ) := rfl
-                rw [h1, zpow_one] at hj
-                exact hj
-              exact hB_ne_g₁g₂B₁ (hCB.symm.trans hC_eq)
-            | succ _ => -- j ≥ 2
-              -- For j ≥ 2, use partition overlap at orbit position 2
-              -- g₁²(g₂(B₁)) and g₂(B₁) both contain 3, creating partition violation
-              have h_orb2_block : g₁ n k m '' (g₁ n k m '' (g₂ n k m '' B₁)) ∈ BS.blocks :=
-                hInv₁ _ (hInv₁ _ hg₂B₁_block)
-              -- Need: 0 ∈ g₂(B₁), which requires 4 ∈ B₁
-              -- B₁ ∩ supp(g₁) = ∅ implies B₁ ⊆ {1, 4} ∪ tailB ∪ tailC
-              -- With |B₁| > 1 and 1 ∈ B₁, we have another element in B₁
-              -- If any tailB/tailC element is in B₁, it ends up in B (fixed by g₁)
-              -- contradicting B ⊆ tailA. So B₁ ⊆ {1, 4}, hence 4 ∈ B₁.
-              have h4_in_B₁ : (⟨4, by omega⟩ : Omega n k m) ∈ B₁ := by
-                -- B₁ ⊆ {1, 4} ∪ tailB ∪ tailC (disjoint from supp(g₁))
-                -- If B₁ contains tailB/tailC element, it ends up in B contradicting B ⊆ tailA
-                -- So B₁ ⊆ {1, 4}. If B₁ = {1}, then |B| = 1, contradiction.
-                -- Hence 4 ∈ B₁.
-                sorry
-              -- g₂(4) = 0 (when k = 0) or b₁ (when k ≥ 1)
-              have h0_or_tailB_in_g₂B₁ : (⟨0, by omega⟩ : Omega n k m) ∈ g₂ n k m '' B₁ ∨
-                  (k ≥ 1 ∧ ∃ x ∈ g₂ n k m '' B₁, isTailB x) := by
-                sorry
-              rcases h0_or_tailB_in_g₂B₁ with h0_in | ⟨_, x, hx_in, hx_tailB⟩
-              · -- k = 0 case: 0 ∈ g₂(B₁), so g₁²(0) = 3 ∈ g₁²(g₂(B₁))
-                have h3_in_orb2 : (⟨3, by omega⟩ : Omega n k m) ∈
-                    g₁ n k m '' (g₁ n k m '' (g₂ n k m '' B₁)) := by
-                  refine ⟨⟨5, by omega⟩, ⟨⟨0, by omega⟩, h0_in, g₁_elem0_eq_elem5⟩, g₁_elem5_eq_elem3⟩
-                -- g₁²(g₂(B₁)) and g₂(B₁) both contain 3 but are different
-                have hOrb2_ne : g₁ n k m '' (g₁ n k m '' (g₂ n k m '' B₁)) ≠ g₂ n k m '' B₁ := by
-                  intro heq
-                  -- a₁ ∈ g₁²(g₂(B₁)) since g₁²(3) = a₁
-                  have ha₁_in_orb2 : a₁ n k m hn ∈ g₁ n k m '' (g₁ n k m '' (g₂ n k m '' B₁)) := by
-                    unfold a₁; refine ⟨⟨2, by omega⟩, ⟨⟨3, by omega⟩, h3_in_g₂B₁, g₁_elem3_eq_elem2⟩, ?_⟩
-                    exact g₁_elem2_eq_elem6 hn
-                  rw [heq] at ha₁_in_orb2
-                  -- a₁ = 6 ∉ g₂(B₁) = {3, 0, ...}
-                  simp only [Set.mem_image] at ha₁_in_orb2
-                  obtain ⟨y, hy_in, hy_eq⟩ := ha₁_in_orb2
-                  -- g₂(y) = 6, but 6 ∉ range(g₂) for elements in B₁
-                  simp only [a₁, Fin.mk.injEq] at hy_eq
-                  -- g₂ maps: 1→3, 4→0 (k=0), tailB→tailB, tailC→tailC
-                  -- None of these give 6
-                  sorry
-                exact Set.disjoint_iff.mp (hDisj h_orb2_block hg₂B₁_block hOrb2_ne)
-                  ⟨h3_in_orb2, h3_in_g₂B₁⟩
-              · -- k ≥ 1 case: tailB element in g₂(B₁), fixed by g₁, stays in B
-                -- But tailB ∩ tailA = ∅, contradicting B ⊆ tailA
-                sorry
-        · -- j is negative (Int.negSucc j'): power is -(j'+1) = -1, -2, -3, ...
-          -- For j = -1: g₁⁻¹(3) = 5 (core)
-          -- For j = -2: g₁⁻²(3) = 0 (core)
-          -- For j ≤ -3: partition overlap with j+2
-          cases j with
-          | zero => -- j = -1: C contains g₁⁻¹(3) = 5 (core)
-            have h5_in_C : (⟨5, by omega⟩ : Omega n k m) ∈ C := by
+    -- a₁ is in supp(g₁), so by the orbit partition it must be in some orbit block
+    have ha₁_supp : a₁ n k m hn ∈ (g₁ n k m).support := a₁_mem_support_g₁ hn
+    have hMeet : ((g₂ n k m '' B₁) ∩ ↑(g₁ n k m).support).Nonempty :=
+      ⟨⟨3, by omega⟩, h3_in_g₂B₁, h3_in_supp⟩
+    have hCover_supp := orbit_covers_support BS hInvOrig (g₂ n k m '' B₁) hg₂B₁_block hMeet
+    have ha₁_in_orbit : a₁ n k m hn ∈ ⋃ C ∈ blockOrbit (g₁ n k m) (g₂ n k m '' B₁), C :=
+      hCover_supp ha₁_supp
+    simp only [Set.mem_iUnion] at ha₁_in_orbit
+    obtain ⟨C, hC_orbit, ha₁_in_C⟩ := ha₁_in_orbit
+    -- C is in the block system
+    have hBlksFin : BS.blocks.Finite := Set.Finite.subset Set.finite_univ (Set.subset_univ _)
+    have hC_block : C ∈ BS.blocks :=
+      blockOrbit_subset_blocks (g₁_block_system_invariant BS hInvOrig) hBlksFin hg₂B₁_block hC_orbit
+    -- Either C = B or C ≠ B
+    by_cases hCB : C = B
+    · -- C = B means B is in the orbit of g₂(B₁)
+      obtain ⟨j, hj⟩ := hC_orbit
+      -- Analyze orbit position j
+      -- j = 0: B = g₂(B₁) contains 3 (not tailA)
+      -- j = 1: B = g₁(g₂(B₁)) contains 2 (not tailA)
+      -- j ≥ 2: Eventual core element
+      -- j = -1: B contains 5 (not tailA)
+      -- j = -2: B contains 0 (not tailA)
+      -- j ≤ -3: Eventual core element
+      subst hCB
+      rcases j with (j | j)
+      · -- j is non-negative
+        cases j with
+        | zero => -- j = 0: C = g₂(B₁) contains 3
+          have h3_in_C : (⟨3, by omega⟩ : Omega n k m) ∈ C := by
+            have : (g₁ n k m ^ Int.ofNat 0) = 1 := by simp
+            rw [hj, this, Equiv.Perm.coe_one, Set.image_id]
+            exact h3_in_g₂B₁
+          exact elem3_not_tailA (hB_subset_tailA _ h3_in_C)
+        | succ j' =>
+          cases j' with
+          | zero => -- j = 1: C = g₁(g₂(B₁)) contains 2
+            have h2_in_C : (⟨2, by omega⟩ : Omega n k m) ∈ C := by
+              have : (g₁ n k m ^ Int.ofNat 1) = g₁ n k m := by simp
+              rw [hj, this]
+              exact ⟨⟨3, by omega⟩, h3_in_g₂B₁, g₁_elem3_eq_elem2⟩
+            exact elem2_not_tailA (hB_subset_tailA _ h2_in_C)
+          | succ _ => -- j ≥ 2: orbit eventually contains core elements
+            -- B₁ has |B₁| > 1 and B₁ ⊆ {1, 4} ∪ tailB (since B₁ ∩ supp(g₁) = ∅)
+            -- So either 4 ∈ B₁ or some tailB element ∈ B₁
+            -- Either way, C = g₁^j(g₂(B₁)) contains a non-tailA element:
+            -- - If 4 ∈ B₁ and k = 0: g₂(4) = 0, and g₁^j(0) eventually hits core
+            -- - If 4 ∈ B₁ and k ≥ 1: g₂(4) = b₁ ∈ tailB, g₁ fixes tailB, so b₁ ∈ C but b₁ ∉ tailA
+            -- - If tailB ∈ B₁: g₂ permutes tailB, g₁ fixes it, so tailB ∈ C but tailB ∩ tailA = ∅
+            sorry
+      · -- j is negative (Int.negSucc j'): power is -(j'+1) = -1, -2, -3, ...
+        cases j with
+        | zero => -- j = -1
+          exact orbit_neg1_has_core (g₂ n k m '' B₁) h3_in_g₂B₁ C hB_subset_tailA
+            (by rw [hj]; simp [Int.negSucc_eq])
+        | succ j'' =>
+          cases j'' with
+          | zero => -- j = -2
+            have h0_in_C : (⟨0, by omega⟩ : Omega n k m) ∈ C := by
               rw [hj]
-              simp only [Int.negSucc_eq, zpow_neg, zpow_one]
-              refine ⟨⟨3, by omega⟩, h3_in_g₂B₁, ?_⟩
-              exact g₁_inv_elem3_eq_elem5
-            have h5_not_tailA : ¬isTailA (⟨5, by omega⟩ : Omega n k m) := elem5_not_tailA
-            exact h5_not_tailA (hB_subset_tailA _ (hCB ▸ h5_in_C))
-          | succ j'' =>
-            cases j'' with
-            | zero => -- j = -2: C contains g₁⁻²(3) = 0 (core)
-              have h0_in_C : (⟨0, by omega⟩ : Omega n k m) ∈ C := by
-                rw [hj]
-                simp only [Int.negSucc_eq, zpow_neg]
-                refine ⟨⟨3, by omega⟩, h3_in_g₂B₁, ?_⟩
-                -- Need: (g₁ ^ (↑(0+1)+1))⁻¹ 3 = 0
-                -- First simplify exponent to 2
-                conv_lhs => rw [show (0 + 1 : ℕ) = 1 from rfl, show ((1 : ℕ) : ℤ) + 1 = (2 : ℤ) from rfl]
-                simp only [zpow_natCast]
-                -- (g₁ ^ 2)⁻¹ 3 = 0. Expand via (g^2)⁻¹ = g⁻¹ * g⁻¹ as permutations
-                have h_eq : (g₁ n k m ^ 2)⁻¹ = (g₁ n k m)⁻¹ * (g₁ n k m)⁻¹ := by
-                  rw [sq, mul_inv_rev]
-                have h_at : ((g₁ n k m ^ 2)⁻¹ : Perm (Omega n k m)) ⟨3, by omega⟩ =
-                    ((g₁ n k m)⁻¹ * (g₁ n k m)⁻¹) ⟨3, by omega⟩ := congrFun (congrArg (⇑) h_eq) _
-                refine h_at.trans ?_
-                simp only [Equiv.Perm.coe_mul, Function.comp_apply,
-                  g₁_inv_elem3_eq_elem5, g₁_inv_elem5_eq_elem0]
-              have h0_not_tailA : ¬isTailA (⟨0, by omega⟩ : Omega n k m) := elem0_not_tailA
-              exact h0_not_tailA (hB_subset_tailA _ (hCB ▸ h0_in_C))
-            | succ _ => -- j ≤ -3: partition overlap with j+2
-              -- Position j and j+2 both contain g₁^j(3)
-              -- Since g₁² doesn't preserve g₂(B₁), these are different blocks
-              -- But they share an element, contradicting partition disjointness
-              -- The shared element is g₁^j(3) = g₁^{j+2}(0)
-              sorry
-      · -- C ≠ B: a₁ ∈ C and a₁ ∈ B contradicts partition disjointness
-        have hB_ne_C : B ≠ C := fun h => hCB h.symm
-        exact Set.disjoint_iff.mp (hDisj hB hC_block hB_ne_C) ⟨ha₁_in_B, ha₁_in_C⟩
+              simp only [Int.negSucc_eq, zpow_neg]
+              exact ⟨⟨3, by omega⟩, h3_in_g₂B₁, g₁_pow2_inv_elem3_eq_elem0⟩
+            exact elem0_not_tailA (hB_subset_tailA _ h0_in_C)
+          | succ _ => -- j ≤ -3: orbit eventually contains core elements
+            -- Similar argument to j ≥ 2 case
+            sorry
+    · -- C ≠ B: a₁ ∈ C and a₁ ∈ B contradicts partition disjointness
+      have hB_ne_C : B ≠ C := fun h => hCB h.symm
+      exact Set.disjoint_iff.mp (hDisj hB hC_block hB_ne_C) ⟨ha₁_in_B, ha₁_in_C⟩
