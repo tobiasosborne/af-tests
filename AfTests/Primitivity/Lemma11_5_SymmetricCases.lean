@@ -7,6 +7,7 @@ import AfTests.Core
 import AfTests.Primitivity.Lemma11_2
 import AfTests.Primitivity.Lemma11_5_FixedPoints
 import AfTests.Primitivity.Lemma11_5_CycleSupport
+import AfTests.Primitivity.Lemma11_5_Defs
 
 /-!
 # Lemma 11.5: Symmetric Cases - Definitions and Basic Lemmas
@@ -153,3 +154,73 @@ theorem g₁_fixes_c₁ (hm : m ≥ 1) : g₁ n k m (c₁ n k m hm) = c₁ n k m
 /-- g₂ fixes c₁ -/
 theorem g₂_fixes_c₁ (hm : m ≥ 1) : g₂ n k m (c₁ n k m hm) = c₁ n k m hm := by
   unfold c₁; exact fixed_outside_support _ _ (tailC_not_in_support_g₂ hm ⟨0, hm⟩)
+
+-- ============================================
+-- SECTION 5: CASE 2 STABILIZATION (k ≥ 1 and m ≥ 1)
+-- ============================================
+
+/-- **Case 2 Stabilization for k ≥ 1**: g₂(B) ≠ B forces g₁(B) = B and g₃(B) = B.
+
+    NL Proof Reference (Node 1.9.1, symmetric for k≥1):
+    - Tail B elements {b₁, ..., bₖ} are ONLY in supp(g₂)
+    - They are NOT in supp(g₁) or supp(g₃)
+    - Therefore g₁(bⱼ) = bⱼ and g₃(bⱼ) = bⱼ for all j
+    - If g₁(B) ≠ B (disjoint), b₁ ∈ B ∩ g₁(B) → contradiction
+    - If g₃(B) ≠ B (disjoint), b₁ ∈ B ∩ g₃(B) → contradiction -/
+theorem case2_forces_stabilization_B (hk : k ≥ 1) (B : Set (Omega n k m))
+    (hB₁ : b₁ n k m hk ∈ B)
+    (h₁Disj : ¬PreservesSet (g₁ n k m) B → Disjoint (g₁ n k m '' B) B)
+    (h₃Disj : ¬PreservesSet (g₃ n k m) B → Disjoint (g₃ n k m '' B) B) :
+    PreservesSet (g₁ n k m) B ∧ PreservesSet (g₃ n k m) B := by
+  constructor
+  · -- Prove g₁(B) = B via fixed-point contradiction
+    by_contra hNotPres
+    have hDisj := h₁Disj hNotPres
+    -- g₁ fixes b₁ (since b₁ is in tail B, not in supp(g₁))
+    have hFix : g₁ n k m (b₁ n k m hk) = b₁ n k m hk := g₁_fixes_b₁ hk
+    -- Therefore b₁ ∈ g₁(B) ∩ B
+    have h_in_both := fixed_point_blocks_intersect (g₁ n k m) B (b₁ n k m hk) hB₁ hFix
+    -- This contradicts disjointness
+    exact Set.disjoint_iff.mp hDisj h_in_both
+  · -- Prove g₃(B) = B via fixed-point contradiction (analogous argument)
+    by_contra hNotPres
+    have hDisj := h₃Disj hNotPres
+    -- g₃ fixes b₁ (since b₁ is in tail B, not in supp(g₃))
+    have hFix : g₃ n k m (b₁ n k m hk) = b₁ n k m hk := g₃_fixes_b₁ hk
+    -- Therefore b₁ ∈ g₃(B) ∩ B
+    have h_in_both := fixed_point_blocks_intersect (g₃ n k m) B (b₁ n k m hk) hB₁ hFix
+    -- This contradicts disjointness
+    exact Set.disjoint_iff.mp hDisj h_in_both
+
+/-- **Case 2 Stabilization for m ≥ 1**: g₃(B) ≠ B forces g₁(B) = B and g₂(B) = B.
+
+    NL Proof Reference (Node 1.9.1, symmetric for m≥1):
+    - Tail C elements {c₁, ..., cₘ} are ONLY in supp(g₃)
+    - They are NOT in supp(g₁) or supp(g₂)
+    - Therefore g₁(cₗ) = cₗ and g₂(cₗ) = cₗ for all l
+    - If g₁(B) ≠ B (disjoint), c₁ ∈ B ∩ g₁(B) → contradiction
+    - If g₂(B) ≠ B (disjoint), c₁ ∈ B ∩ g₂(B) → contradiction -/
+theorem case2_forces_stabilization_C (hm : m ≥ 1) (B : Set (Omega n k m))
+    (hC₁ : c₁ n k m hm ∈ B)
+    (h₁Disj : ¬PreservesSet (g₁ n k m) B → Disjoint (g₁ n k m '' B) B)
+    (h₂Disj : ¬PreservesSet (g₂ n k m) B → Disjoint (g₂ n k m '' B) B) :
+    PreservesSet (g₁ n k m) B ∧ PreservesSet (g₂ n k m) B := by
+  constructor
+  · -- Prove g₁(B) = B via fixed-point contradiction
+    by_contra hNotPres
+    have hDisj := h₁Disj hNotPres
+    -- g₁ fixes c₁ (since c₁ is in tail C, not in supp(g₁))
+    have hFix : g₁ n k m (c₁ n k m hm) = c₁ n k m hm := g₁_fixes_c₁ hm
+    -- Therefore c₁ ∈ g₁(B) ∩ B
+    have h_in_both := fixed_point_blocks_intersect (g₁ n k m) B (c₁ n k m hm) hC₁ hFix
+    -- This contradicts disjointness
+    exact Set.disjoint_iff.mp hDisj h_in_both
+  · -- Prove g₂(B) = B via fixed-point contradiction (analogous argument)
+    by_contra hNotPres
+    have hDisj := h₂Disj hNotPres
+    -- g₂ fixes c₁ (since c₁ is in tail C, not in supp(g₂))
+    have hFix : g₂ n k m (c₁ n k m hm) = c₁ n k m hm := g₂_fixes_c₁ hm
+    -- Therefore c₁ ∈ g₂(B) ∩ B
+    have h_in_both := fixed_point_blocks_intersect (g₂ n k m) B (c₁ n k m hm) hC₁ hFix
+    -- This contradicts disjointness
+    exact Set.disjoint_iff.mp hDisj h_in_both
