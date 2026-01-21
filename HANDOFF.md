@@ -1,4 +1,4 @@
-# Handoff: 2026-01-21 (Session 44) - CRITICAL
+# Handoff: 2026-01-21 (Session 44) - CLEANUP COMPLETE
 
 ## 🚨🚨🚨 CRITICAL WARNING FOR ALL AGENTS 🚨🚨🚨
 
@@ -112,3 +112,20 @@ Case 2: g₁(B) ≠ B
 - Deleted 5 wrong files
 - Modified `Lemma11_5_OrbitHelpers.lean` (removed bad imports)
 - Modified `Lemma11_5.lean` (removed bad import, still broken)
+
+---
+
+## Current Sorry Count: 1
+
+Only remaining sorry:
+- `case2_impossible` in `Lemma11_5_Case2.lean:170`
+
+This theorem needs to be reimplemented following the NL proof structure:
+1. In Case 2, g₁(B) ≠ B
+2. a₁ ∈ B is fixed by g₂ and g₃
+3. If g₂(B) ≠ B → g₂(B) disjoint from B → but a₁ ∈ both → CONTRADICTION
+4. Therefore g₂(B) = B is FORCED
+5. Similarly g₃(B) = B is FORCED
+6. Apply Lemma 11.2 to derive support containment → contradiction
+
+**DO NOT use orbit arguments. Follow the NL proof EXACTLY.**
