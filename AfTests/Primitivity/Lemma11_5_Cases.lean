@@ -56,6 +56,25 @@ theorem perm_image_eq_of_meet_nonempty {α : Type*}
     obtain ⟨x, hx⟩ := hMeet
     exact Set.disjoint_iff.mp h hx
 
+/-- Block system invariance extends to powers -/
+theorem blockSystemInvariant_pow {α : Type*} (σ : Perm α) (Blocks : Set (Set α))
+    (hInv : ∀ B ∈ Blocks, σ '' B ∈ Blocks) (j : ℕ) (B : Set α) (hB : B ∈ Blocks) :
+    (σ ^ j) '' B ∈ Blocks := by
+  induction j with
+  | zero => simp [hB]
+  | succ j' ih =>
+    rw [pow_succ', Equiv.Perm.coe_mul, Set.image_comp]
+    exact hInv _ ih
+
+/-- Block dichotomy extends to powers -/
+theorem perm_pow_image_preserves_or_disjoint {α : Type*}
+    (σ : Perm α) (B : Set α) (Blocks : Set (Set α))
+    (hDisj : Blocks.PairwiseDisjoint id) (hB : B ∈ Blocks)
+    (hInv : ∀ B ∈ Blocks, σ '' B ∈ Blocks) (j : ℕ) :
+    (σ ^ j) '' B = B ∨ Disjoint ((σ ^ j) '' B) B := by
+  have h := blockSystemInvariant_pow σ Blocks hInv j B hB
+  exact perm_image_preserves_or_disjoint (σ ^ j) B Blocks hDisj hB h
+
 /-- Convert between PreservesSet and set equality -/
 theorem preservesSet_iff_image_eq {α : Type*} [Fintype α]
     (σ : Perm α) (B : Set α) : PreservesSet σ B ↔ σ '' B = B := Iff.rfl

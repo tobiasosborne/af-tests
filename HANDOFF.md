@@ -1,22 +1,28 @@
-# Handoff: 2026-01-21 (Session 42)
+# Handoff: 2026-01-21 (Session 43)
 
 ## Completed This Session
 
-### Filled j≤-3 x=4 Sorry in Case2_Correct.lean
-- Fixed the sorry at line 343 (now at different line after edits)
-- Used block overlap argument at element 0
-- Key fix: `Equiv.image_symm_image` for `e '' (e.symm '' s) = s`
-- Required `conv_lhs` tactic to rewrite only left side
+### Fixed case2_impossible_B Proof (k≥2 case)
+- Fixed type mismatch in `blockSystemInvariant_pow` by using `pow_succ'` instead of `pow_succ`
+- `pow_succ'` gives `σ^{j'+1} = σ * σ^{j'}` (composition order matches proof structure)
 
-### Eliminated Sorries (Reduced from 6 to 3)
-- Removed `orbit_ge2_has_core` (unused)
-- Removed `orbit_le_neg3_impossible` (unused)
-- Filled j≤-3 x=4 case proof
+### Added TailC Helpers (Symmetric to TailB)
+- Created `Lemma11_5_OrbitHelpers_TailC.lean` with:
+  - `g₃_c₁_eq_c₁_succ`: g₃(c₁) = next tailC element
+  - `g₃_pow_c₁_eq_tailC_elem`: g₃^j(c₁) = 6+n+k+j (with sorry)
+  - `g₃_tailC_to_tailC_or_2`: g₃ maps tailC to tailC or element 2
+  - `g₃_pow_orbit_hits_core`: Eventually exits tailC (with sorry)
 
-### Created Plan for SymmetricMain Sorries
-- **Location**: `AfTests/Primitivity/PLAN_SYMMETRIC_MAIN.md`
-- **Critical finding**: Theorem missing explicit block hypothesis
-- **Proof strategy**: Use g₂ʲ orbit analysis with block dichotomy
+### Added g₃ Element Mappings
+- Added to `Lemma11_5_CycleSupport.lean`:
+  - `g₃_elem2_eq_elem4`: g₃(2) = 4
+  - `g₃_elem4_eq_elem5`: g₃(4) = 5
+  - `g₃_elem5_eq_elem1`: g₃(5) = 1
+
+### Completed case2_impossible_C Proof (m≥2 case)
+- Added block hypothesis: `hBlock : ∀ j : ℕ, (g₃ n k m ^ j) '' B = B ∨ Disjoint ...`
+- Implemented full orbit analysis proof (mirrors k≥2 case)
+- Updated call site in `Lemma11_5.lean` with block dichotomy
 
 ---
 
@@ -26,88 +32,69 @@
 
 ### Axiom Count: 0 (all eliminated!)
 
-### Sorry Count: 3 total (including 1 known false)
+### Sorry Count: 5 total
 | Location | Description | Status |
 |----------|-------------|--------|
+| Lemma11_5_OrbitHelpers_TailB.lean:46 | `g₂_pow_b₁_eq_tailB_elem` | Orbit computation |
+| Lemma11_5_OrbitHelpers_TailB.lean:107 | `g₂_pow_orbit_hits_core` | Orbit computation |
+| Lemma11_5_OrbitHelpers_TailC.lean:46 | `g₃_pow_c₁_eq_tailC_elem` | Orbit computation |
+| Lemma11_5_OrbitHelpers_TailC.lean:104 | `g₃_pow_orbit_hits_core` | Orbit computation |
 | Lemma11_5_Case2_Helpers.lean:155 | FALSE FOR n≥3 | Do not use |
-| Lemma11_5_SymmetricMain.lean:159 | Primitivity (k≥2 case) | **See PLAN_SYMMETRIC_MAIN.md** |
-| Lemma11_5_SymmetricMain.lean:181 | Primitivity (m≥2 case) | **See PLAN_SYMMETRIC_MAIN.md** |
 
 ---
 
-## Key Technical Insight (CRITICAL)
+## Key Technical Details
 
-### The SymmetricMain Theorems Need Block Property
+### Block Dichotomy Extension
+The key insight was extending block system invariance to powers:
+```lean
+theorem perm_pow_image_preserves_or_disjoint {α : Type*}
+    (σ : Perm α) (B : Set α) (Blocks : Set (Set α))
+    (hDisj : Blocks.PairwiseDisjoint id) (hB : B ∈ Blocks)
+    (hInv : ∀ B ∈ Blocks, σ '' B ∈ Blocks) (j : ℕ) :
+    (σ ^ j) '' B = B ∨ Disjoint ((σ ^ j) '' B) B
+```
 
-The theorems `case2_impossible_B` and `case2_impossible_C` do NOT explicitly include a "B is a block" hypothesis, but the proof REQUIRES this property.
+This allows proving the orbit eventually exits tailB/tailC using block preservation.
 
-**Problem**: For k=3, the set B = {6+n, 6+n+2} satisfies all stated hypotheses:
-- g₂(B) ∩ B = ∅ ✓
-- b₁ ∈ B ✓
-- g₁(B) = B ✓
-- g₃(B) = B ✓
-- |B| > 1 ✓
-
-**But**: B is NOT a valid block because g₂²(B) ∩ B ≠ ∅ and g₂²(B) ≠ B.
-
-**Solution**: The calling context in Lemma11_5.lean provides B from a block system. The proof must:
-1. Either add an explicit block hypothesis
-2. Or derive the g₂ʲ dichotomy from the H-invariance
-
-See `PLAN_SYMMETRIC_MAIN.md` for full analysis and implementation options.
+### Remaining Sorries (Orbit Computation)
+The 4 non-false sorries are all about computing `formPerm_pow_apply_getElem`:
+- Given element at index i in cycle list
+- After j applications, element is at index (i + j) mod cycle_length
+- Need to prove this lands at specific position
 
 ---
 
 ## Files Modified This Session
-- `AfTests/Primitivity/Lemma11_5_Case2_Correct.lean` (MODIFIED - filled j≤-3 x=4)
-- `AfTests/Primitivity/PLAN_SYMMETRIC_MAIN.md` (NEW - detailed plan)
-- `HANDOFF.md` (UPDATED)
+- `Lemma11_5_Cases.lean` (fixed `pow_succ` → `pow_succ'`)
+- `Lemma11_5_CycleSupport.lean` (added g₃ element mappings)
+- `Lemma11_5_OrbitHelpers_TailC.lean` (NEW - symmetric to TailB)
+- `Lemma11_5_OrbitHelpers.lean` (import TailC)
+- `Lemma11_5_SymmetricMain.lean` (added hBlock, implemented m≥2 proof)
+- `Lemma11_5.lean` (updated call site for case2_impossible_C)
 
 ---
 
 ## Next Session Priority
 
-### Task 1: Implement SymmetricMain.lean Fixes (P1)
+### Task 1: Fill Orbit Computation Sorries (P2)
+The 4 remaining sorries all have the same structure:
+1. `g₂_pow_b₁_eq_tailB_elem`: Prove g₂^j maps b₁ to position j in tailB
+2. `g₂_pow_orbit_hits_core`: Prove g₂^{r*j} eventually exits tailB
+3. `g₃_pow_c₁_eq_tailC_elem`: Same for g₃ and tailC
+4. `g₃_pow_orbit_hits_core`: Same for g₃ and tailC
 
-Follow the plan in `PLAN_SYMMETRIC_MAIN.md`:
+Key mathlib lemma: `List.formPerm_pow_apply_getElem`
 
-1. **Choose implementation option** (recommend Option A: add block hypothesis)
-2. **Update theorem signature** in SymmetricMain.lean
-3. **Update call site** in Lemma11_5.lean
-4. **Implement k≥2 proof** using orbit analysis:
-   - Show 6+n+1 ∉ B
-   - Find j ≥ 2 with 6+n+j ∈ B
-   - Use block property: g₂ʲ(B) = B
-   - Derive contradiction via tailB exit
-5. **Port to m≥2 case** (symmetric)
-
-### Task 2: Refactor Case2_Correct.lean (P2)
-
-File currently ~400+ lines, exceeds 200 LOC limit.
-
-Suggested split:
-- `Case2_Correct_Core.lean`: Main theorem structure
-- `Case2_Correct_Orbit.lean`: Orbit analysis lemmas
-- `Case2_Correct_JCases.lean`: j≥2 and j≤-3 case proofs
-
-### Task 3: Clean Up Known-False Theorem (P3)
-
-Consider adding clear documentation or removing the false theorem in Case2_Helpers.lean:155 to prevent accidental use.
-
----
-
-## Dependency Graph
-
-```
-Task 1 (SymmetricMain) ──> Task 2 (Refactor Case2_Correct)
-                     │
-                     └──> Task 3 (Clean up false theorem)
-```
+### Task 2: Refactor Large Files (P3)
+Files exceeding 200 LOC limit:
+- `Lemma11_5_Case2_Correct.lean` (~400 lines)
+- `Lemma11_5_CycleSupport.lean` (now 220 lines)
 
 ---
 
 ## Session Close Checklist
 - [x] Build passes
-- [x] HANDOFF.md updated with full details
-- [x] PLAN_SYMMETRIC_MAIN.md created with granular steps
-- [x] Changes committed and pushed
+- [x] HANDOFF.md updated
+- [ ] Changes committed and pushed
+- [ ] Beads synced

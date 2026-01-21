@@ -39,13 +39,24 @@ theorem g₁_zpow_fixes_tailB (j : ℤ) (x : Omega n k m) (hx : isTailB x) :
   have hFix : g₁ n k m x = x := g₁_fixes_tailB x hx
   exact Equiv.Perm.zpow_apply_eq_self_of_apply_eq_self hFix j
 
-/-- g₂ maps tailB element to tailB or 1 -/
+/-- g₂^j(b₁) = 6+n+j when j < k -/
+theorem g₂_pow_b₁_eq_tailB_elem (hk : k ≥ 1) (hk2 : k ≥ 2) (j : Fin k) (hj : j.val > 0) :
+    (g₂ n k m ^ j.val) (⟨6 + n, by omega⟩ : Omega n k m) = ⟨6 + n + j.val, by omega⟩ := by
+  -- Proof uses formPerm_pow_apply_getElem with index computation
+  sorry
+
+/-- g₂(b₁) = b₂ (next tailB element) when k ≥ 2 -/
+theorem g₂_b₁_eq_b₁_succ (hk : k ≥ 1) (hk2 : k ≥ 2) :
+    g₂ n k m (⟨6 + n, by omega⟩ : Omega n k m) = ⟨6 + n + 1, by omega⟩ := by
+  have := g₂_pow_b₁_eq_tailB_elem (n := n) (m := m) hk hk2 ⟨1, by omega⟩ (by omega : (1 : ℕ) > 0)
+  simp only [pow_one] at this
+  exact this
+
+/-- g₂ maps tailB element to tailB or to element 1 (when at cycle end) -/
 theorem g₂_tailB_to_tailB_or_1 (x : Omega n k m) (hx : isTailB x) :
     isTailB (g₂ n k m x) ∨ g₂ n k m x = ⟨1, by omega⟩ := by
   simp only [isTailB] at hx
   have hNodup := g₂_list_nodup n k m
-  have h_len := g₂_cycle_length n k m
-  have h_core_len : (g₂CoreList n k m).length = 4 := by simp [g₂CoreList]
   have hx_mem : x ∈ g₂CoreList n k m ++ tailBList n k m := by
     simp only [List.mem_append, tailBList, List.mem_map, List.mem_finRange]
     right
@@ -73,11 +84,11 @@ theorem g₂_tailB_to_tailB_or_1 (x : Omega n k m) (hx : isTailB x) :
       simp only [Fin.ext_iff] at this; omega
   · left
     obtain ⟨idx, _, hidx⟩ := hTailB
-    simp only [isTailB, Fin.ext_iff] at hidx ⊢
-    have hg₂_eq : (g₂ n k m x).val = (List.formPerm
-        (g₂CoreList n k m ++ tailBList n k m) x).val := rfl
-    simp only [g₂CoreList, tailBList] at hg₂_eq
-    have := idx.isLt
+    have hidx_lt := idx.isLt
+    simp only [isTailB, g₂]
+    -- hidx says formPerm(x) = 6+n+idx where idx < k
+    -- So formPerm(x) is in tailB range
+    simp only [g₂CoreList, tailBList, Fin.ext_iff] at hidx ⊢
     omega
 
 /-- g₂ of tailB element is not in tailA -/
@@ -85,5 +96,14 @@ theorem g₂_tailB_not_tailA (x : Omega n k m) (hx : isTailB x) : ¬isTailA (g�
   rcases g₂_tailB_to_tailB_or_1 x hx with hTailB | h1
   · exact tailB_not_tailA _ hTailB
   · rw [h1]; exact elem1_not_tailA
+
+/-- The orbit of b₁ under g₂^j eventually exits tailB for j ≥ 2 -/
+theorem g₂_pow_orbit_hits_core (hk : k ≥ 1) (hk2 : k ≥ 2) (j : ℕ) (hj : j ≥ 2) (hjk : j < k) :
+    ∃ r : ℕ, r ≥ 1 ∧ ¬isTailB ((g₂ n k m ^ (r * j)) (⟨6 + n, by omega⟩ : Omega n k m)) := by
+  -- The g₂ cycle has length 4 + k
+  -- Starting from position 4 (element 6+n), after r*j steps we're at position (4 + r*j) mod (4+k)
+  -- For r*j ≥ k, position wraps to r*j - k which is < j < 4 (for j ≤ 3) or in tailB but exits
+  -- Eventually reaches position 0 (element 1) which is not in tailB
+  sorry
 
 end OrbitTailB

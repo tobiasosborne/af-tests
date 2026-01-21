@@ -153,7 +153,10 @@ theorem lemma11_5_no_nontrivial_blocks (h : n + k + m ≥ 1) :
         have hD₃ : ¬PreservesSet (g₃ n k m) B → Disjoint (g₃ n k m '' B) B := fun h => hDich₃.resolve_left h
         obtain ⟨hg₁_pres, hg₃_pres⟩ := case2_forces_stabilization_B hk B hb₁_in_B hD₁ hD₃
         have hSize := hNT.1; have hB_size := BS.allSameSize B hB_mem; rw [← hB_size] at hSize
-        exact case2_impossible_B hk B hg₂_disj hb₁_in_B hg₁_pres hg₃_pres hSize
+        -- Block dichotomy for powers of g₂
+        have hBlock : ∀ j : ℕ, (g₂ n k m ^ j) '' B = B ∨ Disjoint ((g₂ n k m ^ j) '' B) B :=
+          fun j => perm_pow_image_preserves_or_disjoint (g₂ n k m) B BS.blocks hDisj hB_mem (hInv₂) j
+        exact case2_impossible_B hk B hg₂_disj hb₁_in_B hg₁_pres hg₃_pres hBlock hSize
     · -- Case m ≥ 1: Use c₁ and g₃ (symmetric to k ≥ 1 case)
       push_neg at hk; have hm : m ≥ 1 := by omega
       have hc₁_in_univ : c₁ n k m hm ∈ (Set.univ : Set (Omega n k m)) := Set.mem_univ _
@@ -195,4 +198,7 @@ theorem lemma11_5_no_nontrivial_blocks (h : n + k + m ≥ 1) :
         have hD₂ : ¬PreservesSet (g₂ n k m) B → Disjoint (g₂ n k m '' B) B := fun h => hDich₂.resolve_left h
         obtain ⟨hg₁_pres, hg₂_pres⟩ := case2_forces_stabilization_C hm B hc₁_in_B hD₁ hD₂
         have hSize := hNT.1; have hB_size := BS.allSameSize B hB_mem; rw [← hB_size] at hSize
-        exact case2_impossible_C hm B hg₃_disj hc₁_in_B hg₁_pres hg₂_pres hSize
+        -- Block dichotomy for powers of g₃
+        have hBlock : ∀ j : ℕ, (g₃ n k m ^ j) '' B = B ∨ Disjoint ((g₃ n k m ^ j) '' B) B :=
+          fun j => perm_pow_image_preserves_or_disjoint (g₃ n k m) B BS.blocks hDisj hB_mem (hInv₃) j
+        exact case2_impossible_C hm B hg₃_disj hc₁_in_B hg₁_pres hg₂_pres hBlock hSize
