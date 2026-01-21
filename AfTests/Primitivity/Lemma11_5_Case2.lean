@@ -153,41 +153,18 @@ theorem case2_B_disjoint_supp_g₃ (B : Set (Omega n k m))
        B ⊆ tailA
     4. But a₁ ∈ B and B is non-trivial with |B| > 1, requiring |tailA| = n ≥ |B| ≥ 2
 
-    The actual contradiction comes from the block size constraints. -/
+    The actual contradiction comes from the block size constraints.
+
+    **TODO**: This theorem needs a block hypothesis like case2_impossible_B/C in SymmetricMain.lean.
+    The current signature is missing the block dichotomy for g₁ powers:
+      hBlock : ∀ j : ℕ, (g₁ n k m ^ j) '' B = B ∨ Disjoint ((g₁ n k m ^ j) '' B) B
+    See case2_impossible_B for the correct pattern. -/
 theorem case2_impossible (hn : n ≥ 1) (B : Set (Omega n k m))
     (hg₁Disj : Disjoint (g₁ n k m '' B) B)
     (ha₁_in_B : a₁ n k m hn ∈ B)
     (hg₂_pres : PreservesSet (g₂ n k m) B) (hg₃_pres : PreservesSet (g₃ n k m) B)
     (hNT_lower : 1 < B.ncard) : False := by
-  -- B is disjoint from supp(g₂) and supp(g₃)
-  have hDisj₂ := case2_B_disjoint_supp_g₂ B hg₁Disj hg₂_pres
-  have hDisj₃ := case2_B_disjoint_supp_g₃ B hg₁Disj hg₃_pres
-  -- a₁ ∈ B, so g₁(a₁) ∈ g₁ '' B. Since g₁ '' B ∩ B = ∅, g₁(a₁) ∉ B.
-  have hg₁a₁_not_in_B : g₁ n k m (a₁ n k m hn) ∉ B := by
-    intro h
-    have himg : g₁ n k m (a₁ n k m hn) ∈ g₁ n k m '' B := ⟨a₁ n k m hn, ha₁_in_B, rfl⟩
-    exact Set.disjoint_iff.mp hg₁Disj ⟨himg, h⟩
-  -- Since B is disjoint from supp(g₂) ∪ supp(g₃), and these cover all of Ω except tailA,
-  -- every element of B must be in tailA.
-  -- For any x ∈ B, x must be of the form ⟨6 + i, _⟩ for some i < n.
-  -- The key observation:
-  -- 1. a₁ = ⟨6, _⟩ ∈ B
-  -- 2. g₁(a₁) = ⟨7, _⟩ (when n ≥ 2) or ⟨0, _⟩ (when n = 1), and g₁(a₁) ∉ B
-  -- 3. For n = 1: tailA = {⟨6, _⟩}, so B ⊆ {a₁} and |B| ≤ 1
-  -- 4. For n = 2: ⟨7, _⟩ ∉ B (since g₁(a₁) = ⟨7, _⟩ ∉ B), so B ⊆ {⟨6, _⟩} and |B| ≤ 1
-  -- In both cases, |B| ≤ 1, contradicting |B| > 1.
-  -- The proof uses that any second element b ∈ B would need to satisfy constraints
-  -- that are impossible for small n.
-  -- The key constraint: every element of B is in tailA (not in supp(g₂) ∪ supp(g₃))
-  -- And if x ∈ B with x ≠ last_tailA_elem, then g₁(x) = x+1 must not be in B
-  -- This forces B to have "gaps" - can't have consecutive tailA elements
-  -- For the orbit structure to work out, this severely limits |B|
-  --
-  -- The core argument: B ⊆ tailA and the orbit of B under g₁ must have specific structure.
-  -- Since g₁ is a cycle and we need g₁(B) ∩ B = ∅, the orbit size r divides cycle_length.
-  -- Combined with B ⊆ tailA (n elements), we get strong constraints.
-  -- For small n, this forces |B| ≤ 1.
-  --
-  -- For n ≥ 3, the orbit structure combined with g₁(B) ∩ B = ∅ forces |B| ≤ 1.
-  have hB_small : B.ncard ≤ 1 := case2_B_ncard_le_one hn B hDisj₂ hDisj₃ hg₁Disj ha₁_in_B
-  omega
+  -- TODO: Add block hypothesis and implement orbit analysis like case2_impossible_B/C
+  -- The old proof used case2_B_ncard_le_one which was FALSE for n ≥ 3.
+  -- Correct approach: Use block dichotomy for g₁ powers to derive contradiction.
+  sorry

@@ -111,45 +111,7 @@ lemma g₁_a₁_eq_elem7 (hn : n ≥ 1) (hn2 : n ≥ 2) :
     g₁ n k m (a₁ n k m hn) = (⟨7, by omega⟩ : Omega n k m) := by
   unfold a₁; exact g₁_a₁_eq_7 hn2
 
-set_option maxHeartbeats 400000 in
--- Suppressing style warning - proof needs computational effort for case analysis
-set_option linter.style.maxHeartbeats false in
-/-- In Case 2, |B| ≤ 1. Uses full g₁(B) ∩ B = ∅ disjointness.
-
-**BUG**: This theorem as stated is FALSE for n ≥ 3. Counterexample: B = {6, 8} for n = 3.
-The hypotheses are satisfied but |B| = 2. The issue is that g₁(B) ∩ B = ∅ does not imply
-g₁²(B) ∩ B = ∅. For B = {6, 8}: g₁²(B) = {8, 5}, and {8, 5} ∩ {6, 8} = {8} ≠ ∅.
-
-The correct approach (per AF Node 1.9.5) requires B to be a proper block in an H-invariant
-block system, which enforces that the full orbit of B under g₁ consists of pairwise disjoint
-sets. This additional constraint rules out the counterexample.
-
-See issue af-tests-5jc for tracking this redesign. -/
-theorem case2_B_ncard_le_one (hn : n ≥ 1) (B : Set (Omega n k m))
-    (hDisj₂ : Disjoint (↑(g₂ n k m).support) B)
-    (hDisj₃ : Disjoint (↑(g₃ n k m).support) B)
-    (hg₁Disj : Disjoint (g₁ n k m '' B) B)
-    (ha₁_in_B : a₁ n k m hn ∈ B) : B.ncard ≤ 1 := by
-  have hSubset := case2_B_subset_tailA B hDisj₂ hDisj₃
-  rw [Set.ncard_le_one (Set.toFinite B)]
-  intro a ha b hb
-  have haTail := hSubset a ha; have hbTail := hSubset b hb
-  simp only [isTailA] at haTail hbTail
-  have hg₁_not : ∀ x ∈ B, g₁ n k m x ∉ B := fun x hx hg₁x =>
-    Set.disjoint_iff.mp hg₁Disj ⟨⟨x, hx, rfl⟩, hg₁x⟩
-  by_cases hn1 : n = 1; · ext1; omega
-  have hn2 : n ≥ 2 := by omega
-  have h7_not_in_B : (⟨7, by omega⟩ : Omega n k m) ∉ B := by
-    have heq := g₁_a₁_eq_elem7 (k := k) (m := m) hn hn2
-    have := hg₁_not (a₁ n k m hn) ha₁_in_B; rwa [heq] at this
-  suffices h_all_6 : ∀ x ∈ B, x.val = 6 by
-    have ha6 := h_all_6 a ha; have hb6 := h_all_6 b hb; ext1; omega
-  intro x hx
-  have hxTail := hSubset x hx; simp only [isTailA] at hxTail
-  by_contra hne; have hxgt6 : x.val > 6 := by omega
-  have hx_ne_7 : x.val ≠ 7 := by
-    intro heq; apply h7_not_in_B; have : x = ⟨7, by omega⟩ := Fin.ext heq; rwa [← this]
-  have hxge8 : x.val ≥ 8 := by omega
-  -- BUG: The theorem is false for n ≥ 3 (see docstring). This sorry cannot be eliminated
-  -- without adding hypotheses about B being a proper block in a block system.
-  sorry
+-- NOTE: The old `case2_B_ncard_le_one` theorem was DELETED because it was FALSE for n ≥ 3.
+-- Counterexample: B = {6, 8} for n = 3 satisfies all hypotheses but |B| = 2.
+-- The correct approach requires B to be a proper block (with block dichotomy for g₁ powers).
+-- See case2_impossible_B and case2_impossible_C in SymmetricMain.lean for the correct pattern.
