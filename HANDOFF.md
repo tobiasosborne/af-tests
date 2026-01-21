@@ -1,4 +1,4 @@
-# Handoff: 2026-01-21 (Session 45)
+# Handoff: 2026-01-21 (Session 46)
 
 ## Build Status: ✅ PASSING
 
@@ -6,78 +6,87 @@
 
 All in Case 2 impossibility theorems:
 1. `case2_impossible` in `Lemma11_5_Case2.lean:170`
-2. `case2_impossible_B` in `Lemma11_5_SymmetricCases.lean:355`
-3. `case2_impossible_C` in `Lemma11_5_SymmetricCases.lean:382`
+2. `case2_impossible_B` in `Lemma11_5_SymmetricCases.lean:394` (k ≥ 2 case only)
+3. `case2_impossible_C` in `Lemma11_5_SymmetricCases.lean:421`
 
 ---
 
 ## Progress This Session
 
-### Added Helper Lemma
-- `elem5_not_in_support_g₂` in `Lemma11_5_FixedPoints.lean` - element 5 is NOT in supp(g₂)
+### New Helper Lemmas Added
+- `elem4_in_support_g₃` in `Lemma11_5_SupportCover.lean` - element 4 is in supp(g₃)
+- `tailC_not_in_support_g₂'` in `Lemma11_5_Case2_Helpers.lean` - tailC elements not in supp(g₂)
+- `core_in_support_g₁_or_g₃` in `Lemma11_5_Case2_Helpers.lean` - all core elements in supp(g₁) or supp(g₃)
+- `case2_B_subset_tailB` in `Lemma11_5_Case2_Helpers.lean` - B ⊆ tailB when B ⊆ supp(g₂) and disjoint from supp(g₁), supp(g₃)
 
-### Proof Structure for case2_impossible_B
-Established the key steps in the proof:
+### Proof Progress for case2_impossible_B
+Completed most of the proof structure:
 1. ✅ **B ⊆ supp(g₂)**: Fixed points of g₂ can't be in B due to disjointness
 2. ✅ **B ∩ supp(g₁) = ∅**: Otherwise Lemma 11.2 forces supp(g₁) ⊆ B, but elem 5 ∈ supp(g₁) \ supp(g₂)
 3. ✅ **B ∩ supp(g₃) = ∅**: Otherwise Lemma 11.2 forces supp(g₃) ⊆ B, but elem 2 ∈ supp(g₃) \ supp(g₂)
-4. ⏳ **B ⊆ tailB**: Follows from steps 1-3 (core elements ruled out)
-5. ⏳ **Contradiction**: For B ⊆ tailB with |B| > 1, need orbit analysis
+4. ✅ **B ⊆ tailB**: Uses `case2_B_subset_tailB` helper
+5. ✅ **B.ncard ≤ k**: Since tailB has exactly k elements
+6. ✅ **k = 1 case**: If k = 1, then |B| ≤ 1, contradicting |B| > 1
+7. ⏳ **k ≥ 2 case**: Needs orbit/block structure analysis (sorry remaining)
 
-### Key Elements Used
-- `elem5_in_support_g₁` - element 5 is in supp(g₁) (doesn't require n ≥ 1)
-- `elem5_not_in_support_g₂` - element 5 is NOT in supp(g₂) (NEW)
-- `elem2_in_support_g₃` - element 2 is in supp(g₃)
-- `elem2_not_in_support_g₂` - element 2 is NOT in supp(g₂)
+### Key Insight for k ≥ 2 case
+For k ≥ 2 with B ⊆ tailB and |B| > 1:
+- g₂ cycles tailB elements: 6+n → 6+n+1 → ... → 6+n+k-1 → 0
+- For g₂(B) to be disjoint from B, B cannot contain consecutive tailB elements
+- The block condition (hBlock) forces: for all j, g₂^j(B) = B or g₂^j(B) disjoint from B
+- This severely constrains what B can be
+- Example: if B = {6+n, 6+n+2} for k=3, then g₂²(B) = {6+n+2, 1} intersects B at 6+n+2
+- This violates the block condition, ruling out such B
+- The analysis shows |B| = 1, contradicting |B| > 1
 
 ---
 
-## Remaining Work: Orbit Analysis
+## Remaining Work
 
-The final contradiction (step 5) requires showing that B ⊆ tailB with |B| > 1 is impossible.
+### For case2_impossible_B (k ≥ 2 case)
+The orbit analysis is conceptually understood but needs formalization:
+1. Show g₂-orbit constraints force B to have non-consecutive elements
+2. Show hBlock implies g₂^j(B) pattern must be consistent
+3. Derive |B| = 1 from these constraints
 
-### Strategy Options
+### For case2_impossible_C
+Apply symmetric argument for m ≥ 1 case.
 
-**Option A: k = 1 case**
-- If k = 1, tailB has only 1 element
-- So |B| ≤ 1, contradicting hNT_lower: 1 < B.ncard
-
-**Option B: Consecutive elements**
-- If k ≥ 2 and B contains consecutive tailB elements
-- Then g₂(B) ∩ B ≠ ∅, contradicting disjointness
-
-**Option C: Block structure**
-- For B to be a valid H-block with B ⊆ tailB
-- The H-orbit of B must partition Ω
-- But compositions like g₁g₂ map tailB elements to core elements
-- This creates overlaps that violate the block property
+### For case2_impossible
+May need block hypothesis like the B/C variants.
 
 ---
 
 ## File Status
 
-### Lemma11_5_SymmetricCases.lean
-- 382 lines (⚠️ exceeds 200 LOC limit)
-- Contains case2_impossible_B and case2_impossible_C with sorries
+### Lemma11_5_Case2_Helpers.lean
+- 177 lines
+- Contains `case2_B_subset_tailB` and other helpers
 
-### Lemma11_5_Case2.lean
-- 171 lines
-- Contains case2_impossible with sorry
+### Lemma11_5_SymmetricCases.lean
+- ~420 lines (⚠️ exceeds 200 LOC limit)
+- Contains case2_impossible_B and case2_impossible_C
+
+### Lemma11_5_SupportCover.lean
+- ~180 lines
+- Added `elem4_in_support_g₃`
 
 ---
 
 ## Next Steps
 
-1. Complete step 4 (B ⊆ tailB) - needs case analysis on element values
-2. Complete step 5 (contradiction) - use k = 1 case first, then handle k ≥ 2
-3. Apply same pattern to case2_impossible_C
-4. Refactor SymmetricCases.lean to reduce LOC
+1. **Complete k ≥ 2 case for case2_impossible_B**: Formalize the orbit/block analysis
+2. **Apply symmetric pattern to case2_impossible_C**: Same structure for m ≥ 1
+3. **Refactor SymmetricCases.lean**: Split to reduce LOC below 200
+4. **Consider if case2_impossible needs the block hypothesis**: Check consistency
 
 ---
 
-## Critical Warning
+## Critical Notes
 
-**DO NOT invent new strategies.** The proof structure follows the NL proof:
-- Case 2 impossibility uses the fact that B ⊆ tailB creates problems
-- The orbit of B under the non-preserving generator cannot partition Ω properly
-- Fixed points and support intersections create contradictions
+**The k = 1 case is completely proven!** Only k ≥ 2 needs additional work.
+
+**DO NOT invent new strategies.** Follow the NL proof structure:
+- Block dichotomy (hBlock) is key for the orbit analysis
+- The g₂-cycle structure forces strong constraints on B ⊆ tailB
+- Non-consecutive elements + block condition → contradiction

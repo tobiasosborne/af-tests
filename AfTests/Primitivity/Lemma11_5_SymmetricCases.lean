@@ -349,10 +349,49 @@ theorem case2_impossible_B (hk : k ≥ 1) (B : Set (Omega n k m))
       have h2_not : (⟨2, by omega⟩ : Omega n k m) ∉ (g₂ n k m).support := elem2_not_in_support_g₂
       exact h2_not (hB_subset_supp_g₂ h2_in_B)
     · exact hDisj
-  -- Step 4-6: B ⊆ tailB leads to contradiction
-  -- We use case2_B_subset_tailA pattern from Case2_Helpers
-  -- For now, sorry - the key lemmas B ⊆ supp(g₂), B ∩ supp(g₁) = ∅, B ∩ supp(g₃) = ∅ are proved
-  sorry
+  -- Step 4: B ⊆ tailB
+  have hB_subset_tailB : ∀ x ∈ B, isTailB x :=
+    case2_B_subset_tailB B hB_subset_supp_g₂ hB_disj_supp_g₁ hB_disj_supp_g₃
+  -- Step 5: Since b₁ ∈ B and B ⊆ tailB, if k = 1 then |B| = 1
+  -- For k ≥ 1 with B ⊆ tailB and |B| > 1, we need at least 2 elements from tailB
+  -- But tailB has exactly k elements, and if k = 1, |B| ≤ 1
+  -- Step 6: Contradiction via cardinality
+  -- First show that B.ncard ≤ k (since B ⊆ tailB and |tailB| = k)
+  have hB_ncard_le_k : B.ncard ≤ k := by
+    have hTailB_finite : Set.Finite {x : Omega n k m | isTailB x} := Set.toFinite _
+    have hB_subset_tailB_set : B ⊆ {x : Omega n k m | isTailB x} := fun x hx => hB_subset_tailB x hx
+    have hB_finite : B.Finite := hTailB_finite.subset hB_subset_tailB_set
+    calc B.ncard ≤ {x : Omega n k m | isTailB x}.ncard := Set.ncard_le_ncard hB_subset_tailB_set hTailB_finite
+      _ = k := by
+        -- tailB = {⟨6 + n + i, _⟩ | i < k} has exactly k elements
+        have h_eq : {x : Omega n k m | isTailB x} = Set.range (fun i : Fin k =>
+            (⟨6 + n + i.val, by omega⟩ : Omega n k m)) := by
+          ext x; simp only [Set.mem_setOf_eq, Set.mem_range, isTailB]
+          constructor
+          · intro ⟨hLo, hHi⟩
+            have hi : x.val - 6 - n < k := by have := x.isLt; omega
+            use ⟨x.val - 6 - n, hi⟩
+            ext; simp only [Fin.val_mk]; omega
+          · intro ⟨i, hi⟩
+            rw [← hi]; simp only [Fin.val_mk]
+            constructor <;> omega
+        rw [h_eq, Set.ncard_range_of_injective]
+        · simp only [Nat.card_eq_fintype_card, Fintype.card_fin]
+        · intro i j hij; ext; simp only [Fin.ext_iff] at hij ⊢; omega
+  -- Now: 1 < B.ncard ≤ k, so 2 ≤ k
+  -- But we haven't used the full power of block condition yet
+  -- The key is: for k = 1, this gives 1 < 1, contradiction
+  -- For k ≥ 2, we need the block structure to force contradiction
+  by_cases hk1 : k = 1
+  · -- Case k = 1: tailB has 1 element, so |B| ≤ 1, contradicting |B| > 1
+    omega
+  · -- Case k ≥ 2: More involved argument using block structure
+    -- For now, we note that the g₂-orbit analysis would show |B| = 1
+    -- The block dichotomy forces B to not contain consecutive tailB elements
+    -- Combined with g₂'s cycling action, this forces |B| divides (4 + k)
+    -- and |B| ≤ k, leading to contradictions for specific k values
+    -- TODO: Complete k ≥ 2 case with full orbit analysis
+    sorry
 
 /-- **Case 2 Impossibility for m ≥ 1**: g₃(B) ≠ B leads to contradiction.
 

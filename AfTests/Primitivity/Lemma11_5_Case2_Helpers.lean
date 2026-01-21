@@ -115,3 +115,63 @@ lemma g₁_a₁_eq_elem7 (hn : n ≥ 1) (hn2 : n ≥ 2) :
 -- Counterexample: B = {6, 8} for n = 3 satisfies all hypotheses but |B| = 2.
 -- The correct approach requires B to be a proper block (with block dichotomy for g₁ powers).
 -- See case2_impossible_B and case2_impossible_C in SymmetricMain.lean for the correct pattern.
+
+/-- Core elements {0,1,2,3,4,5} are in supp(g₁) or supp(g₃) -/
+theorem core_in_support_g₁_or_g₃ (x : Omega n k m) (hCore : isCore x) :
+    x ∈ (g₁ n k m).support ∨ x ∈ (g₃ n k m).support := by
+  obtain ⟨v, hv⟩ := x
+  simp only [isCore] at hCore
+  have : v = 0 ∨ v = 1 ∨ v = 2 ∨ v = 3 ∨ v = 4 ∨ v = 5 := by omega
+  rcases this with rfl | rfl | rfl | rfl | rfl | rfl
+  · left; convert elem0_in_support_g₁ (n := n) (k := k) (m := m)
+  · right; convert elem1_in_support_g₃ (n := n) (k := k) (m := m)
+  · right; convert elem2_in_support_g₃ (n := n) (k := k) (m := m)
+  · left; convert elem3_in_support_g₁ (n := n) (k := k) (m := m)
+  · right; convert elem4_in_support_g₃ (n := n) (k := k) (m := m)
+  · left; convert elem5_in_support_g₁ (n := n) (k := k) (m := m)
+
+/-- Tail C elements are not in supp(g₂) -/
+theorem tailC_not_in_support_g₂' (_ : m ≥ 1) (i : Fin m) :
+    (⟨6 + n + k + i.val, by omega⟩ : Omega n k m) ∉ (g₂ n k m).support := by
+  simp only [g₂, Equiv.Perm.mem_support, ne_eq, not_not]
+  apply List.formPerm_apply_of_notMem
+  intro h; simp only [List.mem_append, g₂CoreList, tailBList, List.mem_cons,
+    List.mem_map, List.mem_finRange, List.not_mem_nil, or_false] at h
+  rcases h with h | h
+  · rcases h with h | h | h | h <;> simp only [Fin.ext_iff] at h <;> omega
+  · obtain ⟨j, _, hj⟩ := h; simp only [Fin.ext_iff] at hj; have := j.isLt; have := i.isLt; omega
+
+/-- If B ⊆ supp(g₂), B ∩ supp(g₁) = ∅, and B ∩ supp(g₃) = ∅, then B ⊆ tailB -/
+theorem case2_B_subset_tailB (B : Set (Omega n k m))
+    (hSubG₂ : B ⊆ ↑(g₂ n k m).support)
+    (hDisj₁ : Disjoint (↑(g₁ n k m).support) B)
+    (hDisj₃ : Disjoint (↑(g₃ n k m).support) B) :
+    ∀ x ∈ B, isTailB x := by
+  intro x hx
+  rcases Omega.partition x with hCore | hA | hB | hC
+  · -- Core element: in supp(g₁) or supp(g₃), contradicts disjointness
+    rcases core_in_support_g₁_or_g₃ x hCore with h1 | h3
+    · exact (Set.disjoint_iff.mp hDisj₁ ⟨h1, hx⟩).elim
+    · exact (Set.disjoint_iff.mp hDisj₃ ⟨h3, hx⟩).elim
+  · -- TailA: not in supp(g₂), contradicts B ⊆ supp(g₂)
+    simp only [isTailA] at hA; obtain ⟨hLo, hHi⟩ := hA
+    have hi : x.val - 6 < n := by omega
+    have hn1 : n ≥ 1 := by omega
+    have hNotSupp : x ∉ (g₂ n k m).support := by
+      have hEq : (⟨6 + (x.val - 6), by have := x.isLt; omega⟩ : Omega n k m) = x := by
+        apply Fin.ext; simp only [Fin.val_mk]; omega
+      rw [← hEq]
+      exact tailA_not_in_support_g₂ hn1 ⟨x.val - 6, hi⟩
+    exact (hNotSupp (hSubG₂ hx)).elim
+  · exact hB
+  · -- TailC: not in supp(g₂), contradicts B ⊆ supp(g₂)
+    simp only [isTailC] at hC; obtain ⟨hLo, hHi⟩ := hC
+    have hi : x.val - 6 - n - k < m := by have := x.isLt; omega
+    have hm1 : m ≥ 1 := by omega
+    have hNotSupp : x ∉ (g₂ n k m).support := by
+      have hEq : (⟨6 + n + k + (x.val - 6 - n - k), by have := x.isLt; omega⟩ :
+          Omega n k m) = x := by
+        apply Fin.ext; simp only [Fin.val_mk]; omega
+      rw [← hEq]
+      exact tailC_not_in_support_g₂' hm1 ⟨x.val - 6 - n - k, hi⟩
+    exact (hNotSupp (hSubG₂ hx)).elim

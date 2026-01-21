@@ -99,6 +99,19 @@ theorem elem4_in_support_g₂ :
   simp only [List.mem_toFinset, List.mem_append, g₂CoreList, List.mem_cons]
   tauto
 
+/-- Element 4 is in supp(g₃) -/
+theorem elem4_in_support_g₃ :
+    (⟨4, by omega⟩ : Omega n k m) ∈ (g₃ n k m).support := by
+  have hNodup := g₃_list_nodup n k m
+  have hNotSingleton : ∀ x, g₃CoreList n k m ++ tailCList n k m ≠ [x] := by
+    intro x h
+    have : (g₃CoreList n k m ++ tailCList n k m).length = 1 := by rw [h]; simp
+    have := g₃_cycle_length n k m
+    omega
+  rw [g₃, List.support_formPerm_of_nodup _ hNodup hNotSingleton]
+  simp only [List.mem_toFinset, List.mem_append, g₃CoreList, List.mem_cons]
+  tauto
+
 /-- Element 5 is in supp(g₁) -/
 theorem elem5_in_support_g₁ :
     (⟨5, by omega⟩ : Omega n k m) ∈ (g₁ n k m).support := by
