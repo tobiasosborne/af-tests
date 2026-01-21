@@ -67,10 +67,10 @@ theorem isThreeCycle_m_ge1_k0 (n m : ℕ) (hm : m ≥ 1) :
       interval_cases hv : x.val
       · -- x.val = 0: both fix 0
         have hx : x = ⟨0, by omega⟩ := Fin.ext hv
-        rw [hx, Case1FixedPointLemmas.sq_fixes_0, SymmetricCase1.threeCycle_fixes_0]
+        rw [hx, Case1FixedPointLemmas.sq_fixes_0 n m hm, SymmetricCase1.threeCycle_fixes_0]
       · -- x.val = 1: both fix 1
         have hx : x = ⟨1, by omega⟩ := Fin.ext hv
-        rw [hx, Case1FixedPointLemmas.sq_fixes_1, SymmetricCase1.threeCycle_fixes_1]
+        rw [hx, Case1FixedPointLemmas.sq_fixes_1 n m hm, SymmetricCase1.threeCycle_fixes_1]
       · -- x.val = 2: both fix 2
         have hx : x = ⟨2, by omega⟩ := Fin.ext hv
         rw [hx, Case1FixedPointLemmas.sq_fixes_2 n m hm, SymmetricCase1.threeCycle_fixes_2]

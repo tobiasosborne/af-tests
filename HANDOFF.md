@@ -1,21 +1,27 @@
-# Handoff: 2026-01-21 (Session 37)
+# Handoff: 2026-01-21 (Session 38 continued)
 
 ## Completed This Session
 
-### Fixed j=-2 Case in Case2_Correct.lean
-- Fixed the proof that handles j = -2 orbit position (lines 239-256)
-- Key technique: Used `congrFun (congrArg (⇑) h_eq)` to convert permutation equality to element application
-- Proof shows g₁⁻²(3) = 0 using composition of g₁_inv_elem3_eq_elem5 and g₁_inv_elem5_eq_elem0
+### Eliminated All 5 Axioms in Case1FixedPointLemmas.lean
+- Filled all 4 sorries in `Case1FixedPointProofs.lean`
+- Converted axioms to theorems in `Case1FixedPointLemmas.lean`
+- All proofs now complete with no sorry or axiom remaining
 
-### Added Helper Lemmas in OrbitContinuation.lean
-- `g₁_pow2_inv_elem3_eq_elem0`: (g₁^2)⁻¹(3) = 0
-- `g₁_zpow2_inv_elem3_eq_elem0`: Same for zpow form
+### Sorries Filled in Case1FixedPointProofs.lean
+| Line | Description | Solution |
+|------|-------------|----------|
+| 222 | g₃_inv_2_eq_lastTailC | Used `g₃_list_getElem_tail` from Lemma05ListProps |
+| 275 | c₁₃_lastTailC_eq_2 | Split n=0 vs n≥1, traced commutator through |
+| 329 | c₁₃_fixes_tailA | Split last vs non-last tailA element cases |
+| 366 | sq_fixes_ge6 middle tailC | Proved both c₂₃ and c₁₃ fix middle tailC elements |
 
 ---
 
 ## Current State
 
-### Build Status: PASSING
+### Build Status: PASSING (1911 jobs)
+
+### Axiom Count: 0 (all eliminated!)
 
 ### Sorry Count: 8 total (excluding known false theorem)
 | Location | Description | Status |
@@ -29,76 +35,52 @@
 | Lemma11_5_Case2_Correct.lean:223 | k≥1 tailB case | Needs proof |
 | Lemma11_5_Case2_Correct.lean:263 | j≤-3 orbit case | Needs proof |
 
-### Axiom Count: 5 (FORBIDDEN)
-All in `AfTests/ThreeCycle/Case1FixedPointLemmas.lean`:
-- `sq_fixes_0`, `sq_fixes_1`, `sq_fixes_2`
-- `sq_fixes_tailA`, `sq_fixes_tailC`
-
 ---
 
-## Case2_Correct.lean Proof Structure
+## Key Technical Insights
 
-The correct Case 2 proof uses block B₁ containing element 1:
+### Case1FixedPointProofs.lean Solution
+The proof strategy was:
 
-1. **Find B₁**: The block containing element 1
-2. **g₁ fixes B₁**: Since g₁(1) = 1, by block_fixed_of_fixed_point
-3. **Case split on supp(g₁) vs B₁**:
-   - **supp(g₁) ⊆ B₁**: Then a₁ ∈ B₁ ≠ B (since 1 ∈ B₁ but 1 ∉ B), contradiction
-   - **supp(g₁) ∩ B₁ = ∅**: Then g₂(B₁) contains 3 ∈ supp(g₁)
-     - If g₁ preserves g₂(B₁): supp(g₁) ⊆ g₂(B₁), so a₁ ∈ g₂(B₁) ≠ B
-     - If g₁ doesn't preserve g₂(B₁): Orbit continuation argument
+1. **Elements 0, 1**: Form a 2-cycle in `c₁₃ * c₂₃⁻¹`, so squaring fixes them
+   - Key: `g₃_1_eq_firstTailC` shows g₃(1) = 6+n when m ≥ 1
 
-4. **Orbit continuation**: The orbit of g₂(B₁) under g₁ covers supp(g₁). Since a₁ ∈ supp(g₁), a₁ must be in some orbit block C. Either C = B or C ≠ B:
-   - **C ≠ B**: a₁ ∈ C ∩ B contradicts partition disjointness
-   - **C = B**: Then B is at some orbit position j
-     - **j = 0**: B = g₂(B₁) contains 3 (core), contradicting B ⊆ tailA ✓
-     - **j = 1**: B = g₁(g₂(B₁)) contains 2 (core), contradicting B ⊆ tailA ✓
-     - **j ≥ 2**: SORRY - Need partition overlap argument
-     - **j = -1**: B contains 5 (core via g₁⁻¹(3) = 5), contradiction ✓
-     - **j = -2**: B contains 0 (core via g₁⁻²(3) = 0), contradiction ✓
-     - **j ≤ -3**: SORRY - Partition overlap argument needed
+2. **Element 2**: Forms a 2-cycle with last tailC element
+   - Used `g₃_list_getElem_tail` for list index computation
+   - Last element is ⟨5+n+m, _⟩
 
-### Remaining Work for j≥2 and j≤-3
+3. **TailA elements**: c₂₃ fixes them, c₁₃ fixes them too
+   - For c₁₃: g₃ fixes tailA, g₁ maps tailA→tailA or to 0
+   - Split on x=5+n (last) vs x<5+n (not last)
 
-**For j ≥ 2** (lines 178-223):
-1. Need to prove 4 ∈ B₁ given B₁ ∩ supp(g₁) = ∅
-2. Then g₂(4) = 0 (when k=0) or tailB element (when k≥1)
-3. Show partition overlap between orbit positions
+4. **TailC elements**:
+   - Last element (5+n+m) forms 2-cycle with 2
+   - Middle elements: both c₂₃ and c₁₃ fix them directly
+   - Key insight: g₃(x)=x+1 for middle tailC, then trace fixes
 
-**For j ≤ -3** (line 263):
-- Use partition overlap: positions j and j+2 share element g₁^j(3)
-- Since g₁² doesn't preserve g₂(B₁), these are different blocks
-- Shared element contradicts partition disjointness
-
----
-
-## Known Issues
-
-### 1. Case2_Helpers.lean:155 is FALSE
-The old `case2_B_ncard_le_one` theorem is false for n ≥ 3. This is marked as a BUG and should NOT be used. Use `Case2_Correct.lean` instead.
-
-### 2. Five Forbidden Axioms in Case1FixedPointLemmas.lean
-**MUST BE ELIMINATED** - These are computational lemmas that should be provable with `native_decide` or explicit cycle computations.
-
-### 3. Case2FixedPointLemmas.lean Exceeds 200 LOC (702 lines)
-Needs refactoring into smaller files.
+### Proof Patterns Used
+- `List.formPerm_apply_of_notMem` for showing elements outside cycle are fixed
+- `List.formPerm_apply_lt_getElem` for cycle action at specific indices
+- `g₃_list_getElem_tail` from Lemma05ListProps for tailC indexing
+- `calc` blocks with `Equiv.symm_apply_apply` for inverse proofs
 
 ---
 
 ## Files Modified This Session
-- AfTests/Primitivity/Lemma11_5_OrbitContinuation.lean (MODIFIED - added g₁_pow2_inv helper)
-- AfTests/Primitivity/Lemma11_5_Case2_Correct.lean (MODIFIED - fixed j=-2 case)
+- AfTests/ThreeCycle/Case1FixedPointProofs.lean (MODIFIED - all sorries filled)
+- AfTests/ThreeCycle/Case1FixedPointLemmas.lean (MODIFIED - axioms → theorems)
+- AfTests/ThreeCycle/ThreeCycleSymmetric.lean (MODIFIED - added hm args)
 - HANDOFF.md (UPDATED)
 
 ---
 
 ## Next Session Priority
 
-1. **P1: Complete j≥2 proofs** in Case2_Correct.lean (h4_in_B₁, h0_or_tailB, g₂(y)≠6, k≥1 case)
-2. **P1: Complete j≤-3 proof** in Case2_Correct.lean
-3. **P1: Wire case2_correct** into main Lemma11_5.lean
-4. **P0: ELIMINATE THE 5 AXIOMS** in Case1FixedPointLemmas.lean
-5. **P2: Eliminate sorries in SymmetricMain.lean** (k≥2, m≥2 cases)
+1. **P1: Complete j≥2 and j≤-3 proofs** in Case2_Correct.lean (5 sorries)
+
+2. **P1: Wire case2_correct** into main Lemma11_5.lean
+
+3. **P2: Eliminate sorries in SymmetricMain.lean** (k≥2, m≥2 cases - 2 sorries)
 
 ---
 
