@@ -550,9 +550,141 @@ theorem case2_impossible_C (hm : m ≥ 1) (B : Set (Omega n k m))
     (hg₁_pres : PreservesSet (g₁ n k m) B) (hg₂_pres : PreservesSet (g₂ n k m) B)
     (hBlock : ∀ j : ℕ, (g₃ n k m ^ j) '' B = B ∨ Disjoint ((g₃ n k m ^ j) '' B) B)
     (hNT_lower : 1 < B.ncard) : False := by
-  -- Following NL proof Node 1.9.5:
-  -- Step 1: g₃(B) ≠ B but g₁(B) = B, g₂(B) = B (already given)
-  -- Step 2: Need to show B intersects supp(g₁) or supp(g₂) to apply Lemma 11.2
-  -- Step 3: Use block dichotomy hBlock to analyze orbit structure
-  -- Step 4: Derive contradiction from support containment forcing |B| = N
-  sorry
+  -- Step 1: B ⊆ supp(g₃) (fixed points of g₃ can't be in B due to disjointness)
+  have hB_subset_supp_g₃ : B ⊆ ↑(g₃ n k m).support := by
+    intro x hxB
+    by_contra hx_not_supp
+    have hFix : g₃ n k m x = x := Equiv.Perm.notMem_support.mp hx_not_supp
+    have hx_in_img : x ∈ g₃ n k m '' B := ⟨x, hxB, hFix⟩
+    exact Set.disjoint_iff.mp hg₃Disj ⟨hx_in_img, hxB⟩
+  -- Step 2: B ∩ supp(g₁) = ∅ (else Lemma 11.2 forces supp(g₁) ⊆ B, but elem0 ∈ supp(g₁) \ supp(g₃))
+  have hB_disj_supp_g₁ : Disjoint (↑(g₁ n k m).support) B := by
+    have hCyc : (g₁ n k m).IsCycle := g₁_isCycle n k m (by omega)
+    rcases cycle_support_subset_or_disjoint hCyc hg₁_pres with hSub | hDisj
+    · exfalso
+      have h0_in_B : (⟨0, by omega⟩ : Omega n k m) ∈ B := hSub elem0_in_support_g₁
+      have h0_not : (⟨0, by omega⟩ : Omega n k m) ∉ (g₃ n k m).support := elem0_not_in_support_g₃
+      exact h0_not (hB_subset_supp_g₃ h0_in_B)
+    · exact hDisj
+  -- Step 3: B ∩ supp(g₂) = ∅ (else Lemma 11.2 forces supp(g₂) ⊆ B, but elem3 ∈ supp(g₂) \ supp(g₃))
+  have hB_disj_supp_g₂ : Disjoint (↑(g₂ n k m).support) B := by
+    have hCyc : (g₂ n k m).IsCycle := g₂_isCycle n k m
+    rcases cycle_support_subset_or_disjoint hCyc hg₂_pres with hSub | hDisj
+    · exfalso
+      have h3_in_B : (⟨3, by omega⟩ : Omega n k m) ∈ B := hSub elem3_in_support_g₂'
+      have h3_not : (⟨3, by omega⟩ : Omega n k m) ∉ (g₃ n k m).support := elem3_not_in_support_g₃
+      exact h3_not (hB_subset_supp_g₃ h3_in_B)
+    · exact hDisj
+  -- Step 4: B ⊆ tailC
+  have hB_subset_tailC : ∀ x ∈ B, isTailC x :=
+    case2_C_subset_tailC B hB_subset_supp_g₃ hB_disj_supp_g₁ hB_disj_supp_g₂
+  -- Step 5: Since c₁ ∈ B and B ⊆ tailC, if m = 1 then |B| = 1
+  have hB_ncard_le_m : B.ncard ≤ m := by
+    have hTailC_finite : Set.Finite {x : Omega n k m | isTailC x} := Set.toFinite _
+    have hB_subset_tailC_set : B ⊆ {x : Omega n k m | isTailC x} := fun x hx => hB_subset_tailC x hx
+    have hB_finite : B.Finite := hTailC_finite.subset hB_subset_tailC_set
+    calc B.ncard ≤ {x : Omega n k m | isTailC x}.ncard := Set.ncard_le_ncard hB_subset_tailC_set hTailC_finite
+      _ = m := by
+        have h_eq : {x : Omega n k m | isTailC x} = Set.range (fun i : Fin m =>
+            (⟨6 + n + k + i.val, by omega⟩ : Omega n k m)) := by
+          ext x; simp only [Set.mem_setOf_eq, Set.mem_range, isTailC]
+          constructor
+          · intro ⟨hLo, hHi⟩
+            have hi : x.val - 6 - n - k < m := by have := x.isLt; omega
+            use ⟨x.val - 6 - n - k, hi⟩
+            ext; simp only [Fin.val_mk]; omega
+          · intro ⟨i, hi⟩
+            rw [← hi]; simp only [Fin.val_mk]
+            constructor <;> omega
+        rw [h_eq, Set.ncard_range_of_injective]
+        · simp only [Nat.card_eq_fintype_card, Fintype.card_fin]
+        · intro i j hij; ext; simp only [Fin.ext_iff] at hij ⊢; omega
+  -- Now: 1 < B.ncard ≤ m, so 2 ≤ m
+  by_cases hm1 : m = 1
+  · -- Case m = 1: tailC has 1 element, so |B| ≤ 1, contradicting |B| > 1
+    omega
+  · -- Case m ≥ 2: Use block structure to show B can't have two distinct tailC elements
+    have hm_ge_2 : m ≥ 2 := by omega
+    have hB_finite : B.Finite := Set.toFinite B
+    have hB_nonempty : B.Nonempty := ⟨c₁ n k m hm, hc₁_in_B⟩
+
+    -- Since |B| > 1 and B ⊆ tailC, there exists x ∈ B with x ≠ c₁
+    obtain ⟨x, hx_in_B, hx_ne_c₁⟩ : ∃ x ∈ B, x ≠ c₁ n k m hm := by
+      by_contra h
+      push_neg at h
+      have hSub : B ⊆ {c₁ n k m hm} := fun y hy => Set.mem_singleton_iff.mpr (h y hy)
+      have hSing_ncard : ({c₁ n k m hm} : Set (Omega n k m)).ncard = 1 := Set.ncard_singleton _
+      have hLe : B.ncard ≤ ({c₁ n k m hm} : Set (Omega n k m)).ncard :=
+        Set.ncard_le_ncard hSub (Set.finite_singleton _)
+      omega
+
+    -- x is in tailC, so x.val ∈ [6+n+k, 6+n+k+m)
+    have hx_tailC := hB_subset_tailC x hx_in_B
+
+    -- c₁ has value 6+n+k, and x ≠ c₁ means x.val ≠ 6+n+k
+    have hx_val_ne : x.val ≠ 6 + n + k := by
+      intro heq
+      have : x = c₁ n k m hm := Fin.ext heq
+      exact hx_ne_c₁ this
+
+    -- So x.val > 6+n+k (since x is in tailC = [6+n+k, 6+n+k+m))
+    have hx_val_gt : x.val > 6 + n + k := by
+      simp only [isTailC] at hx_tailC
+      omega
+
+    -- Let j = x.val - 6 - n - k + 1 be the "index" of x in tailC (1-indexed)
+    set j := x.val - 6 - n - k + 1 with hj_def
+    have hj_gt_1 : j > 1 := by omega
+    have hj_le_m : j ≤ m := by simp only [isTailC] at hx_tailC; omega
+
+    -- g₃^(j-1) maps c₁ to x
+    have hx_in_image : x ∈ (g₃ n k m ^ (j - 1)) '' B := by
+      use c₁ n k m hm, hc₁_in_B
+      -- g₃^(j-1)(c₁) = x because g₃ shifts indices in tailC by 1
+      unfold c₁ g₃
+      let L := g₃CoreList n k m ++ tailCList n k m
+      have hnd : L.Nodup := g₃_list_nodup n k m
+      have hlen : L.length = 4 + m := g₃_cycle_length n k m
+      have h4_lt : 4 < L.length := by simp [L, g₃CoreList, tailCList]; omega
+      have hc₁_eq : (⟨6 + n + k, by omega⟩ : Omega n k m) = L[4] := by
+        simp only [L]; exact (AfTests.Transitivity.g₃_list_getElem_tail n k m ⟨0, hm⟩).symm
+      rw [hc₁_eq, List.formPerm_pow_apply_getElem L hnd (j - 1) 4 h4_lt]
+      have hmod : (4 + (j - 1)) % (4 + m) = 4 + (j - 1) := by
+        apply Nat.mod_eq_of_lt; omega
+      simp only [hlen, hmod]
+      have hj1_lt_m : j - 1 < m := by omega
+      have hx_eq_L : L[4 + (j - 1)]'(by simp [L, g₃CoreList, tailCList]; omega) =
+          (⟨6 + n + k + (j - 1), by omega⟩ : Omega n k m) :=
+        AfTests.Transitivity.g₃_list_getElem_tail n k m ⟨j - 1, hj1_lt_m⟩
+      rw [hx_eq_L]
+      apply Fin.ext
+      simp only [Fin.val_mk]
+      have hj_calc : j - 1 = x.val - 6 - n - k := by simp only [hj_def]; omega
+      omega
+
+    -- By hBlock, either g₃^(j-1)(B) = B or disjoint
+    have hg₃_pow_pres : (g₃ n k m ^ (j - 1)) '' B = B := by
+      rcases hBlock (j - 1) with hEq | hDisj
+      · exact hEq
+      · exfalso; exact Set.disjoint_iff.mp hDisj ⟨hx_in_image, hx_in_B⟩
+
+    -- For m = 2: j must equal 2 (since j > 1 and j ≤ m = 2)
+    -- So j - 1 = 1, meaning g₃^1(B) = g₃(B) = B, contradicting hg₃Disj
+    have hContra : g₃ n k m '' B = B ∨ Disjoint (g₃ n k m '' B) B := hBlock 1
+    rcases hContra with hEq | _
+    · -- If g₃(B) = B, this contradicts hg₃Disj
+      rw [hEq] at hg₃Disj
+      exact Set.not_disjoint_iff.mpr ⟨c₁ n k m hm, hc₁_in_B, hc₁_in_B⟩ hg₃Disj
+    · -- g₃(B) is disjoint from B - this is consistent
+      by_cases hm2 : m = 2
+      · -- For m = 2: j must equal 2, so j - 1 = 1, and g₃^1(B) = B = g₃(B)
+        have hj_eq_2 : j = 2 := by omega
+        have hj1_eq_1 : j - 1 = 1 := by omega
+        rw [hj1_eq_1] at hg₃_pow_pres
+        simp only [pow_one] at hg₃_pow_pres
+        -- Now g₃(B) = B, contradicting g₃(B) ∩ B = ∅ with B nonempty
+        rw [hg₃_pow_pres] at hg₃Disj
+        exact Set.not_disjoint_iff.mpr ⟨c₁ n k m hm, hc₁_in_B, hc₁_in_B⟩ hg₃Disj
+      · -- For m ≥ 3: Orbit analysis (symmetric to k ≥ 3 case)
+        have hm_ge_3 : m ≥ 3 := by omega
+        sorry

@@ -175,3 +175,58 @@ theorem case2_B_subset_tailB (B : Set (Omega n k m))
       rw [← hEq]
       exact tailC_not_in_support_g₂' hm1 ⟨x.val - 6 - n - k, hi⟩
     exact (hNotSupp (hSubG₂ hx)).elim
+
+/-- Element 2 is in supp(g₁) (general version without n ≥ 1 hypothesis) -/
+theorem elem2_in_support_g₁' :
+    (⟨2, by omega⟩ : Omega n k m) ∈ (g₁ n k m).support := by
+  have hNodup := g₁_list_nodup n k m
+  have hNotSingleton : ∀ x, g₁CoreList n k m ++ tailAList n k m ≠ [x] := by
+    intro x h
+    have : (g₁CoreList n k m ++ tailAList n k m).length = 1 := by rw [h]; simp
+    have := g₁_cycle_length n k m; omega
+  rw [g₁, List.support_formPerm_of_nodup _ hNodup hNotSingleton]
+  simp only [List.mem_toFinset, List.mem_append, g₁CoreList, List.mem_cons]; tauto
+
+/-- Core elements {0,1,2,3,4,5} are in supp(g₁) or supp(g₂) -/
+theorem core_in_support_g₁_or_g₂ (x : Omega n k m) (hCore : isCore x) :
+    x ∈ (g₁ n k m).support ∨ x ∈ (g₂ n k m).support := by
+  obtain ⟨v, hv⟩ := x
+  simp only [isCore] at hCore
+  have : v = 0 ∨ v = 1 ∨ v = 2 ∨ v = 3 ∨ v = 4 ∨ v = 5 := by omega
+  rcases this with rfl | rfl | rfl | rfl | rfl | rfl
+  · left; convert elem0_in_support_g₁ (n := n) (k := k) (m := m)
+  · right; convert elem1_in_support_g₂ (n := n) (k := k) (m := m)
+  · left; convert elem2_in_support_g₁' (n := n) (k := k) (m := m)
+  · left; convert elem3_in_support_g₁ (n := n) (k := k) (m := m)
+  · right; convert elem4_in_support_g₂ (n := n) (k := k) (m := m)
+  · left; convert elem5_in_support_g₁ (n := n) (k := k) (m := m)
+
+/-- If B ⊆ supp(g₃), B ∩ supp(g₁) = ∅, and B ∩ supp(g₂) = ∅, then B ⊆ tailC -/
+theorem case2_C_subset_tailC (B : Set (Omega n k m))
+    (hSubG₃ : B ⊆ ↑(g₃ n k m).support)
+    (hDisj₁ : Disjoint (↑(g₁ n k m).support) B)
+    (hDisj₂ : Disjoint (↑(g₂ n k m).support) B) :
+    ∀ x ∈ B, isTailC x := by
+  intro x hx
+  rcases Omega.partition x with hCore | hA | hB | hC
+  · -- Core element: in supp(g₁) or supp(g₂), contradicts disjointness
+    rcases core_in_support_g₁_or_g₂ x hCore with h1 | h2
+    · exact (Set.disjoint_iff.mp hDisj₁ ⟨h1, hx⟩).elim
+    · exact (Set.disjoint_iff.mp hDisj₂ ⟨h2, hx⟩).elim
+  · -- TailA: in supp(g₁), contradicts B ∩ supp(g₁) = ∅
+    simp only [isTailA] at hA; obtain ⟨hLo, hHi⟩ := hA
+    have hi : x.val - 6 < n := by omega
+    have h_in_supp : x ∈ (g₁ n k m).support := by
+      have hEq : (⟨6 + (x.val - 6), by have := x.isLt; omega⟩ : Omega n k m) = x := by
+        apply Fin.ext; simp only [Fin.val_mk]; omega
+      rw [← hEq]; exact tailA_in_support_g₁ ⟨x.val - 6, hi⟩
+    exact (Set.disjoint_iff.mp hDisj₁ ⟨h_in_supp, hx⟩).elim
+  · -- TailB: in supp(g₂), contradicts B ∩ supp(g₂) = ∅
+    simp only [isTailB] at hB; obtain ⟨hLo, hHi⟩ := hB
+    have hi : x.val - 6 - n < k := by have := x.isLt; omega
+    have h_in_supp : x ∈ (g₂ n k m).support := by
+      have hEq : (⟨6 + n + (x.val - 6 - n), by have := x.isLt; omega⟩ : Omega n k m) = x := by
+        apply Fin.ext; simp only [Fin.val_mk]; omega
+      rw [← hEq]; exact tailB_in_support_g₂ ⟨x.val - 6 - n, hi⟩
+    exact (Set.disjoint_iff.mp hDisj₂ ⟨h_in_supp, hx⟩).elim
+  · exact hC
