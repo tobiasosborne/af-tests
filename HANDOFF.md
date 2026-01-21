@@ -1,21 +1,15 @@
-# Handoff: 2026-01-21 (Session 36)
+# Handoff: 2026-01-21 (Session 37)
 
 ## Completed This Session
 
-### Fixed Build Errors in Case2_Correct.lean
+### Fixed j=-2 Case in Case2_Correct.lean
+- Fixed the proof that handles j = -2 orbit position (lines 239-256)
+- Key technique: Used `congrFun (congrArg (⇑) h_eq)` to convert permutation equality to element application
+- Proof shows g₁⁻²(3) = 0 using composition of g₁_inv_elem3_eq_elem5 and g₁_inv_elem5_eq_elem0
 
-Fixed `simp` errors in the orbit continuation proof for j=0 and j=1 cases:
-- j=0: Used `rw [Int.ofNat_zero, zpow_zero, ...]` instead of `simp`
-- j=1: Used explicit `have h1 : Int.ofNat (0 + 1) = (1 : ℤ) := rfl; rw [...]`
-
-### Added Helper Lemmas in Lemma11_5_OrbitContinuation.lean
-
-New lemmas for g₁ action analysis:
-- `g₁_elem5_eq_elem3`: g₁(5) = 3
-- `g₁_elem0_eq_elem5`: g₁(0) = 5
-- `g₁_inv_elem3_eq_elem5`: g₁⁻¹(3) = 5
-- `g₁_inv_sq_elem3_eq_elem0`: g₁⁻²(3) = 0
-- `elem0_not_tailA`, `elem5_not_tailA`: 0, 5 are core elements (not in tailA)
+### Added Helper Lemmas in OrbitContinuation.lean
+- `g₁_pow2_inv_elem3_eq_elem0`: (g₁^2)⁻¹(3) = 0
+- `g₁_zpow2_inv_elem3_eq_elem0`: Same for zpow form
 
 ---
 
@@ -23,14 +17,17 @@ New lemmas for g₁ action analysis:
 
 ### Build Status: PASSING
 
-### Sorry Count: 6 total
+### Sorry Count: 8 total (excluding known false theorem)
 | Location | Description | Status |
 |----------|-------------|--------|
 | Lemma11_5_SymmetricMain.lean:159 | Primitivity (k≥2 case) | Original |
 | Lemma11_5_SymmetricMain.lean:181 | Primitivity (m≥2 case) | Original |
-| Lemma11_5_Case2_Helpers.lean:155 | FALSE FOR n≥3 (see bug) | Known bug |
-| Lemma11_5_Case2_Correct.lean:179 | j≥2 orbit case | NEW |
-| Lemma11_5_Case2_Correct.lean:186 | Negative j orbit case | NEW |
+| Lemma11_5_Case2_Helpers.lean:155 | FALSE FOR n≥3 (known bug) | Do not use |
+| Lemma11_5_Case2_Correct.lean:193 | h4_in_B₁ | Needs proof |
+| Lemma11_5_Case2_Correct.lean:197 | h0_or_tailB_in_g₂B₁ | Needs proof |
+| Lemma11_5_Case2_Correct.lean:218 | g₂(y)≠6 | Needs proof |
+| Lemma11_5_Case2_Correct.lean:223 | k≥1 tailB case | Needs proof |
+| Lemma11_5_Case2_Correct.lean:263 | j≤-3 orbit case | Needs proof |
 
 ### Axiom Count: 5 (FORBIDDEN)
 All in `AfTests/ThreeCycle/Case1FixedPointLemmas.lean`:
@@ -56,23 +53,22 @@ The correct Case 2 proof uses block B₁ containing element 1:
    - **C = B**: Then B is at some orbit position j
      - **j = 0**: B = g₂(B₁) contains 3 (core), contradicting B ⊆ tailA ✓
      - **j = 1**: B = g₁(g₂(B₁)) contains 2 (core), contradicting B ⊆ tailA ✓
-     - **j ≥ 2**: SORRY - Need cardinality/overlap argument
-     - **j < 0**: SORRY - g₁⁻¹(3) = 5 (core), g₁⁻²(3) = 0 (core)
+     - **j ≥ 2**: SORRY - Need partition overlap argument
+     - **j = -1**: B contains 5 (core via g₁⁻¹(3) = 5), contradiction ✓
+     - **j = -2**: B contains 0 (core via g₁⁻²(3) = 0), contradiction ✓
+     - **j ≤ -3**: SORRY - Partition overlap argument needed
 
-### Remaining Work for j≥2 and j<0
+### Remaining Work for j≥2 and j≤-3
 
-The key insight: For B₁ = {1, 4} (forced by constraints), g₂(B₁) = {3, 0}. The orbit of {3, 0} under g₁ cycles through all of supp(g₁).
+**For j ≥ 2** (lines 178-223):
+1. Need to prove 4 ∈ B₁ given B₁ ∩ supp(g₁) = ∅
+2. Then g₂(4) = 0 (when k=0) or tailB element (when k≥1)
+3. Show partition overlap between orbit positions
 
-For B ⊆ tailA:
-- g₁ʲ(3) and g₁ʲ(0) must both be in tailA
-- This restricts j to specific values depending on n
-- For n ≤ 2: No such j ≥ 2 exists (all hit core elements)
-- For n ≥ 3: Some j values exist but partition overlap argument applies
-
-For negative j:
-- j = -1: g₁⁻¹(3) = 5 (core) → contradiction
-- j = -2: g₁⁻²(3) = 0 (core) → contradiction
-- j ≤ -3: Similar pattern continues
+**For j ≤ -3** (line 263):
+- Use partition overlap: positions j and j+2 share element g₁^j(3)
+- Since g₁² doesn't preserve g₂(B₁), these are different blocks
+- Shared element contradicts partition disjointness
 
 ---
 
@@ -82,7 +78,7 @@ For negative j:
 The old `case2_B_ncard_le_one` theorem is false for n ≥ 3. This is marked as a BUG and should NOT be used. Use `Case2_Correct.lean` instead.
 
 ### 2. Five Forbidden Axioms in Case1FixedPointLemmas.lean
-**MUST BE ELIMINATED** - See previous session notes for proof strategy.
+**MUST BE ELIMINATED** - These are computational lemmas that should be provable with `native_decide` or explicit cycle computations.
 
 ### 3. Case2FixedPointLemmas.lean Exceeds 200 LOC (702 lines)
 Needs refactoring into smaller files.
@@ -90,22 +86,23 @@ Needs refactoring into smaller files.
 ---
 
 ## Files Modified This Session
-- AfTests/Primitivity/Lemma11_5_OrbitContinuation.lean (MODIFIED - added helper lemmas)
-- AfTests/Primitivity/Lemma11_5_Case2_Correct.lean (MODIFIED - fixed simp errors)
+- AfTests/Primitivity/Lemma11_5_OrbitContinuation.lean (MODIFIED - added g₁_pow2_inv helper)
+- AfTests/Primitivity/Lemma11_5_Case2_Correct.lean (MODIFIED - fixed j=-2 case)
 - HANDOFF.md (UPDATED)
 
 ---
 
 ## Next Session Priority
 
-1. **P1: Complete j≥2 and j<0 proofs** in Case2_Correct.lean
-2. **P1: Wire case2_correct** into main Lemma11_5.lean
-3. **P0: ELIMINATE THE 5 AXIOMS** in Case1FixedPointLemmas.lean
-4. **P0: Refactor Case2FixedPointLemmas.lean** to be under 200 LOC
+1. **P1: Complete j≥2 proofs** in Case2_Correct.lean (h4_in_B₁, h0_or_tailB, g₂(y)≠6, k≥1 case)
+2. **P1: Complete j≤-3 proof** in Case2_Correct.lean
+3. **P1: Wire case2_correct** into main Lemma11_5.lean
+4. **P0: ELIMINATE THE 5 AXIOMS** in Case1FixedPointLemmas.lean
+5. **P2: Eliminate sorries in SymmetricMain.lean** (k≥2, m≥2 cases)
 
 ---
 
 ## Session Close Checklist
 - [x] Build passes
 - [x] HANDOFF.md updated with full details
-- [x] Changes committed and pushed
+- [ ] Changes committed and pushed

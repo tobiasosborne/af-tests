@@ -133,6 +133,39 @@ theorem g₁_inv_sq_elem3_eq_elem0 :
   have h : g₁ n k m (⟨0, by omega⟩ : Omega n k m) = ⟨5, by omega⟩ := g₁_elem0_eq_elem5
   simp [← h]
 
+/-- g₁⁻¹ maps 5 to 0 (since g₁(0) = 5) -/
+theorem g₁_inv_elem5_eq_elem0 : (g₁ n k m)⁻¹ (⟨5, by omega⟩ : Omega n k m) = ⟨0, by omega⟩ := by
+  have h : g₁ n k m (⟨0, by omega⟩ : Omega n k m) = ⟨5, by omega⟩ := g₁_elem0_eq_elem5
+  simp [← h]
+
+/-- g₁² maps 5 to 2 (since g₁(5) = 3 and g₁(3) = 2) -/
+theorem g₁_sq_elem5_eq_elem2 :
+    g₁ n k m (g₁ n k m (⟨5, by omega⟩ : Omega n k m)) = ⟨2, by omega⟩ := by
+  rw [g₁_elem5_eq_elem3, g₁_elem3_eq_elem2]
+
+/-- g₁ maps 2 to the first tailA element (index 6) when n ≥ 1 -/
+theorem g₁_elem2_eq_elem6 (hn : n ≥ 1) :
+    g₁ n k m (⟨2, by omega⟩ : Omega n k m) = ⟨6, by omega⟩ := by
+  unfold g₁
+  have hNodup := g₁_list_nodup n k m
+  have h_len := g₁_cycle_length n k m
+  have h_3_lt : 3 < (g₁CoreList n k m ++ tailAList n k m).length := by rw [h_len]; omega
+  have h_idx : (g₁CoreList n k m ++ tailAList n k m)[3]'h_3_lt =
+      (⟨2, by omega⟩ : Omega n k m) := by simp [g₁CoreList]
+  rw [← h_idx, List.formPerm_apply_getElem _ hNodup 3 h_3_lt]
+  simp only [h_len]
+  have h_mod : (3 + 1) % (4 + n) = 4 := Nat.mod_eq_of_lt (by omega)
+  simp only [h_mod]
+  have h_core_len : (g₁CoreList n k m).length = 4 := by simp [g₁CoreList]
+  rw [List.getElem_append_right (by rw [h_core_len] : (g₁CoreList n k m).length ≤ 4)]
+  simp only [h_core_len, tailAList, List.getElem_map, List.getElem_finRange, Fin.ext_iff,
+    Nat.sub_self]
+  simp only [Fin.coe_cast, Fin.val_mk, add_zero]
+
+/-- Element 6 is the first tailA element when n ≥ 1 -/
+theorem elem6_is_tailA (hn : n ≥ 1) : isTailA (⟨6, by omega⟩ : Omega n k m) := by
+  simp only [isTailA]; omega
+
 /-- If B is in the orbit of g₂(B₁) and B ⊆ tailA, then B cannot be g₂(B₁) -/
 theorem orbit_first_block_has_core (B₀ : Set (Omega n k m))
     (h3_in : (⟨3, by omega⟩ : Omega n k m) ∈ B₀)
@@ -150,3 +183,99 @@ theorem orbit_second_block_has_core (B₀ : Set (Omega n k m))
     refine ⟨⟨3, by omega⟩, h3_in, g₁_elem3_eq_elem2⟩
   have h2_in_B : (⟨2, by omega⟩ : Omega n k m) ∈ B := hB_eq ▸ h2_in_g₁B₀
   exact elem2_not_tailA (hB_tailA _ h2_in_B)
+
+/-- If 5 ∈ B₀ and B = g₁²(B₀) and B ⊆ tailA, then False (since g₁²(5) = 2) -/
+theorem orbit_third_block_has_core (B₀ : Set (Omega n k m))
+    (h5_in : (⟨5, by omega⟩ : Omega n k m) ∈ B₀)
+    (B : Set (Omega n k m)) (hB_tailA : ∀ x ∈ B, isTailA x)
+    (hB_eq : B = g₁ n k m '' (g₁ n k m '' B₀)) : False := by
+  have h2_in : (⟨2, by omega⟩ : Omega n k m) ∈ g₁ n k m '' (g₁ n k m '' B₀) := by
+    refine ⟨⟨3, by omega⟩, ⟨⟨5, by omega⟩, h5_in, g₁_elem5_eq_elem3⟩, g₁_elem3_eq_elem2⟩
+  exact elem2_not_tailA (hB_tailA _ (hB_eq ▸ h2_in))
+
+/-- g₂ maps 4 to 0 (when k = 0) -/
+theorem g₂_elem4_eq_elem0 (hk : k = 0) :
+    g₂ n k m (⟨4, by omega⟩ : Omega n k m) = ⟨0, by omega⟩ := by
+  subst hk
+  unfold g₂
+  have hNodup := g₂_list_nodup n 0 m
+  have h_len := g₂_cycle_length n 0 m
+  have h_2_lt : 2 < (g₂CoreList n 0 m ++ tailBList n 0 m).length := by rw [h_len]; omega
+  have h_idx : (g₂CoreList n 0 m ++ tailBList n 0 m)[2]'h_2_lt =
+      (⟨4, by omega⟩ : Omega n 0 m) := by simp [g₂CoreList]
+  rw [← h_idx, List.formPerm_apply_getElem _ hNodup 2 h_2_lt]
+  simp only [h_len]
+  have h_mod : (2 + 1) % (4 + 0) = 3 := by omega
+  simp only [h_mod]
+  have h_core_len : (g₂CoreList n 0 m).length = 4 := by simp [g₂CoreList]
+  rw [List.getElem_append_left (by rw [h_core_len]; omega : 3 < (g₂CoreList n 0 m).length)]
+  simp [g₂CoreList]
+
+/-- g₁⁻¹ image of a set containing 5 has 0 (since g₁⁻¹(5) = 0) -/
+theorem g₁_inv_image_has_elem0 (B₀ : Set (Omega n k m))
+    (h5_in : (⟨5, by omega⟩ : Omega n k m) ∈ B₀)
+    (B : Set (Omega n k m)) (hB_tailA : ∀ x ∈ B, isTailA x)
+    (hB_eq : B = (g₁ n k m).symm '' B₀) : False := by
+  have h0_in : (⟨0, by omega⟩ : Omega n k m) ∈ (g₁ n k m).symm '' B₀ := by
+    refine ⟨⟨5, by omega⟩, h5_in, ?_⟩
+    exact g₁_inv_elem5_eq_elem0
+  exact elem0_not_tailA (hB_tailA _ (hB_eq ▸ h0_in))
+
+/-- Element 1 is not in tailA -/
+theorem elem1_not_tailA : ¬isTailA (⟨1, by omega⟩ : Omega n k m) := by simp [isTailA]
+
+/-- g₁ fixes all tailC elements -/
+theorem g₁_fixes_tailC (x : Omega n k m) (hx : isTailC x) : g₁ n k m x = x := by
+  simp only [isTailC] at hx
+  apply List.formPerm_apply_of_notMem
+  intro hmem
+  simp only [List.mem_append, g₁CoreList, tailAList, List.mem_cons, List.mem_map,
+    List.mem_finRange, List.not_mem_nil, or_false] at hmem
+  rcases hmem with h | h
+  · rcases h with h | h | h | h <;> simp only [Fin.ext_iff] at h <;> omega
+  · obtain ⟨j, _, hj⟩ := h; simp only [Fin.ext_iff] at hj; have := j.isLt; omega
+
+/-- g₂ fixes all tailC elements -/
+theorem g₂_fixes_tailC (x : Omega n k m) (hx : isTailC x) : g₂ n k m x = x := by
+  simp only [isTailC] at hx
+  apply List.formPerm_apply_of_notMem
+  intro hmem
+  simp only [List.mem_append, g₂CoreList, tailBList, List.mem_cons, List.mem_map,
+    List.mem_finRange, List.not_mem_nil, or_false] at hmem
+  rcases hmem with h | h
+  · rcases h with h | h | h | h <;> simp only [Fin.ext_iff] at h <;> omega
+  · obtain ⟨j, _, hj⟩ := h; simp only [Fin.ext_iff] at hj; have := j.isLt; omega
+
+/-- g₁ fixes all tailB elements -/
+theorem g₁_fixes_tailB (x : Omega n k m) (hx : isTailB x) : g₁ n k m x = x := by
+  simp only [isTailB] at hx
+  apply List.formPerm_apply_of_notMem
+  intro hmem
+  simp only [List.mem_append, g₁CoreList, tailAList, List.mem_cons, List.mem_map,
+    List.mem_finRange, List.not_mem_nil, or_false] at hmem
+  rcases hmem with h | h
+  · rcases h with h | h | h | h <;> simp only [Fin.ext_iff] at h <;> omega
+  · obtain ⟨j, _, hj⟩ := h; simp only [Fin.ext_iff] at hj; have := j.isLt; omega
+
+/-- tailB ∩ tailA = ∅ -/
+theorem tailB_disjoint_tailA (x : Omega n k m) : isTailB x → ¬isTailA x := by
+  simp only [isTailB, isTailA]; omega
+
+/-- tailC ∩ tailA = ∅ -/
+theorem tailC_disjoint_tailA (x : Omega n k m) : isTailC x → ¬isTailA x := by
+  simp only [isTailC, isTailA]; omega
+
+/-- (g₁^2)⁻¹(3) = 0, using that (g^n)⁻¹ = g⁻¹^n and expanding -/
+theorem g₁_pow2_inv_elem3_eq_elem0 :
+    (g₁ n k m ^ (2 : ℕ))⁻¹ (⟨3, by omega⟩ : Omega n k m) = ⟨0, by omega⟩ := by
+  -- (g^2)⁻¹ = g⁻¹^2 by inv_pow
+  rw [← inv_pow, sq]
+  -- g⁻¹ * g⁻¹ applied to 3
+  simp only [Equiv.Perm.coe_mul, Function.comp_apply]
+  rw [g₁_inv_elem3_eq_elem5, g₁_inv_elem5_eq_elem0]
+
+/-- (g₁^2)⁻¹(3) = 0, stated with Int cast for zpow compatibility -/
+theorem g₁_zpow2_inv_elem3_eq_elem0 :
+    (g₁ n k m ^ ((2 : ℕ) : ℤ))⁻¹ (⟨3, by omega⟩ : Omega n k m) = ⟨0, by omega⟩ := by
+  simp only [zpow_natCast]
+  exact g₁_pow2_inv_elem3_eq_elem0
