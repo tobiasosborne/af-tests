@@ -22,7 +22,7 @@ Since g₁(1) = 1, we have g₁(B₁) = B₁. Then either:
 - B₁ ∩ supp(g₁) = ∅, but then g₂(B₁) contains 3 ∈ supp(g₁), leading to contradiction.
 -/
 
-open Equiv Equiv.Perm Set
+open Equiv Equiv.Perm Set OrbitCore OrbitTailB
 
 variable {n k m : ℕ}
 
@@ -94,15 +94,6 @@ theorem B₁_subset_complement_supp_g₁ (B₁ : Set (Omega n k m))
   · right; right; exact hB
   · exact (hx_not_tailC hC).elim
 
-/-- When orbit index is ≥2, B = g₁^j(g₂(B₁)) contains core elements (not tailA) -/
-theorem orbit_ge2_has_core (hn : n ≥ 1) (j : ℕ) (hj : j ≥ 2) (B₀ : Set (Omega n k m))
-    (h3_in : (⟨3, by omega⟩ : Omega n k m) ∈ B₀)
-    (B : Set (Omega n k m)) (hB_tailA : ∀ x ∈ B, isTailA x)
-    (hB_eq : B = (g₁ n k m ^ j) '' B₀) : False := by
-  -- g₁²(3) = a₁ = 6, so g₁^j(3) is in tailA for j ≥ 2
-  -- But 0 ∈ g₁^{4+n}(B₀) since g₁ has period 4+n, contradicting B ⊆ tailA
-  sorry
-
 /-- When orbit index is -1, B = g₁⁻¹(g₂(B₁)) contains element 5 (core) -/
 theorem orbit_neg1_has_core (B₀ : Set (Omega n k m))
     (h3_in : (⟨3, by omega⟩ : Omega n k m) ∈ B₀)
@@ -121,16 +112,8 @@ theorem orbit_neg2_has_core (B₀ : Set (Omega n k m))
     rw [hB_eq]; exact ⟨⟨3, by omega⟩, h3_in, g₁_pow2_inv_elem3_eq_elem0⟩
   exact elem0_not_tailA (hB_tailA _ h0_in_B)
 
-/-- When orbit index is ≤ -3, partition overlap gives contradiction -/
-theorem orbit_le_neg3_impossible (hn : n ≥ 1) (j : ℕ) (hj : j ≥ 2) (B₀ : Set (Omega n k m))
-    (h3_in : (⟨3, by omega⟩ : Omega n k m) ∈ B₀)
-    (B : Set (Omega n k m)) (hB_tailA : ∀ x ∈ B, isTailA x)
-    (hB_eq : B = (g₁ n k m ^ (j + 1 : ℕ)).symm '' B₀) : False := by
-  -- j ≤ -3 means we're at position -(j'+1) for j' ≥ 2
-  -- The orbit eventually wraps around to cover supp(g₁)
-  sorry
-
-set_option maxHeartbeats 600000 in
+set_option maxHeartbeats 1200000 in
+-- Increased heartbeats for complex nested case analysis in j≥2 and j≤-3 branches
 /-- Case 2: main contradiction via orbit analysis -/
 theorem case2_correct (hn : n ≥ 1) (BS : BlockSystemOn n k m) (hInv : IsHInvariant BS)
     (B : Set (Omega n k m)) (hB : B ∈ BS.blocks)
@@ -337,10 +320,64 @@ theorem case2_correct (hn : n ≥ 1) (BS : BlockSystemOn n k m) (hInv : IsHInvar
             rcases hx_cases with hx1 | hx4 | hxB | hxC
             · -- x.val = 1 contradicts x ≠ 1
               exact (hx_ne_1 (Fin.ext hx1)).elim
-            · -- x.val = 4: Complex block overlap argument (similar to j ≥ 2)
-              -- Uses the fact that g₁⁻²(g₂(B₁)) and g₂(B₁) overlap at 0
-              -- but differ elsewhere, contradicting partition disjointness
-              sorry
+            · -- x.val = 4: block overlap at element 0
+              have hx_eq_4 : x = ⟨4, by omega⟩ := Fin.ext hx4
+              -- g₂(4) = 0 ∈ g₂(B₁)
+              have h0_in_g₂B₁ : (⟨0, by omega⟩ : Omega n k m) ∈ g₂ n k m '' B₁ :=
+                ⟨⟨4, by omega⟩, hx_eq_4 ▸ hx_in_B₁, g₂_elem4_eq_elem0'⟩
+              -- g₁⁻²(3) = 0: need to show 0 ∈ g₁⁻²(g₂(B₁))
+              -- Since g₁²(0) = 3, we have (g₁^2).symm(3) = 0
+              have h0_in_g1inv2 : (⟨0, by omega⟩ : Omega n k m) ∈
+                  (g₁ n k m ^ (2 : ℕ)).symm '' (g₂ n k m '' B₁) := by
+                refine ⟨⟨3, by omega⟩, h3_in_g₂B₁, ?_⟩
+                -- Show (g₁^2).symm(3) = 0, i.e., g₁²(0) = 3
+                rw [Equiv.symm_apply_eq]; exact g₁_pow2_elem0_eq_elem3.symm
+              -- g₁⁻²(g₂(B₁)) is a block (use inv_pow_image_mem_blocks)
+              have hg1inv2_block : (g₁ n k m ^ (2 : ℕ)).symm '' (g₂ n k m '' B₁) ∈ BS.blocks := by
+                have h : (g₁ n k m ^ (2 : ℕ)).symm = (g₁ n k m).symm ^ 2 := by
+                  ext x
+                  simp only [Equiv.Perm.coe_pow, Function.iterate_succ, Function.iterate_zero,
+                    Function.comp_apply, id_eq]
+                  rfl
+                rw [h]
+                exact inv_pow_image_mem_blocks hInv₁ hBlksFin hg₂B₁_block 2
+              -- They share element 0
+              have h0_in_both : (⟨0, by omega⟩ : Omega n k m) ∈
+                  (g₂ n k m '' B₁) ∩ ((g₁ n k m ^ (2 : ℕ)).symm '' (g₂ n k m '' B₁)) :=
+                ⟨h0_in_g₂B₁, h0_in_g1inv2⟩
+              -- If equal, derive 6 ∈ g₂(B₁) (same contradiction as j≥2)
+              have hDiff : g₂ n k m '' B₁ ≠ (g₁ n k m ^ (2 : ℕ)).symm '' (g₂ n k m '' B₁) := by
+                intro heq
+                -- If equal: g₁²(g₂(B₁)) = g₂(B₁)
+                -- 3 ∈ g₂(B₁) → g₁²(3) = 6 ∈ g₁²(g₂(B₁)) = g₂(B₁)
+                have h6_in : (⟨6, by omega⟩ : Omega n k m) ∈ g₂ n k m '' B₁ := by
+                  -- Apply g₁² to both sides of heq: g₂(B₁) = g₁⁻²(g₂(B₁)) → g₁²(g₂(B₁)) = g₂(B₁)
+                  have heq' : (g₁ n k m ^ (2 : ℕ)) '' (g₂ n k m '' B₁) = g₂ n k m '' B₁ := by
+                    conv_lhs => rw [heq]
+                    rw [Equiv.image_symm_image]
+                  rw [← heq']
+                  exact ⟨⟨3, by omega⟩, h3_in_g₂B₁, by
+                    simp only [pow_two, Equiv.Perm.coe_mul, Function.comp_apply]
+                    rw [g₁_elem3_eq_elem2, g₁_elem2_eq_elem6 hn]⟩
+                -- But 6 ∉ g₂(B₁) (same argument as j≥2)
+                obtain ⟨y, hy_in_B₁, hy_g₂⟩ := h6_in
+                have hy_not_supp : y ∉ (g₁ n k m).support :=
+                  Set.disjoint_right.mp hDisj₁ hy_in_B₁
+                have hy_cases := elem_not_in_support_g₁_cases y hy_not_supp
+                rcases hy_cases with hy1 | hy4 | hyB | hyC
+                · have heq : y = ⟨1, by omega⟩ := Fin.ext hy1
+                  rw [heq, g₂_elem1_eq_elem3] at hy_g₂
+                  simp only [Fin.ext_iff] at hy_g₂; omega
+                · have heq : y = ⟨4, by omega⟩ := Fin.ext hy4
+                  rw [heq, g₂_elem4_eq_elem0'] at hy_g₂
+                  simp only [Fin.ext_iff] at hy_g₂; omega
+                · have h_ne := g₂_image_not_6 hn y (Or.inr (Or.inr (Or.inl hyB)))
+                  simp only [Fin.ext_iff] at hy_g₂; omega
+                · have hFix := g₂_fixes_tailC y hyC
+                  rw [hFix] at hy_g₂
+                  simp only [isTailC, Fin.ext_iff] at hyC hy_g₂; omega
+              -- Different blocks must be disjoint
+              exact Set.disjoint_iff.mp (hDisj hg₂B₁_block hg1inv2_block hDiff) h0_in_both
             · -- x ∈ tailB: g₂(x) stays fixed by g₁ʲ (even negative), not in tailA
               have hg₂x_in_g₂B₁ : g₂ n k m x ∈ g₂ n k m '' B₁ := ⟨x, hx_in_B₁, rfl⟩
               rcases g₂_tailB_to_tailB_or_1 x hxB with hg₂x_tailB | hg₂x_eq_1
