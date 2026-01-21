@@ -140,3 +140,8 @@ theorem elem5_not_in_support_g₂ :
   simp only [g₂, Equiv.Perm.mem_support, ne_eq, not_not]
   apply List.formPerm_apply_of_not_mem
   exact elem5_not_in_g₂_list
+
+/-- g₂ fixes element 5 -/
+theorem g₂_fixes_elem5 :
+    g₂ n k m (⟨5, by omega⟩ : Omega n k m) = ⟨5, by omega⟩ := by
+  exact fixed_outside_support _ _ elem5_not_in_support_g₂

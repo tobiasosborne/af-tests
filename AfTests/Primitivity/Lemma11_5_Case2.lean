@@ -1008,20 +1008,20 @@ theorem case2_impossible (hn : n ≥ 1) (B : Set (Omega n k m))
               by_cases hn4 : n = 4
               · -- n = 4: g₁²(a₃) = 0 ∈ B. But 0 ∉ tailA.
                 have hg1_sq_x : g₁ n k m (g₁ n k m x) ∈ B := by
-                  have : (g₁ n k m ^ 2) '' B = B := hEq
-                  rw [pow_two, Equiv.Perm.coe_mul, Set.image_comp] at this
+                  have hEq' := hEq
+                  rw [pow_two, Equiv.Perm.coe_mul, Set.image_comp] at hEq'
                   have hx_in : x ∈ B := hx_in_B
                   have hg₁x_in : g₁ n k m x ∈ g₁ n k m '' B := Set.mem_image_of_mem _ hx_in
                   have hg1_sq_x_in : g₁ n k m (g₁ n k m x) ∈ g₁ n k m '' (g₁ n k m '' B) :=
                     Set.mem_image_of_mem _ hg₁x_in
-                  rw [this] at hg1_sq_x_in
+                  rw [hEq'] at hg1_sq_x_in
                   exact hg1_sq_x_in
                 -- g₁²(x) = g₁²(a₃) = 0 for n = 4.
                 have hg1_sq_x_eq_0 : g₁ n k m (g₁ n k m x) = (⟨0, by omega⟩ : Omega n k m) := by
-                  -- x = a₃ = element 8 for n = 4.
-                  have hx_val : x.val = 8 := by simp only [hk'_def, hk'_eq_2]; omega
+                  -- x = a₃ = element 8 for n = 4. From k' = x.val - 6 and k' = 2.
+                  have hx_val : x.val = 8 := by omega
                   have hx_eq : x = (⟨8, by omega⟩ : Omega n k m) := Fin.ext hx_val
-                  rw [hx_eq]
+                  simp only [hx_eq]
                   -- g₁(8) = 9, g₁(9) = 0 for n = 4.
                   unfold g₁
                   let L := g₁CoreList n k m ++ tailAList n k m
@@ -1034,10 +1034,10 @@ theorem case2_impossible (hn : n ≥ 1) (B : Set (Omega n k m))
                     simp only [L, hn4]
                     exact (AfTests.Transitivity.g₁_list_getElem_tail n k m ⟨2, by omega⟩).symm
                   rw [h8_eq_L6, List.formPerm_apply_getElem _ hnd 6 h6_lt]
-                  have hmod7 : (6 + 1) % (4 + n) = 7 := by rw [hn4]; omega
+                  have hmod7 : (6 + 1) % (4 + n) = 7 := by rw [hn4]
                   simp only [hlen, hmod7]
                   rw [List.formPerm_apply_getElem _ hnd 7 h7_lt]
-                  have hmod0 : (7 + 1) % (4 + n) = 0 := by rw [hn4]; omega
+                  have hmod0 : (7 + 1) % (4 + n) = 0 := by rw [hn4]
                   simp only [hlen, hmod0]
                   simp [L, g₁CoreList]
                 -- 0 ∈ B contradicts B ⊆ tailA.
@@ -1055,19 +1055,19 @@ theorem case2_impossible (hn : n ≥ 1) (B : Set (Omega n k m))
                 -- The orbit of a₁ under g₁² visits core elements eventually.
                 -- Let me just show g₁²(x) ∈ B and iterate.
                 have hg1_sq_x : g₁ n k m (g₁ n k m x) ∈ B := by
-                  have : (g₁ n k m ^ 2) '' B = B := hEq
-                  rw [pow_two, Equiv.Perm.coe_mul, Set.image_comp] at this
+                  have hEq'' := hEq
+                  rw [pow_two, Equiv.Perm.coe_mul, Set.image_comp] at hEq''
                   have hx_in : x ∈ B := hx_in_B
                   have hg₁x_in : g₁ n k m x ∈ g₁ n k m '' B := Set.mem_image_of_mem _ hx_in
                   have hg1_sq_x_in : g₁ n k m (g₁ n k m x) ∈ g₁ n k m '' (g₁ n k m '' B) :=
                     Set.mem_image_of_mem _ hg₁x_in
-                  rw [this] at hg1_sq_x_in
+                  rw [hEq''] at hg1_sq_x_in
                   exact hg1_sq_x_in
                 -- g₁²(x) = g₁²(a₃) = a₅ for n ≥ 5.
                 have hg1_sq_x_eq_a5 : g₁ n k m (g₁ n k m x) = (⟨10, by omega⟩ : Omega n k m) := by
-                  have hx_val : x.val = 8 := by simp only [hk'_def, hk'_eq_2]; omega
+                  have hx_val : x.val = 8 := by omega
                   have hx_eq : x = (⟨8, by omega⟩ : Omega n k m) := Fin.ext hx_val
-                  rw [hx_eq]
+                  simp only [hx_eq]
                   unfold g₁
                   let L := g₁CoreList n k m ++ tailAList n k m
                   have hnd : L.Nodup := g₁_list_nodup n k m
@@ -1079,10 +1079,10 @@ theorem case2_impossible (hn : n ≥ 1) (B : Set (Omega n k m))
                     simp only [L]
                     exact (AfTests.Transitivity.g₁_list_getElem_tail n k m ⟨2, by omega⟩).symm
                   rw [h8_eq_L6, List.formPerm_apply_getElem _ hnd 6 h6_lt]
-                  have hmod7 : (6 + 1) % (4 + n) = 7 := by omega
+                  have hmod7 : (6 + 1) % (4 + n) = 7 := Nat.mod_eq_of_lt (by omega : 7 < 4 + n)
                   simp only [hlen, hmod7]
                   rw [List.formPerm_apply_getElem _ hnd 7 h7_lt]
-                  have hmod8 : (7 + 1) % (4 + n) = 8 := by omega
+                  have hmod8 : (7 + 1) % (4 + n) = 8 := Nat.mod_eq_of_lt (by omega : 8 < 4 + n)
                   simp only [hlen, hmod8]
                   have hL8_eq : L[8]'h8_lt = (⟨10, by omega⟩ : Omega n k m) :=
                     AfTests.Transitivity.g₁_list_getElem_tail n k m ⟨4, by omega⟩
@@ -1107,23 +1107,26 @@ theorem case2_impossible (hn : n ≥ 1) (B : Set (Omega n k m))
                       simp only [L, hn5]
                       exact (AfTests.Transitivity.g₁_list_getElem_tail n k m ⟨4, by omega⟩).symm
                     rw [h8_eq_L8, List.formPerm_apply_getElem _ hnd 8 h8_lt]
-                    have hmod0 : (8 + 1) % (4 + n) = 0 := by rw [hn5]; omega
+                    have hmod0 : (8 + 1) % (4 + n) = 0 := by rw [hn5]
                     simp only [hlen, hn5, hmod0]
                     -- Now goal is g₁(L[0]) = 5. L[0] = 0, g₁(0) = L[1] = 5.
                     rw [List.formPerm_apply_getElem _ hnd 0 h0_lt]
-                    have hmod1 : (0 + 1) % (4 + n) = 1 := by rw [hn5]; omega
-                    simp only [hlen, hn5, hmod1, L, g₁CoreList]
+                    have hmod1 : (0 + 1) % (4 + n) = 1 := by rw [hn5]
+                    have h1_lt : 1 < L.length := by rw [hlen]; omega
+                    have hL1 : L[1] = ⟨5, by omega⟩ := by simp [L, g₁CoreList]
+                    simp only [hlen, hmod1]
+                    exact hL1
                   -- 5 ∈ B since g₁²(a₅) ∈ g₁²(B) = B.
                   have h5_in_B : (⟨5, by omega⟩ : Omega n k m) ∈ B := by
                     have hg1_sq_a5_in : g₁ n k m (g₁ n k m (⟨10, by omega⟩ : Omega n k m)) ∈ B := by
-                      have hEq' : (g₁ n k m ^ 2) '' B = B := hEq
-                      rw [pow_two, Equiv.Perm.coe_mul, Set.image_comp] at hEq'
+                      have hEq''' := hEq
+                      rw [pow_two, Equiv.Perm.coe_mul, Set.image_comp] at hEq'''
                       have h10_in : (⟨10, by omega⟩ : Omega n k m) ∈ B := ha₅_in_B
                       have hg₁_10 : g₁ n k m (⟨10, by omega⟩ : Omega n k m) ∈ g₁ n k m '' B :=
                         Set.mem_image_of_mem _ h10_in
                       have hg1_sq_10 : g₁ n k m (g₁ n k m (⟨10, by omega⟩ : Omega n k m)) ∈
                           g₁ n k m '' (g₁ n k m '' B) := Set.mem_image_of_mem _ hg₁_10
-                      rw [hEq'] at hg1_sq_10; exact hg1_sq_10
+                      rw [hEq'''] at hg1_sq_10; exact hg1_sq_10
                     rw [hg1_sq_a5_eq_5] at hg1_sq_a5_in; exact hg1_sq_a5_in
                   -- 5 ∉ tailA, contradiction.
                   have h5_not_tailA : ¬isTailA (⟨5, by omega⟩ : Omega n k m) := by
@@ -1149,13 +1152,17 @@ theorem case2_impossible (hn : n ≥ 1) (B : Set (Omega n k m))
             have hlen : L.length = 4 + n := g₁_cycle_length n k m
             have hx_idx : x = L[4 + k']'(by rw [hlen]; omega) := by
               simp only [L]
-              have : x.val = 6 + k' := by omega
+              have hx_val_eq : x.val = 6 + k' := by omega
               have hk'_lt : k' < n := hk'_lt_n
               have heq : L[4 + k'] = (⟨6 + k', by omega⟩ : Omega n k m) :=
                 AfTests.Transitivity.g₁_list_getElem_tail n k m ⟨k', hk'_lt⟩
-              rw [heq]; exact Fin.ext this.symm
-            rw [hx_idx, List.formPerm_pow_apply_getElem L hnd n (4 + k') (by rw [hlen]; omega)]
-            have hmod : (4 + k' + n) % (4 + n) = k' := by omega
+              rw [heq]; exact Fin.ext hx_val_eq
+            simp only [hx_idx]
+            rw [List.formPerm_pow_apply_getElem L hnd n (4 + k') (by rw [hlen]; omega)]
+            have hmod : (4 + k' + n) % (4 + n) = k' := by
+              have h1 : 4 + k' + n = (4 + n) + k' := by omega
+              rw [h1, Nat.add_mod_left]
+              exact Nat.mod_eq_of_lt (by omega : k' < 4 + n)
             simp only [hlen, hmod]
             -- L[k'] depends on k': 0 → L[0] = 0, 1 → L[1] = 5, 2 → L[2] = 3, 3 → L[3] = 2, ≥4 → tailA.
             -- Since k' ≠ 2, k' ∈ {0} ∪ {1} ∪ {3} ∪ [4, n).
@@ -1165,13 +1172,13 @@ theorem case2_impossible (hn : n ≥ 1) (B : Set (Omega n k m))
               have hk'_cases : k' = 1 ∨ k' = 3 := by omega
               rcases hk'_cases with hk'_eq_1 | hk'_eq_3
               · -- k' = 1: L[1] = 5
-                left; left
-                subst hk'_eq_1
-                simp [L, g₁CoreList]
+                left; left; simp only [hk'_eq_1, L]
+                rw [List.getElem_append_left (by simp [g₁CoreList])]
+                simp [g₁CoreList]
               · -- k' = 3: L[3] = 2
-                left; right
-                subst hk'_eq_3
-                simp [L, g₁CoreList]
+                left; right; simp only [hk'_eq_3, L, Set.mem_singleton_iff]
+                rw [List.getElem_append_left (by simp [g₁CoreList])]
+                simp [g₁CoreList]
             · -- k' ≥ 4: L[k'] ∈ tailA
               right
               have hL_tailA : L[k']'(by rw [hlen]; omega) ∈ {y : Omega n k m | isTailA y} := by
@@ -1181,24 +1188,31 @@ theorem case2_impossible (hn : n ≥ 1) (B : Set (Omega n k m))
                   have hk'_lt' : k' < 4 + n := by omega
                   rw [List.getElem_append_right (by simp [g₁CoreList]; omega)]
                   simp only [g₁CoreList, List.length_cons, List.length_nil, Nat.add_sub_cancel]
-                  simp only [tailAList, List.getElem_map, List.getElem_finRange, Fin.val_mk]
-                  congr 1; omega
+                  simp only [tailAList, List.getElem_map, List.getElem_finRange]
+                  congr 1
                 rw [heq]; simp only [isTailA, Fin.val_mk]
                 constructor <;> omega
               exact hL_tailA
           -- g₁^n(x) is one of: 5, 2, or a tailA element. All fixed by g₂.
           have hfixed : g₂ n k m ((g₁ n k m ^ n) x) = (g₁ n k m ^ n) x := by
-            rcases hg1_n_x_eq with (rfl | rfl) | hTailA
+            rcases hg1_n_x_eq with (heq5 | heq2) | hTailA
             · -- element 5
-              exact g₂_fixes_elem5
+              rw [heq5]; exact g₂_fixes_elem5
             · -- element 2
-              exact g₂_fixes_elem2
+              rw [heq2]; exact g₂_fixes_elem2
             · -- tailA element
               simp only [Set.mem_setOf_eq, isTailA] at hTailA
               have hy_not_supp : (g₁ n k m ^ n) x ∉ (g₂ n k m).support := by
                 have hi : ((g₁ n k m ^ n) x).val - 6 < n := by omega
+                have hbound : 6 + (((g₁ n k m ^ n) x).val - 6) < 6 + n + k + m := by
+                  have h1 := hTailA.1  -- 6 ≤ ((g₁ n k m ^ n) x).val
+                  have h2 := hTailA.2  -- ((g₁ n k m ^ n) x).val < 6 + n
+                  calc 6 + (((g₁ n k m ^ n) x).val - 6)
+                      = ((g₁ n k m ^ n) x).val := Nat.add_sub_cancel' h1
+                    _ < 6 + n := h2
+                    _ ≤ 6 + n + k + m := by omega
                 have heq : (g₁ n k m ^ n) x = (⟨6 + (((g₁ n k m ^ n) x).val - 6),
-                    by omega⟩ : Omega n k m) := by ext; omega
+                    hbound⟩ : Omega n k m) := by ext; simp only [Fin.val_mk]; omega
                 rw [heq]
                 exact tailA_not_in_support_g₂ (by omega : n ≥ 1) ⟨((g₁ n k m ^ n) x).val - 6, hi⟩
               exact Equiv.Perm.notMem_support.mp hy_not_supp
