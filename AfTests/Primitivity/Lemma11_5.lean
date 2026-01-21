@@ -105,7 +105,14 @@ theorem lemma11_5_no_nontrivial_blocks (h : n + k + m ≥ 1) :
       have hBlock : ∀ j : ℕ, (g₁ n k m ^ j) '' B = B ∨ Disjoint ((g₁ n k m ^ j) '' B) B :=
         fun j => perm_pow_image_preserves_or_disjoint (g₁ n k m) B BS.blocks hDisj hB_mem
           (hInv₁) j
-      exact case2_impossible hn B hg₁_disj ha₁_in_B hg₂_pres hg₃_pres hBlock hSize_lower
+      -- Block dichotomy for g₂ on g₁-orbit blocks
+      have hBlock₂_orbit : ∀ j : ℕ, g₂ n k m '' ((g₁ n k m ^ j) '' B) = (g₁ n k m ^ j) '' B ∨
+          Disjoint (g₂ n k m '' ((g₁ n k m ^ j) '' B)) ((g₁ n k m ^ j) '' B) := fun j => by
+        have hB'_mem : (g₁ n k m ^ j) '' B ∈ BS.blocks :=
+          blockSystemInvariant_pow (g₁ n k m) BS.blocks hInv₁ j B hB_mem
+        exact perm_image_preserves_or_disjoint (g₂ n k m) ((g₁ n k m ^ j) '' B) BS.blocks
+          hDisj hB'_mem (hInv₂ _ hB'_mem)
+      exact case2_impossible hn B hg₁_disj ha₁_in_B hg₂_pres hg₃_pres hBlock hBlock₂_orbit hSize_lower
   · -- Case: n = 0, so k ≥ 1 or m ≥ 1. By symmetry, similar argument applies.
     push_neg at hn
     have hn0 : n = 0 := Nat.lt_one_iff.mp hn

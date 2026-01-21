@@ -230,3 +230,4 @@ theorem case2_C_subset_tailC (B : Set (Omega n k m))
       rw [← hEq]; exact tailB_in_support_g₂ ⟨x.val - 6 - n, hi⟩
     exact (Set.disjoint_iff.mp hDisj₂ ⟨h_in_supp, hx⟩).elim
   · exact hC
+
