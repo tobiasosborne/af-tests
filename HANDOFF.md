@@ -117,33 +117,34 @@ Case 2: g₁(B) ≠ B
 
 ## Current State (Session 44, continued)
 
-### Build Status: BROKEN (6 missing functions)
+### Build Status: ✅ PASSING
 
 ### Completed This Session
-- ✅ `case2_forces_stabilization_B` - Added to SymmetricCases.lean
-- ✅ `case2_forces_stabilization_C` - Added to SymmetricCases.lean
+- ✅ `case2_forces_stabilization_B` - Fixed-point argument (NL Node 1.9.1)
+- ✅ `case2_forces_stabilization_C` - Fixed-point argument (NL Node 1.9.1)
+- ✅ `case1b_impossible_g₃` - elem 0 ∈ supp(g₂) fixed by g₃ (NL Node 1.7/1.8)
+- ✅ `case1b_impossible_g₁_from_g₂` - elem 4 ∈ supp(g₂) fixed by g₁ (NL Node 1.9.6)
+- ✅ `case1b_impossible_g₁` - elem 1 ∈ supp(g₃) fixed by g₁ (NL Node 1.9.6)
+- ✅ `case1b_impossible_g₂_from_g₃` - elem 2 ∈ supp(g₃) fixed by g₂ (NL Node 1.9.6)
+- ⏳ `case2_impossible_B` - Stub with sorry (needs orbit analysis)
+- ⏳ `case2_impossible_C` - Stub with sorry (needs orbit analysis)
 
-### Still Missing (build errors)
-1. `case1b_impossible_g₃` - NL proof Node 1.7/1.8: fixed point on elem 0
-2. `case1b_impossible_g₁_from_g₂` - NL proof Node 1.9.6 (symmetric)
-3. `case1b_impossible_g₁` - NL proof Node 1.9.6 (symmetric for m≥1)
-4. `case1b_impossible_g₂_from_g₃` - NL proof Node 1.9.6 (symmetric)
-5. `case2_impossible_B` - Full Case 2 contradiction for k≥1
-6. `case2_impossible_C` - Full Case 2 contradiction for m≥1
+### Sorry Count: 3
+All in Case 2 impossibility theorems (need orbit analysis from NL Node 1.9.5):
+1. `case2_impossible` in `Lemma11_5_Case2.lean:170`
+2. `case2_impossible_B` in `Lemma11_5_SymmetricCases.lean:335`
+3. `case2_impossible_C` in `Lemma11_5_SymmetricCases.lean:362`
 
-### Sorry Count: 1
-- `case2_impossible` in `Lemma11_5_Case2.lean:170`
-
-### NL Proof Structure for Remaining Work
-
-**Case 1b impossibility (Node 1.9.6):**
-- g₁(B) = B → supp(g₁) ⊆ B → elements {3, 6, a_i} in B
-- These elements NOT in supp(g₂)
-- If g₂(B) ≠ B (disjoint), then 3 ∈ B ∩ g₂(B) → CONTRADICTION
+### NL Proof Structure for Remaining Sorries
 
 **Case 2 impossibility (Node 1.9.5):**
-- g₁(B) ≠ B, but g₂(B) = B and g₃(B) = B (forced)
-- Apply Lemma 11.2: supp(g₂) ⊆ B and supp(g₃) ⊆ B
-- Combined with block orbit structure → |B| = N contradiction
+- g₁(B) ≠ B (or g₂/g₃ for symmetric cases), but other generators preserve B (forced)
+- Apply Lemma 11.2: if B intersects a support, that support ⊆ B
+- Use block dichotomy for powers: `hBlock : ∀ j, gᵢʲ(B) = B ∨ Disjoint (gᵢʲ(B)) B`
+- Orbit analysis shows elements must end up in B, forcing |B| = N
 
-**DO NOT use orbit arguments. Follow the NL proof EXACTLY.**
+**Key insight from NL proof:** The orbit of B under the non-preserving generator
+partitions Ω. Fixed points of other generators in different orbit blocks create
+the contradiction.
+
+**DO NOT invent new strategies. Follow NL proof Node 1.9.5 EXACTLY.**
