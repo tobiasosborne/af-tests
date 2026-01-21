@@ -120,3 +120,23 @@ theorem elem2_in_support_g₁ (hn : n ≥ 1) :
 theorem g₃_fixes_tailA (hn : n ≥ 1) (i : Fin n) :
     g₃ n k m ⟨6 + i.val, by omega⟩ = ⟨6 + i.val, by omega⟩ := by
   exact fixed_outside_support _ _ (tailA_not_in_support_g₃ hn i)
+
+/-- Element 5 is not in the g₂ cycle list -/
+theorem elem5_not_in_g₂_list :
+    (⟨5, by omega⟩ : Omega n k m) ∉ g₂CoreList n k m ++ tailBList n k m := by
+  intro h
+  simp only [List.mem_append, g₂CoreList, tailBList, List.mem_cons,
+    List.mem_map, List.mem_finRange, List.not_mem_nil, or_false] at h
+  rcases h with h | h
+  · rcases h with h | h | h | h
+    all_goals simp only [Fin.ext_iff] at h; omega
+  · obtain ⟨j, _, hj⟩ := h
+    simp only [Fin.ext_iff] at hj
+    omega
+
+/-- Element 5 is not in supp(g₂) -/
+theorem elem5_not_in_support_g₂ :
+    (⟨5, by omega⟩ : Omega n k m) ∉ (g₂ n k m).support := by
+  simp only [g₂, Equiv.Perm.mem_support, ne_eq, not_not]
+  apply List.formPerm_apply_of_not_mem
+  exact elem5_not_in_g₂_list

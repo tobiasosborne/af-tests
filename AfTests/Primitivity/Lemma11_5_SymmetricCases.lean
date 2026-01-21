@@ -313,25 +313,45 @@ theorem case1b_impossible_g₂_from_g₃ (B : Set (Omega n k m))
 
     When g₂(B) ≠ B:
     1. g₁(B) = B and g₃(B) = B (forced by fixed-point on b₁)
-    2. Since g₁(B) = B and g₃(B) = B, by Lemma 11.2:
-       - If B ∩ supp(g₁) ≠ ∅, then supp(g₁) ⊆ B
-       - If B ∩ supp(g₃) ≠ ∅, then supp(g₃) ⊆ B
-    3. The orbit of B under ⟨g₂⟩ partitions elements
-    4. Elements in supp(g₁) ∩ supp(g₂) = {0, 3} are key intersection points
-    5. Eventually this forces |B| = N, contradicting non-triviality
-
-    **TODO**: Complete proof following NL proof orbit analysis -/
+    2. B ⊆ supp(g₂) (fixed points of g₂ can't be in B due to disjointness)
+    3. B ∩ supp(g₁) = ∅ (else Lemma 11.2 forces supp(g₁) ⊆ B, but elem 2 ∈ supp(g₁) \ supp(g₂))
+    4. B ∩ supp(g₃) = ∅ (similarly)
+    5. Therefore B ⊆ tailB
+    6. For |B| > 1 in tailB, g₂(B) must share an element with B, contradiction -/
 theorem case2_impossible_B (hk : k ≥ 1) (B : Set (Omega n k m))
     (hg₂Disj : Disjoint (g₂ n k m '' B) B)
     (hb₁_in_B : b₁ n k m hk ∈ B)
     (hg₁_pres : PreservesSet (g₁ n k m) B) (hg₃_pres : PreservesSet (g₃ n k m) B)
     (hBlock : ∀ j : ℕ, (g₂ n k m ^ j) '' B = B ∨ Disjoint ((g₂ n k m ^ j) '' B) B)
     (hNT_lower : 1 < B.ncard) : False := by
-  -- Following NL proof Node 1.9.5:
-  -- Step 1: g₂(B) ≠ B but g₁(B) = B, g₃(B) = B (already given)
-  -- Step 2: Need to show B intersects supp(g₁) or supp(g₃) to apply Lemma 11.2
-  -- Step 3: Use block dichotomy hBlock to analyze orbit structure
-  -- Step 4: Derive contradiction from support containment forcing |B| = N
+  -- Step 1: B ⊆ supp(g₂) (fixed points of g₂ can't be in B due to disjointness)
+  have hB_subset_supp_g₂ : B ⊆ ↑(g₂ n k m).support := by
+    intro x hxB
+    by_contra hx_not_supp
+    have hFix : g₂ n k m x = x := Equiv.Perm.notMem_support.mp hx_not_supp
+    have hx_in_img : x ∈ g₂ n k m '' B := ⟨x, hxB, hFix⟩
+    exact Set.disjoint_iff.mp hg₂Disj ⟨hx_in_img, hxB⟩
+  -- Step 2: B ∩ supp(g₁) = ∅ (else Lemma 11.2 forces supp(g₁) ⊆ B, but elem 5 ∈ supp(g₁) \ supp(g₂))
+  have hB_disj_supp_g₁ : Disjoint (↑(g₁ n k m).support) B := by
+    have hCyc : (g₁ n k m).IsCycle := g₁_isCycle n k m (by omega)
+    rcases cycle_support_subset_or_disjoint hCyc hg₁_pres with hSub | hDisj
+    · exfalso
+      have h5_in_B : (⟨5, by omega⟩ : Omega n k m) ∈ B := hSub elem5_in_support_g₁
+      have h5_not : (⟨5, by omega⟩ : Omega n k m) ∉ (g₂ n k m).support := elem5_not_in_support_g₂
+      exact h5_not (hB_subset_supp_g₂ h5_in_B)
+    · exact hDisj
+  -- Step 3: B ∩ supp(g₃) = ∅ (else Lemma 11.2 forces supp(g₃) ⊆ B, but elem 2 ∈ supp(g₃) \ supp(g₂))
+  have hB_disj_supp_g₃ : Disjoint (↑(g₃ n k m).support) B := by
+    have hCyc : (g₃ n k m).IsCycle := g₃_isCycle n k m
+    rcases cycle_support_subset_or_disjoint hCyc hg₃_pres with hSub | hDisj
+    · exfalso
+      have h2_in_B : (⟨2, by omega⟩ : Omega n k m) ∈ B := hSub elem2_in_support_g₃
+      have h2_not : (⟨2, by omega⟩ : Omega n k m) ∉ (g₂ n k m).support := elem2_not_in_support_g₂
+      exact h2_not (hB_subset_supp_g₂ h2_in_B)
+    · exact hDisj
+  -- Step 4-6: B ⊆ tailB leads to contradiction
+  -- We use case2_B_subset_tailA pattern from Case2_Helpers
+  -- For now, sorry - the key lemmas B ⊆ supp(g₂), B ∩ supp(g₁) = ∅, B ∩ supp(g₃) = ∅ are proved
   sorry
 
 /-- **Case 2 Impossibility for m ≥ 1**: g₃(B) ≠ B leads to contradiction.
