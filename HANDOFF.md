@@ -1,34 +1,35 @@
-# Handoff: 2026-01-21 (Session 43)
+# Handoff: 2026-01-21 (Session 44)
 
 ## Completed This Session
 
-### Fixed case2_impossible_B Proof (k≥2 case)
-- Fixed type mismatch in `blockSystemInvariant_pow` by using `pow_succ'` instead of `pow_succ`
-- `pow_succ'` gives `σ^{j'+1} = σ * σ^{j'}` (composition order matches proof structure)
+### Proved Two Orbit Computation Sorries
+- **`g₂_pow_b₁_eq_tailB_elem`**: Proved using `List.formPerm_pow_apply_getElem`
+  - Shows g₂^j(b₁) = 6+n+j for j < k
+  - Key insight: Element at index 4+j in g₂ list is tailB[j]
 
-### Added TailC Helpers (Symmetric to TailB)
-- Created `Lemma11_5_OrbitHelpers_TailC.lean` with:
-  - `g₃_c₁_eq_c₁_succ`: g₃(c₁) = next tailC element
-  - `g₃_pow_c₁_eq_tailC_elem`: g₃^j(c₁) = 6+n+k+j (with sorry)
-  - `g₃_tailC_to_tailC_or_2`: g₃ maps tailC to tailC or element 2
-  - `g₃_pow_orbit_hits_core`: Eventually exits tailC (with sorry)
+- **`g₃_pow_c₁_eq_tailC_elem`**: Symmetric proof for g₃
+  - Shows g₃^j(c₁) = 6+n+k+j for j < m
 
-### Added g₃ Element Mappings
-- Added to `Lemma11_5_CycleSupport.lean`:
-  - `g₃_elem2_eq_elem4`: g₃(2) = 4
-  - `g₃_elem4_eq_elem5`: g₃(4) = 5
-  - `g₃_elem5_eq_elem1`: g₃(5) = 1
+### Critical Discovery: FALSE THEOREMS
 
-### Completed case2_impossible_C Proof (m≥2 case)
-- Added block hypothesis: `hBlock : ∀ j : ℕ, (g₃ n k m ^ j) '' B = B ∨ Disjoint ...`
-- Implemented full orbit analysis proof (mirrors k≥2 case)
-- Updated call site in `Lemma11_5.lean` with block dichotomy
+**`g₂_pow_orbit_hits_core` and `g₃_pow_orbit_hits_core` ARE FALSE AS STATED!**
 
-### Deleted False Theorem
-- Removed `case2_B_ncard_le_one` from `Lemma11_5_Case2_Helpers.lean`
-- This theorem was FALSE for n ≥ 3 (counterexample: B = {6, 8})
-- Replaced usage in `case2_impossible` with honest sorry + TODO note
-- The fix requires adding block hypothesis (same pattern as B and C cases)
+**Counterexample** for j=6, k=8:
+- g₂ cycle length = 12
+- gcd(6, 12) = 6
+- Orbit of position 4 under +6 (mod 12) = {4, 10}
+- Both positions 4 and 10 are in tailB (positions 4-11 for k=8)
+- **The orbit NEVER exits tailB!**
+
+The theorem claims `∃ r ≥ 1, g₂^{rj}(b₁) ∉ tailB`, but for j=6, k=8 the orbit stays at {6+n, 6+n+6} forever.
+
+**Root Cause**: When gcd(j, 4+k) ≥ 5, the orbit from position 4 only visits positions ≡ 4 (mod gcd), and none of {0,1,2,3} satisfy this.
+
+**The theorem IS true when gcd(j, 4+k) ≤ 4** because:
+- gcd=1: 3 ≡ 4 (mod 1) ✓
+- gcd=2: 2 ≡ 4 (mod 2) ✓
+- gcd=3: 1 ≡ 4 (mod 3) ✓
+- gcd=4: 0 ≡ 4 (mod 4) ✓
 
 ---
 
@@ -36,71 +37,68 @@
 
 ### Build Status: PASSING ✓
 
-### Axiom Count: 0 (all eliminated!)
+### Axiom Count: 0
 
-### Sorry Count: 5 total (all legitimate, no false theorems)
+### Sorry Count: 5 total
 | Location | Description | Status |
 |----------|-------------|--------|
-| Lemma11_5_OrbitHelpers_TailB.lean:46 | `g₂_pow_b₁_eq_tailB_elem` | Orbit computation |
-| Lemma11_5_OrbitHelpers_TailB.lean:107 | `g₂_pow_orbit_hits_core` | Orbit computation |
-| Lemma11_5_OrbitHelpers_TailC.lean:46 | `g₃_pow_c₁_eq_tailC_elem` | Orbit computation |
-| Lemma11_5_OrbitHelpers_TailC.lean:104 | `g₃_pow_orbit_hits_core` | Orbit computation |
+| Lemma11_5_OrbitHelpers_TailB.lean:143 | `g₂_pow_orbit_hits_core` | **FALSE - needs redesign** |
+| Lemma11_5_OrbitHelpers_TailC.lean:140 | `g₃_pow_orbit_hits_core` | **FALSE - needs redesign** |
 | Lemma11_5_Case2.lean:170 | `case2_impossible` | Needs block hypothesis |
 
 ---
 
 ## Key Technical Details
 
-### Block Dichotomy Extension
-The key insight was extending block system invariance to powers:
-```lean
-theorem perm_pow_image_preserves_or_disjoint {α : Type*}
-    (σ : Perm α) (B : Set α) (Blocks : Set (Set α))
-    (hDisj : Blocks.PairwiseDisjoint id) (hB : B ∈ Blocks)
-    (hInv : ∀ B ∈ Blocks, σ '' B ∈ Blocks) (j : ℕ) :
-    (σ ^ j) '' B = B ∨ Disjoint ((σ ^ j) '' B) B
-```
+### Why This Breaks the Proof
 
-This allows proving the orbit eventually exits tailB/tailC using block preservation.
+The proof strategy in `case2_impossible_B` (Lemma11_5_SymmetricMain.lean:136-193):
+1. Finds second element x ∈ B at distance j from b₁
+2. Shows g₂^j(B) = B using block property
+3. Iterates: g₂^{rj}(B) = B for all r
+4. Claims orbit eventually exits tailB ← **FALSE for gcd(j, 4+k) ≥ 5**
 
-### Remaining Sorries (Orbit Computation)
-The 4 non-false sorries are all about computing `formPerm_pow_apply_getElem`:
-- Given element at index i in cycle list
-- After j applications, element is at index (i + j) mod cycle_length
-- Need to prove this lands at specific position
+### Potential Fixes
+
+**Option 1**: Add hypothesis `Nat.gcd j (4 + k) ≤ 4`
+- Need to prove this holds in the call context (may not always be true)
+
+**Option 2**: Different proof strategy
+- Instead of orbit argument, use block system partition properties
+- The g₂ orbit of B visits (4+k)/|B| blocks total
+- Only k/|B| blocks can fit entirely in tailB
+- Since (4+k)/|B| > k/|B|, some block must intersect core
+- Derive contradiction from H-invariance constraints
+
+**Option 3**: Restrict to specific n,k,m values
+- The counterexamples require k ≥ 6 (for j=5) or k ≥ 8 (for j=6)
+- Small k cases might be handled separately
 
 ---
 
 ## Files Modified This Session
-- `Lemma11_5_Cases.lean` (fixed `pow_succ` → `pow_succ'`)
-- `Lemma11_5_CycleSupport.lean` (added g₃ element mappings)
-- `Lemma11_5_OrbitHelpers_TailC.lean` (NEW - symmetric to TailB)
-- `Lemma11_5_OrbitHelpers.lean` (import TailC)
-- `Lemma11_5_SymmetricMain.lean` (added hBlock, implemented m≥2 proof)
-- `Lemma11_5.lean` (updated call site for case2_impossible_C)
+- `Lemma11_5_OrbitHelpers_TailB.lean` (proved one sorry, documented false theorem)
+- `Lemma11_5_OrbitHelpers_TailC.lean` (proved one sorry, documented false theorem)
 
 ---
 
 ## Next Session Priority
 
-### Task 1: Fill Orbit Computation Sorries (P2)
-The 4 remaining sorries all have the same structure:
-1. `g₂_pow_b₁_eq_tailB_elem`: Prove g₂^j maps b₁ to position j in tailB
-2. `g₂_pow_orbit_hits_core`: Prove g₂^{r*j} eventually exits tailB
-3. `g₃_pow_c₁_eq_tailC_elem`: Same for g₃ and tailC
-4. `g₃_pow_orbit_hits_core`: Same for g₃ and tailC
+### Task 1: Fix Case 2 Proof Strategy (P0)
+The orbit argument doesn't work. Need to either:
+1. Add gcd hypothesis and verify it's satisfied
+2. Find alternative proof that B ⊆ tailB leads to contradiction
+3. Use block counting argument (see Option 2 above)
 
-Key mathlib lemma: `List.formPerm_pow_apply_getElem`
-
-### Task 2: Refactor Large Files (P3)
-Files exceeding 200 LOC limit:
-- `Lemma11_5_Case2_Correct.lean` (~400 lines)
-- `Lemma11_5_CycleSupport.lean` (now 220 lines)
+### Task 2: Understand Block System Constraints
+Key question: Can B = {6+n, 6+n+6} actually exist in a valid H-invariant block system?
+- Need to analyze if the counterexample scenario is actually reachable
+- The block system must partition ALL of Ω, not just tailB
 
 ---
 
 ## Session Close Checklist
 - [x] Build passes
 - [x] HANDOFF.md updated
-- [x] Changes committed and pushed
-- [x] Beads synced
+- [ ] Changes committed and pushed
+- [ ] Beads synced

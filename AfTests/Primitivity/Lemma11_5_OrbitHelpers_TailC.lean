@@ -42,8 +42,29 @@ theorem g₁_zpow_fixes_tailC (j : ℤ) (x : Omega n k m) (hx : isTailC x) :
 /-- g₃^j(c₁) = 6+n+k+j when j < m -/
 theorem g₃_pow_c₁_eq_tailC_elem (hm : m ≥ 1) (hm2 : m ≥ 2) (j : Fin m) (hj : j.val > 0) :
     (g₃ n k m ^ j.val) (⟨6 + n + k, by omega⟩ : Omega n k m) = ⟨6 + n + k + j.val, by omega⟩ := by
-  -- Proof uses formPerm_pow_apply_getElem with index computation
-  sorry
+  -- Element 6+n+k is at index 4 in the g₃ list (first tailC element)
+  unfold g₃
+  have hNodup := g₃_list_nodup n k m
+  have h_len := g₃_cycle_length n k m
+  have h_core_len : (g₃CoreList n k m).length = 4 := by simp [g₃CoreList]
+  have h_4_lt : 4 < (g₃CoreList n k m ++ tailCList n k m).length := by rw [h_len]; omega
+  have h_idx : (g₃CoreList n k m ++ tailCList n k m)[4]'h_4_lt =
+      (⟨6 + n + k, by omega⟩ : Omega n k m) := by
+    rw [List.getElem_append_right (by rw [h_core_len] : (g₃CoreList n k m).length ≤ 4)]
+    simp only [h_core_len, Nat.sub_self, tailCList]
+    simp [List.getElem_map, List.getElem_finRange]
+  -- Apply formPerm_pow_apply_getElem
+  rw [← h_idx, List.formPerm_pow_apply_getElem _ hNodup j.val 4 h_4_lt]
+  -- Compute the modular arithmetic: (4 + j) < 4 + m, so no wraparound
+  simp only [h_len]
+  have hj_lt := j.isLt
+  have h_mod : (4 + j.val) % (4 + m) = 4 + j.val := Nat.mod_eq_of_lt (by omega)
+  simp only [h_mod]
+  -- Show the element at index (4+j) is 6+n+k+j
+  have h_4j_lt : 4 + j.val < (g₃CoreList n k m ++ tailCList n k m).length := by rw [h_len]; omega
+  rw [List.getElem_append_right (by rw [h_core_len]; omega : (g₃CoreList n k m).length ≤ 4 + j.val)]
+  simp only [h_core_len, tailCList]
+  simp [List.getElem_map, List.getElem_finRange]
 
 /-- g₃(c₁) = c₂ (next tailC element) when m ≥ 2 -/
 theorem g₃_c₁_eq_c₁_succ (hm : m ≥ 1) (hm2 : m ≥ 2) :
@@ -95,12 +116,27 @@ theorem g₃_tailC_not_tailA (x : Omega n k m) (hx : isTailC x) : ¬isTailA (g�
   · exact tailC_not_tailA _ hTailC
   · rw [h2]; exact elem2_not_tailA
 
-/-- The orbit of c₁ under g₃^j eventually exits tailC for j ≥ 2 -/
+/-- **WARNING: THIS THEOREM IS FALSE AS STATED**
+
+The orbit of c₁ under g₃^j eventually exits tailC for j ≥ 2.
+
+**Counterexample**: Same pattern as TailB. For j=6, m=8:
+- g₃ cycle length = 12
+- gcd(6, 12) = 6
+- Orbit of position 4 under +6 (mod 12) = {4, 10}
+- Both positions are in tailC (positions 4-11)
+- The orbit NEVER exits tailC!
+
+**The theorem is true when gcd(j, 4+m) ≤ 4**.
+
+**TODO**: Either:
+1. Add hypothesis `Nat.gcd j (4 + m) ≤ 4`, or
+2. Revise proof strategy to avoid this theorem entirely.
+-/
 theorem g₃_pow_orbit_hits_core (hm : m ≥ 1) (hm2 : m ≥ 2) (j : ℕ) (hj : j ≥ 2) (hjm : j < m) :
     ∃ r : ℕ, r ≥ 1 ∧ ¬isTailC ((g₃ n k m ^ (r * j)) (⟨6 + n + k, by omega⟩ : Omega n k m)) := by
-  -- The g₃ cycle has length 4 + m
-  -- Starting from position 4 (element 6+n+k), after r*j steps we're at position (4 + r*j) mod (4+m)
-  -- Eventually reaches position 0 (element 2) which is not in tailC
+  -- THEOREM IS FALSE - see docstring above
+  -- Proof would require additional hypothesis: Nat.gcd j (4 + m) ≤ 4
   sorry
 
 end OrbitTailC

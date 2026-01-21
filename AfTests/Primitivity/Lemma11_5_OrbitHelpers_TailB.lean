@@ -42,8 +42,29 @@ theorem g₁_zpow_fixes_tailB (j : ℤ) (x : Omega n k m) (hx : isTailB x) :
 /-- g₂^j(b₁) = 6+n+j when j < k -/
 theorem g₂_pow_b₁_eq_tailB_elem (hk : k ≥ 1) (hk2 : k ≥ 2) (j : Fin k) (hj : j.val > 0) :
     (g₂ n k m ^ j.val) (⟨6 + n, by omega⟩ : Omega n k m) = ⟨6 + n + j.val, by omega⟩ := by
-  -- Proof uses formPerm_pow_apply_getElem with index computation
-  sorry
+  -- Element 6+n is at index 4 in the g₂ list (first tailB element)
+  unfold g₂
+  have hNodup := g₂_list_nodup n k m
+  have h_len := g₂_cycle_length n k m
+  have h_core_len : (g₂CoreList n k m).length = 4 := by simp [g₂CoreList]
+  have h_4_lt : 4 < (g₂CoreList n k m ++ tailBList n k m).length := by rw [h_len]; omega
+  have h_idx : (g₂CoreList n k m ++ tailBList n k m)[4]'h_4_lt =
+      (⟨6 + n, by omega⟩ : Omega n k m) := by
+    rw [List.getElem_append_right (by rw [h_core_len] : (g₂CoreList n k m).length ≤ 4)]
+    simp only [h_core_len, Nat.sub_self, tailBList]
+    simp [List.getElem_map, List.getElem_finRange]
+  -- Apply formPerm_pow_apply_getElem
+  rw [← h_idx, List.formPerm_pow_apply_getElem _ hNodup j.val 4 h_4_lt]
+  -- Compute the modular arithmetic: (4 + j) < 4 + k, so no wraparound
+  simp only [h_len]
+  have hj_lt := j.isLt
+  have h_mod : (4 + j.val) % (4 + k) = 4 + j.val := Nat.mod_eq_of_lt (by omega)
+  simp only [h_mod]
+  -- Show the element at index (4+j) is 6+n+j
+  have h_4j_lt : 4 + j.val < (g₂CoreList n k m ++ tailBList n k m).length := by rw [h_len]; omega
+  rw [List.getElem_append_right (by rw [h_core_len]; omega : (g₂CoreList n k m).length ≤ 4 + j.val)]
+  simp only [h_core_len, tailBList]
+  simp [List.getElem_map, List.getElem_finRange]
 
 /-- g₂(b₁) = b₂ (next tailB element) when k ≥ 2 -/
 theorem g₂_b₁_eq_b₁_succ (hk : k ≥ 1) (hk2 : k ≥ 2) :
@@ -97,13 +118,28 @@ theorem g₂_tailB_not_tailA (x : Omega n k m) (hx : isTailB x) : ¬isTailA (g�
   · exact tailB_not_tailA _ hTailB
   · rw [h1]; exact elem1_not_tailA
 
-/-- The orbit of b₁ under g₂^j eventually exits tailB for j ≥ 2 -/
+/-- **WARNING: THIS THEOREM IS FALSE AS STATED**
+
+The orbit of b₁ under g₂^j eventually exits tailB for j ≥ 2.
+
+**Counterexample**: For j=6, k=8:
+- g₂ cycle length = 12
+- gcd(6, 12) = 6
+- Orbit of position 4 under +6 (mod 12) = {4, 10}
+- Both positions are in tailB (positions 4-11)
+- The orbit NEVER exits tailB!
+
+**The theorem is true when gcd(j, 4+k) ≤ 4**, because then one of
+{0, 1, 2, 3} is congruent to 4 (mod gcd), making it reachable.
+
+**TODO**: Either:
+1. Add hypothesis `Nat.gcd j (4 + k) ≤ 4`, or
+2. Revise proof strategy to avoid this theorem entirely.
+-/
 theorem g₂_pow_orbit_hits_core (hk : k ≥ 1) (hk2 : k ≥ 2) (j : ℕ) (hj : j ≥ 2) (hjk : j < k) :
     ∃ r : ℕ, r ≥ 1 ∧ ¬isTailB ((g₂ n k m ^ (r * j)) (⟨6 + n, by omega⟩ : Omega n k m)) := by
-  -- The g₂ cycle has length 4 + k
-  -- Starting from position 4 (element 6+n), after r*j steps we're at position (4 + r*j) mod (4+k)
-  -- For r*j ≥ k, position wraps to r*j - k which is < j < 4 (for j ≤ 3) or in tailB but exits
-  -- Eventually reaches position 0 (element 1) which is not in tailB
+  -- THEOREM IS FALSE - see docstring above
+  -- Proof would require additional hypothesis: Nat.gcd j (4 + k) ≤ 4
   sorry
 
 end OrbitTailB
