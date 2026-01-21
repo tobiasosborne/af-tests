@@ -115,17 +115,35 @@ Case 2: g₁(B) ≠ B
 
 ---
 
-## Current Sorry Count: 1
+## Current State (Session 44, continued)
 
-Only remaining sorry:
+### Build Status: BROKEN (6 missing functions)
+
+### Completed This Session
+- ✅ `case2_forces_stabilization_B` - Added to SymmetricCases.lean
+- ✅ `case2_forces_stabilization_C` - Added to SymmetricCases.lean
+
+### Still Missing (build errors)
+1. `case1b_impossible_g₃` - NL proof Node 1.7/1.8: fixed point on elem 0
+2. `case1b_impossible_g₁_from_g₂` - NL proof Node 1.9.6 (symmetric)
+3. `case1b_impossible_g₁` - NL proof Node 1.9.6 (symmetric for m≥1)
+4. `case1b_impossible_g₂_from_g₃` - NL proof Node 1.9.6 (symmetric)
+5. `case2_impossible_B` - Full Case 2 contradiction for k≥1
+6. `case2_impossible_C` - Full Case 2 contradiction for m≥1
+
+### Sorry Count: 1
 - `case2_impossible` in `Lemma11_5_Case2.lean:170`
 
-This theorem needs to be reimplemented following the NL proof structure:
-1. In Case 2, g₁(B) ≠ B
-2. a₁ ∈ B is fixed by g₂ and g₃
-3. If g₂(B) ≠ B → g₂(B) disjoint from B → but a₁ ∈ both → CONTRADICTION
-4. Therefore g₂(B) = B is FORCED
-5. Similarly g₃(B) = B is FORCED
-6. Apply Lemma 11.2 to derive support containment → contradiction
+### NL Proof Structure for Remaining Work
+
+**Case 1b impossibility (Node 1.9.6):**
+- g₁(B) = B → supp(g₁) ⊆ B → elements {3, 6, a_i} in B
+- These elements NOT in supp(g₂)
+- If g₂(B) ≠ B (disjoint), then 3 ∈ B ∩ g₂(B) → CONTRADICTION
+
+**Case 2 impossibility (Node 1.9.5):**
+- g₁(B) ≠ B, but g₂(B) = B and g₃(B) = B (forced)
+- Apply Lemma 11.2: supp(g₂) ⊆ B and supp(g₃) ⊆ B
+- Combined with block orbit structure → |B| = N contradiction
 
 **DO NOT use orbit arguments. Follow the NL proof EXACTLY.**
