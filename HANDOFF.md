@@ -1,38 +1,21 @@
-# Handoff: 2026-01-20 (Session 35)
+# Handoff: 2026-01-21 (Session 36)
 
 ## Completed This Session
 
-### Eliminated ThreeCycleSymmetric.lean sorry (k≥1 case, both n=0 and n≥1 subcases)
+### Fixed Build Errors in Case2_Correct.lean
 
-Successfully proved `isThreeCycle_k_ge1` for both the n=0 and n≥1 subcases using proper proofs (NO AXIOMS).
+Fixed `simp` errors in the orbit continuation proof for j=0 and j=1 cases:
+- j=0: Used `rw [Int.ofNat_zero, zpow_zero, ...]` instead of `simp`
+- j=1: Used explicit `have h1 : Int.ofNat (0 + 1) = (1 : ℤ) := rfl; rw [...]`
 
-**Key challenges solved:**
-1. Fixed namespace resolution issues - needed `_root_.AfTests.Case2FixedPointLemmas.` prefix
-2. Fixed type mismatch issues - goals used `↑Fin = ↑Fin` (Nat equality) while lemmas gave `Fin = Fin`
-3. Handled x=5+n as special case in x.val≥6 branch (when n≥1, 5+n≥6 but it's in 3-cycle support)
+### Added Helper Lemmas in Lemma11_5_OrbitContinuation.lean
 
-**New Files Created:**
-
-1. **Case2ProductLemmas.lean** (161 lines)
-   - g₁ actions: `g₁_0_eq_5`, `g₁_5_eq_3`, `g₁_3_eq_2`, `g₁_fixes_1`, `g₁_fixes_4`
-   - g₂ actions: `g₂_1_eq_3`, `g₂_3_eq_4`, `g₂_4_eq_0`, `g₂_fixes_2`, `g₂_fixes_5`
-   - g₁/g₂ fixes tailB elements
-   - Inverse lemmas for all
-
-2. **Case2CommutatorLemmas.lean** (200 lines)
-   - c₁₂ actions for n=0 and n≥1 cases
-   - sq actions: `sq_1_eq_2`, `sq_2_eq_3`, `sq_3_eq_1` (n=0)
-   - sq actions: `sq_1_eq_5plusn`, `sq_5plusn_eq_3`, `sq_3_eq_1` (n≥1)
-
-3. **Case2FixedPointLemmas.lean** (702 lines - EXCEEDS 200 LOC LIMIT)
-   - Fixed-point lemmas for n=0 and n≥1 cases
-   - `sq_fixes_0_n0/n_ge1`, `sq_fixes_4_n0/n_ge1`, `sq_fixes_5_n0/n_ge1`
-   - `sq_fixes_tailA/tailB/tailC` lemmas
-   - **ALL PROPER PROOFS - NO AXIOMS**
-
-**Modified Files:**
-- **ThreeCycleSymmetric.lean**: Full proofs for both n=0 and n≥1 subcases of k≥1
-- **SymmetricCase2Helpers.lean**: Added threeCycle_1_5plusn_3 for n≥1 case
+New lemmas for g₁ action analysis:
+- `g₁_elem5_eq_elem3`: g₁(5) = 3
+- `g₁_elem0_eq_elem5`: g₁(0) = 5
+- `g₁_inv_elem3_eq_elem5`: g₁⁻¹(3) = 5
+- `g₁_inv_sq_elem3_eq_elem0`: g₁⁻²(3) = 0
+- `elem0_not_tailA`, `elem5_not_tailA`: 0, 5 are core elements (not in tailA)
 
 ---
 
@@ -40,83 +23,89 @@ Successfully proved `isThreeCycle_k_ge1` for both the n=0 and n≥1 subcases usi
 
 ### Build Status: PASSING
 
-### Sorry Count: 3 total
-| Location | Description |
-|----------|-------------|
-| Lemma11_5_SymmetricMain.lean:159 | Primitivity |
-| Lemma11_5_SymmetricMain.lean:181 | Primitivity |
-| Lemma11_5_Case2_Helpers.lean:155 | Primitivity |
+### Sorry Count: 6 total
+| Location | Description | Status |
+|----------|-------------|--------|
+| Lemma11_5_SymmetricMain.lean:159 | Primitivity (k≥2 case) | Original |
+| Lemma11_5_SymmetricMain.lean:181 | Primitivity (m≥2 case) | Original |
+| Lemma11_5_Case2_Helpers.lean:155 | FALSE FOR n≥3 (see bug) | Known bug |
+| Lemma11_5_Case2_Correct.lean:179 | j≥2 orbit case | NEW |
+| Lemma11_5_Case2_Correct.lean:186 | Negative j orbit case | NEW |
 
-### LOC Violations: 1
-| File | Lines | Priority |
-|------|-------|----------|
-| Case2FixedPointLemmas.lean | 702 | P0 - needs refactoring |
+### Axiom Count: 5 (FORBIDDEN)
+All in `AfTests/ThreeCycle/Case1FixedPointLemmas.lean`:
+- `sq_fixes_0`, `sq_fixes_1`, `sq_fixes_2`
+- `sq_fixes_tailA`, `sq_fixes_tailC`
 
 ---
 
-## 🚨 CRITICAL: FORBIDDEN AXIOMS IN CODEBASE 🚨
+## Case2_Correct.lean Proof Structure
 
-**5 ILLEGAL AXIOMS** exist in `AfTests/ThreeCycle/Case1FixedPointLemmas.lean`:
+The correct Case 2 proof uses block B₁ containing element 1:
 
-```lean
--- Lines 28-60 of Case1FixedPointLemmas.lean
-axiom sq_fixes_0 (n m : ℕ) : ...
-axiom sq_fixes_1 (n m : ℕ) : ...
-axiom sq_fixes_2 (n m : ℕ) (hm : m ≥ 1) : ...
-axiom sq_fixes_tailA (n m : ℕ) (x : Omega n 0 m) (hx : ...) : ...
-axiom sq_fixes_tailC (n m : ℕ) (hm : m ≥ 1) (x : Omega n 0 m) (hx : ...) : ...
-```
+1. **Find B₁**: The block containing element 1
+2. **g₁ fixes B₁**: Since g₁(1) = 1, by block_fixed_of_fixed_point
+3. **Case split on supp(g₁) vs B₁**:
+   - **supp(g₁) ⊆ B₁**: Then a₁ ∈ B₁ ≠ B (since 1 ∈ B₁ but 1 ∉ B), contradiction
+   - **supp(g₁) ∩ B₁ = ∅**: Then g₂(B₁) contains 3 ∈ supp(g₁)
+     - If g₁ preserves g₂(B₁): supp(g₁) ⊆ g₂(B₁), so a₁ ∈ g₂(B₁) ≠ B
+     - If g₁ doesn't preserve g₂(B₁): Orbit continuation argument
 
-**These are for the m≥1, k=0 case (Case 1).**
+4. **Orbit continuation**: The orbit of g₂(B₁) under g₁ covers supp(g₁). Since a₁ ∈ supp(g₁), a₁ must be in some orbit block C. Either C = B or C ≠ B:
+   - **C ≠ B**: a₁ ∈ C ∩ B contradicts partition disjointness
+   - **C = B**: Then B is at some orbit position j
+     - **j = 0**: B = g₂(B₁) contains 3 (core), contradicting B ⊆ tailA ✓
+     - **j = 1**: B = g₁(g₂(B₁)) contains 2 (core), contradicting B ⊆ tailA ✓
+     - **j ≥ 2**: SORRY - Need cardinality/overlap argument
+     - **j < 0**: SORRY - g₁⁻¹(3) = 5 (core), g₁⁻²(3) = 0 (core)
 
-### How to Eliminate These Axioms
+### Remaining Work for j≥2 and j<0
 
-The axioms are computational facts about `(c₁₃ * c₂₃⁻¹)²` fixing certain elements. They CAN be proven using the same techniques as Case2FixedPointLemmas.lean:
+The key insight: For B₁ = {1, 4} (forced by constraints), g₂(B₁) = {3, 0}. The orbit of {3, 0} under g₁ cycles through all of supp(g₁).
 
-1. **Create Case1FixedPointLemmas_Proper.lean** following the pattern of Case2FixedPointLemmas.lean
-2. For each axiom, trace through the permutation actions:
-   - Unfold `c₁₃`, `c₂₃` definitions
-   - Use `List.formPerm_apply_lt_getElem` for cycle elements
-   - Use `List.formPerm_apply_of_notMem` for fixed elements
-3. The proofs will be tedious but straightforward
+For B ⊆ tailA:
+- g₁ʲ(3) and g₁ʲ(0) must both be in tailA
+- This restricts j to specific values depending on n
+- For n ≤ 2: No such j ≥ 2 exists (all hit core elements)
+- For n ≥ 3: Some j values exist but partition overlap argument applies
 
-**Priority: P0 - AXIOMS ARE FORBIDDEN**
+For negative j:
+- j = -1: g₁⁻¹(3) = 5 (core) → contradiction
+- j = -2: g₁⁻²(3) = 0 (core) → contradiction
+- j ≤ -3: Similar pattern continues
 
 ---
 
 ## Known Issues
 
-### 1. Case2FixedPointLemmas.lean Exceeds 200 LOC (702 lines)
-Split into:
-- Case2FixedPointLemmas_N0.lean (n=0 lemmas)
-- Case2FixedPointLemmas_NGe1.lean (n≥1 lemmas)
-- Case2FixedPointLemmas_TailB.lean (tailB lemmas)
+### 1. Case2_Helpers.lean:155 is FALSE
+The old `case2_B_ncard_le_one` theorem is false for n ≥ 3. This is marked as a BUG and should NOT be used. Use `Case2_Correct.lean` instead.
 
 ### 2. Five Forbidden Axioms in Case1FixedPointLemmas.lean
-**MUST BE ELIMINATED** - see section above
+**MUST BE ELIMINATED** - See previous session notes for proof strategy.
+
+### 3. Case2FixedPointLemmas.lean Exceeds 200 LOC (702 lines)
+Needs refactoring into smaller files.
 
 ---
 
 ## Files Modified This Session
-- AfTests/ThreeCycle/Case2ProductLemmas.lean (NEW)
-- AfTests/ThreeCycle/Case2CommutatorLemmas.lean (NEW)
-- AfTests/ThreeCycle/Case2FixedPointLemmas.lean (NEW - needs refactoring)
-- AfTests/ThreeCycle/ThreeCycleSymmetric.lean (MODIFIED - sorry eliminated)
-- AfTests/ThreeCycle/SymmetricCase2Helpers.lean (MODIFIED)
+- AfTests/Primitivity/Lemma11_5_OrbitContinuation.lean (MODIFIED - added helper lemmas)
+- AfTests/Primitivity/Lemma11_5_Case2_Correct.lean (MODIFIED - fixed simp errors)
 - HANDOFF.md (UPDATED)
 
 ---
 
 ## Next Session Priority
 
-1. **P0: ELIMINATE THE 5 AXIOMS** in Case1FixedPointLemmas.lean
-2. **P0: Refactor Case2FixedPointLemmas.lean** to be under 200 LOC
-3. **P1: Eliminate remaining 3 sorries** in Primitivity directory
+1. **P1: Complete j≥2 and j<0 proofs** in Case2_Correct.lean
+2. **P1: Wire case2_correct** into main Lemma11_5.lean
+3. **P0: ELIMINATE THE 5 AXIOMS** in Case1FixedPointLemmas.lean
+4. **P0: Refactor Case2FixedPointLemmas.lean** to be under 200 LOC
 
 ---
 
 ## Session Close Checklist
 - [x] Build passes
 - [x] HANDOFF.md updated with full details
-- [x] Axiom situation documented
-- [x] Changes committed and pushed
+- [ ] Changes committed and pushed
