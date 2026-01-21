@@ -8,6 +8,8 @@ import AfTests.Primitivity.Lemma11_2
 import AfTests.Primitivity.Lemma11_5_FixedPoints
 import AfTests.Primitivity.Lemma11_5_CycleSupport
 import AfTests.Primitivity.Lemma11_5_Defs
+import AfTests.Primitivity.Lemma11_5_SupportCover
+import AfTests.Primitivity.Lemma11_5_Case2
 
 /-!
 # Lemma 11.5: Symmetric Cases - Definitions and Basic Lemmas
@@ -224,3 +226,137 @@ theorem case2_forces_stabilization_C (hm : m ≥ 1) (B : Set (Omega n k m))
     have h_in_both := fixed_point_blocks_intersect (g₂ n k m) B (c₁ n k m hm) hC₁ hFix
     -- This contradicts disjointness
     exact Set.disjoint_iff.mp hDisj h_in_both
+
+-- ============================================
+-- SECTION 6: CASE 1b IMPOSSIBILITY (k ≥ 1 and m ≥ 1)
+-- ============================================
+
+/-- **Case 1b impossibility for k≥1**: g₂(B) = B, g₃(B) ≠ B is impossible.
+
+    NL Proof Reference (Node 1.7/1.8 - Case 1a-ii pattern):
+    - supp(g₂) ⊆ B, so element 0 ∈ B
+    - Element 0 NOT in supp(g₃), so g₃(0) = 0
+    - If g₃(B) ≠ B (disjoint), then 0 ∈ B ∩ g₃(B) → contradiction -/
+theorem case1b_impossible_g₃ (B : Set (Omega n k m))
+    (hSupp₂ : ((g₂ n k m).support : Set _) ⊆ B)
+    (hDisj : Disjoint (g₃ n k m '' B) B) : False := by
+  -- Element 0 is in supp(g₂), hence in B
+  have h0_in_B : (⟨0, by omega⟩ : Omega n k m) ∈ B := hSupp₂ elem0_in_support_g₂
+  -- Element 0 is not in supp(g₃), so g₃(0) = 0
+  have hFix : g₃ n k m (⟨0, by omega⟩ : Omega n k m) = ⟨0, by omega⟩ := g₃_fixes_elem0
+  -- Therefore 0 ∈ g₃(B) ∩ B
+  have h0_in_both := fixed_point_blocks_intersect (g₃ n k m) B _ h0_in_B hFix
+  -- This contradicts disjointness
+  exact Set.disjoint_iff.mp hDisj h0_in_both
+
+/-- **Case 1b impossibility for k≥1**: g₂(B) = B, g₁(B) ≠ B is impossible.
+
+    NL Proof Reference (Node 1.9.6 symmetric):
+    - supp(g₂) ⊆ B, so element 4 ∈ B
+    - Element 4 NOT in supp(g₁), so g₁(4) = 4
+    - If g₁(B) ≠ B (disjoint), then 4 ∈ B ∩ g₁(B) → contradiction -/
+theorem case1b_impossible_g₁_from_g₂ (B : Set (Omega n k m))
+    (hSupp₂ : ((g₂ n k m).support : Set _) ⊆ B)
+    (hDisj : Disjoint (g₁ n k m '' B) B) : False := by
+  -- Element 4 is in supp(g₂), hence in B
+  have h4_in_B : (⟨4, by omega⟩ : Omega n k m) ∈ B := hSupp₂ elem4_in_support_g₂
+  -- Element 4 is not in supp(g₁), so g₁(4) = 4
+  have hFix : g₁ n k m (⟨4, by omega⟩ : Omega n k m) = ⟨4, by omega⟩ := g₁_fixes_elem4
+  -- Therefore 4 ∈ g₁(B) ∩ B
+  have h4_in_both := fixed_point_blocks_intersect (g₁ n k m) B _ h4_in_B hFix
+  -- This contradicts disjointness
+  exact Set.disjoint_iff.mp hDisj h4_in_both
+
+/-- **Case 1b impossibility for m≥1**: g₃(B) = B, g₁(B) ≠ B is impossible.
+
+    NL Proof Reference (Node 1.9.6 symmetric):
+    - supp(g₃) ⊆ B, so element 1 ∈ B
+    - Element 1 NOT in supp(g₁), so g₁(1) = 1
+    - If g₁(B) ≠ B (disjoint), then 1 ∈ B ∩ g₁(B) → contradiction -/
+theorem case1b_impossible_g₁ (B : Set (Omega n k m))
+    (hSupp₃ : ((g₃ n k m).support : Set _) ⊆ B)
+    (hDisj : Disjoint (g₁ n k m '' B) B) : False := by
+  -- Element 1 is in supp(g₃), hence in B
+  have h1_in_B : (⟨1, by omega⟩ : Omega n k m) ∈ B := hSupp₃ elem1_in_support_g₃
+  -- Element 1 is not in supp(g₁), so g₁(1) = 1
+  have hFix : g₁ n k m (⟨1, by omega⟩ : Omega n k m) = ⟨1, by omega⟩ := g₁_fixes_elem1
+  -- Therefore 1 ∈ g₁(B) ∩ B
+  have h1_in_both := fixed_point_blocks_intersect (g₁ n k m) B _ h1_in_B hFix
+  -- This contradicts disjointness
+  exact Set.disjoint_iff.mp hDisj h1_in_both
+
+/-- **Case 1b impossibility for m≥1**: g₃(B) = B, g₂(B) ≠ B is impossible.
+
+    NL Proof Reference (Node 1.9.6 symmetric):
+    - supp(g₃) ⊆ B, so element 2 ∈ B
+    - Element 2 NOT in supp(g₂), so g₂(2) = 2
+    - If g₂(B) ≠ B (disjoint), then 2 ∈ B ∩ g₂(B) → contradiction -/
+theorem case1b_impossible_g₂_from_g₃ (B : Set (Omega n k m))
+    (hSupp₃ : ((g₃ n k m).support : Set _) ⊆ B)
+    (hDisj : Disjoint (g₂ n k m '' B) B) : False := by
+  -- Element 2 is in supp(g₃), hence in B
+  have h2_in_B : (⟨2, by omega⟩ : Omega n k m) ∈ B := hSupp₃ elem2_in_support_g₃
+  -- Element 2 is not in supp(g₂), so g₂(2) = 2
+  have hFix : g₂ n k m (⟨2, by omega⟩ : Omega n k m) = ⟨2, by omega⟩ := g₂_fixes_elem2
+  -- Therefore 2 ∈ g₂(B) ∩ B
+  have h2_in_both := fixed_point_blocks_intersect (g₂ n k m) B _ h2_in_B hFix
+  -- This contradicts disjointness
+  exact Set.disjoint_iff.mp hDisj h2_in_both
+
+-- ============================================
+-- SECTION 7: CASE 2 IMPOSSIBILITY (k ≥ 1 and m ≥ 1)
+-- ============================================
+
+/-- **Case 2 Impossibility for k ≥ 1**: g₂(B) ≠ B leads to contradiction.
+
+    NL Proof Reference (Node 1.9.5, symmetric for k≥1):
+
+    When g₂(B) ≠ B:
+    1. g₁(B) = B and g₃(B) = B (forced by fixed-point on b₁)
+    2. Since g₁(B) = B and g₃(B) = B, by Lemma 11.2:
+       - If B ∩ supp(g₁) ≠ ∅, then supp(g₁) ⊆ B
+       - If B ∩ supp(g₃) ≠ ∅, then supp(g₃) ⊆ B
+    3. The orbit of B under ⟨g₂⟩ partitions elements
+    4. Elements in supp(g₁) ∩ supp(g₂) = {0, 3} are key intersection points
+    5. Eventually this forces |B| = N, contradicting non-triviality
+
+    **TODO**: Complete proof following NL proof orbit analysis -/
+theorem case2_impossible_B (hk : k ≥ 1) (B : Set (Omega n k m))
+    (hg₂Disj : Disjoint (g₂ n k m '' B) B)
+    (hb₁_in_B : b₁ n k m hk ∈ B)
+    (hg₁_pres : PreservesSet (g₁ n k m) B) (hg₃_pres : PreservesSet (g₃ n k m) B)
+    (hBlock : ∀ j : ℕ, (g₂ n k m ^ j) '' B = B ∨ Disjoint ((g₂ n k m ^ j) '' B) B)
+    (hNT_lower : 1 < B.ncard) : False := by
+  -- Following NL proof Node 1.9.5:
+  -- Step 1: g₂(B) ≠ B but g₁(B) = B, g₃(B) = B (already given)
+  -- Step 2: Need to show B intersects supp(g₁) or supp(g₃) to apply Lemma 11.2
+  -- Step 3: Use block dichotomy hBlock to analyze orbit structure
+  -- Step 4: Derive contradiction from support containment forcing |B| = N
+  sorry
+
+/-- **Case 2 Impossibility for m ≥ 1**: g₃(B) ≠ B leads to contradiction.
+
+    NL Proof Reference (Node 1.9.5, symmetric for m≥1):
+
+    When g₃(B) ≠ B:
+    1. g₁(B) = B and g₂(B) = B (forced by fixed-point on c₁)
+    2. Since g₁(B) = B and g₂(B) = B, by Lemma 11.2:
+       - If B ∩ supp(g₁) ≠ ∅, then supp(g₁) ⊆ B
+       - If B ∩ supp(g₂) ≠ ∅, then supp(g₂) ⊆ B
+    3. The orbit of B under ⟨g₃⟩ partitions elements
+    4. Elements in supp(g₁) ∩ supp(g₃) = {2, 5} and supp(g₂) ∩ supp(g₃) = {1, 4}
+    5. Eventually this forces |B| = N, contradicting non-triviality
+
+    **TODO**: Complete proof following NL proof orbit analysis -/
+theorem case2_impossible_C (hm : m ≥ 1) (B : Set (Omega n k m))
+    (hg₃Disj : Disjoint (g₃ n k m '' B) B)
+    (hc₁_in_B : c₁ n k m hm ∈ B)
+    (hg₁_pres : PreservesSet (g₁ n k m) B) (hg₂_pres : PreservesSet (g₂ n k m) B)
+    (hBlock : ∀ j : ℕ, (g₃ n k m ^ j) '' B = B ∨ Disjoint ((g₃ n k m ^ j) '' B) B)
+    (hNT_lower : 1 < B.ncard) : False := by
+  -- Following NL proof Node 1.9.5:
+  -- Step 1: g₃(B) ≠ B but g₁(B) = B, g₂(B) = B (already given)
+  -- Step 2: Need to show B intersects supp(g₁) or supp(g₂) to apply Lemma 11.2
+  -- Step 3: Use block dichotomy hBlock to analyze orbit structure
+  -- Step 4: Derive contradiction from support containment forcing |B| = N
+  sorry
