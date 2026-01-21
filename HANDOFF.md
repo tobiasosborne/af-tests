@@ -24,6 +24,12 @@
 - Implemented full orbit analysis proof (mirrors k≥2 case)
 - Updated call site in `Lemma11_5.lean` with block dichotomy
 
+### Deleted False Theorem
+- Removed `case2_B_ncard_le_one` from `Lemma11_5_Case2_Helpers.lean`
+- This theorem was FALSE for n ≥ 3 (counterexample: B = {6, 8})
+- Replaced usage in `case2_impossible` with honest sorry + TODO note
+- The fix requires adding block hypothesis (same pattern as B and C cases)
+
 ---
 
 ## Current State
@@ -32,14 +38,14 @@
 
 ### Axiom Count: 0 (all eliminated!)
 
-### Sorry Count: 5 total
+### Sorry Count: 5 total (all legitimate, no false theorems)
 | Location | Description | Status |
 |----------|-------------|--------|
 | Lemma11_5_OrbitHelpers_TailB.lean:46 | `g₂_pow_b₁_eq_tailB_elem` | Orbit computation |
 | Lemma11_5_OrbitHelpers_TailB.lean:107 | `g₂_pow_orbit_hits_core` | Orbit computation |
 | Lemma11_5_OrbitHelpers_TailC.lean:46 | `g₃_pow_c₁_eq_tailC_elem` | Orbit computation |
 | Lemma11_5_OrbitHelpers_TailC.lean:104 | `g₃_pow_orbit_hits_core` | Orbit computation |
-| Lemma11_5_Case2_Helpers.lean:155 | FALSE FOR n≥3 | Do not use |
+| Lemma11_5_Case2.lean:170 | `case2_impossible` | Needs block hypothesis |
 
 ---
 
