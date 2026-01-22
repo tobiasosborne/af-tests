@@ -236,21 +236,13 @@ theorem case2_impossible (hn : n ≥ 1) (B : Set (Omega n k m))
         have ha₂_in_both : a₂ ∈ g₁ n k m '' B ∩ B := ⟨ha₂_in_g₁B, ha₂_in_B⟩
         -- This contradicts disjointness
         exact Set.disjoint_iff.mp hg₁Disj ha₂_in_both
-    · -- n ≥ 3: Structural argument via block system
-      -- TODO: The proof for n ≥ 3 needs restructuring.
-      -- See PLAN_LEMMA11_5_REFACTOR.md for the correct approach:
-      --
-      -- The current code has fundamental issues:
-      -- 1. g₂_map_5_not_in_supp_g₁ is mathematically FALSE (g₂(5) = 5 ∈ supp(g₁))
-      -- 2. fixed_of_in_supp_g₁_not_2_5 has WRONG condition (should be not_0_3)
-      --
-      -- Correct approach:
-      -- 1. B ⊆ tailA, so the g₁-orbit of B eventually contains elements from {0, 2, 3, 5}
-      -- 2. Find B' in orbit with B' ∩ {0, 3} ≠ ∅ (not 5 as current code tries)
-      -- 3. Then g₂(0) or g₂(3) ∉ supp(g₁), giving g₂(B') ≠ B'
-      -- 4. B' also has g₂-fixed point from {2, 5} ∪ tailA (since |B'| ≥ 3 > |{0,3}|)
-      -- 5. Contradiction via block dichotomy
-      --
-      -- The correct fixed-point lemma is g₂_fixes_in_supp_g₁_not_0_3:
-      --   x ∈ supp(g₁) ∧ x ≠ 0 ∧ x ≠ 3 → g₂(x) = x
+    · -- n ≥ 3: Fixed-point argument via block system
+      -- Key insight: {0, 3} is NOT a valid block for g₁ because
+      -- g₁²({0,3}) = {3, a₁} overlaps with {0,3} at element 3.
+      -- So any block B' containing 0 must contain y ∉ {0, 3}, which is g₂-fixed.
+      have hn3 : n ≥ 3 := by omega
+      -- The g₁-orbit of B partitions supp(g₁). Since 0 ∈ supp(g₁), some B' contains 0.
+      -- We need to show this B' also contains a g₂-fixed element.
+      -- For now, we admit this orbit construction and derive contradiction.
+      -- TODO: Add orbit infrastructure lemmas
       sorry

@@ -3,28 +3,25 @@
 ## Build Status: PASSING
 All files compile successfully.
 
-## Sorry Count: 8
+## Sorry Count: 4
 All sorries are in Lemma 11.5 files (Primitivity folder):
-- `Lemma11_5_Case2.lean:256` - n≥3 case needs orbit argument restructure
-- `Lemma11_5_OrbitInfra.lean:268,284,298,314` - Legacy stub lemmas
+- `Lemma11_5_Case2.lean:248` - n≥3 case needs orbit + fixed-point argument
 - `Lemma11_5_SymmetricCases.lean:306,346,363` - k≥2 and m≥2 symmetric cases
 
 ## Completed This Session
 
-1. **Fixed build failures** - Project now compiles fully
-   - Added `import AfTests.Primitivity.Lemma11_5_OrbitInfra` where needed
-   - Created `Lemma11_5_OrbitInfra.lean` with orbit infrastructure
-   - Fixed `hInv` identifier errors in `Lemma11_5.lean` (lines 105, 154, 199)
+1. **Removed legacy stubs** - Deleted 4 mathematically incorrect lemmas:
+   - `g₂_map_5_not_in_supp_g₁` (WRONG: g₂(5) = 5 ∈ supp(g₁))
+   - `fixed_of_in_supp_g₁_not_2_5` (WRONG condition)
+   - `impossible_block_2_5_in_g₁` (flawed approach)
+   - `BlockSystemOn.exists_block_containing_element_in_support` (unused)
 
-2. **Identified and documented logic bug**
-   - Code assumed: `supp(g₁) ∩ supp(g₂) = {2, 5}` (WRONG!)
-   - Correct: `supp(g₁) ∩ supp(g₂) = {0, 3}`
-   - Simplified broken proofs to documented sorries
+2. **Corrected understanding of proof strategy**:
+   - Old plan claimed "|B'| ≥ 3 for n ≥ 3" - this is WRONG (only true for odd n)
+   - Key insight: {0, 3} is NOT a valid g₁-block because g₁²({0,3}) ∩ {0,3} = {3} ≠ ∅
+   - Correct approach: Any block containing 0 has element y ∉ {0,3}, which is g₂-fixed
 
-3. **Created new infrastructure**
-   - `g₂_fixes_in_supp_g₁_not_0_3` - CORRECT fixed-point lemma
-   - `g₂_map_3_not_in_supp_g₁` - g₂(3) = 4 ∉ supp(g₁)
-   - `BlockSystemOn.orbit_subset_blocks` - Orbit membership lemma
+3. **Updated plan document** - `PLAN_LEMMA11_5_REFACTOR.md` now has correct strategy
 
 ## Critical Support Intersection Facts
 
@@ -38,21 +35,28 @@ supp(g₁) ∩ supp(g₃) = {2, 5}  ← g₃ moves ONLY these in supp(g₁)
 supp(g₂) ∩ supp(g₃) = {1, 4}
 ```
 
+## Key Insight for n ≥ 3 Case
+
+**{0, 3} is NOT a valid block for g₁** because:
+```
+g₁²(0) = 3  (0 → 5 → 3)
+g₁²(3) = 6  (3 → 2 → a₁)
+```
+So g₁²({0, 3}) = {3, 6} overlaps {0, 3} at element 3 but isn't equal to it.
+
+**Consequence**: Any block B' containing 0 must contain y ∉ {0, 3}. That y is g₂-fixed.
+
 ## Next Steps (Priority Order)
 
-1. **Fill remaining 8 sorries** - See `PLAN_LEMMA11_5_REFACTOR.md` for approach:
-   - n≥3, k≥2, m≥2 cases all use the same pattern: orbit partition + fixed-point
-   - Use correct support intersections (NOT the wrong ones in old code)
-   - For n≥3: g₂ fixes {2,5}∪tailA in supp(g₁), so any B' with |B'|≥3 has g₂-fixed point
+1. **Add infrastructure lemma** - Prove {0, 3} is not g₁-closed
+2. **Fill Case2.lean:248** - Use: find B' with 0, show has g₂-fixed element, contradiction
+3. **Fill SymmetricCases.lean** - Apply same pattern for k≥2 and m≥2
 
-2. **Remove legacy stubs** - `g₂_map_5_not_in_supp_g₁` etc. are mathematically FALSE
-   - These were placeholders that should be deleted once correct lemmas are used
+See `PLAN_LEMMA11_5_REFACTOR.md` for detailed implementation steps.
 
 ## Files Modified This Session
 
-- `AfTests/Primitivity/Lemma11_5.lean` - Fixed hInv reconstruction
-- `AfTests/Primitivity/Lemma11_5_OrbitInfra.lean` - Created with orbit infrastructure
-- `AfTests/Primitivity/Lemma11_5_Case2.lean` - Simplified n≥3 to sorry with docs
-- `AfTests/Primitivity/Lemma11_5_SymmetricCases.lean` - Simplified k≥2, m≥2 to sorries
-- `HANDOFF.md` - Updated with current status
-- `PLAN_LEMMA11_5_REFACTOR.md` - Detailed plan with correct analysis
+- `AfTests/Primitivity/Lemma11_5_OrbitInfra.lean` - Removed legacy stubs, added documentation
+- `AfTests/Primitivity/Lemma11_5_Case2.lean` - Updated comments with correct approach
+- `PLAN_LEMMA11_5_REFACTOR.md` - Complete rewrite with correct strategy
+- `HANDOFF.md` - This file

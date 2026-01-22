@@ -16,7 +16,6 @@ Infrastructure lemmas for the orbit-based arguments in Case 2 (n ≥ 3).
 ## Main Results
 
 * `BlockSystemOn.orbit_subset_blocks`: σ^j(B) is a block when σ preserves blocks
-* `BlockSystemOn.exists_block_containing_element_in_support`: Find block containing element
 * `g₂_fixes_in_supp_g₁_not_0_3`: CORRECT fixed-point lemma (g₂ fixes {2,5} ∪ tailA)
 * `g₂_map_3_not_in_supp_g₁`: g₂(3) = 4 ∉ supp(g₁)
 * `g₂_map_0_not_in_supp_g₁`: g₂(0) ∉ supp(g₁)
@@ -239,76 +238,27 @@ theorem g₂_fixes_in_supp_g₁_not_0_3 (x : Omega n k m)
       have := i.isLt; have := j.isLt; omega
 
 -- ============================================
--- SECTION 5: BLOCK CONTAINING ELEMENT
+-- SECTION 5: KEY INSIGHT FOR n ≥ 3 CASE
 -- ============================================
 
-/-- Given B ∈ BS.blocks with B ⊆ supp(σ) and x ∈ supp(σ), there exists a block B'
-    in the σ-orbit of B such that x ∈ B'.
+/-!
+## Why {0, 3} Cannot Be a Block
 
-    This uses the partition property: x must be in some block, and since the
-    orbit of B covers supp(σ), x is in some σ^j(B). -/
-theorem BlockSystemOn.exists_block_containing_element_in_support
-    (BS : BlockSystemOn n k m) (σ : Perm (Omega n k m))
-    (B : Set (Omega n k m)) (hB : B ∈ BS.blocks)
-    (hB_sub_supp : ∀ x ∈ B, x ∈ σ.support)
-    (x : Omega n k m) (hx_supp : x ∈ σ.support) :
-    ∃ B' : Set (Omega n k m), (∃ j : ℕ, B' = (σ ^ j) '' B) ∧ x ∈ B' := by
-  -- x is in some block B'' ∈ BS.blocks (by partition property)
-  have hx_in_union : x ∈ ⋃₀ BS.blocks := BS.isPartition.2 ▸ Set.mem_univ x
-  obtain ⟨B'', hB''_mem, hx_in_B''⟩ := Set.mem_sUnion.mp hx_in_union
-  -- We need to show B'' is in the orbit of B under σ
-  -- For now, we use a simpler approach: since B'' exists and contains x, return it
-  -- The orbit condition requires more work - we provide B'' directly
-  -- Note: This is a placeholder that needs the full orbit argument
-  use B''
-  constructor
-  · -- Need to show B'' = σ^j(B) for some j
-    -- This requires proving that the orbit of B covers all blocks meeting supp(σ)
-    -- For the actual proof, we need additional hypotheses about σ's action
-    sorry  -- TODO: Complete orbit argument
-  · exact hx_in_B''
+The key insight for the n ≥ 3 case is that {0, 3} cannot be a valid block for g₁.
 
--- ============================================
--- SECTION 6: LEGACY STUBS (TO BE REPLACED)
--- ============================================
+Computation:
+- g₁(0) = 5, g₁(5) = 3, so g₁²(0) = 3
+- g₁(3) = 2, g₁(2) = a₁ = 6, so g₁²(3) = 6
 
-/-- STUB: This lemma is mathematically WRONG but kept for compatibility.
-    g₂(5) = 5 ∈ supp(g₁), so this is FALSE.
-    The correct approach should use g₂_map_3_not_in_supp_g₁ or g₂_map_0_not_in_supp_g₁.
-    See PLAN_LEMMA11_5_REFACTOR.md for the correct proof structure. -/
-theorem g₂_map_5_not_in_supp_g₁ (hn : n ≥ 1) :
-    g₂ n k m (⟨5, by omega⟩ : Omega n k m) ∉ (g₁ n k m).support := by
-  -- WRONG: g₂(5) = 5 and 5 ∈ supp(g₁)!
-  -- This stub exists only to make downstream code compile.
-  -- The proof must be restructured to use a different approach.
-  sorry
+Therefore g₁²({0, 3}) = {3, 6}, which:
+- Intersects {0, 3} at element 3
+- Is not equal to {0, 3} (since 6 ≠ 0)
 
-/-- STUB: This lemma has WRONG logic.
-    The correct version is g₂_fixes_in_supp_g₁_not_0_3.
-    Here: x ∈ supp(g₁) ∧ x ≠ 2 ∧ x ≠ 5 does NOT imply g₂(x) = x!
-    Counterexamples: 0 and 3 are in supp(g₁) \ {2,5} but g₂ moves them. -/
-theorem fixed_of_in_supp_g₁_not_2_5 {x : Omega n k m}
-    (hx_supp : x ∈ (g₁ n k m).support)
-    (hx_ne_2 : x ≠ ⟨2, by omega⟩)
-    (hx_ne_5 : x ≠ ⟨5, by omega⟩) :
-    g₂ n k m x = x := by
-  -- WRONG: This is false for x = 0 or x = 3!
-  -- The correct condition is x ≠ 0 ∧ x ≠ 3.
-  -- See g₂_fixes_in_supp_g₁_not_0_3 for the correct version.
-  sorry
+This violates the block property: for a valid block B, g^j(B) must be either
+equal to B or disjoint from B for all j.
 
-/-- STUB: Block impossibility lemma.
-    For n ≥ 3, show that {2, 5} cannot be a block in the g₁-orbit.
-    This requires showing that block sizes divide |supp(g₁)| = n + 4,
-    and for n ≥ 3 (odd n), size-2 blocks don't divide odd numbers ≥ 7. -/
-theorem impossible_block_2_5_in_g₁ (hn : n ≥ 1)
-    (BS : BlockSystemOn n k m) (B' : Set (Omega n k m))
-    (hB'_mem : B' ∈ BS.blocks)
-    (hSubset : B' ⊆ {⟨2, by omega⟩, ⟨5, by omega⟩})
-    (hSize : B'.ncard = 2) : False := by
-  -- The proof requires showing that:
-  -- 1. Block sizes in the g₁-orbit divide |supp(g₁)| = n + 4
-  -- 2. For n ≥ 3, n + 4 ≥ 7
-  -- 3. 2 doesn't divide n + 4 when n is odd and ≥ 3
-  -- Actually, this approach is flawed - see PLAN for correct approach.
-  sorry
+Consequence: Any block B' containing 0 must also contain some element y ≠ 3.
+Since y ∈ supp(g₁) \ {0, 3} = {2, 5} ∪ tailA, we have g₂(y) = y (g₂-fixed).
+This gives the contradiction in the n ≥ 3 proof.
+-/
+
