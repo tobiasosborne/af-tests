@@ -6,74 +6,64 @@
 
 ---
 
-## Progress This Session
+## Completed This Session
 
-**Created helper lemmas in `Lemma11_5_OrbitHelpers_Core.lean`:**
-- `g₃_c₁_eq_c₂` (m ≥ 2): g₃(c₁) = c₂
-- `g₃_c₂_eq_c₃` (m ≥ 3): g₃(c₂) = c₃
-- `g₃_pow2_c₁_eq_c₃` (m ≥ 3): g₃²(c₁) = c₃
-
-These are computational lemmas needed for the m >= 2 case (line 502 sorry).
+1. **Created `g₃_c₂_eq_elem2_m2`** - Shows g₃(c₂) = 2 when m = 2 (cycle wraps)
+2. **Created `g₃_pow2_c₁_eq_elem2`** - Shows g₃²(c₁) = 2 for m = 2 (target lemma)
+3. **Created implementation plan** for line 322 sorry (`PLAN_B_EQ_03_CASE.md`)
 
 ---
 
 ## NEXT SMALLEST STEP
 
-**Handle the m = 2 case separately OR proceed to implement Steps 1-4 of the plan**
+**Eliminate the sorry at line 322 of `Lemma11_5_Case2.lean`**
 
-The helper lemma `g₃_pow2_c₁_eq_c₃` requires m ≥ 3 (not m ≥ 2 as originally thought) because:
-- c₃ needs to exist as a valid element (6+n+k+2 < 6+n+k+m requires m > 2)
-- For m = 2, g₃²(c₁) = 2 (wraps around), not c₃
+This is the B' = {0, 3} subcase in the n ≥ 2 case. All required lemmas exist.
 
-**Options:**
-1. Create a separate lemma for m = 2 case: `g₃_pow2_c₁_eq_elem2`
-2. Proceed with Steps 1-4 of the plan using case split on m = 2 vs m ≥ 3
+**Plan file**: `AfTests/Primitivity/PLAN_B_EQ_03_CASE.md`
 
----
+**Summary**: Copy the ~23-line code block from the plan and replace the `sorry`.
 
-## Implementation Plan
-
-See **`AfTests/Primitivity/PLAN_M2_CASE.md`** for the full 4-step implementation plan for the m >= 2 case.
-
-### Quick Summary of Steps:
-1. **Find j** such that g₃^j(c₁) = 4 — all lemmas exist ✓
-2. **Define B'** and establish properties — all lemmas exist ✓
-3. **Show g₂(B') ≠ B'** — all lemmas exist ✓
-4. **Find g₂-fixed element OR handle B' = {1, 4}** — needs helper lemmas
-
-### Helper Lemmas Status:
-- `g₃_c₁_eq_c₂` (m ≥ 2) — **DONE** ✓
-- `g₃_c₂_eq_c₃` (m ≥ 3) — **DONE** ✓
-- `g₃_pow2_c₁_eq_c₃` (m ≥ 3) — **DONE** ✓
-- `g₃_pow2_c₁_eq_elem2` (m = 2) — not yet created
+The proof strategy:
+1. g₁²(0) = 3 (from `OrbitCore.g₁_pow2_elem0_eq_elem3`)
+2. So g₁²(B') ∩ B' ⊇ {3} (not disjoint)
+3. But g₁²(x) ∉ B' for some x ∈ B' (from `hx_out`)
+4. So g₁²(B') ≠ B'
+5. Block dichotomy violated → contradiction
 
 ---
 
 ## Remaining Sorries (3)
 
-| File | Line | Case | Difficulty | Blocker |
-|------|------|------|------------|---------|
-| `Lemma11_5_Case2.lean` | 322 | B' = {0,3} | HARDER | Needs g₁²(0)=3 |
-| `Lemma11_5_SymmetricCases.lean` | 368 | k >= 2, B' = {0,3} | HARDER | Same as above |
-| `Lemma11_5_SymmetricCases.lean` | 502 | m >= 2 | HARDER | See plan |
+| File | Line | Case | Difficulty | Plan |
+|------|------|------|------------|------|
+| `Lemma11_5_Case2.lean` | 322 | B' = {0,3}, n ≥ 2 | **READY** | `PLAN_B_EQ_03_CASE.md` |
+| `Lemma11_5_SymmetricCases.lean` | 368 | B' = {0,3}, k ≥ 2 | MEDIUM | Similar to 322 |
+| `Lemma11_5_SymmetricCases.lean` | 502 | m ≥ 2 | HARDER | `PLAN_M2_CASE.md` |
 
 ---
 
-## Key Discovery This Session
+## Helper Lemmas Status
 
-**For m = 2 vs m ≥ 3:**
-- m = 2: tailC = {c₁, c₂}, g₃²(c₁) = 2 (wraps to core)
-- m ≥ 3: tailC has c₁, c₂, c₃, ..., g₃²(c₁) = c₃
+### For m = 2 case (line 502):
+- `g₃_c₁_eq_c₂` (m ≥ 2) — DONE
+- `g₃_c₂_eq_c₃` (m ≥ 3) — DONE
+- `g₃_pow2_c₁_eq_c₃` (m ≥ 3) — DONE
+- `g₃_c₂_eq_elem2_m2` (m = 2) — **NEW** ✓
+- `g₃_pow2_c₁_eq_elem2` (m = 2) — **NEW** ✓
 
-This affects the B' = {1, 4} special case handling.
-
-**supp(g₂) ∩ supp(g₃) = {1, 4}** (not just {4})
+### For B' = {0,3} cases (lines 322, 368):
+- `g₁_pow2_elem0_eq_elem3` — EXISTS
+- `set_0_3_not_g₁_closed` — EXISTS
+- `g₁_zpow_preserves_blocks` — EXISTS
+- `g₂_zpow_preserves_blocks` — EXISTS
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Primitivity/Lemma11_5_OrbitHelpers_Core.lean` — Added 3 new helper lemmas
+- `AfTests/Primitivity/Lemma11_5_OrbitHelpers_Core.lean` — Added 2 new helper lemmas
+- `AfTests/Primitivity/PLAN_B_EQ_03_CASE.md` — New implementation plan
 - `HANDOFF.md` — This file
 
 ---
