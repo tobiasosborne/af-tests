@@ -318,8 +318,46 @@ theorem case2_impossible (hn : n ≥ 1) (B : Set (Omega n k m))
           -- And g₁²(0) = 3 ∈ B' (we need to check this), so g₁²(B') ∩ B' ≠ ∅
           -- This violates block dichotomy
           -- For now, we need B' ∈ BS.blocks to apply dichotomy
-          -- TODO: Prove zpow preserves block membership
-          sorry
+          -- Step 1: B' ∈ BS.blocks
+          have hB'_in_BS : B' ∈ BS.blocks := g₁_zpow_preserves_blocks BS hInv B hB_in_BS j
+          -- Step 2: g₁²(B') ∈ BS.blocks (using g₁² = g₁ * g₁ and H-invariance)
+          have hg₁sq_B'_in_BS : (g₁ n k m ^ (2 : ℕ)) '' B' ∈ BS.blocks := by
+            have hg₁B'_in : (g₁ n k m) '' B' ∈ BS.blocks := hInv.1 _ hB'_in_BS
+            have hg₁g₁B'_in : (g₁ n k m) '' ((g₁ n k m) '' B') ∈ BS.blocks := hInv.1 _ hg₁B'_in
+            convert hg₁g₁B'_in using 1
+            ext x; simp only [Set.mem_image, pow_two, Equiv.Perm.coe_mul, Function.comp_apply]
+            constructor
+            · rintro ⟨y, hy, rfl⟩; exact ⟨g₁ n k m y, ⟨y, hy, rfl⟩, rfl⟩
+            · rintro ⟨z, ⟨y, hy, rfl⟩, rfl⟩; exact ⟨y, hy, rfl⟩
+          -- Step 3: g₁²(B') ≠ B'
+          have hg₁sq_B'_ne : (g₁ n k m ^ (2 : ℕ)) '' B' ≠ B' := by
+            intro h_eq
+            have hx_in_B' : x ∈ B' := by rw [hB'_eq_03]; exact hx_in
+            have hg₁sq_x_in : (g₁ n k m ^ (2 : ℕ)) x ∈ (g₁ n k m ^ (2 : ℕ)) '' B' :=
+              Set.mem_image_of_mem _ hx_in_B'
+            rw [h_eq] at hg₁sq_x_in
+            have hx_out' : (g₁ n k m ^ (2 : ℕ)) x ∉ B' := by
+              simp only [pow_two, Equiv.Perm.coe_mul, Function.comp_apply]
+              rw [hB'_eq_03]; exact hx_out
+            exact hx_out' hg₁sq_x_in
+          -- Step 4: g₁²(B') ∩ B' ≠ ∅
+          have h_not_disjoint : ¬Disjoint ((g₁ n k m ^ (2 : ℕ)) '' B') B' := by
+            rw [Set.not_disjoint_iff]
+            use ⟨3, by omega⟩
+            constructor
+            · -- 3 ∈ g₁²(B') because g₁²(0) = 3 and 0 ∈ B'
+              rw [hB'_eq_03]
+              have h0_in : (⟨0, by omega⟩ : Omega n k m) ∈ ({⟨0, by omega⟩, ⟨3, by omega⟩} : Set _) :=
+                Set.mem_insert _ _
+              use ⟨0, by omega⟩, h0_in
+              simp only [pow_two, Equiv.Perm.coe_mul, Function.comp_apply]
+              rw [g₁_elem0_eq_elem5, g₁_elem5_eq_elem3]
+            · -- 3 ∈ B' = {0, 3}
+              rw [hB'_eq_03]
+              exact Set.mem_insert_of_mem _ rfl
+          -- Step 5: Contradiction
+          have hDichotomy := BS.isPartition.1 hg₁sq_B'_in_BS hB'_in_BS hg₁sq_B'_ne
+          exact h_not_disjoint hDichotomy
         · -- |B'| > 2, so ∃ z ∈ B' with z ≠ 0 and z ≠ 3
           have hB'_card_gt_2 : B'.ncard > 2 := by omega
           -- {0, 3} ⊆ B' has 2 elements, so B' \ {0, 3} is nonempty

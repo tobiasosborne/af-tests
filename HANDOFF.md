@@ -2,43 +2,38 @@
 
 ## Build Status: PASSING
 
-## Sorry Count: 3
+## Sorry Count: 2
 
 ---
 
 ## Completed This Session
 
-1. **Created `g₃_c₂_eq_elem2_m2`** - Shows g₃(c₂) = 2 when m = 2 (cycle wraps)
-2. **Created `g₃_pow2_c₁_eq_elem2`** - Shows g₃²(c₁) = 2 for m = 2 (target lemma)
-3. **Created implementation plan** for line 322 sorry (`PLAN_B_EQ_03_CASE.md`)
+1. **Eliminated sorry at line 322 of `Lemma11_5_Case2.lean`** - B' = {0,3}, n ≥ 2 case
+   - Used block dichotomy: g₁²(B') ≠ B' but g₁²(B') ∩ B' ≠ ∅
+   - Key lemmas: `g₁_elem0_eq_elem5`, `g₁_elem5_eq_elem3`, `g₁_zpow_preserves_blocks`
 
 ---
 
 ## NEXT SMALLEST STEP
 
-**Eliminate the sorry at line 322 of `Lemma11_5_Case2.lean`**
+**Eliminate the sorry at line 368 of `Lemma11_5_SymmetricCases.lean`**
 
-This is the B' = {0, 3} subcase in the n ≥ 2 case. All required lemmas exist.
+This is the B' = {0, 3} subcase in the k ≥ 2 case. Same strategy as line 322.
 
-**Plan file**: `AfTests/Primitivity/PLAN_B_EQ_03_CASE.md`
-
-**Summary**: Copy the ~23-line code block from the plan and replace the `sorry`.
-
-The proof strategy:
-1. g₁²(0) = 3 (from `OrbitCore.g₁_pow2_elem0_eq_elem3`)
-2. So g₁²(B') ∩ B' ⊇ {3} (not disjoint)
-3. But g₁²(x) ∉ B' for some x ∈ B' (from `hx_out`)
-4. So g₁²(B') ≠ B'
+**Strategy**: Adapt the proof from line 322 (use g₂ instead of g₁):
+1. g₂²(0) = 3 (need to verify this mapping)
+2. So g₂²(B') ∩ B' ⊇ {3} (not disjoint)
+3. But g₂²(x) ∉ B' for some x ∈ B' (from `hx_out`)
+4. So g₂²(B') ≠ B'
 5. Block dichotomy violated → contradiction
 
 ---
 
-## Remaining Sorries (3)
+## Remaining Sorries (2)
 
-| File | Line | Case | Difficulty | Plan |
-|------|------|------|------------|------|
-| `Lemma11_5_Case2.lean` | 322 | B' = {0,3}, n ≥ 2 | **READY** | `PLAN_B_EQ_03_CASE.md` |
-| `Lemma11_5_SymmetricCases.lean` | 368 | B' = {0,3}, k ≥ 2 | MEDIUM | Similar to 322 |
+| File | Line | Case | Difficulty | Notes |
+|------|------|------|------------|-------|
+| `Lemma11_5_SymmetricCases.lean` | 368 | B' = {0,3}, k ≥ 2 | MEDIUM | Similar to line 322 (done) |
 | `Lemma11_5_SymmetricCases.lean` | 502 | m ≥ 2 | HARDER | `PLAN_M2_CASE.md` |
 
 ---
@@ -49,21 +44,21 @@ The proof strategy:
 - `g₃_c₁_eq_c₂` (m ≥ 2) — DONE
 - `g₃_c₂_eq_c₃` (m ≥ 3) — DONE
 - `g₃_pow2_c₁_eq_c₃` (m ≥ 3) — DONE
-- `g₃_c₂_eq_elem2_m2` (m = 2) — **NEW** ✓
-- `g₃_pow2_c₁_eq_elem2` (m = 2) — **NEW** ✓
+- `g₃_c₂_eq_elem2_m2` (m = 2) — DONE
+- `g₃_pow2_c₁_eq_elem2` (m = 2) — DONE
 
-### For B' = {0,3} cases (lines 322, 368):
-- `g₁_pow2_elem0_eq_elem3` — EXISTS
-- `set_0_3_not_g₁_closed` — EXISTS
+### For B' = {0,3} cases:
+- `g₁_elem0_eq_elem5` — EXISTS (used in line 322 fix)
+- `g₁_elem5_eq_elem3` — EXISTS (used in line 322 fix)
 - `g₁_zpow_preserves_blocks` — EXISTS
 - `g₂_zpow_preserves_blocks` — EXISTS
+- Need: `g₂_elem0_eq_?` and similar for line 368
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Primitivity/Lemma11_5_OrbitHelpers_Core.lean` — Added 2 new helper lemmas
-- `AfTests/Primitivity/PLAN_B_EQ_03_CASE.md` — New implementation plan
+- `AfTests/Primitivity/Lemma11_5_Case2.lean` — Eliminated sorry at line 322
 - `HANDOFF.md` — This file
 
 ---
