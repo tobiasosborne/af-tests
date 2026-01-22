@@ -6,21 +6,28 @@
 
 ---
 
+## Progress This Session
+
+**Created helper lemmas in `Lemma11_5_OrbitHelpers_Core.lean`:**
+- `g₃_c₁_eq_c₂` (m ≥ 2): g₃(c₁) = c₂
+- `g₃_c₂_eq_c₃` (m ≥ 3): g₃(c₂) = c₃
+- `g₃_pow2_c₁_eq_c₃` (m ≥ 3): g₃²(c₁) = c₃
+
+These are computational lemmas needed for the m >= 2 case (line 502 sorry).
+
+---
+
 ## NEXT SMALLEST STEP
 
-**Create helper lemma `g₃_pow2_c₁_eq_c₃`** in `Lemma11_5_OrbitHelpers_Core.lean`
+**Handle the m = 2 case separately OR proceed to implement Steps 1-4 of the plan**
 
-This is a computational lemma needed for the m >= 2 case:
-```lean
-/-- g₃²(c₁) = c₃ for m ≥ 3 -/
-theorem g₃_pow2_c₁_eq_c₃ (hm : m ≥ 3) :
-    (g₃ n k m ^ (2 : ℕ)) (⟨6 + n + k, by omega⟩ : Omega n k m) =
-    ⟨6 + n + k + 2, by omega⟩
-```
+The helper lemma `g₃_pow2_c₁_eq_c₃` requires m ≥ 3 (not m ≥ 2 as originally thought) because:
+- c₃ needs to exist as a valid element (6+n+k+2 < 6+n+k+m requires m > 2)
+- For m = 2, g₃²(c₁) = 2 (wraps around), not c₃
 
-**Why this is needed**: The m >= 2 case requires handling the special case B' = {1, 4}. To derive a contradiction, we need to show g₃²(c₁) = c₃ ∈ g₃²(B) ∩ B, violating the block disjointness condition.
-
-**Implementation approach**: This is pure computation on the g₃ cycle. Can use `List.formPerm` reasoning similar to other element mapping lemmas.
+**Options:**
+1. Create a separate lemma for m = 2 case: `g₃_pow2_c₁_eq_elem2`
+2. Proceed with Steps 1-4 of the plan using case split on m = 2 vs m ≥ 3
 
 ---
 
@@ -34,9 +41,11 @@ See **`AfTests/Primitivity/PLAN_M2_CASE.md`** for the full 4-step implementation
 3. **Show g₂(B') ≠ B'** — all lemmas exist ✓
 4. **Find g₂-fixed element OR handle B' = {1, 4}** — needs helper lemmas
 
-### Helper Lemmas Needed (for Step 4):
-- `g₃_pow2_c₁_eq_c₃` — **NEXT STEP**
-- `g₃_pow2_c₃` — after above
+### Helper Lemmas Status:
+- `g₃_c₁_eq_c₂` (m ≥ 2) — **DONE** ✓
+- `g₃_c₂_eq_c₃` (m ≥ 3) — **DONE** ✓
+- `g₃_pow2_c₁_eq_c₃` (m ≥ 3) — **DONE** ✓
+- `g₃_pow2_c₁_eq_elem2` (m = 2) — not yet created
 
 ---
 
@@ -52,16 +61,19 @@ See **`AfTests/Primitivity/PLAN_M2_CASE.md`** for the full 4-step implementation
 
 ## Key Discovery This Session
 
-**supp(g₂) ∩ supp(g₃) = {1, 4}** (not just {4})
+**For m = 2 vs m ≥ 3:**
+- m = 2: tailC = {c₁, c₂}, g₃²(c₁) = 2 (wraps to core)
+- m ≥ 3: tailC has c₁, c₂, c₃, ..., g₃²(c₁) = c₃
 
-This means element 1 is in BOTH supports, so the simple "find g₂-fixed point" argument fails when B' = {1, 4}. The plan handles this via block condition violation.
+This affects the B' = {1, 4} special case handling.
+
+**supp(g₂) ∩ supp(g₃) = {1, 4}** (not just {4})
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Primitivity/Lemma11_5_SymmetricCases.lean` — Added import, documented approach
-- `AfTests/Primitivity/PLAN_M2_CASE.md` — NEW: Detailed implementation plan
+- `AfTests/Primitivity/Lemma11_5_OrbitHelpers_Core.lean` — Added 3 new helper lemmas
 - `HANDOFF.md` — This file
 
 ---

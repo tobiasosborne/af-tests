@@ -109,4 +109,56 @@ theorem g₁_pow2_elem0_eq_elem3 :
   simp only [pow_two, Equiv.Perm.coe_mul, Function.comp_apply]
   exact g₁_sq_elem0_eq_elem3
 
+/-- g₃ maps c₁ to c₂ (c₁ is at index 4 in cycle, next is c₂ at index 5). Requires m ≥ 2. -/
+theorem g₃_c₁_eq_c₂ (hm : m ≥ 2) :
+    g₃ n k m (⟨6 + n + k, by omega⟩ : Omega n k m) = ⟨6 + n + k + 1, by have := hm; omega⟩ := by
+  unfold g₃
+  have hNodup := g₃_list_nodup n k m
+  have h_len := g₃_cycle_length n k m
+  have h_core_len : (g₃CoreList n k m).length = 4 := by simp [g₃CoreList]
+  have h_4_lt : 4 < (g₃CoreList n k m ++ tailCList n k m).length := by rw [h_len]; have := hm; omega
+  have h_idx : (g₃CoreList n k m ++ tailCList n k m)[4]'h_4_lt =
+      (⟨6 + n + k, by omega⟩ : Omega n k m) := by
+    rw [List.getElem_append_right (by omega : 4 ≥ (g₃CoreList n k m).length)]
+    simp only [h_core_len, Nat.sub_self, tailCList, List.getElem_map, List.getElem_finRange]
+    rfl
+  rw [← h_idx, List.formPerm_apply_getElem _ hNodup 4 h_4_lt]
+  simp only [h_len]
+  have h_mod : (4 + 1) % (4 + m) = 5 := Nat.mod_eq_of_lt (by have := hm; omega)
+  simp only [h_mod]
+  have h_5_lt : 5 < (g₃CoreList n k m ++ tailCList n k m).length := by rw [h_len]; have := hm; omega
+  rw [List.getElem_append_right (by omega : 5 ≥ (g₃CoreList n k m).length)]
+  simp only [h_core_len, tailCList, List.getElem_map, List.getElem_finRange]
+  rfl
+
+/-- g₃ maps c₂ to c₃ (c₂ is at index 5 in cycle, next is c₃ at index 6). Requires m ≥ 3. -/
+theorem g₃_c₂_eq_c₃ (hm : m ≥ 3) :
+    g₃ n k m (⟨6 + n + k + 1, by have := hm; omega⟩ : Omega n k m) =
+    ⟨6 + n + k + 2, by have := hm; omega⟩ := by
+  unfold g₃
+  have hNodup := g₃_list_nodup n k m
+  have h_len := g₃_cycle_length n k m
+  have h_core_len : (g₃CoreList n k m).length = 4 := by simp [g₃CoreList]
+  have h_5_lt : 5 < (g₃CoreList n k m ++ tailCList n k m).length := by rw [h_len]; have := hm; omega
+  have h_idx : (g₃CoreList n k m ++ tailCList n k m)[5]'h_5_lt =
+      (⟨6 + n + k + 1, by have := hm; omega⟩ : Omega n k m) := by
+    rw [List.getElem_append_right (by omega : 5 ≥ (g₃CoreList n k m).length)]
+    simp only [h_core_len, tailCList, List.getElem_map, List.getElem_finRange]
+    rfl
+  rw [← h_idx, List.formPerm_apply_getElem _ hNodup 5 h_5_lt]
+  simp only [h_len]
+  have h_mod : (5 + 1) % (4 + m) = 6 := Nat.mod_eq_of_lt (by have := hm; omega)
+  simp only [h_mod]
+  have h_6_lt : 6 < (g₃CoreList n k m ++ tailCList n k m).length := by rw [h_len]; have := hm; omega
+  rw [List.getElem_append_right (by omega : 6 ≥ (g₃CoreList n k m).length)]
+  simp only [h_core_len, tailCList, List.getElem_map, List.getElem_finRange]
+  rfl
+
+/-- g₃²(c₁) = c₃ for m ≥ 3 -/
+theorem g₃_pow2_c₁_eq_c₃ (hm : m ≥ 3) :
+    (g₃ n k m ^ (2 : ℕ)) (⟨6 + n + k, by omega⟩ : Omega n k m) =
+    ⟨6 + n + k + 2, by have := hm; omega⟩ := by
+  simp only [pow_two, Equiv.Perm.coe_mul, Function.comp_apply]
+  rw [g₃_c₁_eq_c₂ (by omega : m ≥ 2), g₃_c₂_eq_c₃ hm]
+
 end OrbitCore
