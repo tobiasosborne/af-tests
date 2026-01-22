@@ -1,77 +1,99 @@
 # Handoff: 2026-01-22
 
-## Build Status: PASSING
+## Build Status: FAILING ❌
 
-## Sorry Count: 2
-
----
-
-## Completed This Session
-
-1. **Eliminated sorry at line 322 of `Lemma11_5_Case2.lean`** - B' = {0,3}, n ≥ 2 case
-   - Used block dichotomy: g₁²(B') ≠ B' but g₁²(B') ∩ B' ≠ ∅
-   - Key lemmas: `g₁_elem0_eq_elem5`, `g₁_elem5_eq_elem3`, `g₁_zpow_preserves_blocks`
+Build errors at lines 727-736 in `Lemma11_5_SymmetricCases.lean`
 
 ---
 
-## NEXT SMALLEST STEP
+## Current State
 
-**Eliminate the sorry at line 368 of `Lemma11_5_SymmetricCases.lean`**
+**File**: `AfTests/Primitivity/Lemma11_5_SymmetricCases.lean`
 
-This is the B' = {0, 3} subcase in the k ≥ 2 case. Same strategy as line 322.
+**Sorry count**: 1 (at line 797, the Disjoint case in m≥3)
 
-**Strategy**: Adapt the proof from line 322 (use g₂ instead of g₁):
-1. g₂²(0) = 3 (need to verify this mapping)
-2. So g₂²(B') ∩ B' ⊇ {3} (not disjoint)
-3. But g₂²(x) ∉ B' for some x ∈ B' (from `hx_out`)
-4. So g₂²(B') ≠ B'
-5. Block dichotomy violated → contradiction
+**Build errors**: 4 errors in the `hB_sub` proof (lines 727-736)
+
+**See detailed plan**: `AfTests/Primitivity/PLAN_M2_CASE.md`
 
 ---
 
-## Remaining Sorries (2)
+## What Was Done This Session
 
-| File | Line | Case | Difficulty | Notes |
-|------|------|------|------------|-------|
-| `Lemma11_5_SymmetricCases.lean` | 368 | B' = {0,3}, k ≥ 2 | MEDIUM | Similar to line 322 (done) |
-| `Lemma11_5_SymmetricCases.lean` | 502 | m ≥ 2 | HARDER | `PLAN_M2_CASE.md` |
+### Implemented m ≥ 3 case structure (lines 686-797)
+
+1. **c₂ ∈ B case** (lines 693-696): COMPLETE
+   - Derives contradiction with `hg₃Disj`
+
+2. **c₂ ∉ B case** (lines 697-797): PARTIALLY DONE
+   - Equality case (g₃²(B) = B): Most logic implemented, but `hB_sub` proof has errors
+   - Disjoint case: SORRY remains at line 797
+
+### Key fixes made:
+- Added `import AfTests.SignAnalysis.Lemma14` for `g₃_support_card`
+- Used correct cycle API: `IsCycle.pow_eq_one_iff`, `IsCycle.orderOf`, `orderOf_dvd_of_pow_eq_one`
+- Fixed divisibility→omega: `Nat.le_of_dvd` converts `(4+m) ∣ n` to `4+m ≤ n`
+- Fixed `pow_add` rewrite with explicit calc chain
 
 ---
 
-## Helper Lemmas Status
+## Build Errors to Fix
 
-### For m = 2 case (line 502):
-- `g₃_c₁_eq_c₂` (m ≥ 2) — DONE
-- `g₃_c₂_eq_c₃` (m ≥ 3) — DONE
-- `g₃_pow2_c₁_eq_c₃` (m ≥ 3) — DONE
-- `g₃_c₂_eq_elem2_m2` (m = 2) — DONE
-- `g₃_pow2_c₁_eq_elem2` (m = 2) — DONE
+Lines 727-736 in `hB_sub` proof:
 
-### For B' = {0,3} cases:
-- `g₁_elem0_eq_elem5` — EXISTS (used in line 322 fix)
-- `g₁_elem5_eq_elem3` — EXISTS (used in line 322 fix)
-- `g₁_zpow_preserves_blocks` — EXISTS
-- `g₂_zpow_preserves_blocks` — EXISTS
-- Need: `g₂_elem0_eq_?` and similar for line 368
+```
+Line 727: Type mismatch - hx_not.2
+Line 729: Invalid field `symm` on hx_not.2
+Line 731: ncard_le_ncard argument mismatch
+Line 736: omega can't prove goal
+```
+
+**Root cause**: After `simp only [Set.mem_insert_iff, Set.mem_singleton_iff, not_or] at hx_not`, the type of `hx_not` needs verification.
+
+**Fix approach**:
+1. Use `lean_goal` at line 723 to see actual type of `hx_not` after simp
+2. Adjust proof accordingly
+
+---
+
+## NEXT STEPS (Priority Order)
+
+1. **Fix build errors** (lines 727-736)
+   - Check type of `hx_not` with `lean_goal`
+   - Fix the `hB_sub` proof
+
+2. **Handle Disjoint case** (line 797 sorry)
+   - c₃ ∉ B means x ≠ c₃ where B = {c₁, x}
+   - Need to trace what x can be and derive contradiction
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Primitivity/Lemma11_5_Case2.lean` — Eliminated sorry at line 322
+- `AfTests/Primitivity/Lemma11_5_SymmetricCases.lean` — m≥3 case implementation (partial)
+- `AfTests/Primitivity/PLAN_M2_CASE.md` — Updated with session learnings
 - `HANDOFF.md` — This file
+
+---
+
+## Key Learnings Documented
+
+See `PLAN_M2_CASE.md` section "Session 2026-01-22: Work Done and Remaining Errors" for:
+- Correct API for cycle power lemmas
+- g₃_support_card namespace
+- pow_add pattern for permutations
 
 ---
 
 ## Verification Commands
 
 ```bash
-# Build
-lake build AfTests
+# Build (currently fails)
+lake build AfTests.Primitivity.Lemma11_5_SymmetricCases
+
+# Check errors
+lake build AfTests.Primitivity.Lemma11_5_SymmetricCases 2>&1 | grep error
 
 # Check sorries
-grep -rn "sorry" AfTests/Primitivity/ --include="*.lean"
-
-# Check LOC
-wc -l AfTests/Primitivity/Lemma11_5_*.lean | sort -n
+grep -n "sorry" AfTests/Primitivity/Lemma11_5_SymmetricCases.lean
 ```

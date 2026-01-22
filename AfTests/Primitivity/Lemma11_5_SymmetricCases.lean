@@ -13,6 +13,8 @@ import AfTests.Primitivity.Lemma11_5_Case2
 import AfTests.Transitivity.Lemma05ListProps
 import AfTests.Primitivity.Lemma11_5_ZpowBlocks
 import AfTests.Primitivity.Lemma11_5_OrbitHelpers_Core
+import AfTests.Primitivity.Lemma11_5_OrbitHelpers
+import AfTests.SignAnalysis.Lemma14
 
 /-!
 # Lemma 11.5: Symmetric Cases - Definitions and Basic Lemmas
@@ -361,11 +363,78 @@ theorem case2_impossible_B (hk : k ≥ 1) (B : Set (Omega n k m))
           -- This case means B' ⊇ {0, 3}
           -- Sub-case analysis on |B'|
           by_cases hB'_card_eq_2 : B'.ncard = 2
-          · -- B' = {0, 3}: This case needs extended orbit argument
-            -- For k ≥ 2, g₂ orbit of {0,3} eventually contains a block with
-            -- both g₁-fixed (tailB) and g₁-moved (0 or 3) elements
-            -- TODO: Add infrastructure lemmas for g₂ element mappings
-            sorry
+          · -- B' = {0, 3}: Use g₂² block dichotomy argument (k ≥ 2)
+            -- First establish y = 3 (since y ∈ supp(g₂), y ≠ 0, 1, 4, y ∉ tailB)
+            have hy_eq_3 : y = ⟨3, by omega⟩ := by
+              have hy_in_supp' : y ∈ (g₂ n k m).support := hB'_subset_supp hy_in_B'
+              have h_y_cases : y.val = 0 ∨ y.val = 1 ∨ y.val = 3 ∨ y.val = 4 ∨ isTailB y := by
+                simp only [g₂, Equiv.Perm.mem_support, ne_eq] at hy_in_supp'
+                by_contra h_not; push_neg at h_not
+                have hy_fixed : g₂ n k m y = y := by
+                  apply List.formPerm_apply_of_notMem; intro hmem
+                  simp only [List.mem_append, g₂CoreList, tailBList, List.mem_cons,
+                    List.mem_map, List.mem_finRange, List.not_mem_nil, or_false] at hmem
+                  rcases hmem with hCore | hTail
+                  · rcases hCore with h | h | h | h <;> (simp only [Fin.ext_iff] at h; omega)
+                  · obtain ⟨i, _, hi⟩ := hTail
+                    have : isTailB y := by simp only [isTailB, ← hi, Fin.val_mk]; omega
+                    exact h_not.2.2.2.2 this
+                exact hy_in_supp' hy_fixed
+              rcases h_y_cases with h0 | h1 | h3 | h4 | hB
+              · exact absurd (Fin.ext h0) hy_ne_0
+              · exact absurd (Fin.ext h1) hy_eq_1
+              · exact Fin.ext h3
+              · exact absurd (Fin.ext h4) hy_eq_4
+              · exact absurd hB hy_tailB
+            -- Now {0, 3} ⊆ B' and B' = {0, 3}
+            have h03_subset : ({⟨0, by omega⟩, ⟨3, by omega⟩} : Set (Omega n k m)) ⊆ B' := by
+              intro z hz; simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hz
+              rcases hz with rfl | rfl
+              · exact h0_in_B'
+              · rw [← hy_eq_3]; exact hy_in_B'
+            have h03_card : ({⟨0, by omega⟩, ⟨3, by omega⟩} : Set (Omega n k m)).ncard = 2 := by
+              rw [Set.ncard_pair]; exact fun h => by simp only [Fin.ext_iff] at h; omega
+            have hB'_eq_03 : B' = {⟨0, by omega⟩, ⟨3, by omega⟩} := by
+              apply (Set.eq_of_subset_of_ncard_le h03_subset _ (Set.toFinite _)).symm
+              rw [hB'_card_eq_2, h03_card]
+            -- Use set_0_3_not_g₂_closed: ∃ x ∈ {0, 3}, g₂²(x) ∉ {0, 3}
+            obtain ⟨x, hx_in, hx_out⟩ := set_0_3_not_g₂_closed hk2
+            -- Step 1: B' ∈ BS.blocks
+            have hB'_in_BS : B' ∈ BS.blocks := g₂_zpow_preserves_blocks BS hInv B hB_in_BS j
+            -- Step 2: g₂²(B') ∈ BS.blocks
+            have hg₂sq_B'_in_BS : (g₂ n k m ^ (2 : ℕ)) '' B' ∈ BS.blocks := by
+              have hg₂B'_in : (g₂ n k m) '' B' ∈ BS.blocks := hInv.2.1 _ hB'_in_BS
+              have hg₂g₂B'_in : (g₂ n k m) '' ((g₂ n k m) '' B') ∈ BS.blocks := hInv.2.1 _ hg₂B'_in
+              convert hg₂g₂B'_in using 1
+              ext w; simp only [Set.mem_image, pow_two, Equiv.Perm.coe_mul, Function.comp_apply]
+              constructor
+              · rintro ⟨z, hz, rfl⟩; exact ⟨g₂ n k m z, ⟨z, hz, rfl⟩, rfl⟩
+              · rintro ⟨z, ⟨w, hw, rfl⟩, rfl⟩; exact ⟨w, hw, rfl⟩
+            -- Step 3: g₂²(B') ≠ B'
+            have hg₂sq_B'_ne : (g₂ n k m ^ (2 : ℕ)) '' B' ≠ B' := by
+              intro h_eq
+              have hx_in_B' : x ∈ B' := by rw [hB'_eq_03]; exact hx_in
+              have hg₂sq_x_in : (g₂ n k m ^ (2 : ℕ)) x ∈ (g₂ n k m ^ (2 : ℕ)) '' B' :=
+                Set.mem_image_of_mem _ hx_in_B'
+              rw [h_eq] at hg₂sq_x_in
+              have hx_out' : (g₂ n k m ^ (2 : ℕ)) x ∉ B' := by rw [hB'_eq_03]; exact hx_out
+              exact hx_out' hg₂sq_x_in
+            -- Step 4: g₂²(B') ∩ B' ≠ ∅ (g₂²(3) = 0 ∈ B')
+            have h_not_disjoint : ¬Disjoint ((g₂ n k m ^ (2 : ℕ)) '' B') B' := by
+              rw [Set.not_disjoint_iff]
+              use ⟨0, by omega⟩
+              constructor
+              · -- 0 ∈ g₂²(B') because g₂²(3) = 0 and 3 ∈ B'
+                rw [hB'_eq_03]
+                have h3_in : (⟨3, by omega⟩ : Omega n k m) ∈ ({⟨0, by omega⟩, ⟨3, by omega⟩} : Set _) :=
+                  Set.mem_insert_of_mem _ rfl
+                use ⟨3, by omega⟩, h3_in
+                exact g₂_pow2_elem3_eq_elem0
+              · -- 0 ∈ B' = {0, 3}
+                rw [hB'_eq_03]; exact Set.mem_insert _ _
+            -- Step 5: Contradiction
+            have hDichotomy := BS.isPartition.1 hg₂sq_B'_in_BS hB'_in_BS hg₂sq_B'_ne
+            exact h_not_disjoint hDichotomy
           · -- |B'| > 2: Find z ∈ B' \ {0, 3}, which must be g₁-fixed
             have hB'_card_gt_2 : B'.ncard > 2 := by omega
             have h03_subset : ({⟨0, by omega⟩, ⟨3, by omega⟩} : Set (Omega n k m)) ⊆ B' := by
@@ -485,18 +554,244 @@ theorem case2_impossible_C (hm : m ≥ 1) (B : Set (Omega n k m))
           · simp
           · intro i j hij; simp only [Fin.ext_iff] at hij ⊢; omega
     omega
-  · -- m >= 2: HARDER CASE
-    -- This case requires showing that B' = g₃^j(B) contains an element fixed by g₂.
-    -- The complication: supp(g₂) ∩ supp(g₃) = {1, 4}, not just {4}.
-    -- So element 1 is in both supports, and the simple argument doesn't work.
-    --
-    -- Full proof approach:
-    -- 1. Find j such that g₃^j(c₁) = 4 (element in supp(g₂) ∩ supp(g₃))
-    -- 2. B' = g₃^j(B) contains 4, and B' ⊆ supp(g₃)
-    -- 3. g₂(4) = 0 ∉ supp(g₃), so g₂(B') ≠ B'
-    -- 4. Need to find z ∈ B' with g₂(z) = z (i.e., z ∈ {2, 5} ∪ tailC)
-    -- 5. If B' = {1, 4} (the only case without such z), derive contradiction:
-    --    - B' = {1, 4} implies B = {c₁, c₃} (computing preimage)
-    --    - B = {c₁, c₃} violates hBlock: g₃²(c₁) = c₃ ∈ g₃²(B) ∩ B
-    -- 6. Otherwise, use z for the block dichotomy contradiction
-    sorry
+  · -- m >= 2
+    have hm2 : m ≥ 2 := by omega
+    -- Step 1: Find j such that g₃^j(c₁) = 4
+    have hc₁_in_supp : c₁ n k m hm ∈ (g₃ n k m).support := c₁_mem_support_g₃ hm
+    have h4_in_supp : (⟨4, by omega⟩ : Omega n k m) ∈ (g₃ n k m).support := elem4_in_support_g₃
+    have hCyc : (g₃ n k m).IsCycle := g₃_isCycle n k m
+    rw [mem_support] at hc₁_in_supp h4_in_supp
+    obtain ⟨j, hj⟩ := hCyc.exists_zpow_eq hc₁_in_supp h4_in_supp
+    -- Step 2: Define B' and establish basic properties
+    let B' := (g₃ n k m ^ j) '' B
+    have h4_in_B' : (⟨4, by omega⟩ : Omega n k m) ∈ B' := ⟨c₁ n k m hm, hc₁_in_B, hj⟩
+    have hB'_card : B'.ncard = B.ncard := Set.ncard_image_of_injective _ (g₃ n k m ^ j).injective
+    have hB'_card_gt_1 : 1 < B'.ncard := by rw [hB'_card]; exact hNT_lower
+    have hB'_subset_supp : B' ⊆ (g₃ n k m).support := by
+      intro x hx; obtain ⟨y, hyB, hyx⟩ := hx
+      have hy_in_supp : y ∈ (g₃ n k m).support := hB_subset_supp_g₃ hyB
+      simp only [Finset.mem_coe] at hy_in_supp ⊢
+      rw [← hyx]; exact Equiv.Perm.zpow_apply_mem_support.mpr hy_in_supp
+    have hB'_in_BS : B' ∈ BS.blocks := g₃_zpow_preserves_blocks BS hInv B hB_in_BS j
+    -- Step 3: Show g₂(B') ≠ B'
+    have hg₂_4_not_in_B' : g₂ n k m ⟨4, by omega⟩ ∉ B' := by
+      rw [OrbitCore.g₂_elem4_eq_elem0']; intro h_contra
+      exact elem0_not_in_support_g₃ (hB'_subset_supp h_contra)
+    have hg₂_B'_ne : g₂ n k m '' B' ≠ B' := by
+      intro h_eq
+      have : g₂ n k m ⟨4, by omega⟩ ∈ g₂ n k m '' B' := Set.mem_image_of_mem _ h4_in_B'
+      rw [h_eq] at this; exact hg₂_4_not_in_B' this
+    -- Step 4: Case analysis - find g₂-fixed element or handle B' = {1, 4}
+    by_cases hB'_small : ∃ z ∈ B', z ≠ (⟨1, by omega⟩ : Omega n k m) ∧ z ≠ (⟨4, by omega⟩ : Omega n k m)
+    · -- Case 4a: ∃ z ∈ B' with z ∉ {1, 4}
+      obtain ⟨z, hz_in_B', hz_ne_1, hz_ne_4⟩ := hB'_small
+      -- z ∈ supp(g₃) \ {1, 4} = {2, 5} ∪ tailC, all g₂-fixed
+      have hz_in_supp : z ∈ (g₃ n k m).support := hB'_subset_supp hz_in_B'
+      have hg₂_fixes_z : g₂ n k m z = z := by
+        have hz_cases : z.val = 1 ∨ z.val = 2 ∨ z.val = 4 ∨ z.val = 5 ∨ isTailC z := by
+          simp only [g₃, Equiv.Perm.mem_support, ne_eq] at hz_in_supp
+          by_contra h_not; push_neg at h_not
+          have hz_fixed : g₃ n k m z = z := by
+            apply List.formPerm_apply_of_notMem
+            intro hmem
+            simp only [List.mem_append, g₃CoreList, tailCList, List.mem_cons,
+              List.mem_map, List.mem_finRange, List.not_mem_nil, or_false] at hmem
+            rcases hmem with hCore | hTail
+            · rcases hCore with h | h | h | h <;> (simp only [Fin.ext_iff] at h; omega)
+            · obtain ⟨i, _, hi⟩ := hTail
+              have : isTailC z := by simp only [isTailC, ← hi, Fin.val_mk]; omega
+              exact h_not.2.2.2.2 this
+          exact hz_in_supp hz_fixed
+        rcases hz_cases with h1 | h2 | h4 | h5 | hC
+        · exact absurd (Fin.ext h1) hz_ne_1
+        · have hz_eq : z = ⟨2, by omega⟩ := Fin.ext h2; rw [hz_eq]; exact g₂_fixes_elem2
+        · exact absurd (Fin.ext h4) hz_ne_4
+        · have hz_eq : z = ⟨5, by omega⟩ := Fin.ext h5; rw [hz_eq]; exact g₂_fixes_elem5
+        · exact g₂_fixes_tailC z hC
+      have hz_in_g₂B' : z ∈ g₂ n k m '' B' := by rw [← hg₂_fixes_z]; exact Set.mem_image_of_mem _ hz_in_B'
+      have hg₂B'_in_BS : g₂ n k m '' B' ∈ BS.blocks := hInv.2.1 B' hB'_in_BS
+      have hDisj : Disjoint B' (g₂ n k m '' B') := BS.isPartition.1 hB'_in_BS hg₂B'_in_BS hg₂_B'_ne.symm
+      exact Set.disjoint_iff.mp hDisj ⟨hz_in_B', hz_in_g₂B'⟩
+    · -- Case 4b: B' ⊆ {1, 4}, so B' = {1, 4}
+      push_neg at hB'_small
+      -- hB'_small : ∀ z ∈ B', z ≠ 1 → z = 4  (implication form)
+      have h1_in_B' : (⟨1, by omega⟩ : Omega n k m) ∈ B' := by
+        have hB'_has_other : ∃ y ∈ B', y ≠ (⟨4, by omega⟩ : Omega n k m) := by
+          by_contra h; push_neg at h
+          have hSub : B' ⊆ {⟨4, by omega⟩} := fun y hy => Set.mem_singleton_iff.mpr (h y hy)
+          have hLe : B'.ncard ≤ 1 := Set.ncard_le_ncard hSub (Set.finite_singleton _) |>.trans
+            (by simp [Set.ncard_singleton])
+          omega
+        obtain ⟨y, hy_in, hy_ne_4⟩ := hB'_has_other
+        by_cases hy_eq_1 : y = ⟨1, by omega⟩
+        · rw [← hy_eq_1]; exact hy_in
+        · exact absurd (hB'_small y hy_in hy_eq_1) hy_ne_4
+      have hB'_eq_14 : B' = {⟨1, by omega⟩, ⟨4, by omega⟩} := by
+        ext z; constructor
+        · intro hz
+          by_cases h1 : z = ⟨1, by omega⟩
+          · simp [h1]
+          · simp [hB'_small z hz h1]
+        · intro hz; simp at hz; rcases hz with rfl | rfl <;> assumption
+      -- Sub-step 4b.2: use hBlock to derive contradiction
+      -- Case split on m = 2 vs m ≥ 3
+      by_cases hm_eq_2 : m = 2
+      · -- Case m = 2: g₃²(c₁) = 2, but 2 ∉ tailC, contradicting B ⊆ tailC
+        have hg₃_pow2_c₁ : (g₃ n k m ^ (2 : ℕ)) (c₁ n k m hm) = ⟨2, by omega⟩ := by
+          simp only [c₁]; exact OrbitCore.g₃_pow2_c₁_eq_elem2 hm_eq_2
+        have h2_not_tailC : ¬isTailC (⟨2, by omega⟩ : Omega n k m) := by
+          simp only [isTailC]; omega
+        -- g₃²(c₁) ∈ g₃²(B) since c₁ ∈ B
+        have hc₁_in_g₃pow2B : (g₃ n k m ^ (2 : ℕ)) (c₁ n k m hm) ∈ ⇑(g₃ n k m ^ (2 : ℕ)) '' B :=
+          Set.mem_image_of_mem _ hc₁_in_B
+        -- By hBlock 2: either g₃²(B) = B or Disjoint
+        rcases hBlock 2 with hEq | hDisj
+        · -- If g₃²(B) = B, then 2 ∈ B
+          rw [hEq] at hc₁_in_g₃pow2B
+          have h2_in_B : (⟨2, by omega⟩ : Omega n k m) ∈ B := by
+            rw [← hg₃_pow2_c₁]; exact hc₁_in_g₃pow2B
+          exact h2_not_tailC (hB_subset_tailC _ h2_in_B)
+        · -- If Disjoint: B = {c₁, c₂} but g₃(c₁) = c₂ ∈ B, contradicting hg₃Disj
+          -- Since m = 2, tailC = {c₁, c₂} and |B| = 2, B ⊆ tailC implies B = {c₁, c₂}
+          have hc₂ : (⟨7 + n + k, by omega⟩ : Omega n k m) ∈ B := by
+            have hTailC_eq : {x : Omega n k m | isTailC x} = {c₁ n k m hm, ⟨7 + n + k, by omega⟩} := by
+              ext x; simp only [Set.mem_setOf_eq, Set.mem_insert_iff, Set.mem_singleton_iff]
+              constructor
+              · intro hx; simp only [isTailC, c₁] at hx ⊢
+                rcases Nat.lt_succ_iff_lt_or_eq.mp (by omega : x.val < 6 + n + k + 2) with h | h
+                · left; ext; simp only [Fin.val_mk]; omega
+                · right; ext; simp only [Fin.val_mk]; omega
+              · intro hx; rcases hx with rfl | rfl
+                · simp only [isTailC, c₁, hm_eq_2]; omega
+                · simp only [isTailC, hm_eq_2]; constructor <;> omega
+            have hB_sub : B ⊆ {c₁ n k m hm, ⟨7 + n + k, by omega⟩} := by
+              intro x hx; rw [← hTailC_eq]; exact hB_subset_tailC x hx
+            have hc₁_ne_c₂ : c₁ n k m hm ≠ (⟨7 + n + k, by omega⟩ : Omega n k m) := by
+              simp only [c₁, ne_eq, Fin.ext_iff, Fin.val_mk]; omega
+            have hCard2 : ({c₁ n k m hm, ⟨7 + n + k, by omega⟩} : Set (Omega n k m)).ncard = 2 := by
+              rw [Set.ncard_pair hc₁_ne_c₂]
+            have hB_eq : B = {c₁ n k m hm, ⟨7 + n + k, by omega⟩} := by
+              apply Set.eq_of_subset_of_ncard_le hB_sub
+              rw [hCard2]; exact hNT_lower
+            rw [hB_eq]; simp
+          -- g₃(c₁) = c₂, so c₂ ∈ g₃(B)
+          have hg₃_c₁ : g₃ n k m (c₁ n k m hm) = ⟨7 + n + k, by omega⟩ := by
+            simp only [c₁]
+            have h := @OrbitCore.g₃_c₁_eq_c₂ n k m (by omega : m ≥ 2)
+            convert h using 2 <;> omega
+          have hc₂_in_g₃B : (⟨7 + n + k, by omega⟩ : Omega n k m) ∈ g₃ n k m '' B := by
+            rw [← hg₃_c₁]; exact Set.mem_image_of_mem _ hc₁_in_B
+          -- But c₂ ∈ B, contradicting Disjoint g₃(B) B
+          exact Set.disjoint_iff.mp hg₃Disj ⟨hc₂_in_g₃B, hc₂⟩
+      · -- Case m ≥ 3
+        have hm3 : m ≥ 3 := by omega
+        -- g₃(c₁) = c₂
+        have hg₃_c₁ : g₃ n k m (c₁ n k m hm) = ⟨6 + n + k + 1, by omega⟩ := by
+          simp only [c₁]
+          exact @OrbitCore.g₃_c₁_eq_c₂ n k m (by omega : m ≥ 2)
+        -- Case split: is c₂ in B?
+        by_cases hc₂_in_B : (⟨6 + n + k + 1, by omega⟩ : Omega n k m) ∈ B
+        · -- c₂ ∈ B: contradiction with hg₃Disj
+          have hc₂_in_g₃B : (⟨6 + n + k + 1, by omega⟩ : Omega n k m) ∈ g₃ n k m '' B := by
+            rw [← hg₃_c₁]; exact Set.mem_image_of_mem _ hc₁_in_B
+          exact Set.disjoint_iff.mp hg₃Disj ⟨hc₂_in_g₃B, hc₂_in_B⟩
+        · -- c₂ ∉ B: use hBlock 2 to get contradiction
+          -- g₃²(c₁) = c₃, which is a tailC element
+          have hg₃_pow2_c₁ : (g₃ n k m ^ (2 : ℕ)) (c₁ n k m hm) = ⟨6 + n + k + 2, by omega⟩ := by
+            simp only [c₁]; exact OrbitCore.g₃_pow2_c₁_eq_c₃ hm3
+          have hc₃_in_g₃pow2B : (⟨6 + n + k + 2, by omega⟩ : Omega n k m) ∈ ⇑(g₃ n k m ^ (2 : ℕ)) '' B := by
+            rw [← hg₃_pow2_c₁]; exact Set.mem_image_of_mem _ hc₁_in_B
+          -- By hBlock 2: either g₃²(B) = B or Disjoint
+          rcases hBlock 2 with hEq | hDisj2
+          · -- Equality case: g₃²(B) = B implies c₃ ∈ B
+            -- Then B = {c₁, c₃} and g₃²(B) = {c₃, g₃²(c₃)}
+            -- But g₃²(c₃) ∉ {c₁, c₃} since g₃ cycle length 4+m, 2∤4+m, 4∤4+m
+            have hc₃_in_B : (⟨6 + n + k + 2, by omega⟩ : Omega n k m) ∈ B := by
+              rw [← hEq]; exact hc₃_in_g₃pow2B
+            -- c₃ is a tailC element
+            have hc₃_tailC : isTailC (⟨6 + n + k + 2, by omega⟩ : Omega n k m) := by
+              simp only [isTailC]; omega
+            -- Since |B| = 2, c₁ ∈ B, c₃ ∈ B, c₁ ≠ c₃, we have B = {c₁, c₃}
+            have hc₁_ne_c₃ : c₁ n k m hm ≠ (⟨6 + n + k + 2, by omega⟩ : Omega n k m) := by
+              simp only [c₁, ne_eq, Fin.ext_iff, Fin.val_mk]; omega
+            have hB_sub : B ⊆ {c₁ n k m hm, ⟨6 + n + k + 2, by omega⟩} := by
+              intro x hx
+              have hx_tailC := hB_subset_tailC x hx
+              -- x is tailC, and |B| = 2 with c₁, c₃ ∈ B
+              -- Since c₂ ∉ B and x ∈ B, if x ≠ c₁ and x ≠ c₃, B would have > 2 elements
+              by_contra hx_not
+              simp only [Set.mem_insert_iff, Set.mem_singleton_iff, not_or] at hx_not
+              -- B contains c₁, c₃, x with x ≠ c₁, x ≠ c₃
+              have h3 : ({c₁ n k m hm, ⟨6 + n + k + 2, by omega⟩, x} : Set (Omega n k m)).ncard ≥ 3 := by
+                rw [Set.ncard_insert_of_not_mem, Set.ncard_insert_of_not_mem, Set.ncard_singleton]
+                · simp only [Set.mem_singleton_iff]; exact hx_not.2
+                · simp only [Set.mem_insert_iff, Set.mem_singleton_iff, not_or]
+                  exact ⟨hc₁_ne_c₃, hx_not.2.symm⟩
+              have hB_ge_3 : B.ncard ≥ 3 := by
+                apply Set.ncard_le_ncard (s := {c₁ n k m hm, ⟨6 + n + k + 2, by omega⟩, x})
+                · intro y hy
+                  simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hy
+                  rcases hy with rfl | rfl | rfl <;> assumption
+                · exact Set.toFinite B
+              omega
+            have hB_eq : B = {c₁ n k m hm, ⟨6 + n + k + 2, by omega⟩} := by
+              apply Set.eq_of_subset_of_ncard_le hB_sub
+              rw [Set.ncard_pair hc₁_ne_c₃]; exact hNT_lower
+            -- Now g₃²(B) = {g₃²(c₁), g₃²(c₃)} = {c₃, g₃²(c₃)}
+            -- For g₃²(B) = B, need g₃²(c₃) ∈ {c₁, c₃}
+            -- But g₃ is a cycle of length 4+m, and 2,4 don't divide 4+m for m≥1
+            -- So g₃²(c₃) ≠ c₃ and g₃⁴(c₁) ≠ c₁
+            -- g₃²(c₃) = c₁ would mean g₃⁴(c₁) = c₁, contradiction
+            have hOrd : orderOf (g₃ n k m) = (g₃ n k m).support.card := hCyc.orderOf
+            have hCycLen : (g₃ n k m).support.card = 4 + m := AfTests.SignAnalysis.g₃_support_card n k m
+            have h4m_gt_4 : 4 + m > 4 := by omega
+            have h4m_gt_2 : 4 + m > 2 := by omega
+            -- g₃²(c₃) ≠ c₃: would require g₃² = 1, but orderOf g₃ = 4+m > 2
+            have hg₃2_c₃_ne_c₃ : (g₃ n k m ^ (2 : ℕ)) (⟨6 + n + k + 2, by omega⟩ : Omega n k m) ≠
+                ⟨6 + n + k + 2, by omega⟩ := by
+              intro heq
+              have hc₃_in_supp : (⟨6 + n + k + 2, by omega⟩ : Omega n k m) ∈ (g₃ n k m).support :=
+                hB_subset_supp_g₃ hc₃_in_B
+              -- g₃²(c₃) = c₃ with c₃ in support implies g₃² = 1 (by IsCycle.pow_eq_one_iff)
+              have hpow2_eq_one : g₃ n k m ^ (2 : ℕ) = 1 := by
+                rw [hCyc.pow_eq_one_iff]
+                exact ⟨⟨6 + n + k + 2, by omega⟩, Equiv.Perm.mem_support.mp hc₃_in_supp, heq⟩
+              -- g₃² = 1 implies orderOf g₃ | 2
+              have hdvd : orderOf (g₃ n k m) ∣ 2 := orderOf_dvd_of_pow_eq_one hpow2_eq_one
+              rw [hOrd, hCycLen] at hdvd
+              have hle := Nat.le_of_dvd (by norm_num : (2 : ℕ) > 0) hdvd
+              omega
+            -- g₃²(c₃) ≠ c₁: would require g₃⁴(c₁) = c₁, but orderOf g₃ = 4+m doesn't divide 4
+            have hg₃2_c₃_ne_c₁ : (g₃ n k m ^ (2 : ℕ)) (⟨6 + n + k + 2, by omega⟩ : Omega n k m) ≠
+                c₁ n k m hm := by
+              intro heq
+              -- g₃²(c₃) = c₁ means g₃²(g₃²(c₁)) = c₁, i.e., g₃⁴(c₁) = c₁
+              have hg₃4_c₁ : (g₃ n k m ^ (4 : ℕ)) (c₁ n k m hm) = c₁ n k m hm := by
+                have h4eq : (4 : ℕ) = 2 + 2 := by norm_num
+                calc (g₃ n k m ^ (4 : ℕ)) (c₁ n k m hm)
+                    = (g₃ n k m ^ (2 + 2)) (c₁ n k m hm) := by rw [h4eq]
+                    _ = (g₃ n k m ^ 2 * g₃ n k m ^ 2) (c₁ n k m hm) := by rw [pow_add]
+                    _ = (g₃ n k m ^ (2 : ℕ)) ((g₃ n k m ^ (2 : ℕ)) (c₁ n k m hm)) := by
+                        simp only [Equiv.Perm.coe_mul, Function.comp_apply]
+                    _ = (g₃ n k m ^ (2 : ℕ)) (⟨6 + n + k + 2, by omega⟩) := by rw [hg₃_pow2_c₁]
+                    _ = c₁ n k m hm := heq
+              have hc₁_in_supp : c₁ n k m hm ∈ (g₃ n k m).support := hB_subset_supp_g₃ hc₁_in_B
+              -- g₃⁴(c₁) = c₁ with c₁ in support implies g₃⁴ = 1 (by IsCycle.pow_eq_one_iff)
+              have hpow4_eq_one : g₃ n k m ^ (4 : ℕ) = 1 := by
+                rw [hCyc.pow_eq_one_iff]
+                exact ⟨c₁ n k m hm, Equiv.Perm.mem_support.mp hc₁_in_supp, hg₃4_c₁⟩
+              have hdvd : orderOf (g₃ n k m) ∣ 4 := orderOf_dvd_of_pow_eq_one hpow4_eq_one
+              rw [hOrd, hCycLen] at hdvd
+              have hle := Nat.le_of_dvd (by norm_num : (4 : ℕ) > 0) hdvd
+              omega
+            -- Now: g₃²(B) = {c₃, g₃²(c₃)} but g₃²(c₃) ∉ {c₁, c₃} = B
+            have hg₃2_c₃_not_in_B : (g₃ n k m ^ (2 : ℕ)) (⟨6 + n + k + 2, by omega⟩ : Omega n k m) ∉ B := by
+              rw [hB_eq]; simp only [Set.mem_insert_iff, Set.mem_singleton_iff]
+              push_neg; exact ⟨hg₃2_c₃_ne_c₁, hg₃2_c₃_ne_c₃⟩
+            -- But g₃²(c₃) ∈ g₃²(B) = B by hEq
+            have hg₃2_c₃_in_g₃2B : (g₃ n k m ^ (2 : ℕ)) (⟨6 + n + k + 2, by omega⟩ : Omega n k m) ∈
+                ⇑(g₃ n k m ^ (2 : ℕ)) '' B := Set.mem_image_of_mem _ hc₃_in_B
+            rw [hEq] at hg₃2_c₃_in_g₃2B
+            exact hg₃2_c₃_not_in_B hg₃2_c₃_in_g₃2B
+          · -- Disjoint case: c₃ ∉ B
+            sorry

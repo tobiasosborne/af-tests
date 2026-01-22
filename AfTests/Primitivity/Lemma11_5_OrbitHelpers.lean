@@ -50,6 +50,50 @@ theorem elem_not_in_support_g₁_cases (x : Omega n k m)
   · right; right; left; exact hB
   · right; right; right; exact hC
 
+/-- g₂ maps tailB elements to either tailB or element 1 (last tailB wraps) -/
+theorem g₂_tailB_to_tailB_or_1 (x : Omega n k m) (hx : isTailB x) :
+    isTailB (g₂ n k m x) ∨ g₂ n k m x = ⟨1, by omega⟩ := by
+  simp only [isTailB] at hx ⊢
+  -- x.val = 6 + n + i for some 0 ≤ i < k
+  have hi : x.val - (6 + n) < k := by omega
+  set i := x.val - (6 + n) with hi_def
+  have hx_val : x.val = 6 + n + i := by omega
+  have hx_eq : x = ⟨6 + n + i, by have := x.isLt; omega⟩ := Fin.ext hx_val
+  unfold g₂
+  have hnd := g₂_list_nodup n k m; have hlen := g₂_cycle_length n k m
+  -- x is at index 4 + i in the g₂ cycle list
+  have h_idx_lt : 4 + i < (g₂CoreList n k m ++ tailBList n k m).length := by rw [hlen]; omega
+  have h_at_idx : (g₂CoreList n k m ++ tailBList n k m)[4 + i]'h_idx_lt = x := by
+    rw [List.getElem_append_right (by simp [g₂CoreList] : 4 + i ≥ (g₂CoreList n k m).length)]
+    simp only [g₂CoreList, tailBList, List.length_cons, List.length_nil,
+      List.getElem_map, List.getElem_finRange, Fin.coe_cast]
+    rw [hx_eq]; congr 1; omega
+  rw [← h_at_idx, List.formPerm_apply_getElem _ hnd (4 + i) h_idx_lt]
+  simp only [hlen]
+  by_cases h_last : i = k - 1
+  · -- Last tailB element: wraps to element 1
+    right
+    have hk_pos : k ≥ 1 := by omega
+    have h_mod : (4 + i + 1) % (4 + k) = 0 := by
+      have : 4 + i + 1 = 4 + k := by omega
+      simp only [this, Nat.mod_self]
+    simp only [h_mod]
+    rw [List.getElem_append_left (by simp [g₂CoreList] : 0 < (g₂CoreList n k m).length)]
+    simp [g₂CoreList]
+  · -- Not last: next tailB element
+    left
+    have h_i_lt_k1 : i + 1 < k := by omega
+    have h_mod : (4 + i + 1) % (4 + k) = 5 + i := by
+      have h5i_lt : 5 + i < 4 + k := by omega
+      have heq : 4 + i + 1 = 5 + i := by ring
+      rw [heq]; exact Nat.mod_eq_of_lt h5i_lt
+    simp only [h_mod]
+    have h_next_lt : 5 + i < (g₂CoreList n k m ++ tailBList n k m).length := by rw [hlen]; omega
+    rw [List.getElem_append_right (by simp [g₂CoreList]; omega : 5 + i ≥ (g₂CoreList n k m).length)]
+    simp only [g₂CoreList, tailBList, List.length_cons, List.length_nil,
+      List.getElem_map, List.getElem_finRange, Fin.coe_cast]
+    constructor <;> omega
+
 /-- g₂ applied to element outside supp(g₁) never gives 6 (needs n ≥ 1) -/
 theorem g₂_image_not_6 (hn : n ≥ 1) (y : Omega n k m)
     (hy : y.val = 1 ∨ y.val = 4 ∨ isTailB y ∨ isTailC y) :
@@ -103,3 +147,69 @@ theorem g₁_inv2_elem0_not_fixed_region :
       rw [g₁_fixes_tailC _ hC, g₁_fixes_tailC _ hC]
     rw [hC_fixed] at hx_apply
     simp only [isTailC, Fin.ext_iff] at hC hx_apply; omega
+
+-- ============================================
+-- SECTION: g₂ element mappings for k ≥ 2 case
+-- ============================================
+
+/-- g₂(0) = 6+n (first tailB element) for k ≥ 1. Element 0 is at index 3 in g₂ cycle. -/
+theorem g₂_elem0_eq_firstTailB (hk : k ≥ 1) :
+    g₂ n k m ⟨0, by omega⟩ = ⟨6 + n, by omega⟩ := by
+  unfold g₂
+  have hnd := g₂_list_nodup n k m; have hlen := g₂_cycle_length n k m
+  have h_3_lt : 3 < (g₂CoreList n k m ++ tailBList n k m).length := by rw [hlen]; omega
+  have h_idx : (g₂CoreList n k m ++ tailBList n k m)[3]'h_3_lt = ⟨0, by omega⟩ := by
+    rw [List.getElem_append_left (by simp [g₂CoreList] : 3 < (g₂CoreList n k m).length)]
+    simp [g₂CoreList]
+  rw [← h_idx, List.formPerm_apply_getElem _ hnd 3 h_3_lt]
+  simp only [hlen]
+  have h_mod : (3 + 1) % (4 + k) = 4 := Nat.mod_eq_of_lt (by omega)
+  simp only [h_mod]
+  have h_4_lt : 4 < (g₂CoreList n k m ++ tailBList n k m).length := by rw [hlen]; omega
+  rw [List.getElem_append_right (by simp [g₂CoreList] : 4 ≥ (g₂CoreList n k m).length)]
+  simp only [g₂CoreList, tailBList, List.length_cons, List.length_nil, List.length_map,
+    List.length_finRange, Nat.add_zero, List.getElem_map, List.getElem_finRange]
+  rfl
+
+/-- g₂(6+n) = 6+n+1 (second tailB element) for k ≥ 2. -/
+theorem g₂_firstTailB_eq_secondTailB (hk : k ≥ 2) :
+    g₂ n k m ⟨6 + n, by omega⟩ = ⟨6 + n + 1, by omega⟩ := by
+  unfold g₂
+  have hnd := g₂_list_nodup n k m; have hlen := g₂_cycle_length n k m
+  have h_4_lt : 4 < (g₂CoreList n k m ++ tailBList n k m).length := by rw [hlen]; omega
+  have h_idx : (g₂CoreList n k m ++ tailBList n k m)[4]'h_4_lt = ⟨6 + n, by omega⟩ := by
+    rw [List.getElem_append_right (by simp [g₂CoreList] : 4 ≥ (g₂CoreList n k m).length)]
+    simp only [g₂CoreList, tailBList, List.length_cons, List.length_nil,
+      List.getElem_map, List.getElem_finRange]
+    rfl
+  rw [← h_idx, List.formPerm_apply_getElem _ hnd 4 h_4_lt]
+  simp only [hlen]
+  have h_mod : (4 + 1) % (4 + k) = 5 := Nat.mod_eq_of_lt (by omega)
+  simp only [h_mod]
+  have h_5_lt : 5 < (g₂CoreList n k m ++ tailBList n k m).length := by rw [hlen]; omega
+  rw [List.getElem_append_right (by simp [g₂CoreList] : 5 ≥ (g₂CoreList n k m).length)]
+  simp only [g₂CoreList, tailBList, List.length_cons, List.length_nil,
+    List.getElem_map, List.getElem_finRange]
+  rfl
+
+/-- g₂²(0) = 6+n+1 for k ≥ 2. -/
+theorem g₂_pow2_elem0_eq_secondTailB (hk : k ≥ 2) :
+    (g₂ n k m ^ (2 : ℕ)) ⟨0, by omega⟩ = ⟨6 + n + 1, by omega⟩ := by
+  simp only [pow_two, Equiv.Perm.coe_mul, Function.comp_apply]
+  rw [g₂_elem0_eq_firstTailB (by omega : k ≥ 1), g₂_firstTailB_eq_secondTailB hk]
+
+/-- g₂²(3) = 0 (g₂(3) = 4, g₂(4) = 0). -/
+theorem g₂_pow2_elem3_eq_elem0 :
+    (g₂ n k m ^ (2 : ℕ)) ⟨3, by omega⟩ = ⟨0, by omega⟩ := by
+  simp only [pow_two, Equiv.Perm.coe_mul, Function.comp_apply]
+  rw [g₂_elem3_eq_elem4, g₂_elem4_eq_elem0']
+
+/-- For k ≥ 2, ∃ x ∈ {0, 3}, g₂²(x) ∉ {0, 3}. Witness: x = 0, g₂²(0) = 6+n+1 ≥ 7 > 3. -/
+theorem set_0_3_not_g₂_closed (hk : k ≥ 2) :
+    ∃ x : Omega n k m, x ∈ ({⟨0, by omega⟩, ⟨3, by omega⟩} : Set (Omega n k m)) ∧
+      (g₂ n k m ^ (2 : ℕ)) x ∉ ({⟨0, by omega⟩, ⟨3, by omega⟩} : Set (Omega n k m)) := by
+  use ⟨0, by omega⟩
+  constructor
+  · exact Set.mem_insert _ _
+  · rw [g₂_pow2_elem0_eq_secondTailB hk]
+    simp only [Set.mem_insert_iff, Set.mem_singleton_iff, Fin.ext_iff]; omega

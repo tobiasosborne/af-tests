@@ -1,215 +1,250 @@
 # Implementation Plan: m >= 2 Case in case2_impossible_C
 
 **File**: `Lemma11_5_SymmetricCases.lean`
-**Line**: 502
 **Theorem**: `case2_impossible_C`
 
 ---
 
-## Context
+## Status Summary
 
-We have:
-- `hm : m ≥ 1`, `hm1 : m ≠ 1` (so m ≥ 2)
-- `B ⊆ tailC` (all elements of B are tailC elements)
-- `c₁ ∈ B` and `|B| ≥ 2`
-- `hBlock : ∀ j : ℕ, g₃^j '' B = B ∨ Disjoint (g₃^j '' B) B`
-- Block system BS is H-invariant
+| Step | Status | Description |
+|------|--------|-------------|
+| Step 1 | ✅ DONE | Find j such that g₃^j(c₁) = 4 |
+| Step 2 | ✅ DONE | Define B' and establish basic properties |
+| Step 3 | ✅ DONE | Show g₂(B') ≠ B' |
+| Step 4a | ✅ DONE | Easy case: find g₂-fixed element z ∉ {1,4} |
+| Step 4b.1 | ✅ DONE | Establish B' = {1, 4} |
+| Step 4b.2 (m=2) | ✅ DONE | Contradiction via g₃²(c₁) = 2 ∉ tailC |
+| Step 4b.2 (m≥3) | ❌ TODO | **CURRENT SORRY** - Line 686 |
 
-**Key Insight**: `supp(g₂) ∩ supp(g₃) = {1, 4}` (not just {4}!)
-
----
-
-## Step-by-Step Implementation
-
-### Step 1: Find j such that g₃^j(c₁) = 4
-
-**What we need**:
-- `c₁_mem_support_g₃` ✓ EXISTS
-- `elem4_in_support_g₃` ✓ EXISTS
-- `g₃_isCycle` ✓ EXISTS
-- `IsCycle.exists_zpow_eq` from Mathlib
-
-**Code**:
-```lean
-have hc₁_in_supp : c₁ n k m hm ∈ (g₃ n k m).support := c₁_mem_support_g₃ hm
-have h4_in_supp : (⟨4, by omega⟩ : Omega n k m) ∈ (g₃ n k m).support := elem4_in_support_g₃
-have hCyc : (g₃ n k m).IsCycle := g₃_isCycle n k m
-rw [mem_support] at hc₁_in_supp h4_in_supp
-obtain ⟨j, hj⟩ := hCyc.exists_zpow_eq hc₁_in_supp h4_in_supp
-```
-
-**Helper lemmas needed**: NONE (all exist)
+**Current sorry**: Line 686, inside `· -- Case m ≥ 3`
 
 ---
 
-### Step 2: Define B' and establish basic properties
+## What Has Been Achieved
 
-**What we need**:
-- Define `B' := (g₃ n k m ^ j) '' B`
-- Show `4 ∈ B'` (from c₁ ∈ B and hj)
-- Show `|B'| = |B| ≥ 2`
-- Show `B' ⊆ supp(g₃)` (zpow preserves support membership)
-- Show `B' ∈ BS.blocks` using `g₃_zpow_preserves_blocks` ✓ EXISTS
+### Steps 1-4a (Previously completed)
+Standard setup: found `j` with `g₃^j(c₁) = 4`, defined `B' = g₃^j '' B`, showed `g₂(B') ≠ B'`, handled easy case where `∃ z ∈ B', z ∉ {1, 4}`.
 
-**Code**:
-```lean
-let B' := (g₃ n k m ^ j) '' B
-have h4_in_B' : (⟨4, by omega⟩ : Omega n k m) ∈ B' := ⟨c₁ n k m hm, hc₁_in_B, hj⟩
-have hB'_card : B'.ncard = B.ncard := Set.ncard_image_of_injective _ (g₃ n k m ^ j).injective
-have hB'_card_gt_1 : 1 < B'.ncard := by rw [hB'_card]; exact hNT_lower
-have hB'_subset_supp : B' ⊆ (g₃ n k m).support := by
-  intro x hx; obtain ⟨y, hyB, hyx⟩ := hx
-  have hy_in_supp : y ∈ (g₃ n k m).support := hB_subset_supp_g₃ hyB
-  simp only [Finset.mem_coe] at hy_in_supp ⊢
-  rw [← hyx]; exact Equiv.Perm.zpow_apply_mem_support.mpr hy_in_supp
-have hB'_in_BS : B' ∈ BS.blocks := g₃_zpow_preserves_blocks BS hInv B hB_in_BS j
-```
+### Step 4b.1: Establish B' = {1, 4} (Lines 614-634)
+- Used `push_neg` to transform `hB'_small` from negated existential to implication form
+- Proved `h1_in_B'` via cardinality argument (|B'| > 1 and B' ⊆ {1,4} implies 1 ∈ B')
+- Established `hB'_eq_14 : B' = {⟨1, _⟩, ⟨4, _⟩}`
 
-**Helper lemmas needed**: NONE (all exist)
+**Key insight**: After `push_neg`, `hB'_small` becomes `∀ z ∈ B', z ≠ 1 → z = 4` (implication form, not disjunction). Must use `by_cases` instead of `rcases`.
 
----
+### Step 4b.2 m=2 Case (Lines 637-684) - COMPLETE
+Split into two sub-cases via `rcases hBlock 2`:
 
-### Step 3: Show g₂(B') ≠ B'
+**Equality case** (`g₃²(B) = B`): Lines 647-652
+- Used `OrbitCore.g₃_pow2_c₁_eq_elem2` to get `g₃²(c₁) = 2`
+- Showed `2 ∉ tailC` via `simp only [isTailC]; omega`
+- Since `c₁ ∈ B` and `g₃²(B) = B`, we have `2 ∈ B`
+- But `B ⊆ tailC` contradicts `2 ∉ tailC`
 
-**What we need**:
-- `g₂_elem4_eq_elem0'` ✓ EXISTS (in OrbitHelpers_Core, already imported)
-- `elem0_not_in_support_g₃` ✓ EXISTS
-
-**Code**:
-```lean
-have hg₂_4_not_in_B' : g₂ n k m ⟨4, by omega⟩ ∉ B' := by
-  rw [OrbitCore.g₂_elem4_eq_elem0']; intro h_contra
-  exact elem0_not_in_support_g₃ (hB'_subset_supp h_contra)
-have hg₂_B'_ne : g₂ n k m '' B' ≠ B' := by
-  intro h_eq
-  have : g₂ n k m ⟨4, by omega⟩ ∈ g₂ n k m '' B' := Set.mem_image_of_mem _ h4_in_B'
-  rw [h_eq] at this; exact hg₂_4_not_in_B' this
-```
-
-**Helper lemmas needed**: NONE (all exist)
+**Disjoint case** (`Disjoint (g₃² '' B) B`): Lines 653-684
+- Since `m = 2`, `tailC = {c₁, c₂}` has exactly 2 elements
+- Since `|B| = 2` and `B ⊆ tailC`, we have `B = {c₁, c₂}`
+- Used `@OrbitCore.g₃_c₁_eq_c₂ n k m` to get `g₃(c₁) = c₂`
+- So `c₂ ∈ g₃(B)` and `c₂ ∈ B`
+- This contradicts `hg₃Disj : Disjoint (g₃ '' B) B`
 
 ---
 
-### Step 4: Find g₂-fixed element OR handle special case
+## Session 2026-01-22: Work Done and Remaining Errors
 
-This is the complex step. We need to either:
-- (a) Find z ∈ B' with z ∈ {2, 5} ∪ tailC (so g₂(z) = z), OR
-- (b) Handle the special case B' = {1, 4}
+### What Was Implemented
 
-**Subcase 4a**: If ∃ z ∈ B' with z ∉ {1, 4}
+1. **m ≥ 3 case structure** (lines 686-797):
+   - Added `hm3 : m ≥ 3` from `hm_eq_2 : ¬m = 2` and `hm2 : m ≥ 2`
+   - Established `hg₃_c₁ : g₃(c₁) = c₂` using `OrbitCore.g₃_c₁_eq_c₂`
+   - Case split on `c₂ ∈ B` (line 692)
 
-Then z ∈ supp(g₃) \ {1, 4} = {2, 5} ∪ tailC, all of which are g₂-fixed.
+2. **c₂ ∈ B case** (lines 693-696): COMPLETE
+   - Shows `c₂ ∈ (g₃ '' B) ∩ B`, contradicts `hg₃Disj`
 
-**Existing lemmas needed**:
-- `g₂_fixes_elem2` ✓ EXISTS
-- `g₂_fixes_elem5` ✓ EXISTS
-- `g₂_fixes_tailC` ✓ EXISTS
+3. **c₂ ∉ B case** (lines 697-797): PARTIALLY IMPLEMENTED
+   - Used `hBlock 2` to case split on `g₃²(B) = B` vs `Disjoint`
+   - **Equality case** (g₃²(B) = B): Lines 705-794
+     - Shows c₃ ∈ B (from g₃²(c₁) = c₃ ∈ g₃²(B) = B)
+     - Shows B = {c₁, c₃}
+     - Uses cycle length argument: g₃²(c₃) ∉ {c₁, c₃} because:
+       - `IsCycle.orderOf` gives `orderOf g₃ = support.card = 4+m`
+       - `IsCycle.pow_eq_one_iff` converts `g₃^n(x) = x` to `g₃^n = 1`
+       - `orderOf_dvd_of_pow_eq_one` gives `(4+m) ∣ n`
+       - `Nat.le_of_dvd` converts to `4+m ≤ n`, contradiction for n=2,4
+   - **Disjoint case** (line 797): SORRY remains
 
-**Subcase 4b**: If B' ⊆ {1, 4} (i.e., B' = {1, 4} since |B'| ≥ 2)
+### Current Build Errors (Lines 727-736)
 
-Must derive contradiction from `hBlock`.
+The `hB_sub` proof has errors:
 
-**NEW HELPER LEMMA NEEDED**:
-
-```lean
-/-- g₃²(c₁) = c₃ (element at index 6+n+k+2) for m ≥ 3 -/
-theorem g₃_pow2_c₁_eq_c₃ (hm : m ≥ 3) :
-    (g₃ n k m ^ (2 : ℕ)) (c₁ n k m (by omega)) = ⟨6 + n + k + 2, by omega⟩ := by
-  -- Computational: g₃(c₁) = c₂, g₃(c₂) = c₃
-  sorry
+```
+Line 727: Type mismatch - hx_not.2
+Line 729: Invalid field `symm` on hx_not.2
+Line 731: ncard_le_ncard argument mismatch
+Line 736: omega can't prove goal
 ```
 
-**Logic for 4b**:
-1. B' = {1, 4} and |B| = 2, so B = {c₁, x} for some x ≠ c₁
-2. g₃^j(x) = 1 (the other element of B')
-3. x must be c₃ (by computing which tailC element maps to 1)
-4. So B = {c₁, c₃}
-5. By `hBlock 2`: either g₃²(B) = B or Disjoint g₃²(B) B
-6. g₃²(c₁) = c₃ ∈ B (using helper lemma)
-7. If g₃²(B) = B: then g₃²(c₃) ∈ B, but g₃²(c₃) = c₅ (for m ≥ 5) or wraps → contradiction
-8. If Disjoint g₃²(B) B: then c₃ ∈ g₃²(B) ∩ B → contradiction
+**Root cause**: After `simp only [Set.mem_insert_iff, Set.mem_singleton_iff, not_or] at hx_not`, the structure of `hx_not` may not be `∧` but something else. Need to check actual type with `lean_goal`.
 
-**NEW HELPER LEMMA NEEDED**:
+**Fix approach** (for next session):
+1. Use `lean_goal` at line 723 to see actual type of `hx_not`
+2. Adjust destructuring accordingly
+3. May need `And.intro` or different approach for the `ncard_le_ncard` call
+
+### Key Learnings
+
+1. **Correct API for cycle power lemmas**:
+   - `IsCycle.pow_eq_one_iff` : `f^n = 1 ↔ ∃ x, f x ≠ x ∧ f^n x = x`
+   - `IsCycle.orderOf` : `orderOf f = f.support.card`
+   - `orderOf_dvd_of_pow_eq_one` : `f^n = 1 → orderOf f ∣ n`
+   - `Nat.le_of_dvd` : `0 < b → a ∣ b → a ≤ b` (needed for omega)
+
+2. **g₃_support_card location**: `AfTests.SignAnalysis.g₃_support_card`
+
+3. **pow_add for permutations**: Need explicit calc chain:
+   ```lean
+   calc (g₃ ^ 4) x = (g₃ ^ (2+2)) x := by rw [show (4:ℕ) = 2+2 from rfl]
+       _ = (g₃^2 * g₃^2) x := by rw [pow_add]
+       _ = (g₃^2) ((g₃^2) x) := by simp [Equiv.Perm.coe_mul]
+   ```
+
+## Current State at the Sorry (Line 686)
 
 ```lean
-/-- For m ≥ 2, the preimage of {1, 4} under g₃^(m+1) intersected with tailC
-    gives exactly {c₁, c₃} (when m ≥ 3) -/
-theorem g₃_zpow_preimage_1_4 (hm : m ≥ 3) :
-    let j : ℤ := m + 1
-    (g₃ n k m ^ j) (c₁ n k m (by omega)) = ⟨4, by omega⟩ ∧
-    (g₃ n k m ^ j) (⟨6 + n + k + 2, by omega⟩ : Omega n k m) = ⟨1, by omega⟩ := by
-  sorry
+-- Hypotheses available:
+hm : m ≥ 1
+hm1 : ¬m = 1                    -- so m ≥ 2
+hm2 : m ≥ 2
+hm_eq_2 : ¬m = 2               -- so m ≥ 3
+B : Set (Omega n k m)
+BS : BlockSystemOn n k m
+hInv : IsHInvariant BS
+hB_in_BS : B ∈ BS.blocks
+hg₃Disj : Disjoint (g₃ '' B) B
+hc₁_in_B : c₁ n k m hm ∈ B
+hBlock : ∀ j : ℕ, (g₃^j) '' B = B ∨ Disjoint ((g₃^j) '' B) B
+hNT_lower : 1 < B.ncard
+hB_subset_supp_g₃ : B ⊆ supp(g₃)
+hB_subset_tailC : ∀ x ∈ B, isTailC x
+
+-- From Steps 1-4b.1:
+j : ℤ
+hj : (g₃^j)(c₁) = 4
+B' : Set (Omega n k m) := (g₃^j) '' B
+hB'_eq_14 : B' = {⟨1, _⟩, ⟨4, _⟩}
+h1_in_B' : ⟨1, _⟩ ∈ B'
+h4_in_B' : ⟨4, _⟩ ∈ B'
+hB'_card_gt_1 : 1 < B'.ncard
 ```
 
-**Code structure for Step 4**:
-```lean
-by_cases hB'_small : ∃ z ∈ B', z ≠ (⟨1, by omega⟩ : Omega n k m) ∧ z ≠ (⟨4, by omega⟩ : Omega n k m)
-case inl =>
-  -- Easy case: use z for fixed-point argument
-  obtain ⟨z, hz_in_B', hz_ne_1, hz_ne_4⟩ := hB'_small
-  -- z ∈ {2, 5} ∪ tailC, so g₂(z) = z
-  -- Apply block dichotomy contradiction
-case inr =>
-  -- Hard case: B' ⊆ {1, 4}, so B' = {1, 4}
-  -- Derive contradiction via hBlock
-```
+**Goal**: `False`
 
 ---
 
-## Summary of Needed Helper Lemmas
+## NEXT TINY STEP: m ≥ 3 Case
 
-### Already Exist (no action needed):
-1. `c₁_mem_support_g₃`
-2. `elem4_in_support_g₃`
-3. `g₃_isCycle`
-4. `g₃_zpow_preserves_blocks`
-5. `OrbitCore.g₂_elem4_eq_elem0'`
-6. `elem0_not_in_support_g₃`
-7. `g₂_fixes_elem2`
-8. `g₂_fixes_elem5`
-9. `g₂_fixes_tailC`
+### Strategy
 
-### Need to Create:
-1. **`g₃_pow2_c₁_eq_c₃`**: Computational lemma showing g₃²(c₁) = c₃
-2. **`g₃_pow2_c₃`**: Computational lemma for g₃²(c₃) (depends on m)
+For m ≥ 3, the g₃ cycle is `(2 4 5 1 c₁ c₂ c₃ ... cₘ)` with length `4 + m ≥ 7`.
 
-### Optional (may simplify proof):
-3. **`elem_in_g₃_support_cases`**: Case split for elements in supp(g₃)
+**Key facts**:
+- `g₃²(c₁) = c₃` (by `OrbitCore.g₃_pow2_c₁_eq_c₃`)
+- `c₃` IS a tailC element (unlike the m=2 case where g₃²(c₁) = 2)
 
----
+**Approach**: Use `hg₃Disj : Disjoint (g₃ '' B) B` directly.
 
-## Next Smallest Step
+Since `|B| = 2` (because `|B'| = 2` and `|B| = |B'|`) and `B ⊆ tailC`:
+- `c₁ ∈ B` (given)
+- There exists exactly one other element `x ∈ B` with `x ≠ c₁`
+- `x` is a tailC element
 
-**Create `g₃_pow2_c₁_eq_c₃` lemma** in `Lemma11_5_OrbitHelpers_Core.lean`:
+Now `g₃(c₁) = c₂` (by `OrbitCore.g₃_c₁_eq_c₂`).
+
+**Case analysis on x**:
+- If `x = c₂`: Then `g₃(c₁) = c₂ = x ∈ B`, so `c₂ ∈ (g₃ '' B) ∩ B`, contradicting `hg₃Disj`
+- If `x ≠ c₂`: We need to show this also leads to contradiction...
+
+**Simpler approach**: Show that for ANY 2-element subset `B ⊆ tailC` containing `c₁`, we have `g₃(B) ∩ B ≠ ∅`:
+- `g₃(c₁) = c₂`
+- If `c₂ ∈ B`, done (contradiction with `hg₃Disj`)
+- If `c₂ ∉ B`, then `B = {c₁, x}` for some `x ∈ tailC`, `x ≠ c₁`, `x ≠ c₂`
+  - Need to trace `g₃(x)` and `g₃⁻¹(c₁)` to find overlap...
+
+**Alternative**: Use cycle structure. The g₃ cycle on tailC is `(c₁ c₂ c₃ ... cₘ)`. Any 2-element subset `{c₁, cᵢ}` with i ≥ 2 has:
+- `g₃(c₁) = c₂`
+- If `i = 2`: `c₂ ∈ B` ✓
+- If `i > 2`: `g₃(cᵢ₋₁) = cᵢ`, so need `cᵢ₋₁ ∈ B`... but `B = {c₁, cᵢ}`, so `cᵢ₋₁ ∉ B` unless `i-1 = 1`, i.e., `i = 2`.
+
+Hmm, this needs more care. The key insight is:
+- `g₃⁻¹(c₁) = 1` (element 1, not c₁)
+- So `c₁ ∈ g₃(B)` iff `1 ∈ B`
+- But `B ⊆ tailC` and `1 ∉ tailC`, so `1 ∉ B`
+- Therefore `c₁ ∉ g₃(B)`
+
+Wait, let's think about this differently using B' = {1, 4}:
+- `B' = g₃^j '' B`
+- `1 ∈ B'` means `∃ y ∈ B, g₃^j(y) = 1`
+- `4 ∈ B'` means `∃ z ∈ B, g₃^j(z) = 4` (we know z = c₁)
+- Since `|B| = 2`, we have `B = {c₁, y}` where `g₃^j(y) = 1`
+
+Now use `hg₃Disj`:
+- `g₃(c₁) = c₂`
+- Is `c₂ ∈ B`? If yes, contradiction.
+- If no, then `B = {c₁, y}` with `y ≠ c₂`
+
+What is `y`? We know `g₃^j(y) = 1`. In the cycle `(2 4 5 1 c₁ c₂ ... cₘ)`:
+- `g₃(5) = 1`
+- So `g₃^(j-1)(y) = 5`... this gets complicated.
+
+**Simplest approach for tiny step**: Just use the m=2 argument structure but adapted:
+1. Show `|B| = 2` (from `|B'| = 2`)
+2. Show `B ⊆ tailC` with `c₁ ∈ B` and `|tailC| = m ≥ 3`
+3. Use `hg₃Disj` to constrain what the other element can be
+4. Derive contradiction
+
+### Code to try
 
 ```lean
-/-- g₃²(c₁) = c₃ for m ≥ 3. The g₃ cycle is (2 4 5 1 c₁ c₂ ... cₘ),
-    so g₃(c₁) = c₂ and g₃(c₂) = c₃. -/
-theorem g₃_pow2_c₁_eq_c₃ (hm : m ≥ 3) :
-    (g₃ n k m ^ (2 : ℕ)) (⟨6 + n + k, by omega⟩ : Omega n k m) =
-    ⟨6 + n + k + 2, by omega⟩ := by
-  simp only [pow_two, Equiv.Perm.coe_mul, Function.comp_apply]
+· -- Case m ≥ 3
+  have hm3 : m ≥ 3 := by omega
+  -- |B| = 2 since |B'| = 2
+  have hB_card_2 : B.ncard = 2 := by
+    have : B'.ncard = 2 := by rw [hB'_eq_14]; simp [Set.ncard_pair]; intro h; simp [Fin.ext_iff] at h
+    omega
   -- g₃(c₁) = c₂
-  have h1 : g₃ n k m ⟨6 + n + k, by omega⟩ = ⟨6 + n + k + 1, by omega⟩ := by
-    sorry  -- List.formPerm computation
-  -- g₃(c₂) = c₃
-  have h2 : g₃ n k m ⟨6 + n + k + 1, by omega⟩ = ⟨6 + n + k + 2, by omega⟩ := by
-    sorry  -- List.formPerm computation
-  rw [h1, h2]
+  have hg₃_c₁ : g₃ n k m (c₁ n k m hm) = ⟨6 + n + k + 1, by omega⟩ := by
+    simp only [c₁]; exact @OrbitCore.g₃_c₁_eq_c₂ n k m (by omega : m ≥ 2)
+  -- c₂ is a tailC element
+  have hc₂_tailC : isTailC (⟨6 + n + k + 1, by omega⟩ : Omega n k m) := by
+    simp only [isTailC]; omega
+  -- If c₂ ∈ B, contradiction with hg₃Disj
+  by_cases hc₂_in_B : (⟨6 + n + k + 1, by omega⟩ : Omega n k m) ∈ B
+  · have hc₂_in_g₃B : (⟨6 + n + k + 1, by omega⟩ : Omega n k m) ∈ g₃ n k m '' B := by
+      rw [← hg₃_c₁]; exact Set.mem_image_of_mem _ hc₁_in_B
+    exact Set.disjoint_iff.mp hg₃Disj ⟨hc₂_in_g₃B, hc₂_in_B⟩
+  · -- c₂ ∉ B, so B = {c₁, x} for some x ≠ c₁, x ≠ c₂
+    -- Need more analysis here...
+    sorry
 ```
-
-This lemma is purely computational and can use `native_decide` or explicit `List.formPerm` reasoning.
 
 ---
 
-## Estimated Complexity
+## Helper Lemmas Available
 
-| Step | Difficulty | LOC | Notes |
-|------|------------|-----|-------|
-| Step 1 | Easy | 5 | All lemmas exist |
-| Step 2 | Easy | 10 | All lemmas exist |
-| Step 3 | Easy | 8 | All lemmas exist |
-| Step 4a | Medium | 15 | Case analysis on z |
-| Step 4b | Hard | 30+ | Requires new helper lemmas |
+### In OrbitCore namespace:
+1. `g₃_c₁_eq_c₂` (m ≥ 2) - `g₃(c₁) = c₂` where c₂ = ⟨6+n+k+1, _⟩
+2. `g₃_c₂_eq_c₃` (m ≥ 3) - `g₃(c₂) = c₃`
+3. `g₃_pow2_c₁_eq_c₃` (m ≥ 3) - `g₃²(c₁) = c₃`
+4. `g₃_pow2_c₁_eq_elem2` (m = 2) - `g₃²(c₁) = 2`
 
-**Total**: ~70 lines for the full proof, plus ~20 lines for helper lemmas.
+### May need to create:
+- Lemma showing `g₃⁻¹(c₁) = 1` (element 1, not tailC)
+- Or lemma about g₃ orbit structure on tailC
+
+---
+
+## File Line Count Warning
+
+`Lemma11_5_SymmetricCases.lean` is now ~686 lines, well over the 200 LOC limit. After completing this sorry, refactoring should be considered.
