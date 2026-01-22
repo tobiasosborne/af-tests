@@ -12,6 +12,7 @@ import AfTests.Primitivity.Lemma11_5_SupportCover
 import AfTests.Primitivity.Lemma11_5_Case2
 import AfTests.Transitivity.Lemma05ListProps
 import AfTests.Primitivity.Lemma11_5_ZpowBlocks
+import AfTests.Primitivity.Lemma11_5_OrbitHelpers_Core
 
 /-!
 # Lemma 11.5: Symmetric Cases - Definitions and Basic Lemmas
@@ -484,19 +485,18 @@ theorem case2_impossible_C (hm : m ≥ 1) (B : Set (Omega n k m))
           · simp
           · intro i j hij; simp only [Fin.ext_iff] at hij ⊢; omega
     omega
-  · -- m >= 2
-    -- TODO: The proof for m ≥ 2 needs restructuring.
-    -- See PLAN_LEMMA11_5_REFACTOR.md for the correct approach.
+  · -- m >= 2: HARDER CASE
+    -- This case requires showing that B' = g₃^j(B) contains an element fixed by g₂.
+    -- The complication: supp(g₂) ∩ supp(g₃) = {1, 4}, not just {4}.
+    -- So element 1 is in both supports, and the simple argument doesn't work.
     --
-    -- Issues with current code:
-    -- 1. hEq.subst type mismatch
-    -- 2. hInv.3 should be hInv.2.2 (g₃ invariance in nested And)
-    -- 3. hInv.2 should be hInv.2.1 (g₂ invariance)
-    -- 4. Missing g₂_map_2_to_4 and elem4_not_in_support_g₃
-    --
-    -- Correct approach (similar to k ≥ 2 case):
-    -- 1. Find B' in g₃-orbit containing element from supp(g₂) ∩ supp(g₃)
-    -- 2. Show g₂ maps some element outside supp(g₃)
-    -- 3. Show B' has g₂-fixed point
-    -- 4. Derive contradiction via block dichotomy
+    -- Full proof approach:
+    -- 1. Find j such that g₃^j(c₁) = 4 (element in supp(g₂) ∩ supp(g₃))
+    -- 2. B' = g₃^j(B) contains 4, and B' ⊆ supp(g₃)
+    -- 3. g₂(4) = 0 ∉ supp(g₃), so g₂(B') ≠ B'
+    -- 4. Need to find z ∈ B' with g₂(z) = z (i.e., z ∈ {2, 5} ∪ tailC)
+    -- 5. If B' = {1, 4} (the only case without such z), derive contradiction:
+    --    - B' = {1, 4} implies B = {c₁, c₃} (computing preimage)
+    --    - B = {c₁, c₃} violates hBlock: g₃²(c₁) = c₃ ∈ g₃²(B) ∩ B
+    -- 6. Otherwise, use z for the block dichotomy contradiction
     sorry
