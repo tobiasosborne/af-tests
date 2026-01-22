@@ -2,7 +2,7 @@
 
 ## Build Status: PASSING
 
-## Sorry Count: 3 (was 4)
+## Sorry Count: 3 (unchanged)
 
 ---
 
@@ -16,25 +16,42 @@
 | 322 | B' = {0,3} | HARDER | Uses g₁ dichotomy, needs g₁²(0)=3 |
 
 **Lemma11_5_SymmetricCases.lean** (2 sorries):
-| Line | Case | Notes |
-|------|------|-------|
-| 367 | k >= 2, B' = {0,3} | Extended orbit argument (introduced by k>=2 proof) |
-| 502 | m >= 2 | Needs restructuring per comments in file |
+| Line | Case | Difficulty | Notes |
+|------|------|------------|-------|
+| 368 | k >= 2, B' = {0,3} | HARDER | Extended orbit argument |
+| 502 | m >= 2 | HARDER | Complex support intersection |
+
+---
+
+## Key Discovery: m >= 2 case complexity
+
+The m >= 2 case is MORE complex than k >= 2:
+- **supp(g₂) ∩ supp(g₃) = {1, 4}** (not just {4}!)
+- Element 1 is in BOTH supports
+- Can't use simple "fixed point" argument when y = 1
+
+### Correct approach for m >= 2:
+1. Find j such that g₃^j(c₁) = 4
+2. B' = g₃^j(B) contains 4, B' ⊆ supp(g₃)
+3. g₂(4) = 0 ∉ supp(g₃), so g₂(B') ≠ B'
+4. Need z ∈ B' with z ∈ {2, 5} ∪ tailC (g₂-fixed elements)
+5. **Special case B' = {1, 4}**: Must derive contradiction from hBlock
+   - B' = {1, 4} ⟹ B = {c₁, c₃} (computing preimage)
+   - g₃²(c₁) = c₃ ∈ g₃²(B) ∩ B, violating Disjoint condition
+6. Otherwise, use z for block dichotomy contradiction
 
 ---
 
 ## Completed This Session (Continued)
 
+6. **Investigated m >= 2 case** - documented approach in file
+   - Added OrbitHelpers_Core import for `g₂_elem4_eq_elem0'`
+   - Discovered support intersection complexity
+   - Documented full proof strategy
+
 4. **FILLED k >= 2 case** in `Lemma11_5_SymmetricCases.lean`
-   - Full orbit argument using g₂-cycle zpow transport
-   - Finds j such that g₂^j(b₁) = 0, defines B' = g₂^j '' B
-   - Cases on elements y ∈ B': y = 0, 1, 3, 4, or tailB
-   - Shows g₁ maps some z ∈ B' to z, then block dichotomy contradiction
-   - Introduced sub-sorry for B' = {0, 3} case
 
 5. **FILLED m = 1 cardinality proof** in `Lemma11_5_SymmetricCases.lean`
-   - Shows B.ncard ≤ m via tailC cardinality bound
-   - Same pattern as k = 1 tailB proof
 
 ---
 
@@ -51,16 +68,16 @@
 
 ## Files Modified This Session
 
-- `AfTests/Primitivity/Lemma11_5_SymmetricCases.lean` - Filled k>=2 and m=1 sorries
+- `AfTests/Primitivity/Lemma11_5_SymmetricCases.lean` - Added import, documented m>=2
 - `HANDOFF.md` - This file
 
 ---
 
 ## Known Issues / Gotchas
 
-- **B' = {0, 3} cases**: These are HARDER - need extended orbit argument with g₁²(0)=3
-- **PairwiseDisjoint usage**: Use `BS.isPartition.1 hB1 hB2 hne` directly, NOT `.elim`
-- **Inequality direction**: We have `hg₂_B'_ne : g₂ '' B' ≠ B'`, need `.symm` for `B' ≠ g₂ '' B'`
+- **m >= 2 case**: Complex due to supp(g₂) ∩ supp(g₃) = {1, 4}
+- **B' = {0, 3} cases**: Need extended orbit argument with g₁²(0)=3
+- **PairwiseDisjoint usage**: Use `BS.isPartition.1 hB1 hB2 hne` directly
 - **LOC violations** (lower priority): OrbitInfra.lean (315), OrbitContinuation.lean (287)
 
 ---
