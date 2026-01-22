@@ -389,5 +389,8 @@ theorem case2_impossible (hn : n ≥ 1) (B : Set (Omega n k m))
         have hy_in_g₂B' : y ∈ g₂ n k m '' B' := by
           rw [← hg₂_fixes_y]
           exact Set.mem_image_of_mem _ hy_in_B'
-        -- For now, admit the block dichotomy for B'
-        sorry
+        have hB'_in_BS : B' ∈ BS.blocks := g₁_zpow_preserves_blocks BS hInv B hB_in_BS j
+        have hg₂B'_in_BS : g₂ n k m '' B' ∈ BS.blocks := hInv.2.1 B' hB'_in_BS
+        have hDisj : Disjoint B' (g₂ n k m '' B') :=
+          BS.isPartition.1 hB'_in_BS hg₂B'_in_BS hg₂_B'_ne.symm
+        exact Set.disjoint_iff.mp hDisj ⟨hy_in_B', hy_in_g₂B'⟩

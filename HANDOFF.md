@@ -2,54 +2,19 @@
 
 ## Build Status: PASSING
 
-## Sorry Count: 5 (was 6)
+## Sorry Count: 4 (was 5)
 
 ---
 
-## NEXT STEP: Fill Line 393 in Lemma11_5_Case2.lean
+## NEXT STEP: Fill SymmetricCases.lean sorries (k >= 2, m >= 2)
 
-**This is the easiest remaining sorry** - identical pattern to the one just filled.
+The remaining "easy" sorries are in `Lemma11_5_SymmetricCases.lean`. They follow the same pattern as the filled sorries.
 
-### Location
-File: `AfTests/Primitivity/Lemma11_5_Case2.lean`
-Line: 393 (the `y ≠ 3` case)
+### Remaining Sorries
 
-### Exact code to insert (replace the `sorry`):
-```lean
-have hB'_in_BS : B' ∈ BS.blocks := g₁_zpow_preserves_blocks BS hInv B hB_in_BS j
-have hg₂B'_in_BS : g₂ n k m '' B' ∈ BS.blocks := hInv.2.1 B' hB'_in_BS
-have hDisj : Disjoint B' (g₂ n k m '' B') :=
-  BS.isPartition.1 hB'_in_BS hg₂B'_in_BS hg₂_B'_ne.symm
-exact Set.disjoint_iff.mp hDisj ⟨hy_in_B', hy_in_g₂B'⟩
-```
-
-No additional imports needed - ZpowBlocks already imported this session.
-
----
-
-## Completed This Session
-
-1. **FILLED sorry at line 363** in `Lemma11_5_Case2.lean` (the `|B'| > 2` case)
-   - Used `g₁_zpow_preserves_blocks` to establish `B' ∈ BS.blocks`
-   - Applied `PairwiseDisjoint` directly to get disjointness contradiction
-
-2. **FIXED duplicate definition conflict**
-   - Added `import AfTests.Primitivity.Lemma11_5_OrbitContinuation` to `Case2_Helpers.lean`
-   - Removed duplicate `elem2_in_support_g₁'` from `Case2_Helpers.lean`
-
-3. **DISCOVERED correct pattern** for block disjointness:
-   ```lean
-   BS.isPartition.1 hB1_in hB2_in hne  -- direct application, NOT .elim
-   ```
-
----
-
-## Remaining Sorries
-
-**Lemma11_5_Case2.lean** (2 sorries):
+**Lemma11_5_Case2.lean** (1 sorry):
 | Line | Case | Difficulty | Notes |
 |------|------|------------|-------|
-| 393 | y ≠ 3 | EASY | Same pattern as filled sorry |
 | 322 | B' = {0,3} | HARDER | Uses g₁ dichotomy, needs g₁²(0)=3 |
 
 **Lemma11_5_SymmetricCases.lean** (3 sorries):
@@ -61,11 +26,24 @@ No additional imports needed - ZpowBlocks already imported this session.
 
 ---
 
+## Completed This Session
+
+1. **FILLED sorry at line 393** in `Lemma11_5_Case2.lean` (the `y ≠ 3` case)
+   - Used `g₁_zpow_preserves_blocks` to establish `B' ∈ BS.blocks`
+   - Applied `PairwiseDisjoint` directly to get disjointness contradiction
+
+2. **FILLED sorry at line 363** (previous session) in `Lemma11_5_Case2.lean` (the `|B'| > 2` case)
+
+3. **DISCOVERED correct pattern** for block disjointness:
+   ```lean
+   BS.isPartition.1 hB1_in hB2_in hne  -- direct application, NOT .elim
+   ```
+
+---
+
 ## Files Modified This Session
 
-- `AfTests/Primitivity/Lemma11_5_Case2.lean` - Added ZpowBlocks import, filled line 363 sorry
-- `AfTests/Primitivity/Lemma11_5_Case2_Helpers.lean` - Added OrbitContinuation import, removed duplicate def
-- `PLAN_LEMMA11_5_REFACTOR.md` - Updated with progress and corrected patterns
+- `AfTests/Primitivity/Lemma11_5_Case2.lean` - Filled line 393 sorry (y ≠ 3 case)
 - `HANDOFF.md` - This file
 
 ---
