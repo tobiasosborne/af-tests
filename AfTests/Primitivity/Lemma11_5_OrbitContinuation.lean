@@ -166,6 +166,11 @@ theorem g₁_elem2_eq_elem6 (hn : n ≥ 1) :
 theorem elem6_is_tailA (hn : n ≥ 1) : isTailA (⟨6, by omega⟩ : Omega n k m) := by
   simp only [isTailA]; omega
 
+/-- g₁²(3) = 6 (composition: g₁(3) = 2, g₁(2) = 6 when n ≥ 1) -/
+theorem g₁_sq_elem3_eq_elem6 (hn : n ≥ 1) :
+    g₁ n k m (g₁ n k m (⟨3, by omega⟩ : Omega n k m)) = ⟨6, by omega⟩ := by
+  rw [g₁_elem3_eq_elem2, g₁_elem2_eq_elem6 hn]
+
 /-- If B is in the orbit of g₂(B₁) and B ⊆ tailA, then B cannot be g₂(B₁) -/
 theorem orbit_first_block_has_core (B₀ : Set (Omega n k m))
     (h3_in : (⟨3, by omega⟩ : Omega n k m) ∈ B₀)

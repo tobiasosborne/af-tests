@@ -5,58 +5,62 @@ All files compile successfully.
 
 ## Sorry Count: 4
 All sorries are in Lemma 11.5 files (Primitivity folder):
-- `Lemma11_5_Case2.lean:248` - n≥3 case needs orbit + fixed-point argument
-- `Lemma11_5_SymmetricCases.lean:306,346,363` - k≥2 and m≥2 symmetric cases
+- `Lemma11_5_Case2.lean:248` - n>=3 case needs orbit + fixed-point argument
+- `Lemma11_5_SymmetricCases.lean:306,346,363` - k>=2 and m>=2 symmetric cases
 
 ## Completed This Session
 
-1. **Removed legacy stubs** - Deleted 4 mathematically incorrect lemmas:
-   - `g₂_map_5_not_in_supp_g₁` (WRONG: g₂(5) = 5 ∈ supp(g₁))
-   - `fixed_of_in_supp_g₁_not_2_5` (WRONG condition)
-   - `impossible_block_2_5_in_g₁` (flawed approach)
-   - `BlockSystemOn.exists_block_containing_element_in_support` (unused)
+1. **Added `g1_sq_elem3_eq_elem6`** to `Lemma11_5_OrbitContinuation.lean:169-171`
+   - Proves: g1^2(3) = 6 when n >= 1
+   - Building block for {0, 3} non-block theorem
 
-2. **Corrected understanding of proof strategy**:
-   - Old plan claimed "|B'| ≥ 3 for n ≥ 3" - this is WRONG (only true for odd n)
-   - Key insight: {0, 3} is NOT a valid g₁-block because g₁²({0,3}) ∩ {0,3} = {3} ≠ ∅
-   - Correct approach: Any block containing 0 has element y ∉ {0,3}, which is g₂-fixed
+2. **Added `set_0_3_not_g1_closed`** to `Lemma11_5_OrbitInfra.lean:304-315`
+   - Proves: {0, 3} is NOT closed under g1^2 action
+   - Key insight: g1^2(3) = 6, so g1^2({0,3}) = {3, 6} which overlaps but != {0,3}
+   - This means {0, 3} cannot be a valid g1-block
 
-3. **Updated plan document** - `PLAN_LEMMA11_5_REFACTOR.md` now has correct strategy
+3. **Updated PLAN_LEMMA11_5_REFACTOR.md** with completed steps and clear next action
 
-## Critical Support Intersection Facts
+## NEXT STEP (Priority 1)
 
-```
-g₁CoreList = [0, 5, 3, 2]  →  supp(g₁) = {0, 2, 3, 5} ∪ tailA
-g₂CoreList = [1, 3, 4, 0]  →  supp(g₂) = {0, 1, 3, 4} ∪ tailB
-g₃CoreList = [2, 4, 5, 1]  →  supp(g₃) = {1, 2, 4, 5} ∪ tailC
+**Fill the sorry at `Lemma11_5_Case2.lean:248`**
 
-supp(g₁) ∩ supp(g₂) = {0, 3}  ← g₂ moves ONLY these in supp(g₁)
-supp(g₁) ∩ supp(g₃) = {2, 5}  ← g₃ moves ONLY these in supp(g₁)
-supp(g₂) ∩ supp(g₃) = {1, 4}
-```
+The infrastructure (`set_0_3_not_g1_closed`) is now in place. The proof needs:
 
-## Key Insight for n ≥ 3 Case
+1. Show: exists j such that 0 in g1^j(B)
+   - Since B subset tailA and g1-orbit partitions supp(g1) = {0,2,3,5} union tailA
 
-**{0, 3} is NOT a valid block for g₁** because:
-```
-g₁²(0) = 3  (0 → 5 → 3)
-g₁²(3) = 6  (3 → 2 → a₁)
-```
-So g₁²({0, 3}) = {3, 6} overlaps {0, 3} at element 3 but isn't equal to it.
+2. Let B' = g1^j(B). Show B' has g2-fixed element y != 0, y != 3
+   - B' contains 0 and |B'| = |B| > 1
+   - B' != {0, 3} (by `set_0_3_not_g1_closed`)
+   - So B' contains y in {2, 5} union tailA
 
-**Consequence**: Any block B' containing 0 must contain y ∉ {0, 3}. That y is g₂-fixed.
+3. Show g2(B') != B'
+   - g2(0) not in supp(g1) (already have `g2_map_0_not_in_supp_g1`)
+   - B' subset supp(g1), so g2(0) not in B'
 
-## Next Steps (Priority Order)
+4. Derive contradiction
+   - Block dichotomy: g2(B') disjoint B'
+   - But y in B' and g2(y) = y in g2(B')
+   - So y in B' cap g2(B') != empty. Contradiction!
 
-1. **Add infrastructure lemma** - Prove {0, 3} is not g₁-closed
-2. **Fill Case2.lean:248** - Use: find B' with 0, show has g₂-fixed element, contradiction
-3. **Fill SymmetricCases.lean** - Apply same pattern for k≥2 and m≥2
+## Known Issues
 
-See `PLAN_LEMMA11_5_REFACTOR.md` for detailed implementation steps.
+- `Lemma11_5_OrbitInfra.lean` is 315 lines (exceeds 200 LOC limit)
+- `Lemma11_5_OrbitContinuation.lean` is 287 lines (exceeds 200 LOC limit)
+- Duplicate definition `elem2_in_support_g1'` in OrbitContinuation and Case2_Helpers (causes import conflicts)
 
 ## Files Modified This Session
 
-- `AfTests/Primitivity/Lemma11_5_OrbitInfra.lean` - Removed legacy stubs, added documentation
-- `AfTests/Primitivity/Lemma11_5_Case2.lean` - Updated comments with correct approach
-- `PLAN_LEMMA11_5_REFACTOR.md` - Complete rewrite with correct strategy
+- `AfTests/Primitivity/Lemma11_5_OrbitContinuation.lean` - Added g1_sq_elem3_eq_elem6
+- `AfTests/Primitivity/Lemma11_5_OrbitInfra.lean` - Added set_0_3_not_g1_closed (with inline helpers)
+- `PLAN_LEMMA11_5_REFACTOR.md` - Updated with progress
 - `HANDOFF.md` - This file
+
+## Reference: NL Proof Alignment
+
+The Lean approach is compatible with the NL proof (Node 1.9.5) but takes a different path:
+- NL proof: Uses orbit to find block intersecting supp(g2), applies Lemma 11.2
+- Lean approach: First proves B subset tailA (via Lemma 11.2 contrapositive), then uses orbit argument
+
+Both are mathematically valid. The {0, 3} non-block theorem supports the orbit argument for n >= 3.

@@ -262,3 +262,54 @@ Since y ∈ supp(g₁) \ {0, 3} = {2, 5} ∪ tailA, we have g₂(y) = y (g₂-fi
 This gives the contradiction in the n ≥ 3 proof.
 -/
 
+-- ============================================
+-- SECTION 6: {0, 3} NOT A VALID g₁-BLOCK
+-- ============================================
+
+/-- g₁(3) = 2 (inline proof for use in set_0_3_not_g₁_closed) -/
+private theorem g₁_of_3_eq_2 : g₁ n k m (⟨3, by omega⟩ : Omega n k m) = ⟨2, by omega⟩ := by
+  unfold g₁
+  have hNodup := g₁_list_nodup n k m
+  have h_len := g₁_cycle_length n k m
+  have h_2_lt : 2 < (g₁CoreList n k m ++ tailAList n k m).length := by rw [h_len]; omega
+  have h_idx : (g₁CoreList n k m ++ tailAList n k m)[2]'h_2_lt =
+      (⟨3, by omega⟩ : Omega n k m) := by simp [g₁CoreList]
+  rw [← h_idx, List.formPerm_apply_getElem _ hNodup 2 h_2_lt]
+  simp only [h_len]
+  have h_mod : (2 + 1) % (4 + n) = 3 := Nat.mod_eq_of_lt (by omega)
+  simp only [h_mod]
+  rw [List.getElem_append_left (by simp [g₁CoreList] : 3 < (g₁CoreList n k m).length)]
+  simp [g₁CoreList]
+
+/-- g₁(2) = 6 (first tailA element) when n ≥ 1 (inline proof) -/
+private theorem g₁_of_2_eq_6 (hn : n ≥ 1) :
+    g₁ n k m (⟨2, by omega⟩ : Omega n k m) = ⟨6, by omega⟩ := by
+  unfold g₁
+  have hNodup := g₁_list_nodup n k m
+  have h_len := g₁_cycle_length n k m
+  have h_3_lt : 3 < (g₁CoreList n k m ++ tailAList n k m).length := by rw [h_len]; omega
+  have h_idx : (g₁CoreList n k m ++ tailAList n k m)[3]'h_3_lt =
+      (⟨2, by omega⟩ : Omega n k m) := by simp [g₁CoreList]
+  rw [← h_idx, List.formPerm_apply_getElem _ hNodup 3 h_3_lt]
+  simp only [h_len]
+  have h_mod : (3 + 1) % (4 + n) = 4 := Nat.mod_eq_of_lt (by omega)
+  simp only [h_mod]
+  have h_core_len : (g₁CoreList n k m).length = 4 := by simp [g₁CoreList]
+  rw [List.getElem_append_right (by rw [h_core_len] : (g₁CoreList n k m).length ≤ 4)]
+  simp only [h_core_len, tailAList, List.getElem_map, List.getElem_finRange, Nat.sub_self]
+  simp only [Fin.coe_cast, Fin.val_mk, add_zero]
+
+/-- {0, 3} is not closed under g₁²: g₁²(3) = 6 ∉ {0, 3} when n ≥ 1.
+
+    This means {0, 3} cannot be a valid block for g₁, since blocks must satisfy:
+    for all j, g₁ʲ(B) is either equal to B or disjoint from B. -/
+theorem set_0_3_not_g₁_closed (hn : n ≥ 1) :
+    ∃ x : Omega n k m, x ∈ ({⟨0, by omega⟩, ⟨3, by omega⟩} : Set (Omega n k m)) ∧
+      g₁ n k m (g₁ n k m x) ∉ ({⟨0, by omega⟩, ⟨3, by omega⟩} : Set (Omega n k m)) := by
+  use ⟨3, by omega⟩
+  constructor
+  · exact Set.mem_insert_of_mem _ (Set.mem_singleton _)
+  · rw [g₁_of_3_eq_2, g₁_of_2_eq_6 hn]
+    simp only [Set.mem_insert_iff, Set.mem_singleton_iff, Fin.ext_iff]
+    omega
+
