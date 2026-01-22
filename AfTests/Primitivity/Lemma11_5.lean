@@ -102,7 +102,7 @@ theorem lemma11_5_no_nontrivial_blocks (h : n + k + m ≥ 1) :
       have hB_size := BS.allSameSize B hB_mem
       rw [← hB_size] at hSize_lower
       -- Invoke case2_impossible (structural argument)
-      exact case2_impossible hn B BS hInv hB_mem hg₁_disj ha₁_in_B hg₂_pres hg₃_pres hSize_lower
+      exact case2_impossible hn B BS ⟨hInv₁, hInv₂, hInv₃⟩ hB_mem hg₁_disj ha₁_in_B hg₂_pres hg₃_pres hSize_lower
   · -- Case: n = 0, so k ≥ 1 or m ≥ 1. By symmetry, similar argument applies.
     push_neg at hn
     have hn0 : n = 0 := Nat.lt_one_iff.mp hn
@@ -151,7 +151,7 @@ theorem lemma11_5_no_nontrivial_blocks (h : n + k + m ≥ 1) :
         -- Block dichotomy for powers of g₂
         have hBlock : ∀ j : ℕ, (g₂ n k m ^ j) '' B = B ∨ Disjoint ((g₂ n k m ^ j) '' B) B :=
           fun j => perm_pow_image_preserves_or_disjoint (g₂ n k m) B BS.blocks hDisj hB_mem (hInv₂) j
-        exact case2_impossible_B hk B BS hInv hB_mem hg₂_disj hb₁_in_B hg₁_pres hg₃_pres hBlock hSize
+        exact case2_impossible_B hk B BS ⟨hInv₁, hInv₂, hInv₃⟩ hB_mem hg₂_disj hb₁_in_B hg₁_pres hg₃_pres hBlock hSize
     · -- Case m ≥ 1: Use c₁ and g₃ (symmetric to k ≥ 1 case)
       push_neg at hk; have hm : m ≥ 1 := by omega
       have hc₁_in_univ : c₁ n k m hm ∈ (Set.univ : Set (Omega n k m)) := Set.mem_univ _
@@ -196,4 +196,4 @@ theorem lemma11_5_no_nontrivial_blocks (h : n + k + m ≥ 1) :
         -- Block dichotomy for powers of g₃
         have hBlock : ∀ j : ℕ, (g₃ n k m ^ j) '' B = B ∨ Disjoint ((g₃ n k m ^ j) '' B) B :=
           fun j => perm_pow_image_preserves_or_disjoint (g₃ n k m) B BS.blocks hDisj hB_mem (hInv₃) j
-        exact case2_impossible_C hm B BS hInv hB_mem hg₃_disj hc₁_in_B hg₁_pres hg₂_pres hBlock hSize
+        exact case2_impossible_C hm B BS ⟨hInv₁, hInv₂, hInv₃⟩ hB_mem hg₃_disj hc₁_in_B hg₁_pres hg₂_pres hBlock hSize

@@ -10,6 +10,7 @@ import AfTests.Primitivity.Lemma11_5_SupportCover
 import AfTests.Primitivity.Lemma11_5_Case2_Helpers
 import AfTests.Transitivity.Lemma05ListProps
 import AfTests.Primitivity.Lemma11_5_Defs
+import AfTests.Primitivity.Lemma11_5_OrbitInfra
 
 /-!
 # Lemma 11.5: Case 2 Analysis
@@ -236,72 +237,20 @@ theorem case2_impossible (hn : n ≥ 1) (B : Set (Omega n k m))
         -- This contradicts disjointness
         exact Set.disjoint_iff.mp hg₁Disj ha₂_in_both
     · -- n ≥ 3: Structural argument via block system
-      -- 1. Orbit of B under g₁ covers supp(g₁) since B ⊆ supp(g₁)
-      --    and g₁ acts transitively on supp(g₁).
-      --    Since 5 ∈ supp(g₁), there is a block B' in orbit containing 5.
-      obtain ⟨B', hB'_in_orbit, h5_in_B'⟩ := BS.exists_block_containing_element_in_support
-        (g₁ n k m) B hB_in_BS (by
-          intro x hx; have hTail := hB_subset_tailA x hx
-          simp only [isTailA] at hTail
-          have hIdx : x.val - 6 < n := by omega
-          have hEq : x = ⟨6 + (x.val - 6), by omega⟩ := by ext; simp; omega
-          rw [hEq]; exact tailA_in_support_g₁ ⟨x.val - 6, hIdx⟩
-        ) (by
-           exact elem5_in_support_g₁
-        )
-      -- 2. B' is in the orbit of B, so B' ⊆ supp(g₁)
-      have hB'_sub_supp_g₁ : B' ⊆ (g₁ n k m).support := by
-        obtain ⟨j, rfl⟩ := hB'_in_orbit
-        intro x hx; obtain ⟨y, hy_in, hy_eq⟩ := hx
-        rw [← hy_eq]
-        have hy_supp : y ∈ (g₁ n k m).support := by
-          have hTail := hB_subset_tailA y hy_in; simp only [isTailA] at hTail
-          have hIdx : y.val - 6 < n := by omega
-          have hEq : y = ⟨6 + (y.val - 6), by omega⟩ := by ext; simp; omega
-          rw [hEq]; exact tailA_in_support_g₁ ⟨y.val - 6, hIdx⟩
-        simp only [Equiv.Perm.mem_support]; intro hContra
-        exact (Equiv.Perm.mem_support.mp hy_supp) ((Equiv.Perm.iterate_eq_self_iff_eq_self j).mp hContra)
-
-      -- 3. g₂(B') ≠ B' because 5 ∈ B' but g₂(5) ∉ supp(g₁)
-      have hg₂_B'_ne_B' : g₂ n k m '' B' ≠ B' := by
-        intro hEq
-        have h5_in : (⟨5, by omega⟩ : Omega n k m) ∈ B' := h5_in_B'
-        have hg₂_5_in : g₂ n k m (⟨5, by omega⟩ : Omega n k m) ∈ B' :=
-          Set.mem_image_of_mem _ h5_in |> hEq.subst
-        -- g₂(5) ∉ supp(g₁)
-        have hg₂_5_not_in : g₂ n k m (⟨5, by omega⟩ : Omega n k m) ∉ (g₁ n k m).support :=
-          g₂_map_5_not_in_supp_g₁ hn
-        exact hg₂_5_not_in (hB'_sub_supp_g₁ hg₂_5_in)
-
-      -- 4. B' contains a fixed point of g₂
-      have hB'_has_fixed : (B' ∩ {x | g₂ n k m x = x}).Nonempty := by
-        -- If B' has no fixed point, B' ⊆ {2, 5}
-        by_contra hNone
-        simp only [Set.not_nonempty_iff_eq_empty, Set.eq_empty_iff_forall_not_mem, Set.mem_inter_iff,
-          Set.mem_setOf_eq, not_and] at hNone
-        have hSubset : B' ⊆ {⟨2, by omega⟩, ⟨5, by omega⟩} := by
-          intro x hx
-          by_contra hNot25
-          have hFixed : g₂ n k m x = x := by
-             have hx_supp := hB'_sub_supp_g₁ hx
-             have hx_ne_2 : x ≠ ⟨2, by omega⟩ := by intro h; rw [h] at hNot25; exact hNot25 (Or.inl rfl)
-             have hx_ne_5 : x ≠ ⟨5, by omega⟩ := by intro h; rw [h] at hNot25; exact hNot25 (Or.inr rfl)
-             exact fixed_of_in_supp_g₁_not_2_5 hx_supp hx_ne_2 hx_ne_5
-          exact hNone x hx hFixed
-
-        have hSize : B'.ncard = 2 := by
-          have h2 : B'.ncard ≤ 2 := Set.ncard_le_of_subset_finite hSubset (Set.toFinite _)
-          have h1 : 1 < B'.ncard := by rw [BS.allSameSize B' (BS.orbit_subset_blocks (g₁ n k m) hB_in_BS (hInv.1) B' hB'_in_orbit), BS.allSameSize B hB_in_BS]; exact hNT_lower
-          omega
-        
-        -- Contradiction: {2, 5} cannot be a block in g₁ cycle of length ≥ 7
-        exact impossible_block_2_5_in_g₁ hn (BS.orbit_subset_blocks (g₁ n k m) hB_in_BS (hInv.1) B' hB'_in_orbit) hSubset hSize
-
-      -- 5. Contradiction from ¬Disjoint
-      obtain ⟨y, hy_in, hy_fixed⟩ := hB'_has_fixed
-      have hInter : (g₂ n k m '' B' ∩ B').Nonempty := ⟨y, ⟨y, hy_in, hy_fixed⟩, hy_in⟩
-      
-      have hB'_mem : B' ∈ BS.blocks := BS.orbit_subset_blocks (g₁ n k m) hB_in_BS (hInv.1) B' hB'_in_orbit
-      rcases (perm_image_preserves_or_disjoint (g₂ n k m) B' BS.blocks BS.isPartition.1 hB'_mem (hInv.2 B' hB'_mem)) with hPres | hDisj
-      · exact hg₂_B'_ne_B' hPres
-      · exact Set.not_nonempty_iff_eq_empty.mpr (Set.disjoint_iff_inter_eq_empty.mp hDisj) hInter
+      -- TODO: The proof for n ≥ 3 needs restructuring.
+      -- See PLAN_LEMMA11_5_REFACTOR.md for the correct approach:
+      --
+      -- The current code has fundamental issues:
+      -- 1. g₂_map_5_not_in_supp_g₁ is mathematically FALSE (g₂(5) = 5 ∈ supp(g₁))
+      -- 2. fixed_of_in_supp_g₁_not_2_5 has WRONG condition (should be not_0_3)
+      --
+      -- Correct approach:
+      -- 1. B ⊆ tailA, so the g₁-orbit of B eventually contains elements from {0, 2, 3, 5}
+      -- 2. Find B' in orbit with B' ∩ {0, 3} ≠ ∅ (not 5 as current code tries)
+      -- 3. Then g₂(0) or g₂(3) ∉ supp(g₁), giving g₂(B') ≠ B'
+      -- 4. B' also has g₂-fixed point from {2, 5} ∪ tailA (since |B'| ≥ 3 > |{0,3}|)
+      -- 5. Contradiction via block dichotomy
+      --
+      -- The correct fixed-point lemma is g₂_fixes_in_supp_g₁_not_0_3:
+      --   x ∈ supp(g₁) ∧ x ≠ 0 ∧ x ≠ 3 → g₂(x) = x
+      sorry

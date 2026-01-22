@@ -283,80 +283,27 @@ theorem case2_impossible_B (hk : k ≥ 1) (B : Set (Omega n k m))
           have h_eq : {x : Omega n k m | isTailB x} = Set.range (fun i : Fin k => (⟨6 + n + i.val, by omega⟩ : Omega n k m)) := by
             ext x; simp [Set.mem_setOf_eq, Set.mem_range, isTailB]; constructor <;> intro h
             · use ⟨x.val - 6 - n, by have := x.isLt; omega⟩; ext; simp; omega
-            · obtain ⟨i, hi⟩ := h; rw [← hi]; simp; constructor <;> omega
+            · obtain ⟨i, hi⟩ := h; rw [← hi]; constructor <;> simp <;> omega
           rw [h_eq, Set.ncard_range_of_injective]
           · simp
           · intro i j h; ext; simp at h; exact h
     omega
   · -- k >= 2
-    -- B ⊆ supp(g₂). Orbit partitions supp(g₂).
-    -- 2 ∈ supp(g₂). So B' containing 2 exists.
-    obtain ⟨B', hB'_in_orbit, h2_in_B'⟩ := BS.exists_block_containing_element_in_support
-      (g₂ n k m) B hB_in_BS (by
-        intro x hx; have hTail := hB_subset_tailB x hx
-        simp only [isTailB] at hTail
-        have hIdx : x.val - 6 - n < k := by omega
-        have hEq : x = ⟨6 + n + (x.val - 6 - n), by omega⟩ := by ext; simp; omega
-        rw [hEq]; apply b₁_mem_support_g₂ (by omega) -- actually any tailB in support
-        -- Wait, b₁_mem_support_g₂ only for b₁?
-        -- Need generic tailB in support.
-        -- g₂ = (1 2 4 5 tailB).
-        -- Yes, all tailB in support.
-        have hNodup := g₂_list_nodup n k m
-        have hNotSingleton : ∀ x, g₂CoreList n k m ++ tailBList n k m ≠ [x] := by
-          intro x h; have : (g₂CoreList n k m ++ tailBList n k m).length = 1 := by rw [h]; simp
-          have := g₂_cycle_length n k m; omega
-        rw [g₂, List.support_formPerm_of_nodup _ hNodup hNotSingleton]
-        simp; right; use ⟨x.val - 6 - n, hIdx⟩; simp [tailBList]; exact hEq.symm
-      ) (by exact elem2_in_support_g₂)
-    
-    have hB'_sub_supp_g₂ : B' ⊆ (g₂ n k m).support := by
-      obtain ⟨j, rfl⟩ := hB'_in_orbit
-      intro x hx; obtain ⟨y, hy_in, hy_eq⟩ := hx
-      rw [← hy_eq]
-      have hy_supp : y ∈ (g₂ n k m).support := by
-        have hTail := hB_subset_tailB y hy_in; simp [isTailB] at hTail
-        -- Similar proof as above
-        have hIdx : y.val - 6 - n < k := by omega
-        have hEq : y = ⟨6 + n + (y.val - 6 - n), by omega⟩ := by ext; simp; omega
-        rw [g₂]; apply Equiv.Perm.mem_support.mpr; intro hC
-        -- use cycle logic or list support logic
-        sorry -- Trivial since y in tailB which is in support
-      simp [Equiv.Perm.mem_support]; intro hC
-      exact (Equiv.Perm.mem_support.mp hy_supp) ((Equiv.Perm.iterate_eq_self_iff_eq_self j).mp hC)
-
-    -- g₁(B') ≠ B' since 2 ∈ B' and g₁(2) ∉ supp(g₂)
-    have hg₁_B'_ne_B' : g₁ n k m '' B' ≠ B' := by
-      intro hEq
-      have h2_in : (⟨2, by omega⟩ : Omega n k m) ∈ B' := h2_in_B'
-      have hg₁_2_in : g₁ n k m (⟨2, by omega⟩ : Omega n k m) ∈ B' :=
-        Set.mem_image_of_mem _ h2_in |> hEq.subst
-      -- g₁(2) = 0 (if n=0) or a₁ (if n>=1). Neither in supp(g₂).
-      -- supp(g₂) = {1, 2, 4, 5, tailB}.
-      -- 0 is not in supp(g₂).
-      -- a₁ (6) is not in supp(g₂).
-      -- We need proof g₁(2) ∉ supp(g₂).
-      sorry -- g₁(2) is 0 or a₁. supp(g₂)={1,2,4,5,tailB}. disjoint.
-      
-    -- B' contains fixed point of g₁
-    have hB'_has_fixed : (B' ∩ {x | g₁ n k m x = x}).Nonempty := by
-      by_contra hNone
-      simp only [Set.not_nonempty_iff_eq_empty, Set.eq_empty_iff_forall_not_mem, Set.mem_inter_iff, Set.mem_setOf_eq, not_and] at hNone
-      -- B' ⊆ {2, 5} (moved by g₁ in supp(g₂))
-      -- supp(g₂) ∩ supp(g₁) = {2, 5}.
-      -- fixed by g₁ in supp(g₂) = supp(g₂) \ {2, 5} = {1, 4, tailB}.
-      -- If no fixed point, B' ⊆ {2, 5}.
-      -- |B'| = 2 => B' = {2, 5}.
-      -- Impossible in g₂ (dist 2 in cycle ≥ 7).
-      sorry
-
-    obtain ⟨y, hy_in, hy_fixed⟩ := hB'_has_fixed
-    have hInter : (g₁ n k m '' B' ∩ B').Nonempty := ⟨y, ⟨y, hy_in, hy_fixed⟩, hy_in⟩
-    
-    have hB'_mem : B' ∈ BS.blocks := BS.orbit_subset_blocks (g₂ n k m) hB_in_BS (hInv.2) B' hB'_in_orbit
-    rcases (perm_image_preserves_or_disjoint (g₁ n k m) B' BS.blocks BS.isPartition.1 hB'_mem (hInv.1 B' hB'_mem)) with hPres | hDisj
-    · exact hg₁_B'_ne_B' hPres
-    · exact Set.not_nonempty_iff_eq_empty.mpr (Set.disjoint_iff_inter_eq_empty.mp hDisj) hInter
+    -- TODO: The proof for k ≥ 2 needs restructuring.
+    -- See PLAN_LEMMA11_5_REFACTOR.md for the correct approach.
+    --
+    -- Issues with current code:
+    -- 1. Comment says "2 ∈ supp(g₂)" but 2 ∉ supp(g₂)! (supp(g₂) = {0,1,3,4} ∪ tailB)
+    -- 2. Uses undefined Equiv.Perm.iterate_eq_self_iff_eq_self
+    -- 3. Multiple type mismatches in orbit argument
+    -- 4. hInv.2 should access g₂ invariance from IsHInvariant
+    --
+    -- Correct approach:
+    -- 1. Find B' in g₂-orbit containing element from supp(g₁) ∩ supp(g₂) = {0, 3}
+    -- 2. Show g₁ maps 0 or 3 outside supp(g₂)
+    -- 3. Show B' has g₁-fixed point (since g₁ fixes {1, 4} ∪ tailB in supp(g₂))
+    -- 4. Derive contradiction via block dichotomy
+    sorry
 
 theorem case2_impossible_C (hm : m ≥ 1) (B : Set (Omega n k m))
     (BS : BlockSystemOn n k m) (hInv : IsHInvariant BS) (hB_in_BS : B ∈ BS.blocks)
@@ -399,52 +346,18 @@ theorem case2_impossible_C (hm : m ≥ 1) (B : Set (Omega n k m))
        sorry
     omega
   · -- m >= 2
-    -- B ⊆ supp(g₃). Orbit partitions supp(g₃).
-    -- 2 ∈ supp(g₃). So B' containing 2 exists.
-    obtain ⟨B', hB'_in_orbit, h2_in_B'⟩ := BS.exists_block_containing_element_in_support
-      (g₃ n k m) B hB_in_BS (by
-         intro x hx; have hTail := hB_subset_tailC x hx
-         -- ... tailC in support logic
-         sorry
-      ) (by exact elem2_in_support_g₃)
-    
-    have hB'_sub_supp_g₃ : B' ⊆ (g₃ n k m).support := by
-      -- orbit subset logic
-      sorry
-
-    -- g₂(B') ≠ B' since 2 ∈ B' and g₂(2) = 4 ∉ supp(g₃)
-    have hg₂_B'_ne_B' : g₂ n k m '' B' ≠ B' := by
-      intro hEq
-      have h2_in : (⟨2, by omega⟩ : Omega n k m) ∈ B' := h2_in_B'
-      have hg₂_2_in : g₂ n k m (⟨2, by omega⟩ : Omega n k m) ∈ B' :=
-        Set.mem_image_of_mem _ h2_in |> hEq.subst
-      -- g₂(2) = 4. 4 ∉ supp(g₃).
-      have h4_not : (⟨4, by omega⟩ : Omega n k m) ∉ (g₃ n k m).support := elem4_not_in_support_g₃
-      have hg₂_2_eq : g₂ n k m (⟨2, by omega⟩ : Omega n k m) = ⟨4, by omega⟩ := g₂_map_2_to_4
-      rw [hg₂_2_eq] at hg₂_2_in
-      exact h4_not (hB'_sub_supp_g₃ hg₂_2_in)
-
-    -- B' contains fixed point of g₂
-    have hB'_has_fixed : (B' ∩ {x | g₂ n k m x = x}).Nonempty := by
-       -- B' ⊆ supp(g₃) = {2, 3, 5, 6, tailC}
-       -- supp(g₃) ∩ supp(g₂) = {5}??
-       -- g₂: 1 2 4 5 tailB.
-       -- g₃: 2 3 5 6 tailC.
-       -- Intersect: {2, 5}.
-       -- Fixed by g₂ in supp(g₃): {3, 6, tailC}.
-       -- Moved by g₂ in supp(g₃): {2, 5}.
-       -- B' ⊆ {2, 5} => |B'|=2, B'={2, 5}.
-       -- dist in g₃ is 2 (5->3->2?? No 5->6->...->2??)
-       -- g₃ = (2 3 5 6 ...). 2->3->5->6.
-       -- dist 2 to 5 is 2. (2->3->5).
-       -- dist 5 to 2 is large.
-       -- impossible for large cycle.
-       sorry
-
-    obtain ⟨y, hy_in, hy_fixed⟩ := hB'_has_fixed
-    have hInter : (g₂ n k m '' B' ∩ B').Nonempty := ⟨y, ⟨y, hy_in, hy_fixed⟩, hy_in⟩
-    
-    have hB'_mem : B' ∈ BS.blocks := BS.orbit_subset_blocks (g₃ n k m) hB_in_BS (hInv.3) B' hB'_in_orbit
-    rcases (perm_image_preserves_or_disjoint (g₂ n k m) B' BS.blocks BS.isPartition.1 hB'_mem (hInv.2 B' hB'_mem)) with hPres | hDisj
-    · exact hg₂_B'_ne_B' hPres
-    · exact Set.not_nonempty_iff_eq_empty.mpr (Set.disjoint_iff_inter_eq_empty.mp hDisj) hInter
+    -- TODO: The proof for m ≥ 2 needs restructuring.
+    -- See PLAN_LEMMA11_5_REFACTOR.md for the correct approach.
+    --
+    -- Issues with current code:
+    -- 1. hEq.subst type mismatch
+    -- 2. hInv.3 should be hInv.2.2 (g₃ invariance in nested And)
+    -- 3. hInv.2 should be hInv.2.1 (g₂ invariance)
+    -- 4. Missing g₂_map_2_to_4 and elem4_not_in_support_g₃
+    --
+    -- Correct approach (similar to k ≥ 2 case):
+    -- 1. Find B' in g₃-orbit containing element from supp(g₂) ∩ supp(g₃)
+    -- 2. Show g₂ maps some element outside supp(g₃)
+    -- 3. Show B' has g₂-fixed point
+    -- 4. Derive contradiction via block dichotomy
+    sorry
