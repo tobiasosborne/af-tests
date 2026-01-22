@@ -1,8 +1,6 @@
 # Handoff: 2026-01-22
 
-## Build Status: FAILING ❌
-
-Build errors at lines 727-736 in `Lemma11_5_SymmetricCases.lean`
+## Build Status: PASSING ✅
 
 ---
 
@@ -10,90 +8,89 @@ Build errors at lines 727-736 in `Lemma11_5_SymmetricCases.lean`
 
 **File**: `AfTests/Primitivity/Lemma11_5_SymmetricCases.lean`
 
-**Sorry count**: 1 (at line 797, the Disjoint case in m≥3)
+**Sorry count**: 1 (at line 807, Disjoint case in m≥3)
 
-**Build errors**: 4 errors in the `hB_sub` proof (lines 727-736)
+**File LOC**: 806 lines ⚠️ (EXCEEDS 200 limit by 4x)
 
-**See detailed plan**: `AfTests/Primitivity/PLAN_M2_CASE.md`
-
----
-
-## What Was Done This Session
-
-### Implemented m ≥ 3 case structure (lines 686-797)
-
-1. **c₂ ∈ B case** (lines 693-696): COMPLETE
-   - Derives contradiction with `hg₃Disj`
-
-2. **c₂ ∉ B case** (lines 697-797): PARTIALLY DONE
-   - Equality case (g₃²(B) = B): Most logic implemented, but `hB_sub` proof has errors
-   - Disjoint case: SORRY remains at line 797
-
-### Key fixes made:
-- Added `import AfTests.SignAnalysis.Lemma14` for `g₃_support_card`
-- Used correct cycle API: `IsCycle.pow_eq_one_iff`, `IsCycle.orderOf`, `orderOf_dvd_of_pow_eq_one`
-- Fixed divisibility→omega: `Nat.le_of_dvd` converts `(4+m) ∣ n` to `4+m ≤ n`
-- Fixed `pow_add` rewrite with explicit calc chain
+**Detailed plan**: `AfTests/Primitivity/PLAN_M2_CASE.md`
 
 ---
 
-## Build Errors to Fix
+## Completed This Session
 
-Lines 727-736 in `hB_sub` proof:
+1. **Fixed build errors at lines 727-736** in the `hB_sub` proof:
+   - Line 727: Changed `hx_not.2` → `Ne.symm hx_not.2` (wrong direction for `≠`)
+   - Line 729: Changed `hx_not.2.symm` → `Ne.symm hx_not.1` (wrong field)
+   - Lines 734-746: Restructured proof with explicit `hB'_card_eq_2` and `hB_card_eq_2` for omega
 
-```
-Line 727: Type mismatch - hx_not.2
-Line 729: Invalid field `symm` on hx_not.2
-Line 731: ncard_le_ncard argument mismatch
-Line 736: omega can't prove goal
-```
-
-**Root cause**: After `simp only [Set.mem_insert_iff, Set.mem_singleton_iff, not_or] at hx_not`, the type of `hx_not` needs verification.
-
-**Fix approach**:
-1. Use `lean_goal` at line 723 to see actual type of `hx_not` after simp
-2. Adjust proof accordingly
+2. **Updated PLAN_M2_CASE.md** with:
+   - Current status summary
+   - Detailed refactoring plan (file split into 3 files)
+   - Analysis of the remaining sorry
 
 ---
 
 ## NEXT STEPS (Priority Order)
 
-1. **Fix build errors** (lines 727-736)
-   - Check type of `hx_not` with `lean_goal`
-   - Fix the `hB_sub` proof
+### Step 1: Refactor `Lemma11_5_SymmetricCases.lean` (806 lines → 3 files)
 
-2. **Handle Disjoint case** (line 797 sorry)
-   - c₃ ∉ B means x ≠ c₃ where B = {c₁, x}
-   - Need to trace what x can be and derive contradiction
+The file is 4x over the 200 LOC limit. **Must refactor before sorry work.**
+
+| New File | Contents | Target LOC |
+|----------|----------|------------|
+| `Lemma11_5_SymmetricDefs.lean` | Definitions + helper lemmas | ~200 |
+| `Lemma11_5_CaseB.lean` | `case2_impossible_B` theorem | ~260 |
+| `Lemma11_5_CaseC.lean` | `case2_impossible_C` theorem (with sorry) | ~300 |
+
+**Refactoring steps:**
+1. Create `Lemma11_5_SymmetricDefs.lean` (lines 39-239)
+2. Create `Lemma11_5_CaseB.lean` (lines 245-506)
+3. Create `Lemma11_5_CaseC.lean` (lines 508-807)
+4. Delete original `Lemma11_5_SymmetricCases.lean`
+5. Update imports in dependent files
+6. Build and verify
+
+### Step 2: Fill the Sorry (AFTER refactoring)
+
+**Location**: `Lemma11_5_CaseC.lean`, line ~300 (Disjoint case in m≥3)
+
+**Context**: We have `B = {c₁, c₃}` and need to derive contradiction from `Disjoint (g₃² '' B) B`.
+
+**Warning**: The Disjoint case may require re-analysis. See PLAN_M2_CASE.md for details.
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Primitivity/Lemma11_5_SymmetricCases.lean` — m≥3 case implementation (partial)
-- `AfTests/Primitivity/PLAN_M2_CASE.md` — Updated with session learnings
+- `AfTests/Primitivity/Lemma11_5_SymmetricCases.lean` — Fixed build errors at lines 727-736
+- `AfTests/Primitivity/PLAN_M2_CASE.md` — Updated with refactoring plan
 - `HANDOFF.md` — This file
 
 ---
 
-## Key Learnings Documented
+## Known Issues / Gotchas
 
-See `PLAN_M2_CASE.md` section "Session 2026-01-22: Work Done and Remaining Errors" for:
-- Correct API for cycle power lemmas
-- g₃_support_card namespace
-- pow_add pattern for permutations
+1. **File over LOC limit**: `Lemma11_5_SymmetricCases.lean` is 806 lines (limit: 200)
+2. **Sorry analysis needed**: The Disjoint case in m≥3 may be more subtle than expected
+   - `g₃({c₁, c₃}) = {c₂, c₄}` might actually be disjoint from `{c₁, c₃}` for m≥4
+   - May need to show Disjoint case is impossible via a different argument
 
 ---
 
 ## Verification Commands
 
 ```bash
-# Build (currently fails)
+# Build (currently passes)
 lake build AfTests.Primitivity.Lemma11_5_SymmetricCases
 
-# Check errors
-lake build AfTests.Primitivity.Lemma11_5_SymmetricCases 2>&1 | grep error
+# Check LOC
+wc -l AfTests/Primitivity/Lemma11_5_SymmetricCases.lean
 
 # Check sorries
 grep -n "sorry" AfTests/Primitivity/Lemma11_5_SymmetricCases.lean
+
+# After refactoring, check all new files build
+lake build AfTests.Primitivity.Lemma11_5_SymmetricDefs
+lake build AfTests.Primitivity.Lemma11_5_CaseB
+lake build AfTests.Primitivity.Lemma11_5_CaseC
 ```

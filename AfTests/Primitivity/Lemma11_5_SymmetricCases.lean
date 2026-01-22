@@ -724,15 +724,25 @@ theorem case2_impossible_C (hm : m ≥ 1) (B : Set (Omega n k m))
               -- B contains c₁, c₃, x with x ≠ c₁, x ≠ c₃
               have h3 : ({c₁ n k m hm, ⟨6 + n + k + 2, by omega⟩, x} : Set (Omega n k m)).ncard ≥ 3 := by
                 rw [Set.ncard_insert_of_not_mem, Set.ncard_insert_of_not_mem, Set.ncard_singleton]
-                · simp only [Set.mem_singleton_iff]; exact hx_not.2
+                · simp only [Set.mem_singleton_iff]; exact Ne.symm hx_not.2
                 · simp only [Set.mem_insert_iff, Set.mem_singleton_iff, not_or]
-                  exact ⟨hc₁_ne_c₃, hx_not.2.symm⟩
+                  exact ⟨hc₁_ne_c₃, Ne.symm hx_not.1⟩
+              have hTriple_sub_B : {c₁ n k m hm, ⟨6 + n + k + 2, by omega⟩, x} ⊆ B := by
+                intro y hy
+                simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hy
+                rcases hy with rfl | rfl | rfl <;> assumption
               have hB_ge_3 : B.ncard ≥ 3 := by
-                apply Set.ncard_le_ncard (s := {c₁ n k m hm, ⟨6 + n + k + 2, by omega⟩, x})
-                · intro y hy
-                  simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hy
-                  rcases hy with rfl | rfl | rfl <;> assumption
-                · exact Set.toFinite B
+                calc B.ncard ≥ ({c₁ n k m hm, ⟨6 + n + k + 2, by omega⟩, x} : Set (Omega n k m)).ncard :=
+                       Set.ncard_le_ncard hTriple_sub_B (Set.toFinite _)
+                     _ ≥ 3 := h3
+              -- B'.ncard = 2 since B' = {1, 4}
+              have hB'_card_eq_2 : B'.ncard = 2 := by
+                rw [hB'_eq_14]
+                have h1_ne_4 : (⟨1, by omega⟩ : Omega n k m) ≠ ⟨4, by omega⟩ := by
+                  simp only [ne_eq, Fin.ext_iff, Fin.val_mk]; omega
+                rw [Set.ncard_pair h1_ne_4]
+              -- B.ncard = 2
+              have hB_card_eq_2 : B.ncard = 2 := by rw [← hB'_card, hB'_card_eq_2]
               omega
             have hB_eq : B = {c₁ n k m hm, ⟨6 + n + k + 2, by omega⟩} := by
               apply Set.eq_of_subset_of_ncard_le hB_sub
