@@ -241,8 +241,149 @@ theorem case2_impossible (hn : n ≥ 1) (B : Set (Omega n k m))
       -- g₁²({0,3}) = {3, a₁} overlaps with {0,3} at element 3.
       -- So any block B' containing 0 must contain y ∉ {0, 3}, which is g₂-fixed.
       have hn3 : n ≥ 3 := by omega
-      -- The g₁-orbit of B partitions supp(g₁). Since 0 ∈ supp(g₁), some B' contains 0.
-      -- We need to show this B' also contains a g₂-fixed element.
-      -- For now, we admit this orbit construction and derive contradiction.
-      -- TODO: Add orbit infrastructure lemmas
-      sorry
+      -- Step 1: a₁ ∈ supp(g₁) (since a₁ ∈ tailA ⊆ supp(g₁))
+      have ha₁_in_supp : a₁ n k m hn ∈ (g₁ n k m).support :=
+        tailA_in_support_g₁ ⟨0, hn⟩
+      -- Step 2: 0 ∈ supp(g₁)
+      have h0_in_supp : (⟨0, by omega⟩ : Omega n k m) ∈ (g₁ n k m).support :=
+        elem0_in_support_g₁
+      -- Step 3: g₁ is a cycle, so ∃ j, g₁^j(a₁) = 0
+      have hCyc : (g₁ n k m).IsCycle := g₁_isCycle n k m (by omega)
+      rw [mem_support] at ha₁_in_supp h0_in_supp
+      obtain ⟨j, hj⟩ := hCyc.exists_zpow_eq ha₁_in_supp h0_in_supp
+      -- Step 4: 0 ∈ (g₁^j) '' B
+      have h0_in_orbit : (⟨0, by omega⟩ : Omega n k m) ∈ (g₁ n k m ^ j) '' B := by
+        exact ⟨a₁ n k m hn, ha₁_in_B, hj⟩
+      -- Step 5: The orbit block B' = g₁^j '' B must contain element y ≠ 0, y ≠ 3
+      -- since {0, 3} is not a valid g₁-block and |B'| = |B| > 1
+      -- For now we use classical logic to get such y
+      let B' := (g₁ n k m ^ j) '' B
+      have hB'_card : B'.ncard = B.ncard := by
+        apply Set.ncard_image_of_injective
+        exact (g₁ n k m ^ j).injective
+      have hB'_card_gt_1 : 1 < B'.ncard := by rw [hB'_card]; exact hNT_lower
+      -- B' ⊆ supp(g₁) since B ⊆ tailA ⊆ supp(g₁) and g₁ permutes supp(g₁)
+      have hB'_subset_supp : B' ⊆ (g₁ n k m).support := by
+        intro x hx
+        obtain ⟨y, hyB, hyx⟩ := hx
+        have hy_supp : y ∈ (g₁ n k m).support := by
+          have hy_tailA := hB_subset_tailA y hyB
+          simp only [isTailA] at hy_tailA
+          have hi : y.val - 6 < n := by omega
+          convert tailA_in_support_g₁ (⟨y.val - 6, hi⟩ : Fin n) using 1
+          ext; simp only [Fin.val_mk]; omega
+        rw [← hyx]
+        exact Equiv.Perm.zpow_apply_mem_support.mpr hy_supp
+      -- B' contains 0 and |B'| > 1, so B' contains some y ≠ 0
+      have hB'_has_other : ∃ y ∈ B', y ≠ (⟨0, by omega⟩ : Omega n k m) := by
+        by_contra h; push_neg at h
+        have hSub : B' ⊆ {⟨0, by omega⟩} := fun y hy => Set.mem_singleton_iff.mpr (h y hy)
+        have hLe : B'.ncard ≤ 1 := Set.ncard_le_ncard hSub (Set.finite_singleton _) |>.trans
+          (by simp [Set.ncard_singleton])
+        omega
+      obtain ⟨y, hy_in_B', hy_ne_0⟩ := hB'_has_other
+      -- y ∈ supp(g₁) (since B' ⊆ supp(g₁))
+      have hy_in_supp : y ∈ (g₁ n k m).support := hB'_subset_supp hy_in_B'
+      -- Case: y = 3 or y ≠ 3
+      by_cases hy_eq_3 : y = ⟨3, by omega⟩
+      · -- If y = 3, then B' ⊇ {0, 3}
+        -- Sub-case: If |B'| > 2, find z ∈ B' \ {0, 3} and use z instead
+        -- Sub-case: If |B'| = 2, then B' = {0, 3}, which isn't a valid g₁-block
+        by_cases hB'_card_eq_2 : B'.ncard = 2
+        · -- B' = {0, 3}. But {0, 3} is not a valid g₁-block!
+          -- g₁²({0, 3}) = {3, 6} overlaps {0, 3} at 3 but ≠ {0, 3}
+          -- This contradicts B' being an H-block (block dichotomy requires = or disjoint)
+          exfalso
+          -- Establish B' = {0, 3}
+          have h03_subset : ({⟨0, by omega⟩, ⟨3, by omega⟩} : Set (Omega n k m)) ⊆ B' := by
+            intro z hz
+            simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hz
+            rcases hz with rfl | rfl
+            · exact h0_in_orbit
+            · rw [← hy_eq_3]; exact hy_in_B'
+          have h03_card : ({⟨0, by omega⟩, ⟨3, by omega⟩} : Set (Omega n k m)).ncard = 2 := by
+            rw [Set.ncard_pair]; exact fun h => by simp only [Fin.ext_iff] at h; omega
+          have hB'_eq_03 : B' = {⟨0, by omega⟩, ⟨3, by omega⟩} := by
+            have hB'_finite : B'.Finite := Set.toFinite _
+            have h03_finite : ({⟨0, by omega⟩, ⟨3, by omega⟩} : Set (Omega n k m)).Finite :=
+              Set.toFinite _
+            apply (Set.eq_of_subset_of_ncard_le h03_subset _ hB'_finite).symm
+            rw [hB'_card_eq_2, h03_card]
+          -- Now use set_0_3_not_g₁_closed: ∃ x ∈ {0, 3}, g₁²(x) ∉ {0, 3}
+          -- This means g₁² doesn't preserve {0, 3}
+          obtain ⟨x, hx_in, hx_out⟩ := set_0_3_not_g₁_closed (n := n) (k := k) (m := m) hn
+          -- If B' is an H-block, then g₁²(B') should be B' or disjoint
+          -- But g₁²(x) ∉ B' = {0, 3} while x ∈ B', so g₁²(B') ≠ B'
+          -- And g₁²(0) = 3 ∈ B' (we need to check this), so g₁²(B') ∩ B' ≠ ∅
+          -- This violates block dichotomy
+          -- For now, we need B' ∈ BS.blocks to apply dichotomy
+          -- TODO: Prove zpow preserves block membership
+          sorry
+        · -- |B'| > 2, so ∃ z ∈ B' with z ≠ 0 and z ≠ 3
+          have hB'_card_gt_2 : B'.ncard > 2 := by omega
+          -- {0, 3} ⊆ B' has 2 elements, so B' \ {0, 3} is nonempty
+          have h03_subset : ({⟨0, by omega⟩, ⟨3, by omega⟩} : Set (Omega n k m)) ⊆ B' := by
+            intro z hz
+            simp only [Set.mem_insert_iff, Set.mem_singleton_iff] at hz
+            rcases hz with rfl | rfl
+            · exact h0_in_orbit
+            · rw [← hy_eq_3]; exact hy_in_B'
+          have h03_card : ({⟨0, by omega⟩, ⟨3, by omega⟩} : Set (Omega n k m)).ncard = 2 := by
+            rw [Set.ncard_pair]; exact fun h => by simp only [Fin.ext_iff] at h; omega
+          have hDiff_nonempty : (B' \ {⟨0, by omega⟩, ⟨3, by omega⟩}).Nonempty := by
+            by_contra h
+            rw [Set.not_nonempty_iff_eq_empty, Set.diff_eq_empty] at h
+            have := Set.ncard_le_ncard h (Set.toFinite _)
+            rw [h03_card] at this
+            omega
+          obtain ⟨z, hz_diff⟩ := hDiff_nonempty
+          simp only [Set.mem_diff, Set.mem_insert_iff, Set.mem_singleton_iff, not_or] at hz_diff
+          obtain ⟨hz_in_B', hz_ne_0, hz_ne_3⟩ := hz_diff
+          -- z ∈ B' ⊆ supp(g₁) and z ≠ 0, z ≠ 3
+          have hz_in_supp : z ∈ (g₁ n k m).support := hB'_subset_supp hz_in_B'
+          have hg₂_fixes_z : g₂ n k m z = z :=
+            g₂_fixes_in_supp_g₁_not_0_3 z hz_in_supp hz_ne_0 hz_ne_3
+          -- Now use z instead of y - same argument as the y ≠ 3 case
+          have hz_in_g₂B' : z ∈ g₂ n k m '' B' := by
+            rw [← hg₂_fixes_z]
+            exact Set.mem_image_of_mem _ hz_in_B'
+          -- g₂(0) ∉ B', so g₂(B') ≠ B'
+          have hg₂_0_not_in_B' : g₂ n k m ⟨0, by omega⟩ ∉ B' := by
+            intro h_contra
+            exact g₂_map_0_not_in_supp_g₁ (hB'_subset_supp h_contra)
+          have hg₂_B'_ne : g₂ n k m '' B' ≠ B' := by
+            intro h_eq
+            have : g₂ n k m ⟨0, by omega⟩ ∈ g₂ n k m '' B' :=
+              Set.mem_image_of_mem _ h0_in_orbit
+            rw [h_eq] at this
+            exact hg₂_0_not_in_B' this
+          -- Block dichotomy: g₂(B') = B' or disjoint. Since ≠, must be disjoint.
+          -- But z ∈ B' ∩ g₂(B'), contradiction!
+          -- TODO: prove B' ∈ BS.blocks for block dichotomy
+          sorry
+      · -- y ≠ 0 and y ≠ 3, so g₂(y) = y by g₂_fixes_in_supp_g₁_not_0_3
+        have hg₂_fixes_y : g₂ n k m y = y :=
+          g₂_fixes_in_supp_g₁_not_0_3 y hy_in_supp hy_ne_0 hy_eq_3
+        -- g₂(0) ∉ supp(g₁), but B' ⊆ supp(g₁), so g₂(0) ∉ B'
+        have hg₂_0_not_in_B' : g₂ n k m ⟨0, by omega⟩ ∉ B' := by
+          intro h_contra
+          have := hB'_subset_supp h_contra
+          exact g₂_map_0_not_in_supp_g₁ this
+        -- g₂(B') ≠ B' (since 0 ∈ B' but g₂(0) ∉ B')
+        have hg₂_B'_ne : g₂ n k m '' B' ≠ B' := by
+          intro h_eq
+          have : g₂ n k m ⟨0, by omega⟩ ∈ g₂ n k m '' B' :=
+            Set.mem_image_of_mem _ h0_in_orbit
+          rw [h_eq] at this
+          exact hg₂_0_not_in_B' this
+        -- B' is a block in the H-invariant block system
+        -- So either g₂(B') = B' or g₂(B') disjoint from B'
+        -- Since g₂(B') ≠ B', we have g₂(B') disjoint from B'
+        -- But y ∈ B' and g₂(y) = y ∈ g₂(B'), contradiction!
+        -- For this we need B' to be an H-block
+        -- TODO: prove B' = g₁^k(B) is still in BS.blocks
+        have hy_in_g₂B' : y ∈ g₂ n k m '' B' := by
+          rw [← hg₂_fixes_y]
+          exact Set.mem_image_of_mem _ hy_in_B'
+        -- For now, admit the block dichotomy for B'
+        sorry
