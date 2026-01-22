@@ -8,6 +8,7 @@ import AfTests.Primitivity.Lemma11_5_CycleSupport
 import AfTests.Primitivity.Lemma11_5_SupportCover
 import AfTests.Primitivity.Lemma11_5_FixedPoints
 import AfTests.Primitivity.Lemma11_3
+import AfTests.Primitivity.Lemma11_5_OrbitContinuation
 import Mathlib.GroupTheory.Perm.Cycle.Concrete
 
 /-!
@@ -175,17 +176,6 @@ theorem case2_B_subset_tailB (B : Set (Omega n k m))
       rw [← hEq]
       exact tailC_not_in_support_g₂' hm1 ⟨x.val - 6 - n - k, hi⟩
     exact (hNotSupp (hSubG₂ hx)).elim
-
-/-- Element 2 is in supp(g₁) (general version without n ≥ 1 hypothesis) -/
-theorem elem2_in_support_g₁' :
-    (⟨2, by omega⟩ : Omega n k m) ∈ (g₁ n k m).support := by
-  have hNodup := g₁_list_nodup n k m
-  have hNotSingleton : ∀ x, g₁CoreList n k m ++ tailAList n k m ≠ [x] := by
-    intro x h
-    have : (g₁CoreList n k m ++ tailAList n k m).length = 1 := by rw [h]; simp
-    have := g₁_cycle_length n k m; omega
-  rw [g₁, List.support_formPerm_of_nodup _ hNodup hNotSingleton]
-  simp only [List.mem_toFinset, List.mem_append, g₁CoreList, List.mem_cons]; tauto
 
 /-- Core elements {0,1,2,3,4,5} are in supp(g₁) or supp(g₂) -/
 theorem core_in_support_g₁_or_g₂ (x : Omega n k m) (hCore : isCore x) :

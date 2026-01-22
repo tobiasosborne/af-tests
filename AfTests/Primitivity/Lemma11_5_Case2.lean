@@ -11,6 +11,7 @@ import AfTests.Primitivity.Lemma11_5_Case2_Helpers
 import AfTests.Transitivity.Lemma05ListProps
 import AfTests.Primitivity.Lemma11_5_Defs
 import AfTests.Primitivity.Lemma11_5_OrbitInfra
+import AfTests.Primitivity.Lemma11_5_ZpowBlocks
 
 /-!
 # Lemma 11.5: Case 2 Analysis
@@ -359,8 +360,11 @@ theorem case2_impossible (hn : n ≥ 1) (B : Set (Omega n k m))
             exact hg₂_0_not_in_B' this
           -- Block dichotomy: g₂(B') = B' or disjoint. Since ≠, must be disjoint.
           -- But z ∈ B' ∩ g₂(B'), contradiction!
-          -- TODO: prove B' ∈ BS.blocks for block dichotomy
-          sorry
+          have hB'_in_BS : B' ∈ BS.blocks := g₁_zpow_preserves_blocks BS hInv B hB_in_BS j
+          have hg₂B'_in_BS : g₂ n k m '' B' ∈ BS.blocks := hInv.2.1 B' hB'_in_BS
+          have hDisj : Disjoint B' (g₂ n k m '' B') :=
+            BS.isPartition.1 hB'_in_BS hg₂B'_in_BS hg₂_B'_ne.symm
+          exact Set.disjoint_iff.mp hDisj ⟨hz_in_B', hz_in_g₂B'⟩
       · -- y ≠ 0 and y ≠ 3, so g₂(y) = y by g₂_fixes_in_supp_g₁_not_0_3
         have hg₂_fixes_y : g₂ n k m y = y :=
           g₂_fixes_in_supp_g₁_not_0_3 y hy_in_supp hy_ne_0 hy_eq_3
