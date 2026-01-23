@@ -323,5 +323,33 @@ theorem case2_impossible_C (hm : m ≥ 1) (B : Set (Omega n k m))
                 ⇑(g₃ n k m ^ (2 : ℕ)) '' B := Set.mem_image_of_mem _ hc₃_in_B
             rw [hEq] at hg₃2_c₃_in_g₃2B
             exact hg₃2_c₃_not_in_B hg₃2_c₃_in_g₃2B
-          · -- Disjoint case: c₃ ∉ B
-            sorry
+          · -- Disjoint case: show c₃ ∈ B via cycle computation, contradicting disjointness
+            -- Step 1: g₃²(4) = 1 (using g₃(4) = 5, g₃(5) = 1)
+            have hg₃_pow2_4_eq_1 : (g₃ n k m ^ (2 : ℕ)) (⟨4, by omega⟩ : Omega n k m) = ⟨1, by omega⟩ := by
+              simp only [pow_two, Equiv.Perm.coe_mul, Function.comp_apply]
+              rw [g₃_elem4_eq_elem5, g₃_elem5_eq_elem1]
+            -- Step 2: g₃^j(c₃) = 1 using g₃^j(c₁) = 4 and g₃²(c₁) = c₃
+            have hg₃_j_c₃_eq_1 : (g₃ n k m ^ j) (⟨6 + n + k + 2, by omega⟩ : Omega n k m) = ⟨1, by omega⟩ := by
+              -- g₃^j(c₃) = g₃^j(g₃²(c₁)) = g₃^{j+2}(c₁) = g₃^{2+j}(c₁) = g₃²(g₃^j(c₁)) = g₃²(4) = 1
+              have h1 : (g₃ n k m ^ j) (⟨6 + n + k + 2, by omega⟩ : Omega n k m) =
+                  (g₃ n k m ^ j) ((g₃ n k m ^ (2 : ℕ)) (c₁ n k m hm)) := by rw [hg₃_pow2_c₁]
+              have h2 : (g₃ n k m ^ j) ((g₃ n k m ^ (2 : ℕ)) (c₁ n k m hm)) =
+                  ((g₃ n k m ^ j) * (g₃ n k m ^ (2 : ℕ))) (c₁ n k m hm) := rfl
+              have h3 : ((g₃ n k m ^ j) * (g₃ n k m ^ (2 : ℕ))) =
+                  ((g₃ n k m ^ (2 : ℕ)) * (g₃ n k m ^ j)) := by
+                rw [← zpow_natCast (g₃ n k m) 2, zpow_mul_comm]
+              have h4 : ((g₃ n k m ^ (2 : ℕ)) * (g₃ n k m ^ j)) (c₁ n k m hm) =
+                  (g₃ n k m ^ (2 : ℕ)) ((g₃ n k m ^ j) (c₁ n k m hm)) := rfl
+              rw [h1, h2, h3, h4, hj, hg₃_pow2_4_eq_1]
+            -- Step 3: c₃ ∈ B (since 1 ∈ B' = g₃^j(B) and g₃^j(c₃) = 1)
+            have hc₃_in_B : (⟨6 + n + k + 2, by omega⟩ : Omega n k m) ∈ B := by
+              -- 1 ∈ B' = g₃^j(B), and g₃^j(c₃) = 1, so c₃ = (g₃^j)⁻¹(1) ∈ B
+              have h1_in_image : ⟨1, by omega⟩ ∈ (g₃ n k m ^ j) '' B := h1_in_B'
+              obtain ⟨y, hy_in_B, hy_eq⟩ := h1_in_image
+              -- y ∈ B and g₃^j(y) = 1
+              -- But g₃^j(c₃) = 1, so y = c₃ by injectivity
+              have hInj : Function.Injective (g₃ n k m ^ j) := (g₃ n k m ^ j).injective
+              have hy_eq_c₃ : y = ⟨6 + n + k + 2, by omega⟩ := hInj (hy_eq.trans hg₃_j_c₃_eq_1.symm)
+              rw [← hy_eq_c₃]; exact hy_in_B
+            -- Step 4: Contradiction - c₃ ∈ g₃²(B) ∩ B but they're disjoint
+            exact Set.disjoint_iff.mp hDisj2 ⟨hc₃_in_g₃pow2B, hc₃_in_B⟩
