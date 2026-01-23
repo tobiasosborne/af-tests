@@ -13,7 +13,9 @@ import AfTests.Primitivity.Lemma11_5_Cases
 import AfTests.Primitivity.Lemma11_5_SupportCover
 import AfTests.Primitivity.Lemma11_5_Case2
 import AfTests.Primitivity.Lemma11_5_Defs
-import AfTests.Primitivity.Lemma11_5_SymmetricCases
+import AfTests.Primitivity.Lemma11_5_SymmetricDefs
+import AfTests.Primitivity.Lemma11_5_CaseB
+import AfTests.Primitivity.Lemma11_5_CaseC
 
 /-!
 # Lemma 11.5: No Non-trivial Blocks
