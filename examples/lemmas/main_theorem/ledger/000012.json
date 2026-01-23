@@ -1,1 +1,0 @@
-{"type":"def_added","timestamp":"2026-01-18T09:08:57.714339948Z","definition":{"id":"5aedf0a13df3bcc3","name":"Parity_Analysis","definition":"(-1)^{x+3} = (-1)^x * (-1)^3 = (-1)^x * (-1) = -(-1)^x. Thus (-1)^{x+3} = +1 (even) iff (-1)^x = -1 iff x is odd.","created":"2026-01-18T09:08:57.713674758Z"}}

@@ -1,1 +1,0 @@
-{"type":"proof_initialized","timestamp":"2026-01-17T14:46:21.328358469Z","conjecture":"For n + k + m \u003e= 1, let N = 6 + n + k + m and H = \u003cg_1, g_2, g_3\u003e where g_1 = (1 6 4 3 a_1...a_n), g_2 = (1 2 4 5 b_1...b_k), g_3 = (5 6 2 3 c_1...c_m). Then H = A_N if n,k,m are all odd, and H = S_N otherwise.","author":"claude"}
