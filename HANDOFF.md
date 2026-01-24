@@ -1,12 +1,10 @@
 # Handoff: 2026-01-24
 
 ## Completed This Session
-- **AC-P5.3 COMPLETE**: Created `Closure.lean` (95 LOC, 0 sorries)
-  - `quadraticModuleClosure`: ε-δ definition of closure in ||·||_M topology
-  - `quadraticModule_subset_closure`: M ⊆ M̄
-  - `zero_mem_closure`: 0 ∈ M̄
-  - `closure_add_mem`: M̄ is closed under addition
-  - `closure_smul_mem`: M̄ is closed under nonneg ℝ-scaling
+- **AC-P6.1 COMPLETE**: Created `Dual/Forward.lean` (67 LOC, 0 sorries)
+  - `MPositiveState.apply_sub`: φ(a - m) = φ(a) - φ(m)
+  - `closure_implies_nonneg`: A ∈ M̄ ⟹ φ(A) ≥ 0 for all φ ∈ S_M
+  - Proof uses ε-δ characterization: pick ε = -φ(A), get m ∈ M close to A, derive contradiction
 
 ---
 
@@ -56,11 +54,25 @@
 
 ---
 
+### Phase 6: IN PROGRESS
+
+| File | Status | LOC | Sorries |
+|------|--------|-----|---------|
+| Dual/Forward.lean | ✅ | 67 | 0 |
+| Dual/SpanIntersection.lean | Not Started | - | - |
+| Dual/SeparatingFunctional.lean | Not Started | - | - |
+| Dual/RieszApplication.lean | Not Started | - | - |
+| Dual/ComplexExtension.lean | Not Started | - | - |
+| Dual/Normalization.lean | Not Started | - | - |
+
+---
+
 ## Next Steps
 
-1. **Phase 6**: Dual characterization (Forward.lean, SpanIntersection.lean, RieszApplication.lean)
-2. **Phase 7**: Representations (Constrained, VectorState, GNSConstrained)
-3. **Phase 8**: Main theorem
+1. **AC-P6.2**: SpanIntersection.lean - Prove M ∩ span{A} = {0} when A ∉ M̄
+2. **AC-P6.3**: SeparatingFunctional.lean - Construct ψ₀ on span{A} with ψ₀(A) < 0
+3. **AC-P6.4**: RieszApplication.lean - Apply Riesz extension theorem
+4. Continue with normalization and main theorem
 
 ---
 
@@ -69,6 +81,14 @@
 See `docs/ArchimedeanClosure/LEARNINGS.md` for index, including:
 - `LEARNINGS_misc.md`: `ofFunction` pattern, closedness proofs, ciSup patterns, **seminorm closure pattern**
 - `LEARNINGS_states.md`: Cauchy-Schwarz, Archimedean bounds
+
+### Forward Direction Proof Pattern (NEW)
+To prove A ∈ closure(M) ⟹ f(A) ≥ 0 where f is continuous and f ≥ 0 on M:
+1. Assume f(A) < 0 for contradiction
+2. Use ε = -f(A) > 0 to get m ∈ M with ||A - m|| < ε
+3. Use continuity: |f(A) - f(m)| ≤ ||A - m|| < -f(A)
+4. Expand |f(A) - f(m)| < -f(A) via `abs_lt` to get f(m) < 0
+5. Contradiction with f(m) ≥ 0 via `linarith`
 
 ### Key ciSup Patterns
 - Use `ciSup_le` (requires `Nonempty` instance)
@@ -89,6 +109,6 @@ def seminormClosure (p : Seminorm ℝ E) (S : Set E) : Set E :=
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/Seminorm/Closure.lean` (NEW, 95 LOC, 0 sorries)
+- `AfTests/ArchimedeanClosure/Dual/Forward.lean` (NEW, 67 LOC, 0 sorries)
 - `HANDOFF.md` (this file)
 
