@@ -23,12 +23,20 @@ This file defines states on C*-algebras and proves basic properties.
 -/
 
 /-- A state on a C*-algebra is a continuous linear functional φ : A → ℂ
-    that is positive (φ(a*a) ≥ 0) and normalized (φ(1) = 1). -/
+    that is positive (φ(a*a) ∈ ℝ₊) and normalized (φ(1) = 1).
+
+    The positivity condition has two parts:
+    - `map_star_mul_self_nonneg`: Re(φ(a*a)) ≥ 0
+    - `map_star_mul_self_real`: Im(φ(a*a)) = 0
+
+    Together these say φ(a*a) is a non-negative real number. -/
 structure State (A : Type*) [CStarAlgebra A] where
   /-- The underlying continuous linear map. -/
   toContinuousLinearMap : A →L[ℂ] ℂ
-  /-- A state is positive: φ(a*a) is a non-negative real for all a. -/
+  /-- A state is positive: Re(φ(a*a)) ≥ 0 for all a. -/
   map_star_mul_self_nonneg : ∀ a : A, 0 ≤ (toContinuousLinearMap (star a * a)).re
+  /-- A state maps a*a to a real number: Im(φ(a*a)) = 0 for all a. -/
+  map_star_mul_self_real : ∀ a : A, (toContinuousLinearMap (star a * a)).im = 0
   /-- A state is normalized: φ(1) = 1. -/
   map_one : toContinuousLinearMap 1 = 1
 
@@ -42,7 +50,8 @@ instance instFunLike : FunLike (State A) A ℂ where
     cases φ; cases ψ; congr
     exact ContinuousLinearMap.ext (fun x => congrFun h x)
 
-@[simp] theorem coe_mk (f : A →L[ℂ] ℂ) (h1 h2) (a : A) : (⟨f, h1, h2⟩ : State A) a = f a := rfl
+@[simp] theorem coe_mk (f : A →L[ℂ] ℂ) (h1 h2 h3) (a : A) :
+    (⟨f, h1, h2, h3⟩ : State A) a = f a := rfl
 
 /-- Coercion to ContinuousLinearMap. -/
 instance instCoe : CoeOut (State A) (A →L[ℂ] ℂ) := ⟨toContinuousLinearMap⟩
@@ -53,6 +62,16 @@ theorem continuous : Continuous φ := φ.toContinuousLinearMap.continuous
 /-- φ(a*a) is a non-negative real. -/
 theorem apply_star_mul_self_nonneg (a : A) : 0 ≤ (φ (star a * a)).re :=
   φ.map_star_mul_self_nonneg a
+
+/-- φ(a*a) has zero imaginary part (is a real number). -/
+theorem apply_star_mul_self_im (a : A) : (φ (star a * a)).im = 0 :=
+  φ.map_star_mul_self_real a
+
+/-- φ(a*a) equals its real part (as a complex number). -/
+theorem apply_star_mul_self_eq_re (a : A) : φ (star a * a) = (φ (star a * a)).re := by
+  apply Complex.ext
+  · rfl
+  · simp [φ.apply_star_mul_self_im a]
 
 /-- φ(1) = 1. -/
 @[simp] theorem apply_one : φ 1 = 1 := φ.map_one
