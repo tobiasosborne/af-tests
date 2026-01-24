@@ -1,80 +1,74 @@
 # Handoff: 2026-01-24
 
 ## Session Summary
-Attempted AC-P2.3 (NonEmptiness) and discovered a **critical blocking issue**:
-the FreeAlgebra star structure breaks the scalar extraction approach.
+1. Attempted AC-P2.3 (NonEmptiness) and discovered critical blocking issue
+2. Analyzed natural language proof - confirmed it assumes conjugate-linear star
+3. Decided on solution: Refactor from ℂ to ℝ-algebra
+4. Created 6 refactoring issues (RF-1 through RF-6) with dependencies
 
 ---
 
-## Completed This Session
+## Critical Discovery
 
-1. **AC-P2.3: S_M non-emptiness** (beads: af-tests-dlx) - BLOCKED
-   - Created `AfTests/ArchimedeanClosure/State/NonEmptiness.lean` (103 LOC)
-   - `scalarExtraction` - defined using `FreeAlgebra.algebraMapInv` ✓
-   - `scalarExtraction_one` - proven ✓
-   - `scalarExtraction_generator` - proven ✓
-   - `scalarExtraction_algebraMap` - proven ✓
-   - `scalarExtraction_star_mul_self_nonneg` - BLOCKED (counter-example!)
-   - `MPositiveStateSet_nonempty` - sorry (blocked by above)
+The FreeAlgebra star structure from mathlib does NOT conjugate scalars:
+```
+star (algebraMap c) = algebraMap c    -- scalars FIXED, not conjugated!
+```
 
-2. **Critical Learning Documented**
-   - The star structure on `FreeAlgebra ℂ X` does NOT conjugate scalars
-   - For `a = algebraMap I`, we get `star a * a = algebraMap(-1)` in M
-   - But `scalarExtraction(algebraMap(-1)) = -1` has NEGATIVE real part!
-   - This breaks the standard proof that scalar extraction gives M-positive state
+This breaks scalar extraction: `star(i·1) * (i·1) = -1`, not `|i|² = 1`.
+
+**Solution**: Work over ℝ. The natural language proof (Section 5.3.5.1) uses
+ℝ-linear functionals on self-adjoints anyway. Over ℝ, c² = |c|² ≥ 0.
+
+---
+
+## Refactoring Plan
+
+| Issue | Title | Deps | Est. LOC |
+|-------|-------|------|----------|
+| af-tests-zpmh | RF-1: FreeStarAlgebra ℂ → ℝ | - | ~50 |
+| af-tests-ted9 | RF-2: QuadraticModule for ℝ | RF-1 | ~50 |
+| af-tests-lhmy | RF-3: Archimedean for ℝ | RF-2 | ~30 |
+| af-tests-amdb | RF-4: MPositiveState redesign | RF-2 | ~60 |
+| af-tests-cfc9 | RF-5: MPositiveStateProps update | RF-4 | ~40 |
+| af-tests-6r38 | RF-6: NonEmptiness fix | RF-4 | ~50 |
+
+**Dependency chain**: RF-1 → RF-2 → RF-3, RF-4 → RF-5, RF-6
+
+**After refactoring**: All Phase 3+ issues unblocked.
 
 ---
 
 ## Current State
 
-### Archimedean Closure: Phase 2 BLOCKED
+### Archimedean Closure: REFACTORING NEEDED
 
-| File | Status | LOC | Sorries |
-|------|--------|-----|---------|
-| Algebra/FreeStarAlgebra.lean | ✅ Done | 53 | 0 |
-| Algebra/QuadraticModule.lean | ✅ Done | 93 | 0 |
-| Algebra/Archimedean.lean | ✅ Done | 46 | 0 |
-| State/MPositiveState.lean | ✅ Done | 92 | 0 |
-| State/MPositiveStateProps.lean | ⚠️ Sorries | 69 | 2 |
-| State/NonEmptiness.lean | ⛔ BLOCKED | 103 | 2 |
+| File | Status | LOC | Needs Refactor? |
+|------|--------|-----|-----------------|
+| Algebra/FreeStarAlgebra.lean | ⚠️ | 53 | **YES - RF-1** |
+| Algebra/QuadraticModule.lean | ⚠️ | 93 | **YES - RF-2** |
+| Algebra/Archimedean.lean | ⚠️ | 46 | **YES - RF-3** |
+| State/MPositiveState.lean | ⚠️ | 92 | **YES - RF-4** |
+| State/MPositiveStateProps.lean | ⚠️ | 69 | **YES - RF-5** |
+| State/NonEmptiness.lean | ⛔ | 103 | **YES - RF-6** |
 
-**Total: 456 LOC** (4 sorries)
+**Total: 456 LOC** (all need refactoring)
 
 ### GNS Construction: COMPLETE
-- No changes this session
+- No changes needed (uses abstract *-algebra structure)
 
 ---
 
-## Critical Issue: Star Structure
+## Next Session Tasks
 
-The star structure from `Mathlib.Algebra.Star.Free` satisfies:
-```
-star (algebraMap c) = algebraMap c    -- scalars FIXED, not conjugated!
-```
+1. **Start RF-1**: Change FreeStarAlgebra from ℂ to ℝ
+2. **Chain through RF-2, RF-3**: Update QuadraticModule, Archimedean
+3. **RF-4**: Major redesign of MPositiveState
+4. **RF-5, RF-6**: Update properties, fix NonEmptiness
 
-This means `star(I·1) * (I·1) = -1·1 ∈ M`, but scalar extraction gives `-1 < 0`.
-
-**Resolution paths documented in LEARNINGS.md:**
-1. Work over ℝ instead of ℂ
-2. Quotient algebra to enforce conjugation
-3. Restrict M definition
-4. Axiomatize non-emptiness
-5. Use different base state construction
-
----
-
-## Next Steps
-
-1. **Architectural decision needed**: How to resolve the star structure issue?
-   - Option A: Rebuild Phase 1 over ℝ (significant refactor)
-   - Option B: Add `StarModule ℂ` via quotient (complex)
-   - Option C: Axiomatize `MPositiveStateSet_nonempty` (pragmatic)
-   - Option D: Restrict M to exclude pure scalar squares (changes semantics)
-
-2. **Phase 3+ can proceed** if we axiomatize non-emptiness:
-   - af-tests-03l: AC-P3.1: Cauchy-Schwarz
-   - af-tests-fjy: AC-P3.3: Generating cone lemma
-   - af-tests-il1: AC-P4.1: State space topology
+After refactoring:
+- NonEmptiness should be PROVABLE (scalar extraction works over ℝ)
+- Phase 3+ can proceed
 
 ---
 
@@ -82,26 +76,29 @@ This means `star(I·1) * (I·1) = -1·1 ∈ M`, but scalar extraction gives `-1 
 
 - `AfTests/ArchimedeanClosure/State/NonEmptiness.lean` (NEW - 103 LOC)
 - `docs/ArchimedeanClosure/LEARNINGS.md` (updated with critical finding)
+- `docs/ArchimedeanClosure/ARCHITECTURE.md` (updated with ℝ-algebra plan)
 - `HANDOFF.md` (this file)
+- `.beads/issues.jsonl` (6 new RF issues)
 
 ---
 
-## Open Sorries to Track
+## Documentation Updated
 
-| File | Theorem | Reason |
-|------|---------|--------|
-| MPositiveStateProps.lean | `apply_real_of_isSelfAdjoint` | Needs polarization identity |
-| MPositiveStateProps.lean | `map_star` | Needs polarization from positivity |
-| NonEmptiness.lean | `scalarExtraction_star_mul_self_nonneg` | **BLOCKED**: Counter-example exists |
-| NonEmptiness.lean | `MPositiveStateSet_nonempty` | Blocked by above |
+- ✅ LEARNINGS.md - Critical discovery documented
+- ✅ ARCHITECTURE.md - Added ℝ-algebra section, updated Phase 1 descriptions
+- ✅ Beads issues created with dependencies
 
 ---
 
-## Open Issues
+## Open Issues (Priority Order)
 
+### Refactoring (P1 - do first)
 ```
 bd ready
 ```
-- Phase 2: af-tests-dlx (NonEmptiness) - IN PROGRESS but BLOCKED
-- Phase 3: af-tests-03l (Cauchy-Schwarz), af-tests-fjy (GeneratingCone)
-- Phase 4+: Multiple issues ready
+- af-tests-zpmh: RF-1 (ready to start)
+
+### After Refactoring (P2)
+- Phase 3: Cauchy-Schwarz, Archimedean bound, Generating cone
+- Phase 4: Topology, Compactness
+- Phase 5+: Seminorm, Dual, Representations, Main Theorem
