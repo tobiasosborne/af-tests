@@ -144,13 +144,14 @@ theorem locallyConvexSpace : LocallyConvexSpace ℝ E :=
 ## Current Status and Next Steps
 
 **Done**:
-- `Topology/SeminormTopology.lean` (58 LOC):
+- `Topology/SeminormTopology.lean` (116 LOC):
   - TopologicalSpace from stateSeminorm ✓
   - LocallyConvexSpace instance ✓
+  - `quadraticModuleClosure_eq_closure` - ε-δ = topological closure ✓
+  - `isClosed_quadraticModuleClosure` - M̄ is closed ✓
 
 **Remaining for ProperCone approach**:
-1. Show M (QuadraticModule) is closed in seminorm topology
-2. Construct `ProperCone ℝ (FreeStarAlgebra n)` from closed M
-3. Use `ProperCone.hyperplane_separation_point`
+1. Construct `ProperCone ℝ (FreeStarAlgebra n)` from closed M̄
+2. Use `ProperCone.hyperplane_separation_point`
 
 **Alternative**: Custom Zorn proof in `Dual/ZornExtension.lean` (~80 LOC)

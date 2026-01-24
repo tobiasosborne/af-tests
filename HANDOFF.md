@@ -1,13 +1,11 @@
 # Handoff: 2026-01-24
 
 ## Completed This Session
-- **Created SeminormTopology.lean** (af-tests-lm26):
-  - `stateSeminormFamily` - state seminorm as SeminormFamily indexed by Unit
-  - `seminormTopology` - TopologicalSpace induced by state seminorm
-  - `withSeminorms_stateSeminormFamily` - proves topology satisfies WithSeminorms
-  - `locallyConvexSpace_seminormTopology` - proves LocallyConvexSpace ℝ (FreeStarAlgebra n)
-  - 58 LOC, 0 sorries
-- **Documented SeminormFamily pattern** in LEARNINGS_extension.md
+- **Extended SeminormTopology.lean** (af-tests-85of):
+  - `quadraticModuleClosure_eq_closure` - ε-δ closure = topological closure
+  - `isClosed_quadraticModuleClosure` - M̄ is closed in seminorm topology
+  - Helper lemmas: `finset_sup_unit_eq`, `stateSeminormSeminorm_sub_comm`, `seminorm_ball_mem_nhds`
+  - Now 116 LOC, 0 sorries
 
 ---
 
@@ -41,7 +39,7 @@
 | Topology/StateTopology.lean | ✅ | 50 | 0 |
 | Topology/Closedness.lean | ✅ | 138 | 0 |
 | Topology/Compactness.lean | ✅ | 171 | 0 |
-| Topology/SeminormTopology.lean | ✅ | 58 | 0 |
+| Topology/SeminormTopology.lean | ✅ | 116 | 0 |
 | Topology/Continuity.lean | Skipped | - | - |
 
 ---
@@ -56,41 +54,36 @@
 
 ---
 
-### Phase 6: BLOCKED - Need M Closed in Seminorm Topology
+### Phase 6: Ready to Continue
 
 | File | Status | LOC | Sorries | Notes |
 |------|--------|-----|---------|-------|
 | Dual/Forward.lean | ✅ | 67 | 0 | |
 | Dual/SpanIntersection.lean | ✅ | 104 | 0 | |
 | Dual/SeparatingFunctional.lean | ✅ | 114 | 0 | |
-| Dual/RieszApplication.lean | **BLOCKED** | 147 | 2 | Needs M closed |
+| Dual/RieszApplication.lean | **Ready** | 147 | 2 | Topology done! |
 | Dual/ComplexExtension.lean | Not Started | - | - | |
 | Dual/Normalization.lean | Not Started | - | - | |
 
 ---
 
-## Key Progress: Topology Infrastructure
+## Key Progress: ProperCone Infrastructure Complete
 
-**Done** (af-tests-lm26):
-- TopologicalSpace on FreeStarAlgebra from stateSeminorm ✓
-- LocallyConvexSpace instance ✓
+**All prerequisites for ProperCone.hyperplane_separation_point are now done:**
+1. TopologicalSpace on FreeStarAlgebra from stateSeminorm ✓
+2. LocallyConvexSpace instance ✓
+3. `isClosed_quadraticModuleClosure` - M̄ is closed ✓
 
-**Remaining for ProperCone.hyperplane_separation_point**:
-1. Show QuadraticModule is closed in seminorm topology
-2. Construct ProperCone from closed M
-3. Apply separation theorem
-
-See `LEARNINGS_extension.md` for the SeminormFamily pattern.
+**Next step**: Construct ProperCone from M̄ and apply separation theorem in RieszApplication.lean
 
 ---
 
 ## Next Steps
 
-1. **Show M is closed in seminorm topology** (new task needed)
-   - This is the last piece before `ProperCone.hyperplane_separation_point` applies
-2. **[P1] af-tests-2nag**: Complete riesz_extension_exists
-3. **AC-P6.5**: ComplexExtension.lean
-4. **AC-P6.6**: Normalization.lean
+1. **[P1] af-tests-2nag**: Prove riesz_extension_exists (now unblocked!)
+   - Use `ProperCone.hyperplane_separation_point` with M̄
+2. **AC-P6.5**: ComplexExtension.lean
+3. **AC-P6.6**: Normalization.lean
 
 ---
 
@@ -98,7 +91,7 @@ See `LEARNINGS_extension.md` for the SeminormFamily pattern.
 
 See `docs/ArchimedeanClosure/LEARNINGS.md` for full index:
 - `LEARNINGS_dual.md`: Span intersection, separating functional
-- `LEARNINGS_extension.md`: Extension theorems, **SeminormFamily pattern** (NEW)
+- `LEARNINGS_extension.md`: Extension theorems, SeminormFamily pattern, **closedness proof**
 - `LEARNINGS_topology.md`: Closedness proofs, Tychonoff, seminorm closure
 - `LEARNINGS_misc.md`: Section scoping, FunLike, imports
 - `LEARNINGS_states.md`: Cauchy-Schwarz, Archimedean bounds
@@ -107,12 +100,12 @@ See `docs/ArchimedeanClosure/LEARNINGS.md` for full index:
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/Topology/SeminormTopology.lean` (NEW, 58 LOC)
-- `docs/ArchimedeanClosure/LEARNINGS_extension.md` (updated with pattern)
+- `AfTests/ArchimedeanClosure/Topology/SeminormTopology.lean` (extended to 116 LOC)
+- `docs/ArchimedeanClosure/LEARNINGS_extension.md` (updated status)
 - `HANDOFF.md` (this file)
 
 ---
 
 ## Known Issues
 
-- af-tests-lm26 partially complete: topology done, M closed still needed
+- None currently - topology infrastructure is complete!
