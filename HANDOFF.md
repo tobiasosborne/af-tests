@@ -1,16 +1,13 @@
 # Handoff: 2026-01-24
 
 ## Completed This Session
-- **Documented Riesz extension challenge**: Deep analysis of extension theorems
-  - Why `riesz_extension` generating condition fails for 1-dim domain
-  - Why `exists_extension_of_le_sublinear` gives wrong type of bound
-  - Identified `ProperCone.hyperplane_separation_point` as solution
-  - Outlined topology infrastructure needed
-- **Split LEARNINGS_dual.md** (closed af-tests-ap0d):
-  - `LEARNINGS_dual.md`: 136 LOC (span intersection, separating functional)
-  - `LEARNINGS_extension.md`: 124 LOC (deep dive on extension theorems)
-- **Created af-tests-lm26**: Topology infrastructure task for separation
-- **Updated RieszApplication.lean**: Clearer blocking comment with path forward
+- **Created SeminormTopology.lean** (af-tests-lm26):
+  - `stateSeminormFamily` - state seminorm as SeminormFamily indexed by Unit
+  - `seminormTopology` - TopologicalSpace induced by state seminorm
+  - `withSeminorms_stateSeminormFamily` - proves topology satisfies WithSeminorms
+  - `locallyConvexSpace_seminormTopology` - proves LocallyConvexSpace ℝ (FreeStarAlgebra n)
+  - 58 LOC, 0 sorries
+- **Documented SeminormFamily pattern** in LEARNINGS_extension.md
 
 ---
 
@@ -44,9 +41,8 @@
 | Topology/StateTopology.lean | ✅ | 50 | 0 |
 | Topology/Closedness.lean | ✅ | 138 | 0 |
 | Topology/Compactness.lean | ✅ | 171 | 0 |
+| Topology/SeminormTopology.lean | ✅ | 58 | 0 |
 | Topology/Continuity.lean | Skipped | - | - |
-
-**Phase 4 complete for compactness. Continuity optional (skipped to Phase 5).**
 
 ---
 
@@ -60,44 +56,41 @@
 
 ---
 
-### Phase 6: BLOCKED on Topology Infrastructure
+### Phase 6: BLOCKED - Need M Closed in Seminorm Topology
 
 | File | Status | LOC | Sorries | Notes |
 |------|--------|-----|---------|-------|
 | Dual/Forward.lean | ✅ | 67 | 0 | |
 | Dual/SpanIntersection.lean | ✅ | 104 | 0 | |
 | Dual/SeparatingFunctional.lean | ✅ | 114 | 0 | |
-| Dual/RieszApplication.lean | **BLOCKED** | 147 | 2 | Needs af-tests-lm26 |
+| Dual/RieszApplication.lean | **BLOCKED** | 147 | 2 | Needs M closed |
 | Dual/ComplexExtension.lean | Not Started | - | - | |
 | Dual/Normalization.lean | Not Started | - | - | |
 
 ---
 
-## Critical Blocking Issue: Topology Infrastructure
+## Key Progress: Topology Infrastructure
 
-**Issue**: `riesz_extension_exists` requires separating a point from cone M.
+**Done** (af-tests-lm26):
+- TopologicalSpace on FreeStarAlgebra from stateSeminorm ✓
+- LocallyConvexSpace instance ✓
 
-**Solution**: Use `ProperCone.hyperplane_separation_point` from Mathlib.
+**Remaining for ProperCone.hyperplane_separation_point**:
+1. Show QuadraticModule is closed in seminorm topology
+2. Construct ProperCone from closed M
+3. Apply separation theorem
 
-**Prerequisites (af-tests-lm26)**:
-1. TopologicalSpace on FreeStarAlgebra (from stateSeminorm)
-2. LocallyConvexSpace instance
-3. Show M is closed → ProperCone
-
-See `LEARNINGS_dual.md` "Deep Dive" section for full analysis.
+See `LEARNINGS_extension.md` for the SeminormFamily pattern.
 
 ---
 
 ## Next Steps
 
-1. **[P0] af-tests-ap0d**: Split LEARNINGS_dual.md (259 LOC > 200 limit)
-2. **[P1] af-tests-lm26**: Topology/SeminormTopology.lean (~50 LOC)
-   - Define TopologicalSpace from stateSeminorm
-   - LocallyConvexSpace instance
-   - Show M is closed in this topology
-3. **[P1] af-tests-2nag**: Complete riesz_extension_exists (blocked on lm26)
-4. **AC-P6.5**: ComplexExtension.lean
-5. **AC-P6.6**: Normalization.lean
+1. **Show M is closed in seminorm topology** (new task needed)
+   - This is the last piece before `ProperCone.hyperplane_separation_point` applies
+2. **[P1] af-tests-2nag**: Complete riesz_extension_exists
+3. **AC-P6.5**: ComplexExtension.lean
+4. **AC-P6.6**: Normalization.lean
 
 ---
 
@@ -105,7 +98,7 @@ See `LEARNINGS_dual.md` "Deep Dive" section for full analysis.
 
 See `docs/ArchimedeanClosure/LEARNINGS.md` for full index:
 - `LEARNINGS_dual.md`: Span intersection, separating functional
-- `LEARNINGS_extension.md`: **Why standard theorems don't apply, ProperCone path** (NEW)
+- `LEARNINGS_extension.md`: Extension theorems, **SeminormFamily pattern** (NEW)
 - `LEARNINGS_topology.md`: Closedness proofs, Tychonoff, seminorm closure
 - `LEARNINGS_misc.md`: Section scoping, FunLike, imports
 - `LEARNINGS_states.md`: Cauchy-Schwarz, Archimedean bounds
@@ -114,14 +107,12 @@ See `docs/ArchimedeanClosure/LEARNINGS.md` for full index:
 
 ## Files Modified This Session
 
-- `docs/ArchimedeanClosure/LEARNINGS_dual.md` (refactored, 136 LOC)
-- `docs/ArchimedeanClosure/LEARNINGS_extension.md` (NEW, 124 LOC)
-- `docs/ArchimedeanClosure/LEARNINGS.md` (updated index)
-- `AfTests/ArchimedeanClosure/Dual/RieszApplication.lean` (updated comment)
+- `AfTests/ArchimedeanClosure/Topology/SeminormTopology.lean` (NEW, 58 LOC)
+- `docs/ArchimedeanClosure/LEARNINGS_extension.md` (updated with pattern)
 - `HANDOFF.md` (this file)
 
 ---
 
 ## Known Issues
 
-- None currently
+- af-tests-lm26 partially complete: topology done, M closed still needed

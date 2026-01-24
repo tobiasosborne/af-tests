@@ -109,16 +109,48 @@ If topology setup is too heavy, use a direct Zorn argument:
 
 ---
 
+## SeminormFamily Pattern for LocallyConvexSpace
+
+To use `WithSeminorms.toLocallyConvexSpace` for a single seminorm:
+
+```lean
+import Mathlib.Analysis.LocallyConvex.WithSeminorms
+
+-- 1. Create family indexed by Unit
+noncomputable def stateSeminormFamily : SeminormFamily ℝ E Unit :=
+  fun _ => mySeminorm
+
+-- 2. Define topology from family
+noncomputable def seminormTopology : TopologicalSpace E :=
+  stateSeminormFamily.moduleFilterBasis.topology
+
+-- 3. In a section with local instance:
+attribute [local instance] seminormTopology
+
+-- 4. Prove WithSeminorms (trivial by definition)
+theorem withSeminorms_stateSeminormFamily : WithSeminorms stateSeminormFamily :=
+  WithSeminorms.mk rfl
+
+-- 5. Get LocallyConvexSpace
+theorem locallyConvexSpace : LocallyConvexSpace ℝ E :=
+  WithSeminorms.toLocallyConvexSpace withSeminorms_stateSeminormFamily
+```
+
+**Key insight**: The topology is *defined* as the seminorm family topology, so
+`WithSeminorms.mk rfl` works directly.
+
+---
+
 ## Current Status and Next Steps
 
-**Current**: RieszApplication.lean has structure but core theorem is sorry'd.
+**Done**:
+- `Topology/SeminormTopology.lean` (58 LOC):
+  - TopologicalSpace from stateSeminorm ✓
+  - LocallyConvexSpace instance ✓
 
-**Recommended path**:
-1. Create `Topology/SeminormTopology.lean` (~50 LOC) to set up:
-   - TopologicalSpace from stateSeminorm
-   - LocallyConvexSpace instance
-   - Show M is closed (use existing quadraticModuleClosure work)
-
-2. Use `ProperCone.hyperplane_separation_point` directly
+**Remaining for ProperCone approach**:
+1. Show M (QuadraticModule) is closed in seminorm topology
+2. Construct `ProperCone ℝ (FreeStarAlgebra n)` from closed M
+3. Use `ProperCone.hyperplane_separation_point`
 
 **Alternative**: Custom Zorn proof in `Dual/ZornExtension.lean` (~80 LOC)
