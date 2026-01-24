@@ -4,6 +4,9 @@
 - **AC-P3.3 COMPLETE**: Generating cone lemma now fully proven (134 LOC, 0 sorries)
   - Fixed `selfAdjoint_decomp` using `Commute.mul_self_sub_mul_self_eq`
   - Key techniques: `abel` + `nsmul_eq_mul` pattern, `Algebra.smul_def` + `smul_smul`
+- **AC-P4.1 COMPLETE**: State space topology (50 LOC, 0 sorries)
+  - Pointwise convergence topology via `TopologicalSpace.induced`
+  - `eval_continuous`: evaluation at any element is continuous
 
 ---
 
@@ -30,9 +33,19 @@
 
 ---
 
+### Phase 4: IN PROGRESS
+
+| File | Status | LOC | Sorries |
+|------|--------|-----|---------|
+| Topology/StateTopology.lean | ✅ | 50 | 0 |
+| Topology/Compactness.lean | Not started | - | - |
+| Topology/Continuity.lean | Not started | - | - |
+
+---
+
 ## Next Steps
 
-1. **Phase 4**: Topology (StateTopology, Compactness, Continuity)
+1. **Phase 4**: Compactness (Tychonoff for bounded states)
 2. **Phase 5**: Seminorm (StateSeminorm, SeminormProps, Closure)
 3. **Phase 6**: Dual characterization (Forward, SpanIntersection, Riesz extension)
 
@@ -51,5 +64,6 @@ See `docs/ArchimedeanClosure/LEARNINGS.md` for:
 ## Files Modified This Session
 
 - `AfTests/ArchimedeanClosure/Boundedness/GeneratingCone.lean` (sorry eliminated)
+- `AfTests/ArchimedeanClosure/Topology/StateTopology.lean` (NEW)
 - `HANDOFF.md` (this file)
 
