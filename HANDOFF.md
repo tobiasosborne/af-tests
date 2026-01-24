@@ -1,11 +1,11 @@
 # Handoff: 2026-01-25
 
 ## Completed This Session
-- **Proved `symmetrize_separation`** (af-tests-7y23):
-  - Created `Dual/ComplexExtension.lean` (137 LOC, 0 sorries)
-  - Key: Symmetrization of separation functional to get φ(star a) = φ(a)
-  - Proved `isSelfAdjoint_of_mem_quadraticModule`: Elements of M are self-adjoint
-  - Proved `starAsLinearMap`: Star operation is ℝ-linear on FreeAlgebra ℝ
+- **Proved `exists_MPositiveState_negative`** (af-tests-nlmz):
+  - Created `Dual/Normalization.lean` (163 LOC, 0 sorries)
+  - Key: φ(1) > 0 via Cauchy-Schwarz + Archimedean contradiction
+  - Defined `normalizedMPositiveState`: normalize φ by φ(1) to get MPositiveState
+  - Main result: For A ∉ M̄, ∃ MPositiveState φ with φ(A) < 0
 
 ---
 
@@ -54,7 +54,7 @@
 
 ---
 
-### Phase 6: In Progress (5/6 done)
+### Phase 6: COMPLETE
 
 | File | Status | LOC | Sorries | Notes |
 |------|--------|-----|---------|-------|
@@ -62,41 +62,41 @@
 | Dual/SpanIntersection.lean | ✅ | 104 | 0 | |
 | Dual/SeparatingFunctional.lean | ✅ | 114 | 0 | |
 | Dual/RieszApplication.lean | ✅ | 98 | 0 | |
-| Dual/ComplexExtension.lean | ✅ | 137 | 0 | **Completed this session!** |
-| Dual/Normalization.lean | Not Started | - | - | Next |
+| Dual/ComplexExtension.lean | ✅ | 137 | 0 | |
+| Dual/Normalization.lean | ✅ | 163 | 0 | **Completed this session!** |
 
 ---
 
-## Key Discoveries This Session
+## Key Discovery This Session
 
-### star is ℝ-linear on FreeAlgebra ℝ (Fin n)
-Using `FreeAlgebra.star_algebraMap` (star fixes ℝ-scalars), we can define:
+### Proving φ(1) > 0
+
+Given symmetric φ with φ ≥ 0 on M and φ(A) < 0, we need φ(1) > 0 for normalization.
+
+**Cauchy-Schwarz for general functional:**
 ```lean
-def starAsLinearMap : FreeStarAlgebra n →ₗ[ℝ] FreeStarAlgebra n
+φ(a)² ≤ φ(star a * a) * φ(1)
 ```
 
-### Elements of M are all self-adjoint
-By induction: squares `star a * a` and generator-weighted terms `star b * gⱼ * b` are
-self-adjoint, and this is preserved by addition and ℝ-scaling.
+**φ(1) = 0 case:** φ(a)² ≤ 0 for all a ⟹ φ = 0 ⟹ contradicts φ(A) < 0
 
-### ℝ has no Star instance
-So can't use `IsSelfAdjoint.smul` directly. Must prove `isSelfAdjoint_smul_of_isSelfAdjoint`
-manually using `Algebra.smul_def` and `Algebra.commutes`.
+**φ(1) < 0 case:** Archimedean gives N·1 - star(A)*A ∈ M. Combined with φ(1) < 0
+forces φ(star A * A) = 0. Then Cauchy-Schwarz gives φ(A) = 0. Contradiction.
 
 ---
 
 ## Next Steps
 
-1. **AC-P6.6**: Normalization.lean - Normalize φ to get MPositiveState with φ(1) = 1
-2. **AC-P7**: Representations (constrained reps, vector states, GNS)
-3. **AC-P8**: Main theorem
+1. **AC-P8**: Main/DualCharacterization.lean - Dual characterization theorem
+2. **AC-P7**: Representations (constrained reps, GNS gives constrained)
+3. **AC-P8.2**: Main/Theorem.lean - Main theorem
 
 ---
 
 ## Key Learnings Reference
 
 See `docs/ArchimedeanClosure/LEARNINGS.md` for full index:
-- `LEARNINGS_dual.md`: Span intersection, separating functional, **symmetrization** ✓
+- `LEARNINGS_dual.md`: Span intersection, separating functional, symmetrization, **normalization** ✓
 - `LEARNINGS_extension.md`: ProperCone approach ✓
 - `LEARNINGS_topology.md`: Closedness proofs, Tychonoff, seminorm closure
 - `LEARNINGS_misc.md`: Section scoping, FunLike, imports
@@ -106,8 +106,8 @@ See `docs/ArchimedeanClosure/LEARNINGS.md` for full index:
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/Dual/ComplexExtension.lean` (new, 137 LOC, 0 sorries)
-- `docs/ArchimedeanClosure/LEARNINGS_dual.md` (updated with symmetrization section)
+- `AfTests/ArchimedeanClosure/Dual/Normalization.lean` (new, 163 LOC, 0 sorries)
+- `docs/ArchimedeanClosure/LEARNINGS_dual.md` (updated with normalization section)
 - `HANDOFF.md` (this file)
 
 ---

@@ -205,3 +205,66 @@ Note: Can't use `IsSelfAdjoint.smul` because that requires `StarModule R A` and 
 ```lean
 import Mathlib.Tactic.Ring  -- for ring tactic in symmetrization proofs
 ```
+
+---
+
+## Normalization to MPositiveState (AC-P6.6)
+
+### Context
+
+From `symmetrize_separation` we have φ : A₀ →ₗ[ℝ] ℝ with:
+- φ(star a) = φ(a) (symmetric)
+- φ(m) ≥ 0 for m ∈ M
+- φ(A) < 0
+
+To construct an `MPositiveState`, we need φ(1) = 1. Solution: normalize by φ(1).
+
+### Proving φ(1) > 0
+
+**Key insight**: φ(1) ≤ 0 leads to contradiction via Cauchy-Schwarz.
+
+**Cauchy-Schwarz for general symmetric M-nonneg functional:**
+```lean
+φ(a)² ≤ φ(star a * a) * φ(1)
+```
+
+Proof: Expand `φ(star(a + t·1) * (a + t·1)) ≥ 0` as quadratic in t, apply discriminant bound.
+
+**Case φ(1) = 0:**
+From Cauchy-Schwarz: φ(a)² ≤ 0 for all a, so φ(a) = 0. But φ(A) < 0. Contradiction.
+
+**Case φ(1) < 0:**
+By Archimedean: N·1 - star(A)*A ∈ M for some N.
+Then: N·φ(1) ≥ φ(star A * A) ≥ 0
+Since φ(1) < 0 and N ≥ 0: N·φ(1) ≤ 0
+Combined: N·φ(1) = 0 and φ(star A * A) = 0
+If φ(1) < 0, this requires N = 0.
+By Cauchy-Schwarz: φ(A)² ≤ φ(star A * A) * φ(1) = 0
+So φ(A) = 0. But φ(A) < 0. Contradiction.
+
+### Key Lemmas in Normalization.lean
+
+```lean
+theorem phi_one_pos : 0 < φ 1
+
+noncomputable def normalizedMPositiveState : MPositiveState n
+
+theorem exists_MPositiveState_negative :
+    ∃ φ : MPositiveState n, φ A < 0
+```
+
+### Expansion Algebra for Quadratic Form
+
+To expand `(star a + t • 1) * (a + t • 1)`:
+```lean
+simp only [add_mul, mul_add, smul_mul_assoc, mul_smul_comm, one_mul, mul_one, smul_add]
+rw [sq, smul_smul]
+abel
+```
+
+Key: `smul_add` is needed to distribute `t • (star a + t • 1)`.
+
+### Non-commutative Ring Considerations
+
+`ring` tactic doesn't work in FreeAlgebra (non-commutative). Use `abel` for additive
+computations and manual rewriting for multiplicative structure.
