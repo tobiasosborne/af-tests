@@ -133,3 +133,48 @@ After moving `map_star` to axiom, remaining useful lemmas:
 - `apply_decomposition`: `φ(a) = (1/2) * φ(a + star a)`
 
 These are trivial consequences of `map_star` but convenient to have named.
+
+---
+
+## Closedness in Product Topology (AC-P4.2)
+
+### Key Insight
+Conditions defining M-positive states are closed in the product topology because:
+1. Each condition is a preimage of a closed set under a continuous map
+2. Evaluation at a point is continuous: `continuous_apply a`
+3. Arbitrary intersections of closed sets are closed: `isClosed_iInter`
+
+### Pattern: Equality Conditions
+For conditions like `f(a+b) = f(a) + f(b)`:
+```lean
+have h : {f | f (a+b) = f a + f b} = (fun f => f (a+b) - (f a + f b)) ⁻¹' {0} := by
+  ext f; simp [Set.mem_preimage, sub_eq_zero]
+rw [h]
+apply IsClosed.preimage
+· exact continuous_eval (a+b) |>.sub (continuous_eval a |>.add (continuous_eval b))
+· exact isClosed_singleton
+```
+
+### Pattern: Inequality Conditions
+For conditions like `f(m) ≥ 0`:
+```lean
+have h : {f | 0 ≤ f m} = (fun f => f m) ⁻¹' Set.Ici 0 := by
+  ext f; simp [Set.mem_preimage, Set.mem_Ici]
+rw [h]
+apply IsClosed.preimage (continuous_eval m)
+exact isClosed_Ici
+```
+
+### Required Imports
+```lean
+import Mathlib.Topology.Constructions      -- Pi topology, continuous_apply
+import Mathlib.Topology.Order.Basic        -- isClosed_Ici
+import Mathlib.Topology.Algebra.Ring.Real  -- ContinuousSub ℝ, ContinuousMul ℝ
+```
+
+### Remaining Challenge
+To prove `Set.range toProductFun` is closed, we need:
+1. Range ⊆ stateConditions (proven: `range_subset_stateConditions`)
+2. stateConditions ⊆ Range (TODO: construct MPositiveState from function)
+
+Step 2 requires building a LinearMap from a function satisfying additivity + homogeneity.

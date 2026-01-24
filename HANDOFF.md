@@ -1,10 +1,13 @@
 # Handoff: 2026-01-24
 
 ## Completed This Session
-- **AC-P4.2 Progress**: Added `product_compact` theorem (91 LOC, 0 sorries)
-  - `product_compact`: Product of closed balls is compact (Tychonoff)
-  - Uses `isCompact_univ_pi` + `ProperSpace.isCompact_closedBall`
-  - Key: Rewrite setOf as `Set.univ.pi` to apply Tychonoff
+- **LEARNINGS refactor**: Split 740 LOC into 5 topic files (all < 200 LOC)
+- **AC-P4.2 Progress**: Created `Closedness.lean` helper file (138 LOC, 0 sorries)
+  - `isClosed_additivity`: Additive functions form closed set
+  - `isClosed_homogeneity`: ℝ-homogeneous functions form closed set
+  - `isClosed_star_symmetry`: Star-symmetric functions form closed set
+  - `isClosed_m_nonneg`: M-nonnegative functions form closed set
+  - `isClosed_normalized`: f(1)=1 functions form closed set
 
 ---
 
@@ -36,7 +39,8 @@
 | File | Status | LOC | Sorries |
 |------|--------|-----|---------|
 | Topology/StateTopology.lean | ✅ | 50 | 0 |
-| Topology/Compactness.lean | In Progress | 91 | 0 |
+| Topology/Closedness.lean | ✅ | 138 | 0 |
+| Topology/Compactness.lean | In Progress | 140 | 1 |
 | Topology/Continuity.lean | Not started | - | - |
 
 **Compactness.lean progress**:
@@ -46,14 +50,21 @@
 - ✅ `apply_mem_closedBall`: states are bounded
 - ✅ `stateSet_subset_product`: S_M ⊆ product of bounded balls
 - ✅ `product_compact`: Product is compact (Tychonoff)
-- ⬜ `stateSet_isClosed`: S_M is closed
-- ⬜ `stateSet_isCompact`: Final result
+- ✅ `stateConditions`: Defines closed set of valid functions
+- ✅ `stateConditions_isClosed`: stateConditions is closed
+- ✅ `range_subset_stateConditions`: Range ⊆ stateConditions
+- ⬜ `stateSet_isClosed`: Need stateConditions ⊆ Range (1 sorry)
+- ✅ `stateSet_isCompact`: Proven assuming closedness
+
+**Remaining for closedness**:
+Need to construct MPositiveState from function satisfying conditions
+(additivity + homogeneity → LinearMap, then bundle properties)
 
 ---
 
 ## Next Steps
 
-1. **Phase 4**: Prove `stateSet_isClosed` then `stateSet_isCompact`
+1. **Phase 4**: Prove `stateSet_isClosed` (construct LinearMap from function)
 2. **Phase 5**: Seminorm (StateSeminorm, SeminormProps, Closure)
 3. **Phase 6**: Dual characterization (Forward, SpanIntersection, Riesz extension)
 
@@ -61,17 +72,16 @@
 
 ## Key Learnings Reference
 
-See `docs/ArchimedeanClosure/LEARNINGS.md` for:
-- Non-commutative algebra proof patterns
-- Commute lemma usage for difference of squares
-- `abel` + `nsmul_eq_mul` pattern for additive simplification
-- `Algebra.smul_def` + `smul_smul` pattern for scalar cancellation
-- **NEW**: Tychonoff via `isCompact_univ_pi` + `ProperSpace.isCompact_closedBall`
+See `docs/ArchimedeanClosure/LEARNINGS.md` for index, including:
+- `LEARNINGS_proofs.md`: Non-commutative patterns, Commute lemmas
+- `LEARNINGS_misc.md`: **NEW** Closedness in product topology patterns
 
 ---
 
 ## Files Modified This Session
 
+- `docs/ArchimedeanClosure/LEARNINGS*.md` (refactored)
+- `AfTests/ArchimedeanClosure/Topology/Closedness.lean` (new)
 - `AfTests/ArchimedeanClosure/Topology/Compactness.lean` (updated)
 - `HANDOFF.md` (this file)
 

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: AF-Tests Contributors
 -/
 import AfTests.ArchimedeanClosure.Topology.StateTopology
+import AfTests.ArchimedeanClosure.Topology.Closedness
 import AfTests.ArchimedeanClosure.Boundedness.ArchimedeanBound
 import Mathlib.Topology.Compactness.Compact
 import Mathlib.Topology.MetricSpace.Basic
@@ -83,6 +84,54 @@ theorem product_compact :
   apply isCompact_univ_pi
   intro a
   exact ProperSpace.isCompact_closedBall 0 (bound a)
+
+/-- The set of functions satisfying all state conditions. -/
+def stateConditions : Set (FreeStarAlgebra n → ℝ) :=
+  {f | (∀ a b, f (a + b) = f a + f b) ∧
+       (∀ c a, f (c • a) = c * f a) ∧
+       (∀ a, f (star a) = f a) ∧
+       (∀ m ∈ QuadraticModule n, 0 ≤ f m) ∧
+       f 1 = 1}
+
+omit [IsArchimedean n] in
+/-- The state conditions form a closed set. -/
+theorem stateConditions_isClosed : IsClosed (stateConditions (n := n)) := by
+  unfold stateConditions
+  apply IsClosed.inter isClosed_additivity
+  apply IsClosed.inter isClosed_homogeneity
+  apply IsClosed.inter isClosed_star_symmetry
+  apply IsClosed.inter isClosed_m_nonneg
+  exact isClosed_normalized
+
+omit [IsArchimedean n] in
+/-- The range of toProductFun is contained in stateConditions. -/
+theorem range_subset_stateConditions :
+    Set.range (toProductFun (n := n)) ⊆ stateConditions := by
+  intro f ⟨φ, hφ⟩
+  simp only [stateConditions, Set.mem_setOf_eq]
+  rw [← hφ]
+  refine ⟨?_, ?_, ?_, ?_, ?_⟩
+  · intro a b; exact φ.map_add a b
+  · intro c a; exact φ.map_smul c a
+  · intro a; exact φ.apply_star a
+  · intro m hm; exact φ.apply_m_nonneg hm
+  · exact φ.apply_one
+
+/-- The state set is closed in the product topology.
+
+The range equals stateConditions (intersection of closed sets). -/
+theorem stateSet_isClosed :
+    IsClosed (Set.range (toProductFun (n := n))) := by
+  -- Strategy: range = stateConditions, and stateConditions is closed
+  -- For now, we use that range ⊆ closed set, but need equality
+  -- TODO: Prove stateConditions ⊆ range (construct MPositiveState from function)
+  sorry
+
+/-- The state set is compact. -/
+theorem stateSet_isCompact :
+    IsCompact (Set.range (toProductFun (n := n))) := by
+  apply IsCompact.of_isClosed_subset product_compact stateSet_isClosed
+  exact stateSet_subset_product
 
 end Bounded
 
