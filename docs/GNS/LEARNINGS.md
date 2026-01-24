@@ -216,6 +216,28 @@ The physics convention is common in quantum mechanics but mathlib uses math.
 
 ---
 
+## 2026-01-24: Building InnerProductSpace from Core (Instance Chain)
+
+**Discovery:** `InnerProductSpace.ofCore` requires `SeminormedAddCommGroup` first.
+
+**Problem:** Creating instances in wrong order causes diamond issues where mathlib
+expects one `SeminormedAddCommGroup` but finds another.
+
+**Resolution:** Use explicit `@` syntax to build the chain consistently:
+```lean
+noncomputable instance gnsQuotientSeminormedAddCommGroup :=
+  @InnerProductSpace.Core.toSeminormedAddCommGroup ℂ _ _ _ _ φ.gnsPreInnerProductCore
+
+noncomputable instance gnsQuotientNormedSpace :=
+  @InnerProductSpace.Core.toNormedSpace ℂ _ _ _ _ φ.gnsPreInnerProductCore
+```
+Then build `InnerProductSpace` using the same Core.
+
+**Lesson:** When building typeclass instances from Core structures, use explicit
+`@` application to ensure all instances derive from the same source.
+
+---
+
 ## Template for New Entries
 
 ```markdown
