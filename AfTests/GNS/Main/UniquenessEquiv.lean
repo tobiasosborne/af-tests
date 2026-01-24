@@ -77,4 +77,24 @@ theorem gnsIntertwinerEquiv_apply
     gnsIntertwinerEquiv φ π ξ hξ_state hξ_cyclic x = gnsIntertwiner φ π ξ hξ_state x :=
   rfl
 
+/-! ### Cyclic vector mapping (GNS-U9) -/
+
+/-- The intertwiner sends the GNS cyclic vector Ω_φ to ξ.
+    This is a key property for uniqueness: the unitary equivalence maps
+    the canonical cyclic vector to the given cyclic vector.
+
+    Proof: Ω_φ = [1] embedded, and U([1]) = π(1)ξ = ξ by gnsIntertwinerQuotient_cyclic. -/
+theorem gnsIntertwinerEquiv_cyclic
+    (hξ_state : ∀ a : A, @inner ℂ H _ ξ (π a ξ) = φ a)
+    (hξ_cyclic : DenseRange (fun a => π a ξ)) :
+    gnsIntertwinerEquiv φ π ξ hξ_state hξ_cyclic φ.gnsCyclicVector = ξ := by
+  -- gnsIntertwinerEquiv agrees with gnsIntertwiner
+  rw [gnsIntertwinerEquiv_apply]
+  -- gnsCyclicVector is the embedded quotient element [1]
+  rw [gnsCyclicVector_eq_coe]
+  -- gnsIntertwiner on embedded element equals gnsIntertwinerQuotientFun
+  rw [gnsIntertwiner_coe]
+  -- gnsIntertwinerQuotientFun on [1] equals ξ
+  exact gnsIntertwinerQuotient_cyclic φ π ξ hξ_state
+
 end State

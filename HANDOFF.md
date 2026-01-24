@@ -1,33 +1,27 @@
-# Handoff: GNS Uniqueness Step 8 Complete
+# Handoff: GNS Uniqueness Step 9 Complete
 
 **Date:** 2026-01-24
-**Session Focus:** Implement GNS-U7 and GNS-U8 (Surjectivity + LinearIsometryEquiv)
+**Session Focus:** Implement GNS-U9 (Cyclic vector mapping)
 
 ---
 
 ## Completed This Session
 
-1. **Implemented GNS-U7 (af-tests-usd): Prove intertwiner is surjective**
-   - `Isometry.surjective_of_completeSpace_denseRange` - general theorem
-   - `gnsIntertwiner_surjective` - applied to GNS intertwiner
-
-2. **Implemented GNS-U8 (af-tests-7hr): Construct LinearIsometryEquiv**
-   - `gnsIntertwiner_injective` - isometries are injective
-   - `gnsIntertwiner_bijective` - combine injective + surjective
-   - `gnsIntertwinerLinearEquiv` - construct via `LinearEquiv.ofBijective`
-   - `gnsIntertwinerEquiv` - wrap as `LinearIsometryEquiv H_φ ≃ₗᵢ[ℂ] H`
+1. **Implemented GNS-U9 (af-tests-7em): Prove cyclic vector mapping**
+   - `gnsIntertwinerEquiv_cyclic` - Proves `U(Ω_φ) = ξ`
+   - Proof chain: `gnsIntertwinerEquiv_apply` → `gnsCyclicVector_eq_coe` → `gnsIntertwiner_coe` → `gnsIntertwinerQuotient_cyclic`
 
 ---
 
 ## Current State
 
 - **GNS existence theorem (`gns_theorem`):** Proven
-- **GNS uniqueness theorem (`gns_uniqueness`):** In Progress (8/12 steps)
+- **GNS uniqueness theorem (`gns_uniqueness`):** In Progress (9/12 steps)
 - **Build status:** Passing (zero sorries)
 - **Files:**
   - `Main/UniquenessExtension.lean` (197 lines)
-  - `Main/UniquenessEquiv.lean` (80 lines) - NEW
-- **Next ready issues:** `af-tests-7em` (GNS-U9), `af-tests-2dx` (GNS-U10)
+  - `Main/UniquenessEquiv.lean` (100 lines)
+- **Next ready issue:** `af-tests-2dx` (GNS-U10)
 
 ---
 
@@ -43,56 +37,55 @@
 | 6 | af-tests-5nd | Dense range | Done |
 | 7 | af-tests-usd | Surjectivity | Done |
 | 8 | af-tests-7hr | LinearIsometryEquiv | Done |
-| 9 | af-tests-7em | Cyclic vector mapping | Ready |
+| 9 | af-tests-7em | Cyclic vector mapping | Done |
 | 10 | af-tests-2dx | Intertwining on quotient | Ready |
 | 11 | af-tests-5xr | Full intertwining | Blocked by 10 |
-| 12 | af-tests-4f9 | Final theorem | Blocked by 9,11 |
+| 12 | af-tests-4f9 | Final theorem | Blocked by 11 |
 
 ---
 
 ## Next Steps
 
-Two issues are now ready (can be done in either order):
-
-**GNS-U9 (af-tests-7em):** Cyclic vector mapping
-- Prove `gnsIntertwinerEquiv φ.gnsCyclicVector = ξ`
-- File: `Main/UniquenessEquiv.lean` (append)
-
 **GNS-U10 (af-tests-2dx):** Intertwining on quotient
 - Prove `U([ab]) = π(a)(U[b])` on quotient elements
 - File: `Main/UniquenessIntertwine.lean` (new)
+
+After GNS-U10 unblocks:
+- **GNS-U11:** Extend intertwining to full Hilbert space by density
+- **GNS-U12:** State final `gns_uniqueness` theorem
 
 ---
 
 ## Key Implementation Details
 
-### LinearIsometryEquiv Construction
+### Cyclic Vector Mapping Proof
 ```lean
-noncomputable def gnsIntertwinerEquiv ... : φ.gnsHilbertSpace ≃ₗᵢ[ℂ] H where
-  toLinearEquiv := LinearEquiv.ofBijective (gnsIntertwiner ...).toLinearMap
-    (gnsIntertwiner_bijective ...)
-  norm_map' := gnsIntertwiner_norm ...
+theorem gnsIntertwinerEquiv_cyclic ... : gnsIntertwinerEquiv ... φ.gnsCyclicVector = ξ := by
+  rw [gnsIntertwinerEquiv_apply]   -- U = gnsIntertwiner
+  rw [gnsCyclicVector_eq_coe]      -- Ω_φ = embed([1])
+  rw [gnsIntertwiner_coe]          -- U(embed(x)) = U₀(x)
+  exact gnsIntertwinerQuotient_cyclic ...  -- U₀([1]) = ξ
 ```
 
-Key insight: `LinearEquiv.ofBijective` constructs a `LinearEquiv` from a bijective `LinearMap`.
+The proof elegantly chains: equiv → CLinMap → extension_coe → quotient property.
 
 ---
 
 ## Files Modified This Session
 
-- Modified: `AfTests/GNS/Main/UniquenessExtension.lean` (175 → 197 lines)
-- Created: `AfTests/GNS/Main/UniquenessEquiv.lean` (80 lines)
-- Modified: `docs/GNS/learnings/completion-topology.md`
+- Modified: `AfTests/GNS/Main/UniquenessEquiv.lean` (80 → 100 lines)
 - Modified: `HANDOFF.md` (this file)
 
 ---
 
 ## Learnings
 
-### Isometry Surjectivity from Dense Range
-See `docs/GNS/learnings/completion-topology.md` for full details.
+### Clean Proof Chains via Rewriting
+The cyclic vector mapping proof is a textbook example of using `rw` to chain through
+multiple levels of abstraction:
+1. `LinearIsometryEquiv` → `ContinuousLinearMap` (by definition)
+2. Hilbert space element → embedded quotient element
+3. Extension on embedded → original function on quotient
+4. Quotient function on `[1]` → `ξ`
 
-### LinearIsometryEquiv Construction
-To construct `LinearIsometryEquiv` from a bijective norm-preserving linear map:
-1. Use `LinearEquiv.ofBijective` with the underlying `LinearMap` and bijectivity proof
-2. Wrap with `LinearIsometryEquiv.mk` (or structure syntax) with norm preservation proof
+Each step is definitional or uses a previously proven lemma. No computation needed.
