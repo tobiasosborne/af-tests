@@ -9,8 +9,14 @@ The culmination: φ(a) = ⟨Ω_φ, π_φ(a)Ω_φ⟩ and uniqueness.
 | File | LOC Target | Status | Key Content |
 |------|------------|--------|-------------|
 | `Main/VectorState.lean` | 50-70 | **Proven** | φ(a) = ⟨Ω, π(a)Ω⟩ |
-| `Main/Uniqueness.lean` | 70-90 | **Proven** | Intertwiner construction |
-| `Main/Theorem.lean` | 40-60 | **Proven** | Main theorem statement |
+| `Main/Uniqueness.lean` | 70-90 | **Partial** | Quotient intertwiner (Steps 1-3 pending) |
+| `Main/UniquenessExtension.lean` | ~160 | **Not Started** | Extension + surjectivity |
+| `Main/UniquenessEquiv.lean` | ~75 | **Not Started** | LinearIsometryEquiv |
+| `Main/UniquenessIntertwine.lean` | ~95 | **Not Started** | Intertwining property |
+| `Main/UniquenessTheorem.lean` | ~35 | **Not Started** | Final gns_uniqueness |
+| `Main/Theorem.lean` | 40-60 | **Proven** | Main GNS theorem |
+
+**See:** [06_main_uniqueness_plan.md](06_main_uniqueness_plan.md) for detailed implementation plan.
 
 ## Main Theorems
 

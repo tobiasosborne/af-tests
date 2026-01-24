@@ -22,6 +22,12 @@ Formalizing the Gelfand-Naimark-Segal construction in Lean 4.
 
 See [docs/GNS/README.md](docs/GNS/README.md) for full plan and status.
 
+#### Current Focus: GNS Uniqueness
+The main GNS theorem (`gns_theorem`) is **proven**. The uniqueness theorem is in progress.
+
+**Uniqueness Plan:** `docs/GNS/phases/06_main_uniqueness_plan.md`
+**Beads Issues:** `bd list | grep GNS-U` (12 granular steps, ~490 LOC total)
+
 ---
 
 ## Critical Rules

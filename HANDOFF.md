@@ -1,94 +1,79 @@
-# Handoff: GNS Construction Complete!
+# Handoff: GNS Uniqueness Plan Created
 
 **Date:** 2026-01-24
-**Session Focus:** Implemented Main/Theorem.lean - GNS main theorem
+**Session Focus:** Audit GNS project + create granular uniqueness implementation plan
 
 ---
 
 ## Completed This Session
 
-1. **Created `AfTests/GNS/Main/Theorem.lean`** (90 lines)
-   - `gnsQuotientMk_denseRange` - The quotient map has dense range
-   - `gnsCyclicVector_denseRange` - {π_φ(a)Ω_φ : a ∈ A} is dense in H_φ (cyclicity)
-   - `gns_theorem` - The complete GNS theorem bundling all properties
+1. **Audited GNS project** - rigorous verification
+   - Confirmed 0 sorries in all 19 files
+   - Confirmed standard axioms only (propext, Classical.choice, Quot.sound)
+   - Build passes (2798 jobs)
+   - Identified gap: `gns_uniqueness` theorem incomplete
 
-2. **Key proof technique:**
-   - Avoided `DenseRange.comp` (requires continuity with matching topologies)
-   - Instead proved `Set.range` equality using surjectivity of quotient map
-   - Leveraged `UniformSpace.Completion.denseRange_coe`
+2. **Created uniqueness implementation plan**
+   - `docs/GNS/phases/06_main_uniqueness_plan.md` - 12 granular steps
+   - Each step ≤50 LOC
+   - ~490 LOC total across 5 new/modified files
 
-3. **Updated documentation:**
-   - `docs/GNS/phases/06_main.md` - Marked Theorem.lean as Proven
-   - `docs/GNS/learnings/completion-topology.md` - Added dense range technique
+3. **Created 12 beads issues with dependencies**
+   - `af-tests-aov` through `af-tests-4f9` (GNS-U1 through GNS-U12)
+   - All have descriptions pointing to plan file
+   - Dependency chain: U1→U2→...→U12
+
+4. **Updated documentation**
+   - CLAUDE.md: Added uniqueness plan reference
+   - docs/GNS/README.md: Fixed status table (was outdated)
+   - docs/GNS/phases/06_main.md: Added uniqueness file structure
 
 ---
 
 ## Current State
 
-- **Build status:** Passing (zero sorries!)
-- **Sorry count:** 0 total in GNS
-- **LOC violations:** 0
+- **GNS existence theorem (`gns_theorem`):** ✅ Proven
+- **GNS uniqueness theorem (`gns_uniqueness`):** ⏳ In Progress (0/12 steps)
+- **Build status:** Passing (zero sorries)
+- **Next ready issue:** `af-tests-aov` (GNS-U1: Prove linearity)
 
 ---
 
 ## GNS Progress Summary
 
-| Phase | Files | Proven | Structure Done | Not Started | Progress |
-|-------|-------|--------|----------------|-------------|----------|
-| P1: States | 4 | 4 | 0 | 0 | **100%** |
-| P2: NullSpace | 3 | 3 | 0 | 0 | **100%** |
-| P3: PreHilbert | 3 | 3 | 0 | 0 | **100%** |
-| P4: HilbertSpace | 2 | 2 | 0 | 0 | **100%** |
-| P5: Representation | 4 | 4 | 0 | 0 | **100%** |
-| P6: Main | 3 | 3 | 0 | 0 | **100%** |
-| **TOTAL** | **19** | **19** | **0** | **0** | **100%** |
+| Component | Status | Notes |
+|-----------|--------|-------|
+| Phases 1-5 | **100% Proven** | States, NullSpace, PreHilbert, HilbertSpace, Representation |
+| Phase 6: gns_theorem | **Proven** | Main/Theorem.lean |
+| Phase 6: gns_uniqueness | **0% (planned)** | 12 steps in 06_main_uniqueness_plan.md |
 
 ---
 
-## GNS CONSTRUCTION COMPLETE
+## Next Steps
 
-The Gelfand-Naimark-Segal construction is now fully formalized in Lean 4:
+Start with `af-tests-aov` (GNS-U1):
+```bash
+bd show af-tests-aov           # View details
+bd update af-tests-aov --status=in_progress  # Claim it
+```
 
-**Main Theorem (`gns_theorem`):**
-Given a state φ on a C*-algebra A, the GNS construction provides:
-1. A Hilbert space H_φ (`gnsHilbertSpace`)
-2. A *-representation π_φ (`gnsStarAlgHom`)
-3. A cyclic unit vector Ω_φ (`gnsCyclicVector`)
-
-Such that:
-- ‖Ω_φ‖ = 1 (unit vector)
-- φ(a) = ⟨Ω_φ, π_φ(a)Ω_φ⟩ (vector state property)
-- {π_φ(a)Ω_φ : a ∈ A} is dense in H_φ (cyclicity)
+Then implement in `Main/Uniqueness.lean`:
+- `gnsIntertwinerQuotient_add`
+- `gnsIntertwinerQuotient_smul`
+- `gnsIntertwinerQuotient_zero`
 
 ---
 
 ## Files Modified This Session
 
-- Created: `AfTests/GNS/Main/Theorem.lean` (90 lines)
-- Updated: `docs/GNS/phases/06_main.md`
-- Updated: `docs/GNS/learnings/completion-topology.md`
-- Updated: `HANDOFF.md`
+- Created: `docs/GNS/phases/06_main_uniqueness_plan.md`
+- Modified: `CLAUDE.md` (added uniqueness plan reference)
+- Modified: `docs/GNS/README.md` (fixed status table)
+- Modified: `docs/GNS/phases/06_main.md` (added file structure)
+- Modified: `.beads/issues.jsonl` (12 new issues)
 
 ---
 
-## Technical Notes
+## Key Finding from Audit
 
-**Dense Range Proof Strategy:**
-
-The cyclicity condition (`gnsCyclicVector_denseRange`) was proven by:
-
-1. Observing that `gnsRep a gnsCyclicVector = (Submodule.Quotient.mk a : gnsHilbertSpace)`
-2. Since `Submodule.Quotient.mk` is surjective, the range equals `Set.range coe'`
-3. Using `UniformSpace.Completion.denseRange_coe` directly
-
-This avoided the topology diamond issue that would arise from using `DenseRange.comp`
-which requires `Continuous coe'` with a specific topology.
-
----
-
-## Potential Future Work
-
-With the GNS construction complete, potential extensions include:
-- `gns_faithful`: If φ is faithful, then π_φ is injective
-- `gns_irreducible_iff_pure`: π_φ is irreducible iff φ is a pure state
-- Full uniqueness theorem with unitary extension
+The HANDOFF.md previously claimed "100% complete" but line 94 listed uniqueness as "future work". This inconsistency is now resolved - documentation accurately reflects that existence is proven but uniqueness is in progress.

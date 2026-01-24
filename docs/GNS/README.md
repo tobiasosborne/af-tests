@@ -45,12 +45,16 @@ AfTests/GNS/
 
 | Phase | Files | Status | Details |
 |-------|-------|--------|---------|
-| 1. States | State/*.lean | In Progress | See [phases/01_states.md](phases/01_states.md) |
-| 2. Null Space | NullSpace/*.lean | Not Started | See [phases/02_nullspace.md](phases/02_nullspace.md) |
-| 3. Pre-Hilbert | PreHilbert/*.lean | Not Started | See [phases/03_prehilbert.md](phases/03_prehilbert.md) |
-| 4. Hilbert Space | HilbertSpace/*.lean | Not Started | See [phases/04_hilbert.md](phases/04_hilbert.md) |
-| 5. Representation | Representation/*.lean | Not Started | See [phases/05_representation.md](phases/05_representation.md) |
-| 6. Main Theorems | Main/*.lean | Not Started | See [phases/06_main.md](phases/06_main.md) |
+| 1. States | State/*.lean | **Proven** | See [phases/01_states.md](phases/01_states.md) |
+| 2. Null Space | NullSpace/*.lean | **Proven** | See [phases/02_nullspace.md](phases/02_nullspace.md) |
+| 3. Pre-Hilbert | PreHilbert/*.lean | **Proven** | See [phases/03_prehilbert.md](phases/03_prehilbert.md) |
+| 4. Hilbert Space | HilbertSpace/*.lean | **Proven** | See [phases/04_hilbert.md](phases/04_hilbert.md) |
+| 5. Representation | Representation/*.lean | **Proven** | See [phases/05_representation.md](phases/05_representation.md) |
+| 6. Main Theorems | Main/*.lean | **Partial** | See [phases/06_main.md](phases/06_main.md) |
+
+### Phase 6 Detail: Main Theorems
+- `gns_theorem` (existence): **Proven** ✓
+- `gns_uniqueness` (unitary equivalence): **In Progress** - see [phases/06_main_uniqueness_plan.md](phases/06_main_uniqueness_plan.md)
 
 ## Mathlib Infrastructure
 
