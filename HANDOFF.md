@@ -1,7 +1,7 @@
 # Handoff: GNS Construction Progress
 
 **Date:** 2026-01-24
-**Session Focus:** HilbertSpace/CyclicVector.lean
+**Session Focus:** HilbertSpace/CyclicVector.lean & Representation/PreRep.lean
 
 ---
 
@@ -11,6 +11,10 @@
    - Cyclic vector Ω_φ = [1] definition (90 LOC, no sorries)
    - Key lemmas: `gnsCyclicVector_inner_self`, `gnsCyclicVector_norm`, `gnsCyclicVector_ne_zero`
    - Phase 4 HilbertSpace complete!
+
+2. **Implemented P5: Representation/PreRep.lean** (af-tests-155)
+   - Pre-representation π_φ(a) on quotient (95 LOC, no sorries)
+   - Key lemmas: `gnsPreRep_mul`, `gnsPreRep_one`, `gnsPreRep_add`, `gnsPreRep_smul`
 
 ---
 
@@ -53,28 +57,37 @@
 | `af-tests-8pg` | HilbertSpace/Completion.lean | **Proven** | No sorries |
 | `af-tests-dx9` | HilbertSpace/CyclicVector.lean | **Proven** | No sorries |
 
+### Phase 5: Representation (in progress)
+| Issue ID | File | Status | Notes |
+|----------|------|--------|-------|
+| `af-tests-155` | Representation/PreRep.lean | **Proven** | No sorries |
+| `af-tests-6wx` | Representation/Bounded.lean | **Not Started** | Now ready |
+
 ---
 
 ## Next Steps (Priority Order)
 
-1. **Phase 5** - Representation/PreRep.lean (af-tests-155) - ready
+1. **Phase 5** - Representation/Bounded.lean (af-tests-6wx) - now unblocked
 2. **Sorry elimination** (P3): uo6, 03g, bgs
 3. Refactor LEARNINGS.md (exceeds 200 LOC at ~250 lines)
 
 ---
 
-## Key Learning This Session
+## Key Learnings This Session
 
-**Completion Embedding Lemmas:** When working with `UniformSpace.Completion`, use:
-- `UniformSpace.Completion.norm_coe` - `‖↑x‖ = ‖x‖`
-- `UniformSpace.Completion.inner_coe` - `⟪↑a, ↑b⟫ = ⟪a, b⟫`
-These preserve norms and inner products under the embedding.
+1. **Completion Embedding Lemmas:** When working with `UniformSpace.Completion`:
+   - `UniformSpace.Completion.norm_coe` - `‖↑x‖ = ‖x‖`
+   - `UniformSpace.Completion.inner_coe` - `⟪↑a, ↑b⟫ = ⟪a, b⟫`
+
+2. **Quotient Extensionality:** When using `ext x` on linear maps over quotients,
+   `x : A` (the underlying type) and goals involve `mkQ x`. No need for `mk_surjective`.
 
 ---
 
 ## Files Modified This Session
 
 - Created: `AfTests/GNS/HilbertSpace/CyclicVector.lean` (90 LOC, no sorries)
+- Created: `AfTests/GNS/Representation/PreRep.lean` (95 LOC, no sorries)
 - Updated: `HANDOFF.md`
 
 ---
@@ -83,5 +96,5 @@ These preserve norms and inner products under the embedding.
 
 ```bash
 bd ready
-bd show af-tests-155  # Representation/PreRep.lean
+bd show af-tests-6wx  # Representation/Bounded.lean
 ```
