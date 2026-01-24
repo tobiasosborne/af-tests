@@ -13,25 +13,9 @@ The GNS representation is unique up to unitary equivalence.
 
 ## Main results
 
-* `State.gnsIntertwinerQuotientFun` - The candidate intertwiner map on quotient
-* `State.gnsIntertwinerQuotient_isometry` - Isometry property
-* `State.gnsIntertwinerQuotient_cyclic` - Maps cyclic vector to ξ
-
-## Mathematical Background
-
-Given (H, π, ξ) a cyclic *-representation with:
-- π : A →⋆ₐ[ℂ] (H →L[ℂ] H)
-- ‖ξ‖ = 1
-- ∀ a, ⟪ξ, π(a)ξ⟫ = φ(a)
-- DenseRange (fun a => π a ξ)
-
-Then the map U₀([a]) = π(a)ξ extends to a unitary intertwiner U : H_φ ≃ₗᵢ[ℂ] H.
-
-### Key Lemmas
-
-1. Well-definedness: [a] = [b] implies π(a)ξ = π(b)ξ
-2. Isometry: ‖π(a)ξ‖ = ‖[a]‖
-3. Cyclic: U₀([1]) = ξ
+* `gnsIntertwinerQuotientFun` - The candidate intertwiner U₀([a]) = π(a)ξ
+* `gnsIntertwinerQuotient_isometry` - ‖U₀(x)‖ = ‖x‖
+* `gnsIntertwinerQuotientLinearIsometry` - U₀ as a LinearIsometry
 -/
 
 namespace State
@@ -191,5 +175,15 @@ theorem gnsIntertwinerQuotientLinearMap_apply
     (x : φ.gnsQuotient) :
     gnsIntertwinerQuotientLinearMap φ π ξ hξ_state x =
     gnsIntertwinerQuotientFun φ π ξ hξ_state x := rfl
+
+/-! ### LinearIsometry structure -/
+
+/-- U₀ as a linear isometry gnsQuotient →ₗᵢ[ℂ] H.
+    Combines the LinearMap with the isometry property. -/
+noncomputable def gnsIntertwinerQuotientLinearIsometry
+    (hξ_state : ∀ a : A, @inner ℂ H _ ξ (π a ξ) = φ a) :
+    φ.gnsQuotient →ₗᵢ[ℂ] H where
+  toLinearMap := gnsIntertwinerQuotientLinearMap φ π ξ hξ_state
+  norm_map' := gnsIntertwinerQuotient_isometry φ π ξ hξ_state
 
 end State

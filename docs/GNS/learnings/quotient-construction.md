@@ -85,3 +85,23 @@ The algebra homomorphism property `AlgHomClass.commutes` then gives us what we n
 
 **Lesson:** When `map_smul` doesn't work for algebra homs, decompose the scalar
 multiplication via `Algebra.smul_def` and use multiplicativity + `AlgHomClass.commutes`.
+
+---
+
+## Topology Diamond on Quotient Spaces
+
+**Discovery:** The quotient `A ⧸ N_φ` has two topology instances that don't unify:
+- `QuotientModule.Quotient.topologicalSpace` - the quotient topology
+- `PseudoMetricSpace.toUniformSpace.toTopologicalSpace` - from the seminorm
+
+**Problem:** When proving `Continuous f` for a `LinearIsometry f : gnsQuotient →ₗᵢ[ℂ] H`,
+the `LinearIsometry.continuous` lemma gives continuity w.r.t. the metric topology,
+but Lean expects continuity w.r.t. the quotient topology.
+
+**Workaround:** Skip explicit continuity theorems. The `LinearIsometry` structure
+itself provides what's needed - when continuity is required later, Lean will use
+the metric topology from the normed space structure, which is the correct one.
+
+**Lesson:** For quotients of seminormed spaces, prefer working with the
+`LinearIsometry` structure directly rather than proving separate continuity lemmas.
+The topologies are equal mathematically but Lean doesn't always see this.
