@@ -172,9 +172,29 @@ import Mathlib.Topology.Order.Basic        -- isClosed_Ici
 import Mathlib.Topology.Algebra.Ring.Real  -- ContinuousSub ℝ, ContinuousMul ℝ
 ```
 
-### Remaining Challenge
-To prove `Set.range toProductFun` is closed, we need:
-1. Range ⊆ stateConditions (proven: `range_subset_stateConditions`)
-2. stateConditions ⊆ Range (TODO: construct MPositiveState from function)
+### Constructing MPositiveState from Function (SOLVED)
 
-Step 2 requires building a LinearMap from a function satisfying additivity + homogeneity.
+To prove `Set.range toProductFun` is closed, we show range = stateConditions:
+1. Range ⊆ stateConditions: ✅ `range_subset_stateConditions`
+2. stateConditions ⊆ Range: ✅ `stateConditions_subset_range`
+
+**Pattern: Build LinearMap from additivity + homogeneity**
+```lean
+def ofFunction (f : FreeStarAlgebra n → ℝ)
+    (hf_add : ∀ a b, f (a + b) = f a + f b)
+    (hf_smul : ∀ c a, f (c • a) = c * f a)
+    (hf_star : ∀ a, f (star a) = f a)
+    (hf_m_nonneg : ∀ m ∈ QuadraticModule n, 0 ≤ f m)
+    (hf_one : f 1 = 1) : MPositiveState n where
+  toFun := {
+    toFun := f
+    map_add' := hf_add
+    map_smul' := by intro c a; simp only [RingHom.id_apply]; exact hf_smul c a
+  }
+  map_star := hf_star
+  map_one := hf_one
+  map_m_nonneg := hf_m_nonneg
+```
+
+**Key Mathlib Insight:** `LinearMap.mk` takes an `AddHom` (from additivity) plus smul proof.
+The anonymous structure syntax `{ toFun := f, map_add' := hf_add, map_smul' := ... }` builds the LinearMap directly.

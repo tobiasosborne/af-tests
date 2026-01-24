@@ -117,15 +117,46 @@ theorem range_subset_stateConditions :
   · intro m hm; exact φ.apply_m_nonneg hm
   · exact φ.apply_one
 
+omit [IsArchimedean n] in
+/-- Build an MPositiveState from a function satisfying state conditions. -/
+def ofFunction (f : FreeStarAlgebra n → ℝ)
+    (hf_add : ∀ a b, f (a + b) = f a + f b)
+    (hf_smul : ∀ c a, f (c • a) = c * f a)
+    (hf_star : ∀ a, f (star a) = f a)
+    (hf_m_nonneg : ∀ m ∈ QuadraticModule n, 0 ≤ f m)
+    (hf_one : f 1 = 1) : MPositiveState n where
+  toFun := {
+    toFun := f
+    map_add' := hf_add
+    map_smul' := by intro c a; simp only [RingHom.id_apply]; exact hf_smul c a
+  }
+  map_star := hf_star
+  map_one := hf_one
+  map_m_nonneg := hf_m_nonneg
+
+omit [IsArchimedean n] in
+/-- stateConditions is exactly the range of toProductFun. -/
+theorem stateConditions_subset_range :
+    stateConditions (n := n) ⊆ Set.range toProductFun := by
+  intro f hf
+  simp only [stateConditions, Set.mem_setOf_eq] at hf
+  obtain ⟨hf_add, hf_smul, hf_star, hf_m_nonneg, hf_one⟩ := hf
+  exact ⟨ofFunction f hf_add hf_smul hf_star hf_m_nonneg hf_one, rfl⟩
+
+omit [IsArchimedean n] in
+/-- The range equals stateConditions. -/
+theorem range_eq_stateConditions :
+    Set.range (toProductFun (n := n)) = stateConditions :=
+  Set.Subset.antisymm range_subset_stateConditions stateConditions_subset_range
+
+omit [IsArchimedean n] in
 /-- The state set is closed in the product topology.
 
 The range equals stateConditions (intersection of closed sets). -/
 theorem stateSet_isClosed :
     IsClosed (Set.range (toProductFun (n := n))) := by
-  -- Strategy: range = stateConditions, and stateConditions is closed
-  -- For now, we use that range ⊆ closed set, but need equality
-  -- TODO: Prove stateConditions ⊆ range (construct MPositiveState from function)
-  sorry
+  rw [range_eq_stateConditions]
+  exact stateConditions_isClosed
 
 /-- The state set is compact. -/
 theorem stateSet_isCompact :
