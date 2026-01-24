@@ -1,0 +1,145 @@
+# Dual Characterization Learnings
+
+## Span Intersection for Riesz Extension (AC-P6.2)
+
+### Key Insight: Only Positive Scalars Matter
+
+For Riesz extension, we define a separating functional ψ₀(λA) = -λε on span{A}.
+We need ψ₀ ≥ 0 on M ∩ span{A}. The key observation:
+
+1. **λ > 0 case**: If λA ∈ M, then A = (1/λ)(λA) ∈ M by cone property → A ∈ M̄.
+   Contradiction. So this case never occurs.
+2. **λ ≤ 0 case**: ψ₀(λA) = -λε ≥ 0 automatically (since -λ ≥ 0 and ε > 0).
+
+### We Don't Need Full M ∩ span{A} = {0}
+
+The FILE_PLAN specified proving M ∩ span{A} = {0}, but this is **stronger than needed**.
+The λ < 0 case (negative multiples of A in M) doesn't cause problems for the
+separating functional—it's automatically nonneg.
+
+### What We Actually Proved
+
+```lean
+-- If A ∉ M̄ and c > 0, then c • A ∉ M
+theorem positive_smul_not_in_M {A} (hA_not : A ∉ quadraticModuleClosure)
+    {c : ℝ} (hc : 0 < c) : c • A ∉ QuadraticModule n
+
+-- The separating functional is nonneg on M ∩ span{A}
+theorem separating_nonneg_on_span_cap_M {A} (hA_not : A ∉ quadraticModuleClosure)
+    {ε : ℝ} (hε : 0 < ε) {x} (hx_in_M : x ∈ QuadraticModule n)
+    {coeff : ℝ} (hx_eq : x = coeff • A) : 0 ≤ -coeff * ε
+
+-- Coefficients of M ∩ span{A} elements are ≤ 0
+theorem span_cap_M_nonpos_coeff {A} (hA_not : A ∉ quadraticModuleClosure)
+    {coeff : ℝ} (hcoeff_smul_in_M : coeff • A ∈ QuadraticModule n) : coeff ≤ 0
+```
+
+### Proof Pattern
+
+The core argument is beautifully simple:
+```lean
+theorem positive_smul_not_in_M ... := by
+  intro h_cA_in_M
+  have h_A_in_M : A ∈ QuadraticModule n := by
+    have h_eq : A = c⁻¹ • (c • A) := by rw [smul_smul, inv_mul_cancel₀ _, one_smul]
+    rw [h_eq]
+    exact QuadraticModule.smul_mem (le_of_lt (inv_pos.mpr hc)) h_cA_in_M
+  exact hA_not (quadraticModule_subset_closure h_A_in_M)
+```
+
+---
+
+## LinearPMap.mkSpanSingleton Pattern (AC-P6.3)
+
+### Challenge
+Need to define a linear map on `Submodule.span ℝ {A}` for some nonzero A.
+
+### Solution
+Use `LinearPMap.mkSpanSingleton`:
+```lean
+import Mathlib.LinearAlgebra.LinearPMap
+
+noncomputable def myMap (hA : A ≠ 0) : Submodule.span ℝ {A} →ₗ[ℝ] ℝ :=
+  (LinearPMap.mkSpanSingleton (K := ℝ) A targetValue hA).toFun
+```
+
+### Key Lemmas
+- `LinearPMap.mkSpanSingleton_apply`: `f ⟨A, _⟩ = targetValue`
+- `Submodule.mem_span_singleton`: `x ∈ span{A} ↔ ∃ c, c • A = x`
+
+### Working with Submodule Subtypes
+Elements `⟨c • A, _⟩ : Submodule.span ℝ {A}` equal `c • ⟨A, _⟩`:
+```lean
+have h : (⟨c • A, Submodule.mem_span_singleton.mpr ⟨c, rfl⟩⟩ : Submodule.span ℝ {A}) =
+         c • ⟨A, Submodule.mem_span_singleton_self A⟩ := rfl
+rw [h, LinearMap.map_smul]
+-- Now: myMap (c • ⟨A, _⟩) = c • myMap ⟨A, _⟩ = c * targetValue
+```
+
+### Import
+```lean
+import Mathlib.LinearAlgebra.LinearPMap
+```
+
+---
+
+## Riesz Extension Generating Condition Challenge (AC-P6.4)
+
+### Mathlib's `riesz_extension` Theorem
+
+```lean
+riesz_extension :
+  (s : ConvexCone ℝ E) (f : E →ₗ.[ℝ] ℝ) →
+  (∀ (x : ↥f.domain), ↑x ∈ s → 0 ≤ ↑f x) →       -- f ≥ 0 on s ∩ domain
+  (∀ (y : E), ∃ x ∈ f.domain, ↑x + y ∈ s) →      -- generating condition
+  ∃ g, (∀ (x : ↥f.domain), g ↑x = ↑f x) ∧ ∀ x ∈ s, 0 ≤ g x
+```
+
+### The Challenge
+
+For extending from `span{A}` (1-dimensional) with cone `M = QuadraticModule`:
+- Condition 1 ✓: `separatingOnSpan_nonneg_on_M_cap_span` gives f ≥ 0 on M ∩ span{A}
+- Condition 2 ✗: `∀ y, ∃ c, cA + y ∈ M` is **NOT** generally true
+
+The generating condition requires every y can be "shifted" by some domain element into the cone.
+For a 1-dimensional domain, this essentially asks whether M + span{A} = E, which is false.
+
+### What We Have vs What We Need
+
+**We proved** (`quadraticModule_selfAdjoint_generating`):
+- M ∩ (A₀)_sa generates (A₀)_sa as differences: ∀ x, x = (1/4)m₁ - (1/4)m₂
+
+**Mathlib needs**:
+- `∀ y, ∃ x ∈ domain, x + y ∈ M`
+
+These are related (both about "generating") but not identical.
+
+### Alternative Approaches
+
+1. **Hahn-Banach Separation** (RECOMMENDED):
+   Use `RCLike.geometric_hahn_banach_closed_point` from `Mathlib.Analysis.NormedSpace.HahnBanach.Separation`:
+   ```lean
+   -- If s is convex and closed, x ∉ s, then ∃ f, u such that:
+   -- ∀ a ∈ s, re(f(a)) < u and u < re(f(x))
+   ```
+   Requires: `TopologicalSpace E`, `LocallyConvexSpace ℝ E`, `IsClosed s`, `IsTopologicalAddGroup E`, `ContinuousSMul ℝ E`
+
+2. **Custom Zorn's lemma proof**: Build extension step-by-step using generating property
+
+3. **Inner product separation**: `ConvexCone.hyperplane_separation_of_nonempty_of_isClosed_of_notMem`
+   requires `InnerProductSpace ℝ E` (not natural for FreeStarAlgebra)
+
+### Status
+
+File `Dual/RieszApplication.lean` created with:
+- Structure and theorem statements
+- `riesz_extension_exists`: main result (sorry)
+- Clear documentation of the mathematical challenge
+
+To complete: Either set up TopologicalSpace infrastructure for Hahn-Banach, or use custom Zorn argument.
+
+### Import
+```lean
+import Mathlib.Analysis.Convex.Cone.Extension
+import Mathlib.Analysis.NormedSpace.HahnBanach.Separation  -- for geometric_hahn_banach
+```

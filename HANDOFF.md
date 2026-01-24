@@ -1,13 +1,10 @@
 # Handoff: 2026-01-24
 
 ## Completed This Session
-- **AC-P6.4 STRUCTURE**: Created `Dual/RieszApplication.lean` (147 LOC, 2 sorries)
-  - `separatingPMap`: Converts separatingOnSpan to a LinearPMap
-  - `separatingPMap_nonneg_on_M`: Verifies nonneg condition for Riesz
-  - `generating_condition_from_decomp`: Helper showing M generates (A₀)_sa
-  - `riesz_extension_exists`: Main theorem (sorry) - extends ψ₀ to full algebra
-  - **KEY CHALLENGE IDENTIFIED**: Mathlib's `riesz_extension` has generating condition
-    `∀ y, ∃ x ∈ domain, x + y ∈ M` which is not directly satisfied for 1-dim domain
+- **Closed af-tests-112**: S_M compactness (Compactness.lean verified: 171 LOC, 0 sorries)
+- **Closed af-tests-oa2j**: Split LEARNINGS_misc.md (442→111 LOC)
+  - Created `LEARNINGS_topology.md` (188 LOC): Closedness, Tychonoff, seminorm closure
+  - Created `LEARNINGS_dual.md` (145 LOC): Riesz extension, span intersection, Hahn-Banach
 
 ---
 
@@ -81,18 +78,18 @@ This asks if M + span{A} = E, which is false for 1-dimensional span{A}.
 
 **What we have**: `quadraticModule_selfAdjoint_generating` proves M - M = (A₀)_sa
 
-**What we need**: Either:
-1. Custom Riesz extension using our generating property
-2. Separation theorem (requires inner product)
-3. Direct Zorn's lemma argument
-
-See `LEARNINGS_misc.md` for detailed analysis.
+**Recommended Approaches** (see `LEARNINGS_dual.md`):
+1. **Hahn-Banach Separation**: Use `RCLike.geometric_hahn_banach_closed_point`
+   - Requires setting up TopologicalSpace on FreeStarAlgebra from seminorm
+   - Requires LocallyConvexSpace instance
+2. **Custom Zorn argument**: Build extension step-by-step
+3. Inner product separation (not natural for this algebra)
 
 ---
 
 ## Next Steps
 
-1. **AC-P6.4 COMPLETE**: Fill sorries in RieszApplication.lean (requires mathematical work)
+1. **AC-P6.4 COMPLETE**: Fill sorries in RieszApplication.lean (requires Hahn-Banach setup or custom Zorn)
 2. **AC-P6.5**: ComplexExtension.lean - Extend real functional to complex
 3. **AC-P6.6**: Normalization.lean - Normalize to get M-positive state
 
@@ -100,20 +97,24 @@ See `LEARNINGS_misc.md` for detailed analysis.
 
 ## Key Learnings Reference
 
-See `docs/ArchimedeanClosure/LEARNINGS.md` for index, including:
-- `LEARNINGS_misc.md`: Riesz extension challenge (NEW), `ofFunction` pattern, closedness proofs
+See `docs/ArchimedeanClosure/LEARNINGS.md` for full index:
+- `LEARNINGS_dual.md`: Riesz extension challenge, Hahn-Banach approach (NEW)
+- `LEARNINGS_topology.md`: Closedness proofs, Tychonoff, seminorm closure (NEW)
+- `LEARNINGS_misc.md`: Section scoping, FunLike, imports
 - `LEARNINGS_states.md`: Cauchy-Schwarz, Archimedean bounds
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/Dual/RieszApplication.lean` (NEW, 147 LOC, 2 sorries)
-- `docs/ArchimedeanClosure/LEARNINGS_misc.md` (updated with Riesz extension analysis)
+- `docs/ArchimedeanClosure/LEARNINGS_topology.md` (NEW, 188 LOC)
+- `docs/ArchimedeanClosure/LEARNINGS_dual.md` (NEW, 145 LOC)
+- `docs/ArchimedeanClosure/LEARNINGS_misc.md` (refactored, 111 LOC)
+- `docs/ArchimedeanClosure/LEARNINGS.md` (updated index)
 - `HANDOFF.md` (this file)
 
 ---
 
 ## Known Issues
 
-- `LEARNINGS_misc.md` is 442 lines (exceeds 200 LOC limit) - needs split
+- None currently (LEARNINGS_misc.md split completed)

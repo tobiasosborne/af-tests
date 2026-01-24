@@ -10,6 +10,8 @@ This directory contains technical discoveries from the Archimedean Closure forma
 | [LEARNINGS_proofs.md](LEARNINGS_proofs.md) | Proof Patterns | Non-commutative tactics, Commute lemmas |
 | [LEARNINGS_states.md](LEARNINGS_states.md) | States & Bounds | MPositiveState, Cauchy-Schwarz, Archimedean bounds |
 | [LEARNINGS_misc.md](LEARNINGS_misc.md) | Miscellaneous | Section scoping, FunLike, QuadraticModule |
+| [LEARNINGS_topology.md](LEARNINGS_topology.md) | Topology | Closedness, Tychonoff, seminorm closure |
+| [LEARNINGS_dual.md](LEARNINGS_dual.md) | Dual Characterization | Riesz extension, span intersection, Hahn-Banach |
 
 ## Quick Reference: Key Patterns
 
