@@ -40,6 +40,36 @@ conditions rather than inheriting from PositiveLinearMap.
 
 ---
 
+## 2026-01-24: Cauchy-Schwarz Proof Strategy
+
+**Discovery:** The standard quadratic discriminant argument for Cauchy-Schwarz
+requires careful handling of real vs complex parameters.
+
+**Problem:** The `discrim_le_zero` lemma works for polynomials over ordered fields
+(like ℝ), but the Cauchy-Schwarz for sesquilinear forms needs |φ(b*a)|² ≤ φ(a*a)·φ(b*b).
+Using real t : ℝ gives bounds on Re² and Im² separately, which sum to 2× the bound.
+
+**Mathematical Detail:**
+- For t : ℝ, expand φ((a + t·b)*(a + t·b)) ≥ 0 as a quadratic in t
+- Apply discrim_le_zero to get Re(φ(b*a))² ≤ φ(a*a)·φ(b*b)
+- Repeat with i·b to get Im(φ(b*a))² ≤ φ(a*a)·φ(b*b)
+- But Re² + Im² ≤ 2·bound (not tight!)
+
+**Resolution for tight bound:**
+- Use complex λ ∈ ℂ instead of real t
+- Set λ = -conj(φ(b*a))/φ(b*b) when φ(b*b) ≠ 0
+- This eliminates the cross-term and gives the tight bound
+- Case φ(b*b) = 0 handled separately (implies φ(b*a) = 0)
+
+**Lesson:** When adapting real-variable proofs to complex settings, the tight
+constant often requires genuinely complex parameters, not just "apply twice."
+
+**Lean-specific note:** The tactic `ring` doesn't work on non-commutative rings.
+Use manual rewrites with `smul_mul_assoc`, `mul_smul_comm`, `smul_smul` for
+expansions involving scalar multiplication in C*-algebras.
+
+---
+
 ## Template for New Entries
 
 ```markdown
