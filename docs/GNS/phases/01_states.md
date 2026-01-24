@@ -8,9 +8,9 @@ A **state** on a C*-algebra `A` is a positive linear functional `φ : A → ℂ`
 
 | File | LOC Target | Status | Key Content |
 |------|------------|--------|-------------|
-| `State/Basic.lean` | 60-80 | Done | State structure, FunLike instance |
-| `State/Positivity.lean` | 80-100 | Done | map_star, self-adjoint → real |
-| `State/CauchySchwarz.lean` | ~90 | Ready | \|φ(b\*a)\|² ≤ φ(a\*a)·φ(b\*b) |
+| `State/Basic.lean` | 60-80 | Proven | State structure, FunLike instance |
+| `State/Positivity.lean` | 80-100 | Structure Done | map_star, self-adjoint → real |
+| `State/CauchySchwarz.lean` | ~90 | Structure Done | \|φ(b\*a)\|² ≤ φ(a\*a)·φ(b\*b) |
 
 ## State Definition (Actual)
 

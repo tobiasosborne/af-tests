@@ -48,6 +48,20 @@ When you discover something interesting:
 1. Add it to the relevant `docs/*/LEARNINGS.md`
 2. This is SUCCESS even if the original task isn't complete
 
+### Status Terminology
+Use these consistently in docs and HANDOFF:
+
+| Status | Meaning | Sorries OK? |
+|--------|---------|-------------|
+| **Not Started** | No code written | N/A |
+| **Ready** | Dependencies met, can begin work | N/A |
+| **In Progress** | Currently being worked on | Yes |
+| **Structure Done** | Definitions + statements complete | Yes |
+| **Proven** | All sorries eliminated | No |
+
+**Note:** "Done" in phase docs means "Structure Done" - the file has all intended
+definitions and theorem statements, but may still have sorries tracked as separate issues.
+
 ---
 
 ## Directory Structure
