@@ -252,3 +252,10 @@ Changed `(c : ℂ) • m` to `c • m` in `QuadraticModuleSet.smul_mem`.
 ### Why This Is Simpler
 Over the ℝ-algebra, ℝ-scaling is native via the `Module ℝ (FreeAlgebra ℝ X)` instance.
 No cast to ℂ needed - this was a workaround for the ℂ-algebra that's no longer needed.
+
+---
+
+## 2026-01-24: RF-3 Complete - Archimedean Updated
+
+### Change Made
+Changed `((N : ℝ) : ℂ) • 1` to `(N : ℝ) • 1` in `IsArchimedean` and `archimedeanBound_spec`.

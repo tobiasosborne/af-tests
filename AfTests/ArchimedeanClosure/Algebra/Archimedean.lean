@@ -32,7 +32,7 @@ This says that star(a)*a is "bounded" by some N·1 in the sense that
 N·1 - star(a)*a belongs to the quadratic module M. -/
 class IsArchimedean (n : ℕ) : Prop where
   bound : ∀ a : FreeStarAlgebra n,
-    ∃ N : ℕ, ((N : ℝ) : ℂ) • (1 : FreeStarAlgebra n) - star a * a ∈ QuadraticModule n
+    ∃ N : ℕ, (N : ℝ) • (1 : FreeStarAlgebra n) - star a * a ∈ QuadraticModule n
 
 /-- Some N such that N·1 - a*a ∈ M (not necessarily minimal). -/
 noncomputable def archimedeanBound [IsArchimedean n] (a : FreeStarAlgebra n) : ℕ :=
@@ -40,7 +40,7 @@ noncomputable def archimedeanBound [IsArchimedean n] (a : FreeStarAlgebra n) : �
 
 /-- The Archimedean bound satisfies the defining property. -/
 theorem archimedeanBound_spec [IsArchimedean n] (a : FreeStarAlgebra n) :
-    ((archimedeanBound a : ℝ) : ℂ) • (1 : FreeStarAlgebra n) - star a * a ∈ QuadraticModule n :=
+    (archimedeanBound a : ℝ) • (1 : FreeStarAlgebra n) - star a * a ∈ QuadraticModule n :=
   Classical.choose_spec (IsArchimedean.bound a)
 
 end FreeStarAlgebra
