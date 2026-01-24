@@ -184,6 +184,38 @@ check the exact form of quotient relations before using them.
 
 ---
 
+## 2026-01-24: Inner Product Convention Mismatch (Physics vs Math)
+
+**Discovery:** The GNS inner product `⟨[a], [b]⟩ = φ(b*a)` is linear in the first
+argument (physics convention), but mathlib's `PreInnerProductSpace.Core` expects
+conjugate-linearity in the first argument (math convention).
+
+**Problem:** Our `gnsInner_smul_left` proves `⟨c·x, y⟩ = c · ⟨x, y⟩`, but mathlib
+needs `⟨c·x, y⟩ = conj(c) · ⟨x, y⟩`. These are incompatible!
+
+**Mathematical Detail:**
+- GNS definition: `⟨[a], [b]⟩ = φ(b*a)` makes ⟨·,·⟩ linear in first arg
+- Math convention: `⟨·,·⟩` is conjugate-linear in first, linear in second
+- Physics convention: `⟨·,·⟩` is linear in first, conjugate-linear in second
+
+**Resolution:** Define the mathlib `Inner` instance with swapped arguments:
+```lean
+instance gnsQuotientInner : Inner ℂ φ.gnsQuotient :=
+  ⟨fun x y => φ.gnsInner y x⟩  -- Note: y x, not x y
+```
+This makes `inner x y = gnsInner y x`, which is conjugate-linear in first arg.
+
+**Key lemma needed:** `gnsInner_smul_right`:
+```lean
+φ.gnsInner x (c • y) = starRingEnd ℂ c * φ.gnsInner x y
+```
+Derived from `gnsInner_smul_left` + `gnsInner_conj_symm`.
+
+**Lesson:** Always check which convention mathlib uses before building instances.
+The physics convention is common in quantum mechanics but mathlib uses math.
+
+---
+
 ## Template for New Entries
 
 ```markdown
