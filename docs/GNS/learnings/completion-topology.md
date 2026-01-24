@@ -111,3 +111,27 @@ Key lemmas:
 
 **Lesson:** Use `extension` when the target is a complete space. Use `map` when the
 target is itself a completion (e.g., extending `f : α → β` to `Completion α → Completion β`).
+
+---
+
+## Isometry Norm Preservation for Extensions
+
+**Discovery:** `Isometry` in Mathlib is defined in terms of `edist`, not norm. To prove
+norm preservation, you need `Isometry.norm_map_of_map_zero`.
+
+**Problem:** When extending a linear isometry to a completion via `Isometry.completion_extension`,
+the resulting `Isometry` doesn't directly provide `‖f x‖ = ‖x‖`. The `Isometry` type only
+guarantees `edist (f x) (f y) = edist x y`.
+
+**Resolution:** Use `Isometry.norm_map_of_map_zero`:
+```lean
+theorem Isometry.norm_map_of_map_zero {f : E → F}
+    (hf : Isometry f) (h0 : f 0 = 0) (x : E) : ‖f x‖ = ‖x‖
+```
+
+For linear maps, `f 0 = 0` is automatic via `LinearMap.map_zero` or `ContinuousLinearMap.map_zero`.
+
+**Lesson:** The isometry → norm preservation chain is:
+1. Get `Isometry f` from `LinearIsometry.isometry` or `Isometry.completion_extension`
+2. Prove `f 0 = 0` (trivial for linear maps)
+3. Apply `Isometry.norm_map_of_map_zero` to get `‖f x‖ = ‖x‖`

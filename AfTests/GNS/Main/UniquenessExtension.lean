@@ -104,4 +104,41 @@ theorem gnsIntertwiner_coe
     gnsIntertwiner φ π ξ hξ_state x = gnsIntertwinerQuotientFun φ π ξ hξ_state x :=
   gnsIntertwinerFun_coe φ π ξ hξ_state x
 
+/-! ### Extension is isometry (GNS-U5) -/
+
+/-- The quotient-level intertwiner is an isometry as a function. -/
+theorem gnsIntertwinerQuotientFun_isometry
+    (hξ_state : ∀ a : A, @inner ℂ H _ ξ (π a ξ) = φ a) :
+    Isometry (gnsIntertwinerQuotientFun φ π ξ hξ_state) :=
+  (gnsIntertwinerQuotientLinearIsometry φ π ξ hξ_state).isometry
+
+/-- The extended intertwiner is an isometry.
+    Uses Isometry.completion_extension: if f is an isometry into a complete space,
+    then its extension to the completion is also an isometry. -/
+theorem gnsIntertwinerFun_isometry
+    (hξ_state : ∀ a : A, @inner ℂ H _ ξ (π a ξ) = φ a) :
+    Isometry (gnsIntertwinerFun φ π ξ hξ_state) :=
+  (gnsIntertwinerQuotientFun_isometry φ π ξ hξ_state).completion_extension
+
+/-- The extended intertwiner maps zero to zero. -/
+theorem gnsIntertwinerFun_map_zero
+    (hξ_state : ∀ a : A, @inner ℂ H _ ξ (π a ξ) = φ a) :
+    gnsIntertwinerFun φ π ξ hξ_state 0 = 0 :=
+  (gnsIntertwiner φ π ξ hξ_state).map_zero
+
+/-- The extended intertwiner preserves norms: ‖U(x)‖ = ‖x‖. -/
+theorem gnsIntertwiner_norm
+    (hξ_state : ∀ a : A, @inner ℂ H _ ξ (π a ξ) = φ a)
+    (x : φ.gnsHilbertSpace) :
+    ‖gnsIntertwiner φ π ξ hξ_state x‖ = ‖x‖ :=
+  (gnsIntertwinerFun_isometry φ π ξ hξ_state).norm_map_of_map_zero
+    (gnsIntertwinerFun_map_zero φ π ξ hξ_state) x
+
+/-- The extended intertwiner as a LinearIsometry H_φ →ₗᵢ[ℂ] H. -/
+noncomputable def gnsIntertwinerLinearIsometry
+    (hξ_state : ∀ a : A, @inner ℂ H _ ξ (π a ξ) = φ a) :
+    φ.gnsHilbertSpace →ₗᵢ[ℂ] H where
+  toLinearMap := (gnsIntertwiner φ π ξ hξ_state).toLinearMap
+  norm_map' := gnsIntertwiner_norm φ π ξ hξ_state
+
 end State
