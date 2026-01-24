@@ -198,3 +198,53 @@ def ofFunction (f : FreeStarAlgebra n → ℝ)
 
 **Key Mathlib Insight:** `LinearMap.mk` takes an `AddHom` (from additivity) plus smul proof.
 The anonymous structure syntax `{ toFun := f, map_add' := hf_add, map_smul' := ... }` builds the LinearMap directly.
+
+---
+
+## ciSup Patterns for Seminorm Properties (AC-P5.2)
+
+### Key Lemmas for Supremum Manipulation
+
+```lean
+import Mathlib.Data.Real.Pointwise
+
+-- Pull scalar out of supremum (note: returns r * ⨆ i, f i = ⨆ i, r * f i)
+#check @Real.mul_iSup_of_nonneg  -- ∀ {r : ℝ}, 0 ≤ r → ∀ f, r * ⨆ i, f i = ⨆ i, r * f i
+
+-- Constant supremum
+#check @ciSup_const  -- ⨆ _, c = c (requires Nonempty)
+```
+
+### Pattern: Proving ||c • a|| = |c| * ||a||
+
+```lean
+theorem stateSeminorm_smul (c : ℝ) (a : FreeStarAlgebra n) :
+    stateSeminorm (c • a) = |c| * stateSeminorm a := by
+  unfold stateSeminorm
+  have h_eq : ∀ φ : MPositiveState n, |φ (c • a)| = |c| * |φ a| := fun φ => by
+    change |φ.toFun (c • a)| = |c| * |φ.toFun a|
+    simp [φ.toFun.map_smul, abs_mul]
+  simp_rw [h_eq]
+  -- Use .symm because lemma gives r * ⨆ f = ⨆ (r * f)
+  exact (Real.mul_iSup_of_nonneg (abs_nonneg c) _).symm
+```
+
+### FunLike Coercion Trick
+
+When `MPositiveState` has `FunLike` instance, `φ a` may not definitionally equal `φ.toFun a`.
+Use `change` to expose the underlying structure:
+
+```lean
+-- This fails:
+-- rw [φ.toFun.map_zero]  -- "Did not find φ.toFun 0 in |φ 0| = 0"
+
+-- This works:
+change |φ.toFun 0| = 0
+simp [φ.toFun.map_zero]
+```
+
+### Import Requirement
+
+```lean
+import Mathlib.Data.Real.Pointwise  -- Real.mul_iSup_of_nonneg
+```

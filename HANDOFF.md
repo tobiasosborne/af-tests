@@ -1,14 +1,11 @@
 # Handoff: 2026-01-24
 
 ## Completed This Session
-- **AC-P5.1 COMPLETE**: Created `StateSeminorm.lean` (89 LOC, 0 sorries)
-  - `MPositiveState.instNonempty`: Nonempty instance for states
-  - `bddAbove_abs_range`: Bounded above lemma for supremum
-  - `stateSeminorm`: Definition ||a||_M = sup{|φ(a)| : φ ∈ S_M}
-  - `stateSeminorm_le`: ||a||_M ≤ √Nₐ
-  - `stateSeminorm_nonneg`: 0 ≤ ||a||_M
-  - `MPositiveState.apply_abs_le_seminorm`: |φ a| ≤ ||a||_M
-  - `stateSeminorm_add`: Triangle inequality
+- **AC-P5.2 COMPLETE**: Created `SeminormProps.lean` (80 LOC, 0 sorries)
+  - `stateSeminorm_zero`: ||0||_M = 0
+  - `stateSeminorm_neg`: ||-a||_M = ||a||_M
+  - `stateSeminorm_smul`: ||c • a||_M = |c| * ||a||_M
+  - `stateSeminormSeminorm`: Seminorm ℝ (FreeStarAlgebra n) instance
 
 ---
 
@@ -53,7 +50,7 @@
 | File | Status | LOC | Sorries |
 |------|--------|-----|---------|
 | Seminorm/StateSeminorm.lean | ✅ | 89 | 0 |
-| Seminorm/SeminormProps.lean | Not started | - | - |
+| Seminorm/SeminormProps.lean | ✅ | 80 | 0 |
 | Seminorm/Closure.lean | Not started | - | - |
 
 ---
@@ -70,19 +67,22 @@
 ## Key Learnings Reference
 
 See `docs/ArchimedeanClosure/LEARNINGS.md` for index, including:
-- `LEARNINGS_misc.md`: `ofFunction` pattern, closedness proofs
+- `LEARNINGS_misc.md`: `ofFunction` pattern, closedness proofs, ciSup patterns
 - `LEARNINGS_states.md`: Cauchy-Schwarz, Archimedean bounds
 
-### New: ciSup for Seminorm
+### Key ciSup Patterns
 - Use `ciSup_le` (requires `Nonempty` instance)
 - Use `le_ciSup` with `BddAbove` for lower bounds
 - Use `ciSup_mono` for pointwise inequalities
 - Use `ciSup_add_le_ciSup_add_ciSup` for triangle inequality
+- Use `Real.mul_iSup_of_nonneg` for scalar multiplication (import `Mathlib.Data.Real.Pointwise`)
+- Use `change` to expose `φ.toFun` when FunLike coercion obscures it
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/Seminorm/StateSeminorm.lean` (NEW, 89 LOC, 0 sorries)
+- `AfTests/ArchimedeanClosure/Seminorm/SeminormProps.lean` (NEW, 80 LOC, 0 sorries)
+- `docs/ArchimedeanClosure/LEARNINGS_misc.md` (added ciSup patterns)
 - `HANDOFF.md` (this file)
 
