@@ -306,3 +306,30 @@ star (c • a) = star (algebraMap c * a)     -- Algebra.smul_def
             = c • star a                   -- Algebra.smul_def
 ```
 This could be used to define `Module ℝ (selfAdjoint (FreeAlgebra ℝ X))` if needed later.
+
+---
+
+## 2026-01-24: RF-5 Complete - MPositiveStateProps Simplified
+
+### Change Made
+Rewrote MPositiveStateProps for the ℝ-linear structure. Key simplifications:
+
+1. **Removed `apply_real_of_isSelfAdjoint`**: Unnecessary - codomain is ℝ, all values real
+2. **Removed `map_star` theorem**: Now an axiom in MPositiveState structure
+3. **Removed `apply_star_mul_self_real`**: Unnecessary - codomain is ℝ
+4. **Simplified `apply_add_star_real`** → `apply_self_adjoint_add`: φ(a + star a) = 2 * φ(a)
+
+### Sorries Eliminated
+- `apply_real_of_isSelfAdjoint` (was `sorry`) - removed entirely
+- `map_star` (was `sorry`) - now an axiom, not a theorem
+
+### New Lemmas
+- `apply_self_adjoint_add`: φ(a + star a) = 2 * φ(a)
+- `apply_self_adjoint_sub`: φ(a - star a) = 0
+- `apply_isSelfAdjoint`: φ(star a) = φ(a) when a is self-adjoint
+- `apply_decomposition`: φ(a) = (1/2) * φ(a + star a)
+
+### Key Insight
+Moving `map_star` from theorem to axiom was the right call - it eliminates complex
+polarization proofs and makes the structure cleaner. Properties that were hard to
+prove over ℂ become trivial over ℝ.
