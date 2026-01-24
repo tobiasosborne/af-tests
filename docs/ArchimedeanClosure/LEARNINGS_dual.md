@@ -134,3 +134,74 @@ and the recommended path forward using topology infrastructure.
 import Mathlib.Analysis.Convex.Cone.Extension
 import Mathlib.Analysis.NormedSpace.HahnBanach.Separation  -- for geometric_hahn_banach
 ```
+
+---
+
+## Symmetrization of Separation Functional (AC-P6.5)
+
+### Context
+
+The `riesz_extension_exists` theorem gives us:
+```lean
+∃ ψ : FreeStarAlgebra n →ₗ[ℝ] ℝ, (∀ m ∈ M, 0 ≤ ψ m) ∧ ψ A < 0
+```
+
+But `MPositiveState` requires symmetry: `φ(star a) = φ(a)`.
+
+### Solution: Symmetrize the Functional
+
+The symmetrization `φ(a) = (ψ(a) + ψ(star a))/2` gives us what we need.
+
+### Key Technical Detail: star is ℝ-linear
+
+On `FreeAlgebra ℝ (Fin n)`, the star operation is ℝ-linear:
+- `star(a + b) = star a + star b` (from `star_add`)
+- `star(c • a) = c • star a` for `c : ℝ`
+
+The second property uses `FreeAlgebra.star_algebraMap`:
+```lean
+star (algebraMap ℝ _ c) = algebraMap ℝ _ c  -- star fixes ℝ-scalars
+```
+
+This lets us define:
+```lean
+noncomputable def starAsLinearMap : FreeStarAlgebra n →ₗ[ℝ] FreeStarAlgebra n where
+  toFun := star
+  map_add' := star_add
+  map_smul' := fun c a => by
+    rw [Algebra.smul_def, Algebra.smul_def, star_mul, FreeAlgebra.star_algebraMap]
+    rw [Algebra.commutes]
+    simp only [RingHom.id_apply]
+```
+
+### Elements of M are Self-Adjoint
+
+Proved by induction on `QuadraticModuleSet`:
+- Squares `star a * a` are self-adjoint: `star(star a * a) = star a * star(star a) = star a * a`
+- Generator-weighted `star b * gⱼ * b` are self-adjoint (since gⱼ is self-adjoint)
+- Preserved by addition: `IsSelfAdjoint.add`
+- Preserved by ℝ-scaling: custom lemma `isSelfAdjoint_smul_of_isSelfAdjoint`
+
+### ℝ-scaling preserves self-adjointness
+
+For `c : ℝ` (no Star instance!) and self-adjoint m:
+```lean
+theorem isSelfAdjoint_smul_of_isSelfAdjoint {m} (hm : IsSelfAdjoint m) (c : ℝ) :
+    IsSelfAdjoint (c • m) := by
+  unfold IsSelfAdjoint at *
+  rw [Algebra.smul_def, star_mul, FreeAlgebra.star_algebraMap, hm, Algebra.commutes]
+```
+
+Note: Can't use `IsSelfAdjoint.smul` because that requires `StarModule R A` and ℝ has no Star instance.
+
+### Symmetrization Properties
+
+1. **Symmetric**: `φ(star a) = φ(a)` by direct calculation
+2. **Equals original on self-adjoints**: `φ(a) = ψ(a)` when `a` is self-adjoint
+3. **Preserves nonnegativity on M**: Since M ⊆ self-adjoints
+4. **Preserves negativity on A**: Since A is self-adjoint
+
+### Import
+```lean
+import Mathlib.Tactic.Ring  -- for ring tactic in symmetrization proofs
+```

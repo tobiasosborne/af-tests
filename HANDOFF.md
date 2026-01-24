@@ -1,10 +1,11 @@
-# Handoff: 2026-01-24
+# Handoff: 2026-01-25
 
 ## Completed This Session
-- **Proved `riesz_extension_exists`** (af-tests-2nag, af-tests-1188):
-  - Used `ProperCone.hyperplane_separation_point` from mathlib
-  - Bypassed the "generating condition" problem in `riesz_extension`
-  - RieszApplication.lean: 98 LOC, 0 sorries
+- **Proved `symmetrize_separation`** (af-tests-7y23):
+  - Created `Dual/ComplexExtension.lean` (137 LOC, 0 sorries)
+  - Key: Symmetrization of separation functional to get φ(star a) = φ(a)
+  - Proved `isSelfAdjoint_of_mem_quadraticModule`: Elements of M are self-adjoint
+  - Proved `starAsLinearMap`: Star operation is ℝ-linear on FreeAlgebra ℝ
 
 ---
 
@@ -53,47 +54,50 @@
 
 ---
 
-### Phase 6: In Progress
+### Phase 6: In Progress (5/6 done)
 
 | File | Status | LOC | Sorries | Notes |
 |------|--------|-----|---------|-------|
 | Dual/Forward.lean | ✅ | 67 | 0 | |
 | Dual/SpanIntersection.lean | ✅ | 104 | 0 | |
 | Dual/SeparatingFunctional.lean | ✅ | 114 | 0 | |
-| Dual/RieszApplication.lean | ✅ | 98 | 0 | **Completed this session!** |
-| Dual/ComplexExtension.lean | Not Started | - | - | Next |
-| Dual/Normalization.lean | Not Started | - | - | |
+| Dual/RieszApplication.lean | ✅ | 98 | 0 | |
+| Dual/ComplexExtension.lean | ✅ | 137 | 0 | **Completed this session!** |
+| Dual/Normalization.lean | Not Started | - | - | Next |
 
 ---
 
-## Key Achievement: Geometric Hahn-Banach Approach
+## Key Discoveries This Session
 
-Instead of fighting with `riesz_extension`'s generating condition, we used:
-
+### star is ℝ-linear on FreeAlgebra ℝ (Fin n)
+Using `FreeAlgebra.star_algebraMap` (star fixes ℝ-scalars), we can define:
 ```lean
-theorem ProperCone.hyperplane_separation_point
-  [LocallyConvexSpace ℝ E] {x₀ : E} (C : ProperCone ℝ E) (hx₀ : x₀ ∉ C) :
-    ∃ f : E →L[ℝ] ℝ, (∀ x ∈ C, 0 ≤ f x) ∧ f x₀ < 0
+def starAsLinearMap : FreeStarAlgebra n →ₗ[ℝ] FreeStarAlgebra n
 ```
 
-The infrastructure we built (seminorm topology, locally convex space, closed M̄) paid off perfectly.
+### Elements of M are all self-adjoint
+By induction: squares `star a * a` and generator-weighted terms `star b * gⱼ * b` are
+self-adjoint, and this is preserved by addition and ℝ-scaling.
+
+### ℝ has no Star instance
+So can't use `IsSelfAdjoint.smul` directly. Must prove `isSelfAdjoint_smul_of_isSelfAdjoint`
+manually using `Algebra.smul_def` and `Algebra.commutes`.
 
 ---
 
 ## Next Steps
 
-1. **AC-P6.5**: ComplexExtension.lean - Extend ψ from ℝ to ℂ
-2. **AC-P6.6**: Normalization.lean - Normalize to get a state
-3. **AC-P7**: Representations (constrained reps, vector states, GNS)
-4. **AC-P8**: Main theorem
+1. **AC-P6.6**: Normalization.lean - Normalize φ to get MPositiveState with φ(1) = 1
+2. **AC-P7**: Representations (constrained reps, vector states, GNS)
+3. **AC-P8**: Main theorem
 
 ---
 
 ## Key Learnings Reference
 
 See `docs/ArchimedeanClosure/LEARNINGS.md` for full index:
-- `LEARNINGS_dual.md`: Span intersection, separating functional
-- `LEARNINGS_extension.md`: **ProperCone approach** ✓
+- `LEARNINGS_dual.md`: Span intersection, separating functional, **symmetrization** ✓
+- `LEARNINGS_extension.md`: ProperCone approach ✓
 - `LEARNINGS_topology.md`: Closedness proofs, Tychonoff, seminorm closure
 - `LEARNINGS_misc.md`: Section scoping, FunLike, imports
 - `LEARNINGS_states.md`: Cauchy-Schwarz, Archimedean bounds
@@ -102,8 +106,8 @@ See `docs/ArchimedeanClosure/LEARNINGS.md` for full index:
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/Dual/RieszApplication.lean` (rewritten, 98 LOC, 0 sorries)
-- `docs/ArchimedeanClosure/LEARNINGS_extension.md` (updated status)
+- `AfTests/ArchimedeanClosure/Dual/ComplexExtension.lean` (new, 137 LOC, 0 sorries)
+- `docs/ArchimedeanClosure/LEARNINGS_dual.md` (updated with symmetrization section)
 - `HANDOFF.md` (this file)
 
 ---
