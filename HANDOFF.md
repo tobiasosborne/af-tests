@@ -1,25 +1,33 @@
-# Handoff: GNS Uniqueness Step 7 Complete
+# Handoff: GNS Uniqueness Step 8 Complete
 
 **Date:** 2026-01-24
-**Session Focus:** Implement GNS-U7 (Surjectivity of intertwiner)
+**Session Focus:** Implement GNS-U7 and GNS-U8 (Surjectivity + LinearIsometryEquiv)
 
 ---
 
 ## Completed This Session
 
 1. **Implemented GNS-U7 (af-tests-usd): Prove intertwiner is surjective**
-   - `Isometry.surjective_of_completeSpace_denseRange` - general theorem: isometry from complete space with dense range is surjective
+   - `Isometry.surjective_of_completeSpace_denseRange` - general theorem
    - `gnsIntertwiner_surjective` - applied to GNS intertwiner
+
+2. **Implemented GNS-U8 (af-tests-7hr): Construct LinearIsometryEquiv**
+   - `gnsIntertwiner_injective` - isometries are injective
+   - `gnsIntertwiner_bijective` - combine injective + surjective
+   - `gnsIntertwinerLinearEquiv` - construct via `LinearEquiv.ofBijective`
+   - `gnsIntertwinerEquiv` - wrap as `LinearIsometryEquiv H_φ ≃ₗᵢ[ℂ] H`
 
 ---
 
 ## Current State
 
 - **GNS existence theorem (`gns_theorem`):** Proven
-- **GNS uniqueness theorem (`gns_uniqueness`):** In Progress (7/12 steps)
+- **GNS uniqueness theorem (`gns_uniqueness`):** In Progress (8/12 steps)
 - **Build status:** Passing (zero sorries)
-- **File:** `Main/UniquenessExtension.lean` (197 lines)
-- **Next ready issue:** `af-tests-7hr` (GNS-U8: Construct LinearIsometryEquiv)
+- **Files:**
+  - `Main/UniquenessExtension.lean` (197 lines)
+  - `Main/UniquenessEquiv.lean` (80 lines) - NEW
+- **Next ready issues:** `af-tests-7em` (GNS-U9), `af-tests-2dx` (GNS-U10)
 
 ---
 
@@ -34,9 +42,9 @@
 | 5 | af-tests-ywt | Extension is isometry | Done |
 | 6 | af-tests-5nd | Dense range | Done |
 | 7 | af-tests-usd | Surjectivity | Done |
-| 8 | af-tests-7hr | LinearIsometryEquiv | Ready |
-| 9 | af-tests-7em | Cyclic vector mapping | Blocked by 8 |
-| 10 | af-tests-2dx | Intertwining on quotient | Blocked by 8 |
+| 8 | af-tests-7hr | LinearIsometryEquiv | Done |
+| 9 | af-tests-7em | Cyclic vector mapping | Ready |
+| 10 | af-tests-2dx | Intertwining on quotient | Ready |
 | 11 | af-tests-5xr | Full intertwining | Blocked by 10 |
 | 12 | af-tests-4f9 | Final theorem | Blocked by 9,11 |
 
@@ -44,45 +52,37 @@
 
 ## Next Steps
 
-Start with `af-tests-7hr` (GNS-U8):
-```bash
-bd show af-tests-7hr           # View details
-bd update af-tests-7hr --status=in_progress  # Claim it
-```
+Two issues are now ready (can be done in either order):
 
-Implement in new file `Main/UniquenessEquiv.lean`:
-- `gnsIntertwiner_injective` - isometries are injective
-- `gnsIntertwiner_bijective` - combine injective + surjective
-- `gnsIntertwinerEquiv` - construct `LinearIsometryEquiv H_φ ≃ₗᵢ[ℂ] H`
+**GNS-U9 (af-tests-7em):** Cyclic vector mapping
+- Prove `gnsIntertwinerEquiv φ.gnsCyclicVector = ξ`
+- File: `Main/UniquenessEquiv.lean` (append)
+
+**GNS-U10 (af-tests-2dx):** Intertwining on quotient
+- Prove `U([ab]) = π(a)(U[b])` on quotient elements
+- File: `Main/UniquenessIntertwine.lean` (new)
 
 ---
 
 ## Key Implementation Details
 
-### Isometry Surjectivity Chain
-The key insight: isometry from complete space has complete (hence closed) range.
-Dense + closed = whole space.
-
+### LinearIsometryEquiv Construction
 ```lean
-theorem Isometry.surjective_of_completeSpace_denseRange
-    {X Y : Type*} [MetricSpace X] [MetricSpace Y] [CompleteSpace X] [CompleteSpace Y]
-    {f : X → Y} (hf : Isometry f) (hd : DenseRange f) : Function.Surjective f :=
-  Set.range_eq_univ.mp <| hf.isUniformInducing.isComplete_range.isClosed.closure_eq ▸
-    dense_iff_closure_eq.mp hd
+noncomputable def gnsIntertwinerEquiv ... : φ.gnsHilbertSpace ≃ₗᵢ[ℂ] H where
+  toLinearEquiv := LinearEquiv.ofBijective (gnsIntertwiner ...).toLinearMap
+    (gnsIntertwiner_bijective ...)
+  norm_map' := gnsIntertwiner_norm ...
 ```
 
-Proof chain:
-1. `Isometry.isUniformInducing` - isometry is uniform inducing
-2. `IsUniformInducing.isComplete_range` - range is complete (source is complete)
-3. `IsComplete.isClosed` - complete sets are closed
-4. Dense + closed = univ
+Key insight: `LinearEquiv.ofBijective` constructs a `LinearEquiv` from a bijective `LinearMap`.
 
 ---
 
 ## Files Modified This Session
 
 - Modified: `AfTests/GNS/Main/UniquenessExtension.lean` (175 → 197 lines)
-- Modified: `docs/GNS/learnings/completion-topology.md` (added isometry surjectivity section)
+- Created: `AfTests/GNS/Main/UniquenessEquiv.lean` (80 lines)
+- Modified: `docs/GNS/learnings/completion-topology.md`
 - Modified: `HANDOFF.md` (this file)
 
 ---
@@ -90,12 +90,9 @@ Proof chain:
 ## Learnings
 
 ### Isometry Surjectivity from Dense Range
-An isometry `f : X → Y` with dense range is surjective when `X` is complete.
-The key is that uniform inducing maps preserve completeness, so the range is complete,
-hence closed, and dense + closed = whole space.
+See `docs/GNS/learnings/completion-topology.md` for full details.
 
-Key Mathlib lemmas (not found as a single theorem):
-- `Isometry.isUniformInducing`
-- `IsUniformInducing.isComplete_range`
-- `IsComplete.isClosed`
-- `dense_iff_closure_eq`
+### LinearIsometryEquiv Construction
+To construct `LinearIsometryEquiv` from a bijective norm-preserving linear map:
+1. Use `LinearEquiv.ofBijective` with the underlying `LinearMap` and bijectivity proof
+2. Wrap with `LinearIsometryEquiv.mk` (or structure syntax) with norm preservation proof
