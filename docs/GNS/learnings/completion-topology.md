@@ -54,3 +54,35 @@ Similarly for `gnsPreRepContinuous_uniformContinuous`:
 
 **Lesson:** When quotients carry both algebraic and metric structures, the topologies
 may differ. Use explicit `@` application with the correct instance to avoid ambiguity.
+
+---
+
+## Dense Range via Set Equality (Avoiding Continuity Requirements)
+
+**Discovery:** `DenseRange.comp` requires continuity of the outer function, which can
+trigger the topology diamond issue. However, for surjective inner functions, we can
+avoid this entirely.
+
+**Problem:** To show `DenseRange (coe' ∘ Submodule.Quotient.mk)` using `DenseRange.comp`
+requires `Continuous coe'` with matching topologies. The quotient topology doesn't match.
+
+**Resolution:** Instead of using `DenseRange.comp`, prove set equality directly:
+
+```lean
+have h_range_eq : Set.range (f ∘ g) = Set.range f := by
+  ext x
+  constructor
+  · rintro ⟨a, ha⟩
+    exact ⟨g a, ha⟩
+  · rintro ⟨b, hb⟩
+    obtain ⟨a, rfl⟩ := surjective_g b
+    exact ⟨a, hb⟩
+rw [DenseRange, h_range_eq]
+exact denseRange_f
+```
+
+When `g` is surjective, `Set.range (f ∘ g) = Set.range f`. This avoids all
+continuity considerations.
+
+**Lesson:** When composing a function with a surjective map, prove `DenseRange` via
+set equality rather than `DenseRange.comp`. This sidesteps topology issues entirely.

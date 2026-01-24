@@ -10,7 +10,7 @@ The culmination: φ(a) = ⟨Ω_φ, π_φ(a)Ω_φ⟩ and uniqueness.
 |------|------------|--------|-------------|
 | `Main/VectorState.lean` | 50-70 | **Proven** | φ(a) = ⟨Ω, π(a)Ω⟩ |
 | `Main/Uniqueness.lean` | 70-90 | **Proven** | Intertwiner construction |
-| `Main/Theorem.lean` | 40-60 | Not Started | Main theorem statement |
+| `Main/Theorem.lean` | 40-60 | **Proven** | Main theorem statement |
 
 ## Main Theorems
 
@@ -39,13 +39,15 @@ theorem gns_uniqueness
 ### Theorem.lean
 
 ```lean
-theorem gns_construction (A : Type*) [CStarAlgebra A] (φ : State A) :
-    ∃ (H : Type*) (_ : NormedAddCommGroup H) (_ : InnerProductSpace ℂ H)
-      (_ : CompleteSpace H),
-    ∃ (π : A →⋆ₐ[ℂ] (H →L[ℂ] H)) (Ω : H),
-      ‖Ω‖ = 1 ∧
-      (∀ a, φ a = ⟪Ω, π a Ω⟫) ∧
-      DenseRange (fun a => π a Ω)
+/-- The cyclic orbit {π_φ(a)Ω_φ : a ∈ A} is dense in the GNS Hilbert space. -/
+theorem gnsCyclicVector_denseRange :
+    DenseRange (fun a : A => φ.gnsRep a φ.gnsCyclicVector)
+
+/-- The GNS Construction Theorem: Every state arises as a vector state. -/
+theorem gns_theorem :
+    ‖φ.gnsCyclicVector‖ = 1 ∧
+    (∀ a : A, φ a = ⟪φ.gnsCyclicVector, φ.gnsRep a φ.gnsCyclicVector⟫) ∧
+    DenseRange (fun a : A => φ.gnsRep a φ.gnsCyclicVector)
 ```
 
 ## Uniqueness Proof Strategy
