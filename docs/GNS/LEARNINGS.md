@@ -104,6 +104,36 @@ automated checks (e.g., grep for documented names in code).
 
 ---
 
+## 2026-01-24: Left Ideal Property Uses Boundedness, Not Cauchy-Schwarz
+
+**Discovery:** The theorem `null_space_left_ideal` (proving ba ∈ N_φ when a ∈ N_φ)
+was misplaced in CauchySchwarz.lean.
+
+**Problem:** The proof strategy was incorrectly documented as "C-S applied cleverly"
+but actually requires **boundedness of the state**:
+```
+φ((ba)*(ba)) = φ(a* · (b*b) · a)
+By boundedness: |φ(x* · c · x)| ≤ ‖c‖ · φ(x*x)
+Since φ(a*a) = 0, result follows
+```
+
+This is fundamentally different from Cauchy-Schwarz, which gives:
+- |φ(b*a)|² ≤ φ(a*a) · φ(b*b)
+
+The left ideal property needs:
+- |φ(a* · c · a)| ≤ ‖c‖ · φ(a*a)
+
+**Resolution:**
+- Removed `null_space_left_ideal` from CauchySchwarz.lean
+- Added note pointing to NullSpace/LeftIdeal.lean (where it belongs)
+- Corrected proof strategy in docs/GNS/phases/02_nullspace.md
+
+**Lesson:** When a proof doesn't use the file's main result, it's probably
+misplaced. Follow the dependency arrow: if theorem X doesn't use theorem Y,
+X probably doesn't belong in Y's file.
+
+---
+
 ## Template for New Entries
 
 ```markdown

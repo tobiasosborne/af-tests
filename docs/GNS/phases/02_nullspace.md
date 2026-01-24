@@ -53,9 +53,11 @@ So φ(a*b) = φ(b*a) = 0, hence φ((a+b)*(a+b)) = 0
 
 ### mul_mem_left (ba ∈ N_φ when a ∈ N_φ)
 ```
-φ((ba)*(ba)) = φ(a*b*ba)
-By C-S applied cleverly: |φ(a*·b*ba)|² ≤ φ(a*a)·φ(...) = 0
+φ((ba)*(ba)) = φ(a* · (b*b) · a)
+By boundedness of state: |φ(x* · c · x)| ≤ ‖c‖ · φ(x*x)
+Since φ(a*a) = 0, we get φ((ba)*(ba)) = 0
 ```
+Note: This uses continuity/boundedness of the state, NOT Cauchy-Schwarz.
 
 ## Dependencies
 

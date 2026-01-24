@@ -77,19 +77,16 @@ theorem sesqForm_abs_sq_le (a b : A) :
 
 /-! ### Consequences for the null space -/
 
-/-- If φ(a*a) = 0, then φ(b*a) = 0 for all b. -/
+/-- If φ(a*a) = 0, then φ(b*a) = 0 for all b.
+    This is a direct consequence of Cauchy-Schwarz. -/
 theorem apply_star_mul_eq_zero_of_apply_star_self_eq_zero {a : A}
     (ha : φ (star a * a) = 0) (b : A) : φ (star b * a) = 0 := by
   have h := inner_mul_le_norm_mul_norm φ a b
   simp only [ha, Complex.zero_re, zero_mul] at h
   exact Complex.normSq_eq_zero.mp (le_antisymm h (Complex.normSq_nonneg _))
 
-/-- Reformulation: null space is a left ideal (first step).
-    If a is in the null space, so is b*a for any b. -/
-theorem null_space_left_ideal {a : A} (ha : φ (star a * a) = 0) (b : A) :
-    φ (star (b * a) * (b * a)) = 0 := by
-  -- This requires showing: φ((b*a)*(b*a)) = φ(a* b* b a) ≤ ‖b*b‖ · φ(a*a) = 0
-  -- Which uses boundedness of the state. For now we leave as sorry.
-  sorry
+-- Note: `null_space_left_ideal` (ba ∈ N_φ when a ∈ N_φ) belongs in NullSpace/LeftIdeal.lean.
+-- Its proof uses boundedness of the state, not Cauchy-Schwarz.
+-- See docs/GNS/phases/02_nullspace.md for the planned structure.
 
 end State
