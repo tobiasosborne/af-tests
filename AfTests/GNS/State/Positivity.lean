@@ -42,6 +42,39 @@ theorem sesqForm_self (a : A) : φ.sesqForm a a = φ (star a * a) := rfl
 theorem sesqForm_self_im (a : A) : (φ.sesqForm a a).im = 0 :=
   φ.apply_star_mul_self_im a
 
+/-! #### Helper lemmas for conjugate symmetry proof -/
+
+private lemma expand_star_add_mul_add (x y : A) :
+    star (x + y) * (x + y) = star x * x + star x * y + star y * x + star y * y := by
+  simp only [star_add, add_mul, mul_add]; abel
+
+private lemma expand_star_add_I_smul (x y : A) :
+    star (x + Complex.I • y) * (x + Complex.I • y)
+    = star x * x + star y * y + Complex.I • (star x * y - star y * x) := by
+  have star_I_smul : star (Complex.I • y) = (-Complex.I) • star y := by
+    rw [star_smul, Complex.star_def, Complex.conj_I]
+  rw [star_add, star_I_smul]
+  simp only [add_mul, mul_add, smul_mul_assoc, mul_smul_comm, smul_add]
+  have I_mul_neg_I : Complex.I * (-Complex.I) = (1 : ℂ) := by rw [mul_neg, Complex.I_mul_I, neg_neg]
+  rw [smul_smul, I_mul_neg_I, one_smul, smul_sub]
+  rw [show (-Complex.I) • (star y * x) = -(Complex.I • (star y * x)) from neg_smul _ _]; abel
+
+private lemma sum_im_zero (x y : A) : (φ (star y * x + star x * y)).im = 0 := by
+  have hD : star y * x + star x * y = star (x + y) * (x + y) - star x * x - star y * y := by
+    rw [expand_star_add_mul_add]; abel
+  rw [hD, φ.map_sub, φ.map_sub]; simp only [Complex.sub_im]
+  rw [φ.apply_star_mul_self_im (x + y), φ.apply_star_mul_self_im x, φ.apply_star_mul_self_im y]
+  ring
+
+private lemma diff_smul_I_im_zero (x y : A) :
+    (φ (Complex.I • (star x * y - star y * x))).im = 0 := by
+  have hIE : Complex.I • (star x * y - star y * x)
+           = star (x + Complex.I • y) * (x + Complex.I • y) - star x * x - star y * y := by
+    rw [expand_star_add_I_smul]; abel
+  rw [hIE, φ.map_sub, φ.map_sub]; simp only [Complex.sub_im]
+  rw [φ.apply_star_mul_self_im, φ.apply_star_mul_self_im x, φ.apply_star_mul_self_im y]
+  ring
+
 /-- Conjugate symmetry of the sesquilinear form: ⟨x, y⟩ = conj(⟨y, x⟩).
 
 The proof uses the polarization identity. The key insight is that because
@@ -56,15 +89,23 @@ implies R₃ = R₄, making φ(y*x) real. Combined with symmetry from the
 polarization structure, conjugate symmetry follows. -/
 theorem sesqForm_conj_symm (x y : A) :
     φ.sesqForm x y = starRingEnd ℂ (φ.sesqForm y x) := by
-  -- The detailed proof requires careful polarization expansion.
-  -- Key steps:
-  -- 1. Show φ(E) = 0 where E = x*y - y*x (skew-adjoint part)
-  --    This follows from: φ(D ± iE) are both real (by State axiom)
-  --    implies φ(E) = 0 (imaginary parts must vanish).
-  -- 2. The form is symmetric: φ(y*x) = φ(x*y)
-  -- 3. The form is real-valued: φ(y*x) ∈ ℝ
-  -- 4. Therefore conj(φ(x*y)) = φ(x*y) = φ(y*x) ✓
-  sorry
+  -- Let P = φ(star y * x), Q = φ(star x * y). Goal: P = conj(Q)
+  unfold sesqForm
+  set P := φ (star y * x) with hP_def
+  set Q := φ (star x * y) with hQ_def
+  -- From sum_im_zero: (P + Q).im = 0, so P.im = -Q.im
+  have hSum := sum_im_zero φ x y
+  rw [φ.map_add] at hSum; simp only [Complex.add_im] at hSum
+  -- From diff_smul_I_im_zero: (I * (Q - P)).im = 0
+  -- Since (I * z).im = z.re, we get (Q - P).re = 0, i.e., P.re = Q.re
+  have hDiff := diff_smul_I_im_zero φ x y
+  rw [φ.map_smul, φ.map_sub] at hDiff
+  have key : (Complex.I * (Q - P)).im = 0 := hDiff
+  rw [Complex.I_mul, Complex.sub_re] at key
+  -- Now: P.re = Q.re and P.im = -Q.im, which means P = conj(Q)
+  apply Complex.ext
+  · simp only [Complex.conj_re]; linarith
+  · simp only [Complex.conj_im]; linarith
 
 /-! ### Star preservation -/
 

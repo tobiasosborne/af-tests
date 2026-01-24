@@ -25,6 +25,37 @@ often hides "real AND non-negative". Be explicit about both conditions.
 
 ---
 
+## Conjugate Symmetry via Algebraic Polarization
+
+**Discovery:** The proof of `sesqForm_conj_symm` (φ(star y * x) = conj(φ(star x * y)))
+uses a clever algebraic trick rather than explicit polarization formulas.
+
+**Proof Strategy:**
+Let P = φ(star y * x) and Q = φ(star x * y). We want P = conj(Q).
+
+1. **Sum is real:** D = star y * x + star x * y = star(x+y)*(x+y) - star x * x - star y * y
+   - All terms on RHS map to ℝ (diagonal elements), so (P + Q).im = 0
+   - Thus P.im = -Q.im
+
+2. **i × difference is real:** I•(Q - P) = star(x+I•y)*(x+I•y) - star x * x - star y * y
+   - All terms on RHS map to ℝ, so (I*(Q - P)).im = 0
+   - Since (I*z).im = z.re, we get (Q - P).re = 0
+   - Thus P.re = Q.re
+
+3. **Combine:** P.re = Q.re and P.im = -Q.im means P = conj(Q) ✓
+
+**Key Lean Tactics:**
+- `star_smul`: star(c • a) = conj(c) • star(a)
+- `smul_mul_assoc`, `mul_smul_comm`: handle scalar positioning in products
+- `abel` for additive groupoid normalization (instead of `ring` for non-commutative)
+- `Complex.I_mul`: I * z = { re := -z.im, im := z.re }
+
+**Lesson:** When proving properties of sesquilinear forms over C*-algebras, express
+cross-terms as differences of diagonal elements. The state's reality condition
+φ(star z * z) ∈ ℝ then provides strong algebraic constraints.
+
+---
+
 ## ℂ Has No Natural PartialOrder in Mathlib
 
 **Discovery:** Cannot directly use `PositiveLinearMap` for states to ℂ because
