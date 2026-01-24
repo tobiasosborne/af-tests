@@ -10,7 +10,7 @@ A **state** on a C*-algebra `A` is a positive linear functional `φ : A → ℂ`
 |------|------------|--------|-------------|
 | `State/Basic.lean` | 60-80 | Done | State structure, FunLike instance |
 | `State/Positivity.lean` | 80-100 | Done | map_star, self-adjoint → real |
-| `State/CauchySchwarz.lean` | 50-70 | Ready | \|φ(b\*a)\|² ≤ φ(a\*a)·φ(b\*b) |
+| `State/CauchySchwarz.lean` | ~100 | Ready | \|φ(b\*a)\|² ≤ φ(a\*a)·φ(b\*b) |
 
 ## State Definition (Actual)
 
@@ -38,7 +38,7 @@ structure State (A : Type*) [CStarAlgebra A] where
 - `State.sesqForm` - ⟨x, y⟩ = φ(y*x) form
 
 ### CauchySchwarz.lean
-- `State.cauchy_schwarz` - |φ(b*a)|² ≤ φ(a*a)·φ(b*b)
+- `State.inner_mul_le_norm_mul_norm` - |φ(b*a)|² ≤ φ(a*a)·φ(b*b)
 
 ## Proof Strategies
 
