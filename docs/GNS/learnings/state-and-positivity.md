@@ -172,3 +172,22 @@ So the sum is φ(a*a) - 2*|c|²/d + |c|²/d = φ(a*a) - |c|²/d.
 **Partial Solution:**
 - Case 1 proven directly using weak C-S + positivity of normSq
 - Case 2 requires more careful algebraic setup, possibly extracting helper lemmas
+
+---
+
+## State Monotonicity via Spectral Ordering (Completed)
+
+**Discovery:** States on C*-algebras preserve the spectral ordering.
+
+**Key Insight:** The spectral order on C*-algebras is defined via `StarOrderedRing`:
+```
+x ≤ y ↔ ∃ p ∈ AddSubmonoid.closure {star s * s | s}, y = x + p
+```
+States preserve this because they map `star s * s` to non-negative reals.
+
+**Proof:** Use `AddSubmonoid.closure_induction` - states map star squares to ℝ₊.
+
+**Boundedness:** `star_mul_le_algebraMap_norm_sq` + `star_left_conjugate_le_conjugate`
+gives `b*(a*a)*b ≤ ‖a‖² · b*b`, then state monotonicity finishes.
+
+**Setup:** `attribute [local instance] CStarAlgebra.spectralOrder spectralOrderedRing`

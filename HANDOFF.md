@@ -1,29 +1,27 @@
 # Handoff: GNS Construction Progress
 
 **Date:** 2026-01-24
-**Session Focus:** Tight Cauchy-Schwarz sorry elimination (af-tests-bgs)
+**Session Focus:** Boundedness sorry elimination (af-tests-z9g)
 
 ---
 
 ## Completed This Session
 
-1. **Partial progress on `inner_mul_le_norm_mul_norm`** (af-tests-bgs → closed)
-   - **Case 1 PROVEN:** When φ(b*b).re = 0, use weak C-S to show normSq = 0
-   - Case 2 (φ(b*b).re > 0) still has sorry (new issue af-tests-dwe)
+1. **PROVEN: `gnsPreRep_norm_le`** (af-tests-z9g)
+   - States respect spectral ordering via `AddSubmonoid.closure_induction`
+   - Key lemmas: `apply_positive_cone_nonneg`, `monotone_re`, `key_inequality`
+   - Used `star_mul_le_algebraMap_norm_sq` + `star_left_conjugate_le_conjugate`
 
 2. **Documented Learnings**
-   - Added "Tight Cauchy-Schwarz: Optimal μ Selection" to state-and-positivity.md
-   - Key insight: μ = -c/d (not -conj(c)/d) produces real cross-terms
-   - Identified Lean challenges: star_div', field_simp recursion limits
+   - Added "State Monotonicity via Spectral Ordering" to state-and-positivity.md
 
 ---
 
 ## Current State
 
 - **Build status:** Passing (with 1 sorry)
-- **Sorry count:** 2 total
+- **Sorry count:** 1 total
   - State/CauchySchwarz.lean:137 - tight C-S case φ(b*b).re > 0 (af-tests-dwe)
-  - Representation/Bounded.lean:77 - `gnsPreRep_norm_le` (af-tests-z9g, blocked by dwe)
 
 ---
 
@@ -35,20 +33,17 @@
 | P2: NullSpace | 3 | 3 | 0 | 0 | **100%** |
 | P3: PreHilbert | 3 | 3 | 0 | 0 | **100%** |
 | P4: HilbertSpace | 2 | 2 | 0 | 0 | **100%** |
-| P5: Representation | 4 | 2 | 1 | 1 | 62.5% |
+| P5: Representation | 4 | 3 | 0 | 1 | **75%** |
 | P6: Main | 3 | 0 | 0 | 3 | 0% |
-| **TOTAL** | **18** | **12** | **2** | **4** | **72%** |
+| **TOTAL** | **18** | **13** | **1** | **4** | **76%** |
 
 ---
 
-## P1 Blockers (Ready to Work)
+## Remaining Sorries
 
 | Issue | File | Notes |
 |-------|------|-------|
 | af-tests-dwe | CauchySchwarz.lean:137 | Tight C-S (complex μ optimization) |
-
-**Blocked:**
-- af-tests-z9g (blocked by dwe)
 
 ---
 
@@ -62,8 +57,8 @@
 
 ## Files Modified This Session
 
-- Modified: `AfTests/GNS/State/CauchySchwarz.lean` (156 → 158 LOC, case 1 proven)
-- Updated: `docs/GNS/learnings/state-and-positivity.md` (137 → 174 LOC)
+- Modified: `AfTests/GNS/Representation/Bounded.lean` (79 → 114 LOC, sorry eliminated)
+- Updated: `docs/GNS/learnings/state-and-positivity.md` (174 → 193 LOC)
 - Updated: `HANDOFF.md`
 
 ---
@@ -76,7 +71,7 @@
   - `star_div'` doesn't exist, use `star_div` or `star_neg` + manual div
   - `field_simp` hits recursion limits with complex expressions
   - May need helper lemmas to break up the algebra
-- Consider: extract `complex_cross_term_eq` lemma showing μ*conj(c) + conj(μ)*c = -2|c|²/d
+- Consider: extract `complex_cross_term_eq` lemma
 
 ---
 
