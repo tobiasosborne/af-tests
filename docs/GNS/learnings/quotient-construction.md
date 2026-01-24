@@ -58,3 +58,30 @@ rw [← sub_eq_zero, h1, h_zero]  -- where h_zero : φ (x - y) = 0
 
 **Lesson:** The left coset relation uses `-a + b ∈ p`, not `a - b ∈ p`. Always
 check the exact form of quotient relations before using them.
+
+---
+
+## Scalar Multiplication with StarAlgHom
+
+**Discovery:** Proving `π(c • a) = c • π(a)` for a `StarAlgHom π : A →⋆ₐ[ℂ] B`
+requires going through the algebra map, not `map_smul` directly.
+
+**Problem:** `map_smul` on `StarAlgHom` doesn't unify directly with the goal
+`π(c • a) = c • π(a)` because the smul operations are different types.
+
+**Resolution:** Use the algebra structure:
+```lean
+-- c • a = (algebraMap ℂ A c) * a in any ℂ-algebra
+rw [Algebra.smul_def, _root_.map_mul, ContinuousLinearMap.mul_apply]
+-- π(algebraMap ℂ A c) = algebraMap ℂ B c by algebra hom property
+rw [AlgHomClass.commutes]
+-- algebraMap ℂ B c = c • 1, then simplify application
+simp only [Algebra.algebraMap_eq_smul_one, ContinuousLinearMap.smul_apply,
+  ContinuousLinearMap.one_apply]
+```
+
+**Key insight:** In ℂ-algebras, `c • a = (algebraMap ℂ A c) * a` by `Algebra.smul_def`.
+The algebra homomorphism property `AlgHomClass.commutes` then gives us what we need.
+
+**Lesson:** When `map_smul` doesn't work for algebra homs, decompose the scalar
+multiplication via `Algebra.smul_def` and use multiplicativity + `AlgHomClass.commutes`.

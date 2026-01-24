@@ -120,4 +120,57 @@ theorem gnsIntertwinerQuotient_cyclic
   rw [_root_.map_one]
   rfl
 
+/-! ### Linearity of the intertwiner -/
+
+/-- U₀ preserves addition: U₀(x + y) = U₀(x) + U₀(y).
+    Proof: [a] + [b] = [a + b], so U₀([a] + [b]) = π(a + b)ξ = π(a)ξ + π(b)ξ. -/
+theorem gnsIntertwinerQuotient_add
+    (hξ_state : ∀ a : A, @inner ℂ H _ ξ (π a ξ) = φ a)
+    (x y : φ.gnsQuotient) :
+    gnsIntertwinerQuotientFun φ π ξ hξ_state (x + y) =
+    gnsIntertwinerQuotientFun φ π ξ hξ_state x +
+    gnsIntertwinerQuotientFun φ π ξ hξ_state y := by
+  -- Use quotient induction on x and y
+  obtain ⟨a, rfl⟩ := Submodule.Quotient.mk_surjective φ.gnsNullIdeal x
+  obtain ⟨b, rfl⟩ := Submodule.Quotient.mk_surjective φ.gnsNullIdeal y
+  -- [a] + [b] = [a + b] by Submodule.Quotient.mk_add
+  rw [← Submodule.Quotient.mk_add]
+  -- U₀([a + b]) = π(a + b)ξ, U₀([a]) = π(a)ξ, U₀([b]) = π(b)ξ (by definition)
+  -- π(a + b)ξ = π(a)ξ + π(b)ξ by additivity of π
+  change π (a + b) ξ = π a ξ + π b ξ
+  rw [_root_.map_add, ContinuousLinearMap.add_apply]
+
+/-- U₀ preserves scalar multiplication: U₀(c • x) = c • U₀(x).
+    Proof: c • [a] = [c • a], so U₀(c • [a]) = π(c • a)ξ = c • π(a)ξ.
+    Uses that π : A →⋆ₐ[ℂ] (H →L[ℂ] H) is a ℂ-algebra hom. -/
+theorem gnsIntertwinerQuotient_smul
+    (hξ_state : ∀ a : A, @inner ℂ H _ ξ (π a ξ) = φ a)
+    (c : ℂ) (x : φ.gnsQuotient) :
+    gnsIntertwinerQuotientFun φ π ξ hξ_state (c • x) =
+    c • gnsIntertwinerQuotientFun φ π ξ hξ_state x := by
+  -- Use quotient induction on x
+  obtain ⟨a, rfl⟩ := Submodule.Quotient.mk_surjective φ.gnsNullIdeal x
+  -- c • [a] = [c • a] by Submodule.Quotient.mk_smul
+  rw [← Submodule.Quotient.mk_smul]
+  -- U₀([c • a]) = π(c • a)ξ, and π(c • a) = c • π(a) since π is a ℂ-algebra hom
+  change π (c • a) ξ = c • π a ξ
+  -- c • a = (algebraMap ℂ A c) * a in any ℂ-algebra
+  rw [Algebra.smul_def, _root_.map_mul, ContinuousLinearMap.mul_apply]
+  -- π(algebraMap ℂ A c) = algebraMap ℂ (H →L[ℂ] H) c = c • 1
+  rw [AlgHomClass.commutes]
+  -- (c • 1) applied to π(a)ξ gives c • π(a)ξ
+  simp only [Algebra.algebraMap_eq_smul_one, ContinuousLinearMap.smul_apply,
+    ContinuousLinearMap.one_apply]
+
+/-- U₀ maps zero to zero: U₀(0) = 0.
+    Proof: 0 = [0] in the quotient, so U₀(0) = π(0)ξ = 0. -/
+theorem gnsIntertwinerQuotient_zero
+    (hξ_state : ∀ a : A, @inner ℂ H _ ξ (π a ξ) = φ a) :
+    gnsIntertwinerQuotientFun φ π ξ hξ_state 0 = 0 := by
+  -- 0 in the quotient is mk 0
+  change gnsIntertwinerQuotientFun φ π ξ hξ_state (Submodule.Quotient.mk 0) = 0
+  -- U₀([0]) = π(0)ξ = 0
+  change π 0 ξ = 0
+  rw [_root_.map_zero, ContinuousLinearMap.zero_apply]
+
 end State
