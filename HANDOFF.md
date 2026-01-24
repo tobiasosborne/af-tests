@@ -1,11 +1,14 @@
 # Handoff: 2026-01-24
 
 ## Completed This Session
-- **AC-P4.2 COMPLETE**: Proved `stateSet_isClosed` in Compactness.lean
-  - Added `ofFunction`: constructs MPositiveState from function satisfying conditions
-  - Added `stateConditions_subset_range`: inverse direction
-  - Added `range_eq_stateConditions`: characterizes range as stateConditions
-  - `stateSet_isClosed` now follows from closed = stateConditions
+- **AC-P5.1 COMPLETE**: Created `StateSeminorm.lean` (89 LOC, 0 sorries)
+  - `MPositiveState.instNonempty`: Nonempty instance for states
+  - `bddAbove_abs_range`: Bounded above lemma for supremum
+  - `stateSeminorm`: Definition ||a||_M = sup{|φ(a)| : φ ∈ S_M}
+  - `stateSeminorm_le`: ||a||_M ≤ √Nₐ
+  - `stateSeminorm_nonneg`: 0 ≤ ||a||_M
+  - `MPositiveState.apply_abs_le_seminorm`: |φ a| ≤ ||a||_M
+  - `stateSeminorm_add`: Triangle inequality
 
 ---
 
@@ -45,9 +48,19 @@
 
 ---
 
+### Phase 5: IN PROGRESS
+
+| File | Status | LOC | Sorries |
+|------|--------|-----|---------|
+| Seminorm/StateSeminorm.lean | ✅ | 89 | 0 |
+| Seminorm/SeminormProps.lean | Not started | - | - |
+| Seminorm/Closure.lean | Not started | - | - |
+
+---
+
 ## Next Steps
 
-1. **Phase 5**: Seminorm (StateSeminorm.lean, SeminormProps.lean, Closure.lean)
+1. **Phase 5**: Continue Seminorm (SeminormProps.lean for smul homogeneity, Closure.lean)
 2. **Phase 6**: Dual characterization (Forward, SpanIntersection, Riesz extension)
 3. **Phase 7**: Representations (Constrained, VectorState, GNSConstrained)
 4. **Phase 8**: Main theorem
@@ -57,13 +70,19 @@
 ## Key Learnings Reference
 
 See `docs/ArchimedeanClosure/LEARNINGS.md` for index, including:
-- `LEARNINGS_misc.md`: **UPDATED** - `ofFunction` pattern for constructing MPositiveState
+- `LEARNINGS_misc.md`: `ofFunction` pattern, closedness proofs
+- `LEARNINGS_states.md`: Cauchy-Schwarz, Archimedean bounds
+
+### New: ciSup for Seminorm
+- Use `ciSup_le` (requires `Nonempty` instance)
+- Use `le_ciSup` with `BddAbove` for lower bounds
+- Use `ciSup_mono` for pointwise inequalities
+- Use `ciSup_add_le_ciSup_add_ciSup` for triangle inequality
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/Topology/Compactness.lean` (sorries: 1→0)
-- `docs/ArchimedeanClosure/LEARNINGS_misc.md` (updated)
+- `AfTests/ArchimedeanClosure/Seminorm/StateSeminorm.lean` (NEW, 89 LOC, 0 sorries)
 - `HANDOFF.md` (this file)
 
