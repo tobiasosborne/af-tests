@@ -109,3 +109,23 @@ After moving `map_star` to axiom, remaining useful lemmas:
 - `apply_decomposition`: `φ(a) = (1/2) * φ(a + star a)`
 
 These are trivial consequences of `map_star` but convenient to have named.
+
+---
+
+## StarAlgHom: map_star' vs map_star
+
+### Observation
+`StarAlgHom` uses `map_star'` (with prime), not `map_star`, to access the star-preserving property.
+
+```lean
+-- WRONG: π.toStarAlgHom.map_star a
+-- RIGHT: π.toStarAlgHom.map_star' a
+```
+
+This is because `map_star` would conflict with the `StarHomClass` instance method.
+The prime convention avoids namespace collision.
+
+### Import
+```lean
+import Mathlib.Algebra.Star.StarAlgHom
+```

@@ -1,11 +1,12 @@
 # Handoff: 2026-01-25
 
 ## Completed This Session
-- **Proved `exists_MPositiveState_negative`** (af-tests-nlmz):
-  - Created `Dual/Normalization.lean` (163 LOC, 0 sorries)
-  - Key: φ(1) > 0 via Cauchy-Schwarz + Archimedean contradiction
-  - Defined `normalizedMPositiveState`: normalize φ by φ(1) to get MPositiveState
-  - Main result: For A ∉ M̄, ∃ MPositiveState φ with φ(A) < 0
+- **Created `Representation/Constrained.lean`** (af-tests-yeda):
+  - Defined `ConstrainedStarRep n` structure (87 LOC, 0 sorries)
+  - Bundles: Hilbert space H, *-algebra homomorphism π, generator positivity constraint
+  - Key property: `π(gⱼ).IsPositive` for each generator j
+  - Added `CoeFun` instance for `π(a)` notation
+  - Basic lemmas: `apply_one`, `apply_mul`, `apply_star`
 
 ---
 
@@ -63,51 +64,58 @@
 | Dual/SeparatingFunctional.lean | ✅ | 114 | 0 | |
 | Dual/RieszApplication.lean | ✅ | 98 | 0 | |
 | Dual/ComplexExtension.lean | ✅ | 137 | 0 | |
-| Dual/Normalization.lean | ✅ | 163 | 0 | **Completed this session!** |
+| Dual/Normalization.lean | ✅ | 163 | 0 | |
+
+---
+
+### Phase 7: IN PROGRESS
+
+| File | Status | LOC | Sorries | Notes |
+|------|--------|-----|---------|-------|
+| Representation/Constrained.lean | ✅ | 87 | 0 | **Completed this session!** |
+| Representation/VectorState.lean | Not Started | - | - | Vector states from reps |
+| Representation/GNSConstrained.lean | Not Started | - | - | GNS gives constrained rep |
 
 ---
 
 ## Key Discovery This Session
 
-### Proving φ(1) > 0
+### StarAlgHom.map_star' naming
 
-Given symmetric φ with φ ≥ 0 on M and φ(A) < 0, we need φ(1) > 0 for normalization.
-
-**Cauchy-Schwarz for general functional:**
+The star-preserving property of `StarAlgHom` is accessed via `map_star'` (with prime):
 ```lean
-φ(a)² ≤ φ(star a * a) * φ(1)
+-- WRONG: π.toStarAlgHom.map_star a
+-- RIGHT: π.toStarAlgHom.map_star' a
 ```
 
-**φ(1) = 0 case:** φ(a)² ≤ 0 for all a ⟹ φ = 0 ⟹ contradicts φ(A) < 0
-
-**φ(1) < 0 case:** Archimedean gives N·1 - star(A)*A ∈ M. Combined with φ(1) < 0
-forces φ(star A * A) = 0. Then Cauchy-Schwarz gives φ(A) = 0. Contradiction.
+This avoids conflict with `StarHomClass` method names.
 
 ---
 
 ## Next Steps
 
-1. **AC-P8**: Main/DualCharacterization.lean - Dual characterization theorem
-2. **AC-P7**: Representations (constrained reps, GNS gives constrained)
-3. **AC-P8.2**: Main/Theorem.lean - Main theorem
+1. **AC-P7.2**: Vector states from constrained reps are M-positive (af-tests-rxmt)
+2. **AC-P7.3**: GNS of M-positive state gives constrained rep (af-tests-d7zg)
+3. **AC-P8.1**: Dual characterization theorem (af-tests-n6g3)
+4. **AC-P8.2**: Main theorem
 
 ---
 
 ## Key Learnings Reference
 
 See `docs/ArchimedeanClosure/LEARNINGS.md` for full index:
-- `LEARNINGS_dual.md`: Span intersection, separating functional, symmetrization, **normalization** ✓
-- `LEARNINGS_extension.md`: ProperCone approach ✓
+- `LEARNINGS_dual.md`: Span intersection, separating functional, symmetrization, normalization
+- `LEARNINGS_extension.md`: ProperCone approach
 - `LEARNINGS_topology.md`: Closedness proofs, Tychonoff, seminorm closure
-- `LEARNINGS_misc.md`: Section scoping, FunLike, imports
+- `LEARNINGS_misc.md`: Section scoping, FunLike, imports, **map_star'** ✓
 - `LEARNINGS_states.md`: Cauchy-Schwarz, Archimedean bounds
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/Dual/Normalization.lean` (new, 163 LOC, 0 sorries)
-- `docs/ArchimedeanClosure/LEARNINGS_dual.md` (updated with normalization section)
+- `AfTests/ArchimedeanClosure/Representation/Constrained.lean` (new, 87 LOC, 0 sorries)
+- `docs/ArchimedeanClosure/LEARNINGS_misc.md` (added map_star' note)
 - `HANDOFF.md` (this file)
 
 ---
