@@ -173,6 +173,13 @@ So the sum is φ(a*a) - 2*|c|²/d + |c|²/d = φ(a*a) - |c|²/d.
 - Case 1 proven directly using weak C-S + positivity of normSq
 - Case 2 requires more careful algebraic setup, possibly extracting helper lemmas
 
+**Session 2026-01-24 Blockers:**
+1. **Term structure:** After `simp [star_add, add_mul, ...]`, smul is nested not flat; `smul_smul` rewrite fails
+2. **simp recursion:** Complex division μ = -c/d causes max recursion depth
+3. **Rewrite mismatch:** `Complex.mul_re` expands to `μ.re * c.re - μ.im * c.im`, blocking complex-level rewrites
+
+**Proposed fix:** Helper lemmas working in ℝ, avoiding complex division in simp
+
 ---
 
 ## State Monotonicity via Spectral Ordering (Completed)
