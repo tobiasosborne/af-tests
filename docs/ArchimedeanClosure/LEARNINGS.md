@@ -28,3 +28,32 @@ the algebra level is what matters. The conjugation issue affects how we define s
 - `FreeAlgebra.star_ι` : `star (ι x) = ι x`
 - `FreeAlgebra.star_algebraMap` : `star (algebraMap r) = algebraMap r`
 - Import: `Mathlib.Algebra.Star.Free`
+
+---
+
+## 2026-01-24: QuadraticModule Definition Strategy
+
+### Challenge
+Defining the quadratic module M requires nonnegative ℝ-scaling, but `FreeAlgebra ℂ (Fin n)`
+does not have a natural `SMul ℝ` instance. The ℝ-module structure would require
+`RestrictScalars` or custom setup.
+
+### Solution
+Use ℂ-scaling with real coefficients: `(c : ℂ) • m` where `c : ℝ`.
+Since nonnegative reals embed into ℂ, this captures exactly the cone structure we need.
+
+### Implementation
+Defined `QuadraticModuleSet` as an `inductive` set with three constructors:
+1. `generator_mem` - base generators (squares + generator-weighted squares)
+2. `add_mem` - closure under addition
+3. `smul_mem` - closure under `(c : ℂ) • _` for `0 ≤ c : ℝ`
+
+This avoids the complexity of `ConvexCone` machinery while capturing the exact set we need.
+
+### Alternative Considered
+Could use `ConvexCone.hull ℝ (generators)` but this requires:
+- Defining ℝ-module structure via `RestrictScalars`
+- More complex imports and instance resolution
+- Less direct control over the carrier
+
+The inductive definition is simpler and gives us direct membership proofs.
