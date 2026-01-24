@@ -440,3 +440,39 @@ lemmas like `Real.sq_sqrt` and `Real.sqrt_nonneg`.
 
 ### Files Created
 - `AfTests/ArchimedeanClosure/Boundedness/ArchimedeanBound.lean` (73 LOC, 0 sorries)
+
+---
+
+## 2026-01-24: AC-P3.3 Structure Done - Generating Cone Lemma
+
+### Status
+Structure complete with 1 sorry for the algebraic identity.
+
+### The Identity Challenge
+The lemma `selfAdjoint_decomp` states: x = ¼(1+x)² - ¼(1-x)² for self-adjoint x.
+
+Mathematically trivial:
+- (1+x)² = 1 + 2x + x²
+- (1-x)² = 1 - 2x + x²
+- Difference = 4x, so ¼ of difference = x
+
+### Why It's Hard in Lean
+The issue is scalar multiplication type inference:
+1. `1/4` in statement normalizes to `(4 : ℝ)⁻¹` after simp
+2. `norm_num` doesn't recognize `4⁻¹ + 4⁻¹ + 4⁻¹ + 4⁻¹ = 1` without explicit type
+3. `add_smul` has type inference issues when used in calc chains
+4. Non-commutative algebra means `ring` tactic doesn't work
+
+Attempted approaches:
+- Direct calc chain with explicit `(4 : ℝ)⁻¹` annotations - type mismatch
+- Using `set c := ...` to name the constant - still inference issues
+- Working with `1/4` directly - division normalization causes problems
+
+### Workaround
+Left `sorry` on `selfAdjoint_decomp`. All downstream theorems use it correctly:
+- `decomp_terms_in_M` - proven (star a * a ∈ M for any a)
+- `decomp_term_selfAdjoint_add/sub` - proven
+- `quadraticModule_selfAdjoint_generating` - uses decomp correctly
+
+### Files Created
+- `AfTests/ArchimedeanClosure/Boundedness/GeneratingCone.lean` (112 LOC, 1 sorry)
