@@ -1,16 +1,19 @@
 # Handoff: GNS Construction Progress
 
 **Date:** 2026-01-24
-**Session Focus:** Fix stale documentation line numbers
+**Session Focus:** NullSpace/Basic.lean implementation
 
 ---
 
 ## Completed This Session
 
 1. **Fixed P2: Stale line numbers in HANDOFF** (af-tests-pzj)
-   - Updated sorry locations to match actual line numbers:
-     - Positivity.lean: 57 → 67
-     - CauchySchwarz.lean: 48 → 56, 62 → 71
+   - Updated sorry locations to match actual line numbers
+
+2. **Implemented P2: NullSpace/Basic.lean** (af-tests-aqa)
+   - Created `State.gnsNullSpace : AddSubgroup A` (77 LOC, no sorries)
+   - Defined carrier as `{a : A | φ (star a * a) = 0}`
+   - Proved: zero_mem, add_mem (using Cauchy-Schwarz), neg_mem, smul_mem
 
 ---
 
@@ -33,10 +36,11 @@
 | `af-tests-dor` | State/Positivity.lean | **Structure Done** | 1 sorry (af-tests-uo6) |
 | `af-tests-s50` | State/CauchySchwarz.lean | **Structure Done** | 2 sorries (03g, bgs) |
 
-### Phase 2: Null Space (Next)
+### Phase 2: Null Space
 | Issue ID | File | Status | Notes |
 |----------|------|--------|-------|
-| `af-tests-aqa` | NullSpace/Basic.lean | **Ready** | Unblocked |
+| `af-tests-aqa` | NullSpace/Basic.lean | **Proven** | No sorries |
+| `af-tests-y0u` | NullSpace/LeftIdeal.lean | **Ready** | Blocked was aqa |
 
 ### Audit Issues
 | Issue ID | Priority | Status |
@@ -52,14 +56,15 @@
 
 ## Next Steps (Priority Order)
 
-1. **af-tests-aqa** (P2) - NullSpace/Basic.lean implementation
+1. **af-tests-y0u** (P2) - NullSpace/LeftIdeal.lean (now unblocked)
 2. Sorry elimination (P3): uo6, 03g, bgs
 
 ---
 
 ## Files Modified This Session
 
-- Updated: `HANDOFF.md` (fixed stale line numbers, marked pzj closed)
+- Updated: `HANDOFF.md` (fixed stale line numbers, added NullSpace status)
+- Created: `AfTests/GNS/NullSpace/Basic.lean` (77 LOC, no sorries)
 
 ---
 
@@ -67,5 +72,5 @@
 
 ```bash
 bd ready
-bd show af-tests-aqa  # NullSpace implementation
+bd show af-tests-y0u  # NullSpace/LeftIdeal.lean (now unblocked)
 ```
