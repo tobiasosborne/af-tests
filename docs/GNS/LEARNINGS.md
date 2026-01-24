@@ -70,6 +70,40 @@ expansions involving scalar multiplication in C*-algebras.
 
 ---
 
+## 2026-01-24: Project Audit - Documentation Drift Detection
+
+**Discovery:** A systematic audit of the GNS subproject revealed 8 instances of
+drift between documentation and implementation.
+
+**Key Findings:**
+
+1. **Naming mismatch** - `01_states.md` documents `State.cauchy_schwarz` but actual
+   theorem is `State.inner_mul_le_norm_mul_norm`
+
+2. **Misplaced theorem** - `null_space_left_ideal` is in CauchySchwarz.lean but:
+   - Proof requires "boundedness", not Cauchy-Schwarz
+   - Separate beads issue exists for NullSpace/LeftIdeal.lean
+   - Creates unclear responsibility boundaries
+
+3. **Status terminology** - "DONE" vs "Ready" undefined. Phase 1 marked "DONE"
+   but has 4 sorries. Is "DONE" = structure complete, or fully proven?
+
+4. **LOC target drift** - CauchySchwarz planned 50-70 LOC, actual 95 LOC
+
+5. **Stale line numbers** - HANDOFF.md line numbers off by 1
+
+**Resolution:** Created 9 beads issues to track all findings:
+- P0: af-tests-7kl (naming)
+- P1: af-tests-op0 (misplaced theorem), af-tests-aea (status semantics)
+- P2: af-tests-9u6 (LOC target), af-tests-pzj (line numbers)
+- P3: af-tests-uo6, af-tests-03g, af-tests-bgs, af-tests-wmn (sorry elimination)
+
+**Lesson:** Regular audits catch drift before it compounds. Documentation that
+isn't systematically verified against implementation will diverge. Consider
+automated checks (e.g., grep for documented names in code).
+
+---
+
 ## Template for New Entries
 
 ```markdown
