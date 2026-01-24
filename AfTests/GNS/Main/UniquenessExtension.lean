@@ -172,4 +172,26 @@ theorem gnsIntertwiner_denseRange
     DenseRange (gnsIntertwiner φ π ξ hξ_state) :=
   hξ_cyclic.mono (gnsIntertwiner_orbit_subset_range φ π ξ hξ_state)
 
+/-! ### Surjectivity (GNS-U7) -/
+
+/-- An isometry with dense range from a complete space into a complete T0 space is surjective.
+    The range is complete (image of complete under uniform inducing), hence closed.
+    Dense + closed = whole space. -/
+theorem Isometry.surjective_of_completeSpace_denseRange
+    {X Y : Type*} [MetricSpace X] [MetricSpace Y] [CompleteSpace X] [CompleteSpace Y]
+    {f : X → Y} (hf : Isometry f) (hd : DenseRange f) : Function.Surjective f :=
+  Set.range_eq_univ.mp <| hf.isUniformInducing.isComplete_range.isClosed.closure_eq ▸
+    dense_iff_closure_eq.mp hd
+
+/-- The intertwiner U is surjective.
+    Uses: H_φ is complete (Hilbert completion), H is complete (hypothesis),
+    U is isometry (GNS-U5), U has dense range (GNS-U6). -/
+theorem gnsIntertwiner_surjective
+    (hξ_state : ∀ a : A, @inner ℂ H _ ξ (π a ξ) = φ a)
+    (hξ_cyclic : DenseRange (fun a => π a ξ)) :
+    Function.Surjective (gnsIntertwiner φ π ξ hξ_state) :=
+  Isometry.surjective_of_completeSpace_denseRange
+    (gnsIntertwinerFun_isometry φ π ξ hξ_state)
+    (gnsIntertwiner_denseRange φ π ξ hξ_state hξ_cyclic)
+
 end State

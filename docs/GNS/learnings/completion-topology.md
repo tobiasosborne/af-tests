@@ -135,3 +135,33 @@ For linear maps, `f 0 = 0` is automatic via `LinearMap.map_zero` or `ContinuousL
 1. Get `Isometry f` from `LinearIsometry.isometry` or `Isometry.completion_extension`
 2. Prove `f 0 = 0` (trivial for linear maps)
 3. Apply `Isometry.norm_map_of_map_zero` to get `‖f x‖ = ‖x‖`
+
+---
+
+## Isometry Surjectivity from Dense Range
+
+**Discovery:** An isometry from a complete space with dense range is surjective. This is
+a general topological fact that doesn't seem to be in Mathlib directly.
+
+**Problem:** For GNS uniqueness, we need `gnsIntertwiner : H_φ → H` to be surjective.
+We have that it's an isometry with dense range.
+
+**Resolution:** The proof chain uses these Mathlib lemmas:
+1. `Isometry.isUniformInducing` - isometry is uniform inducing
+2. `IsUniformInducing.isComplete_range [CompleteSpace α]` - range of uniform inducing from complete space is complete
+3. `IsComplete.isClosed [T0Space]` - complete sets are closed in T0 spaces
+4. `dense_iff_closure_eq` - dense means closure = univ
+5. `IsClosed.closure_eq` - closed set equals its closure
+6. `Set.range_eq_univ` - range = univ iff surjective
+
+Combined proof (compact form):
+```lean
+theorem Isometry.surjective_of_completeSpace_denseRange
+    {X Y : Type*} [MetricSpace X] [MetricSpace Y] [CompleteSpace X] [CompleteSpace Y]
+    {f : X → Y} (hf : Isometry f) (hd : DenseRange f) : Function.Surjective f :=
+  Set.range_eq_univ.mp <| hf.isUniformInducing.isComplete_range.isClosed.closure_eq ▸
+    dense_iff_closure_eq.mp hd
+```
+
+**Lesson:** Isometry surjectivity follows from: complete source → complete range → closed range.
+Dense + closed = whole space. The key insight is that `IsUniformInducing` preserves completeness.
