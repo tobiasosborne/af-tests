@@ -141,4 +141,35 @@ noncomputable def gnsIntertwinerLinearIsometry
   toLinearMap := (gnsIntertwiner φ π ξ hξ_state).toLinearMap
   norm_map' := gnsIntertwiner_norm φ π ξ hξ_state
 
+/-! ### Dense range (GNS-U6) -/
+
+/-- The range of U contains the orbit {π(a)ξ : a ∈ A}.
+    Proof: U([a]) = π(a)ξ by definition, so π(a)ξ is in the range. -/
+theorem gnsIntertwiner_range_contains_orbit
+    (hξ_state : ∀ a : A, @inner ℂ H _ ξ (π a ξ) = φ a) (a : A) :
+    π a ξ ∈ Set.range (gnsIntertwiner φ π ξ hξ_state) := by
+  -- U([a]) = π(a)ξ, so π(a)ξ is in the range
+  use (Submodule.Quotient.mk (p := φ.gnsNullIdeal) a : φ.gnsHilbertSpace)
+  -- gnsIntertwiner applied to embedded quotient element
+  rw [gnsIntertwiner_coe]
+  -- By definition of gnsIntertwinerQuotientFun
+  rfl
+
+/-- The orbit {π(a)ξ : a ∈ A} is contained in the range of U. -/
+theorem gnsIntertwiner_orbit_subset_range
+    (hξ_state : ∀ a : A, @inner ℂ H _ ξ (π a ξ) = φ a) :
+    Set.range (fun a => π a ξ) ⊆ Set.range (gnsIntertwiner φ π ξ hξ_state) := by
+  intro y hy
+  obtain ⟨a, rfl⟩ := hy
+  exact gnsIntertwiner_range_contains_orbit φ π ξ hξ_state a
+
+/-- The range of U is dense in H.
+    Proof: The orbit {π(a)ξ : a ∈ A} is dense (by cyclicity) and contained in range(U).
+    By Dense.mono, range(U) is also dense. -/
+theorem gnsIntertwiner_denseRange
+    (hξ_state : ∀ a : A, @inner ℂ H _ ξ (π a ξ) = φ a)
+    (hξ_cyclic : DenseRange (fun a => π a ξ)) :
+    DenseRange (gnsIntertwiner φ π ξ hξ_state) :=
+  hξ_cyclic.mono (gnsIntertwiner_orbit_subset_range φ π ξ hξ_state)
+
 end State
