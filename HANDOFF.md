@@ -1,30 +1,30 @@
 # Handoff: GNS Construction Progress
 
 **Date:** 2026-01-24
-**Session Focus:** Fixed both LOC violations (af-tests-zdo, af-tests-1zf)
+**Session Focus:** Implemented Representation/Star.lean - *-representation property
 
 ---
 
 ## Completed This Session
 
-1. **Split CauchySchwarz.lean** (223 → 119 + 127 lines)
-   - `CauchySchwarz.lean` (119 lines): Weak C-S with helper lemmas
-   - `CauchySchwarzTight.lean` (127 lines): Tight C-S + consequences
-   - Updated imports in `NullSpace/Basic.lean` and `PreHilbert/InnerProduct.lean`
+1. **Created `AfTests/GNS/Representation/Star.lean`** (111 lines)
+   - `gnsRep_star` - Proves π(a*) = π(a).adjoint
+   - `gnsStarAlgHom` - Bundles GNS representation as a *-algebra homomorphism
+   - Helper lemmas: `gnsRep_zero`, `gnsRep_smul`
 
-2. **Split state-and-positivity.md** (234 → 87 + 135 lines)
-   - `state-and-positivity.md` (87 lines): Core state/positivity learnings
-   - `cauchy-schwarz-proof.md` (135 lines): Cauchy-Schwarz specific learnings
-   - Updated LEARNINGS.md index
+2. **Key proof technique:** Used `ContinuousLinearMap.eq_adjoint_iff` combined with
+   completion induction to prove the adjoint property by checking on dense elements.
 
-3. **Build passes, zero sorries, zero LOC violations**
+3. **Updated documentation:**
+   - `docs/GNS/phases/05_representation.md` - Updated file statuses
+   - `docs/GNS/learnings/inner-product-conventions.md` - Added star property proof pattern
 
 ---
 
 ## Current State
 
 - **Build status:** Passing (zero sorries!)
-- **Sorry count:** 0 total
+- **Sorry count:** 0 total in GNS
 - **LOC violations:** 0
 
 ---
@@ -37,35 +37,41 @@
 | P2: NullSpace | 3 | 3 | 0 | 0 | **100%** |
 | P3: PreHilbert | 3 | 3 | 0 | 0 | **100%** |
 | P4: HilbertSpace | 2 | 2 | 0 | 0 | **100%** |
-| P5: Representation | 4 | 3 | 0 | 1 | **75%** |
+| P5: Representation | 4 | 4 | 0 | 0 | **100%** |
 | P6: Main | 3 | 0 | 0 | 3 | 0% |
-| **TOTAL** | **19** | **15** | **0** | **4** | **79%** |
+| **TOTAL** | **19** | **16** | **0** | **3** | **84%** |
 
 ---
 
 ## Remaining Sorries
 
-None! All sorries eliminated.
+None! All sorries eliminated in Phases 1-5.
 
 ---
 
 ## Next Steps (Priority Order)
 
-1. **Phase 5** - Representation/Star.lean (af-tests-8r4)
-2. **Phase 6** - Main theorems (after P5 complete)
+1. **Phase 6** - Main theorems:
+   - `Main/VectorState.lean` - State recovery theorem φ(a) = ⟨Ω, π(a)Ω⟩
+   - `Main/GNS.lean` - Main GNS theorem bundle
+   - `Main/Universal.lean` - Uniqueness/universal property
 
 ---
 
 ## Files Modified This Session
 
-- Refactored: `AfTests/GNS/State/CauchySchwarz.lean` (223 → 119 lines)
-- Created: `AfTests/GNS/State/CauchySchwarzTight.lean` (127 lines)
-- Updated: `AfTests/GNS/NullSpace/Basic.lean` (import change)
-- Updated: `AfTests/GNS/PreHilbert/InnerProduct.lean` (import change)
-- Refactored: `docs/GNS/learnings/state-and-positivity.md` (234 → 87 lines)
-- Created: `docs/GNS/learnings/cauchy-schwarz-proof.md` (135 lines)
-- Updated: `docs/GNS/LEARNINGS.md` (index update)
+- Created: `AfTests/GNS/Representation/Star.lean` (111 lines)
+- Updated: `docs/GNS/phases/05_representation.md`
+- Updated: `docs/GNS/learnings/inner-product-conventions.md`
 - Updated: `HANDOFF.md`
+
+---
+
+## Technical Learning
+
+**Inner Product Argument Swap:** When using `ContinuousLinearMap.eq_adjoint_iff`, the goal
+involves mathlib's inner product `⟪x, y⟫`. Due to `inner_eq_gnsInner_swap`, this equals
+`gnsInner y x` (arguments swapped). The pre-representation lemma must account for this swap.
 
 ---
 
@@ -73,5 +79,5 @@ None! All sorries eliminated.
 
 ```bash
 bd ready                 # See available work
-bd show af-tests-8r4     # Representation/Star.lean
+bd show <id>             # Review next issue
 ```

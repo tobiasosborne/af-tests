@@ -6,12 +6,12 @@ Define π_φ(a) : H_φ → H_φ where π_φ(a)[b] = [ab].
 
 ## Files
 
-| File | LOC Target | Status | Key Content |
-|------|------------|--------|-------------|
-| `Representation/PreRep.lean` | 60-80 | Not Started | π(a)[b] = [ab] on quotient |
-| `Representation/Bounded.lean` | 60-80 | Not Started | ‖π(a)‖ ≤ ‖a‖ |
-| `Representation/Extension.lean` | 60-80 | Not Started | Extend to completion |
-| `Representation/Star.lean` | 70-90 | Not Started | π(a*) = π(a)* |
+| File | LOC Target | Actual LOC | Status | Key Content |
+|------|------------|------------|--------|-------------|
+| `Representation/PreRep.lean` | 60-80 | 96 | **Proven** | π(a)[b] = [ab] on quotient |
+| `Representation/Bounded.lean` | 60-80 | 115 | **Proven** | ‖π(a)‖ ≤ ‖a‖ |
+| `Representation/Extension.lean` | 60-80 | 160 | **Proven** | Extend to completion |
+| `Representation/Star.lean` | 70-90 | 111 | **Proven** | π(a*) = π(a)* |
 
 ## Definitions
 

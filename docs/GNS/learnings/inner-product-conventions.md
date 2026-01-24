@@ -80,3 +80,32 @@ The third step is non-trivial because:
 
 **Lesson:** Mathlib's spectral order infrastructure is powerful but states to ℂ
 don't fit the `OrderHomClass` pattern directly. Need custom positivity lemmas.
+
+---
+
+## Proving Star Property via Adjoint Characterization
+
+**Discovery:** To prove `π(a*) = π(a).adjoint`, use `ContinuousLinearMap.eq_adjoint_iff`.
+
+**Problem:** Need to show `⟪π(a*)x, y⟫ = ⟪x, π(a)y⟫` for all x, y in the Hilbert
+space completion. The inner product on completions is defined via density.
+
+**Resolution:**
+1. Use `ContinuousLinearMap.eq_adjoint_iff`: `A = B† ↔ ∀ x y, ⟪Ax, y⟫ = ⟪x, By⟫`
+2. Apply `UniformSpace.Completion.induction_on₂` to reduce to dense quotient elements
+3. Use `UniformSpace.Completion.inner_coe` to compute inner products on embedded elements
+4. **Crucial:** Account for the argument swap from `inner_eq_gnsInner_swap`:
+   - mathlib's `⟪x, y⟫ = gnsInner y x` (arguments swapped!)
+   - So `⟪π(a*)[b], [c]⟫ = gnsInner [c] [a*b]`, not `gnsInner [a*b] [c]`
+
+**Key Lemma Pattern:**
+```lean
+theorem gnsPreRep_inner_star (a b c : A) :
+    φ.gnsInner (Submodule.Quotient.mk c) (φ.gnsPreRep (star a) (Submodule.Quotient.mk b)) =
+    φ.gnsInner (φ.gnsPreRep a (Submodule.Quotient.mk c)) (Submodule.Quotient.mk b) := by
+  simp only [gnsPreRep_mk, gnsInner_mk, star_mul, star_star, mul_assoc]
+```
+
+**Lesson:** When working with the mathlib inner product on completions, always track
+which convention is used. The `inner_eq_gnsInner_swap` lemma is essential for
+converting between the two conventions.
