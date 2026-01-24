@@ -1,14 +1,16 @@
 # Handoff: 2026-01-24
 
 ## Completed This Session
-- **Documented Riesz extension challenge**: Added "Deep Dive" section to LEARNINGS_dual.md
+- **Documented Riesz extension challenge**: Deep analysis of extension theorems
   - Why `riesz_extension` generating condition fails for 1-dim domain
   - Why `exists_extension_of_le_sublinear` gives wrong type of bound
   - Identified `ProperCone.hyperplane_separation_point` as solution
   - Outlined topology infrastructure needed
+- **Split LEARNINGS_dual.md** (closed af-tests-ap0d):
+  - `LEARNINGS_dual.md`: 136 LOC (span intersection, separating functional)
+  - `LEARNINGS_extension.md`: 124 LOC (deep dive on extension theorems)
 - **Created af-tests-lm26**: Topology infrastructure task for separation
 - **Updated RieszApplication.lean**: Clearer blocking comment with path forward
-- **Created af-tests-ap0d**: LEARNINGS_dual.md exceeds 200 LOC (P0)
 
 ---
 
@@ -102,7 +104,8 @@ See `LEARNINGS_dual.md` "Deep Dive" section for full analysis.
 ## Key Learnings Reference
 
 See `docs/ArchimedeanClosure/LEARNINGS.md` for full index:
-- `LEARNINGS_dual.md`: Riesz extension challenge, **ProperCone separation path** (NEW)
+- `LEARNINGS_dual.md`: Span intersection, separating functional
+- `LEARNINGS_extension.md`: **Why standard theorems don't apply, ProperCone path** (NEW)
 - `LEARNINGS_topology.md`: Closedness proofs, Tychonoff, seminorm closure
 - `LEARNINGS_misc.md`: Section scoping, FunLike, imports
 - `LEARNINGS_states.md`: Cauchy-Schwarz, Archimedean bounds
@@ -111,7 +114,9 @@ See `docs/ArchimedeanClosure/LEARNINGS.md` for full index:
 
 ## Files Modified This Session
 
-- `docs/ArchimedeanClosure/LEARNINGS_dual.md` (added "Deep Dive" section, now 259 LOC)
+- `docs/ArchimedeanClosure/LEARNINGS_dual.md` (refactored, 136 LOC)
+- `docs/ArchimedeanClosure/LEARNINGS_extension.md` (NEW, 124 LOC)
+- `docs/ArchimedeanClosure/LEARNINGS.md` (updated index)
 - `AfTests/ArchimedeanClosure/Dual/RieszApplication.lean` (updated comment)
 - `HANDOFF.md` (this file)
 
@@ -119,4 +124,4 @@ See `docs/ArchimedeanClosure/LEARNINGS.md` for full index:
 
 ## Known Issues
 
-- **[P0]** LEARNINGS_dual.md at 259 LOC (limit 200) - needs split
+- None currently

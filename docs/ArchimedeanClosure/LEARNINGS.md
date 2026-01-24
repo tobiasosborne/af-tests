@@ -12,6 +12,7 @@ This directory contains technical discoveries from the Archimedean Closure forma
 | [LEARNINGS_misc.md](LEARNINGS_misc.md) | Miscellaneous | Section scoping, FunLike, QuadraticModule |
 | [LEARNINGS_topology.md](LEARNINGS_topology.md) | Topology | Closedness, Tychonoff, seminorm closure |
 | [LEARNINGS_dual.md](LEARNINGS_dual.md) | Dual Characterization | Riesz extension, span intersection, Hahn-Banach |
+| [LEARNINGS_extension.md](LEARNINGS_extension.md) | Extension Theorems | Why standard theorems don't apply, ProperCone path |
 
 ## Quick Reference: Key Patterns
 
