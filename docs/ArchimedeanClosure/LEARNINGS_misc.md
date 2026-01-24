@@ -347,3 +347,37 @@ theorem positive_smul_not_in_M ... := by
     exact QuadraticModule.smul_mem (le_of_lt (inv_pos.mpr hc)) h_cA_in_M
   exact hA_not (quadraticModule_subset_closure h_A_in_M)
 ```
+
+---
+
+## LinearPMap.mkSpanSingleton Pattern (AC-P6.3)
+
+### Challenge
+Need to define a linear map on `Submodule.span ℝ {A}` for some nonzero A.
+
+### Solution
+Use `LinearPMap.mkSpanSingleton`:
+```lean
+import Mathlib.LinearAlgebra.LinearPMap
+
+noncomputable def myMap (hA : A ≠ 0) : Submodule.span ℝ {A} →ₗ[ℝ] ℝ :=
+  (LinearPMap.mkSpanSingleton (K := ℝ) A targetValue hA).toFun
+```
+
+### Key Lemmas
+- `LinearPMap.mkSpanSingleton_apply`: `f ⟨A, _⟩ = targetValue`
+- `Submodule.mem_span_singleton`: `x ∈ span{A} ↔ ∃ c, c • A = x`
+
+### Working with Submodule Subtypes
+Elements `⟨c • A, _⟩ : Submodule.span ℝ {A}` equal `c • ⟨A, _⟩`:
+```lean
+have h : (⟨c • A, Submodule.mem_span_singleton.mpr ⟨c, rfl⟩⟩ : Submodule.span ℝ {A}) =
+         c • ⟨A, Submodule.mem_span_singleton_self A⟩ := rfl
+rw [h, LinearMap.map_smul]
+-- Now: myMap (c • ⟨A, _⟩) = c • myMap ⟨A, _⟩ = c * targetValue
+```
+
+### Import
+```lean
+import Mathlib.LinearAlgebra.LinearPMap
+```

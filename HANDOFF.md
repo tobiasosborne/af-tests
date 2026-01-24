@@ -1,17 +1,13 @@
 # Handoff: 2026-01-24
 
 ## Completed This Session
-- **AC-P6.2 COMPLETE**: Created `Dual/SpanIntersection.lean` (104 LOC, 0 sorries)
-  - `positive_smul_not_in_M`: If A ∉ M̄ and c > 0, then c • A ∉ M
-  - `self_not_in_M`: Corollary - A itself is not in M
-  - `separating_nonneg_on_span_cap_M`: Separating functional ψ₀(λA) = -λε is nonneg on M ∩ span{A}
-  - `span_cap_M_nonpos_coeff`: Elements of M ∩ span{A} have coeff ≤ 0
-  - **Key insight**: We don't need full M ∩ span{A} = {0}; only λ > 0 case matters
-
-- **AC-P6.1 COMPLETE**: Created `Dual/Forward.lean` (67 LOC, 0 sorries)
-  - `MPositiveState.apply_sub`: φ(a - m) = φ(a) - φ(m)
-  - `closure_implies_nonneg`: A ∈ M̄ ⟹ φ(A) ≥ 0 for all φ ∈ S_M
-  - Proof uses ε-δ characterization: pick ε = -φ(A), get m ∈ M close to A, derive contradiction
+- **AC-P6.3 COMPLETE**: Created `Dual/SeparatingFunctional.lean` (114 LOC, 0 sorries)
+  - `not_in_closure_ne_zero`: A ∉ M̄ implies A ≠ 0 (since 0 ∈ M ⊆ M̄)
+  - `separatingOnSpan`: Linear map ψ₀ : span{A} →ₗ[ℝ] ℝ with ψ₀(A) = -1
+  - `separatingOnSpan_apply_A`: ψ₀(A) = -1 < 0
+  - `separatingOnSpan_apply_smul`: ψ₀(c • A) = -c
+  - `separatingOnSpan_nonneg_on_M_cap_span`: ψ₀ ≥ 0 on M ∩ span{A}
+  - **Key Pattern**: Used `LinearPMap.mkSpanSingleton` to define linear map on span
 
 ---
 
@@ -67,7 +63,7 @@
 |------|--------|-----|---------|
 | Dual/Forward.lean | ✅ | 67 | 0 |
 | Dual/SpanIntersection.lean | ✅ | 104 | 0 |
-| Dual/SeparatingFunctional.lean | Not Started | - | - |
+| Dual/SeparatingFunctional.lean | ✅ | 114 | 0 |
 | Dual/RieszApplication.lean | Not Started | - | - |
 | Dual/ComplexExtension.lean | Not Started | - | - |
 | Dual/Normalization.lean | Not Started | - | - |
@@ -76,10 +72,9 @@
 
 ## Next Steps
 
-1. **AC-P6.3**: SeparatingFunctional.lean - Construct ψ₀ on span{A} with ψ₀(A) < 0
-2. **AC-P6.4**: RieszApplication.lean - Apply Riesz extension theorem
-3. **AC-P6.5**: ComplexExtension.lean - Extend real functional to complex
-4. **AC-P6.6**: Normalization.lean - Normalize to get M-positive state
+1. **AC-P6.4**: RieszApplication.lean - Apply Riesz extension theorem
+2. **AC-P6.5**: ComplexExtension.lean - Extend real functional to complex
+3. **AC-P6.6**: Normalization.lean - Normalize to get M-positive state
 
 ---
 
@@ -89,34 +84,24 @@ See `docs/ArchimedeanClosure/LEARNINGS.md` for index, including:
 - `LEARNINGS_misc.md`: `ofFunction` pattern, closedness proofs, ciSup patterns, **seminorm closure pattern**
 - `LEARNINGS_states.md`: Cauchy-Schwarz, Archimedean bounds
 
-### Forward Direction Proof Pattern (NEW)
-To prove A ∈ closure(M) ⟹ f(A) ≥ 0 where f is continuous and f ≥ 0 on M:
-1. Assume f(A) < 0 for contradiction
-2. Use ε = -f(A) > 0 to get m ∈ M with ||A - m|| < ε
-3. Use continuity: |f(A) - f(m)| ≤ ||A - m|| < -f(A)
-4. Expand |f(A) - f(m)| < -f(A) via `abs_lt` to get f(m) < 0
-5. Contradiction with f(m) ≥ 0 via `linarith`
-
-### Key ciSup Patterns
-- Use `ciSup_le` (requires `Nonempty` instance)
-- Use `le_ciSup` with `BddAbove` for lower bounds
-- Use `ciSup_mono` for pointwise inequalities
-- Use `ciSup_add_le_ciSup_add_ciSup` for triangle inequality
-- Use `Real.mul_iSup_of_nonneg` for scalar multiplication (import `Mathlib.Data.Real.Pointwise`)
-- Use `change` to expose `φ.toFun` when FunLike coercion obscures it
-
-### Seminorm Closure Pattern
-Define closure directly via ε-δ instead of setting up TopologicalSpace:
+### LinearPMap.mkSpanSingleton Pattern (NEW)
+To define a linear map on span{A} for A ≠ 0:
 ```lean
-def seminormClosure (p : Seminorm ℝ E) (S : Set E) : Set E :=
-  {a | ∀ ε > 0, ∃ m ∈ S, p (a - m) < ε}
+noncomputable def myLinearMap (hA : A ≠ 0) : Submodule.span ℝ {A} →ₗ[ℝ] ℝ :=
+  (LinearPMap.mkSpanSingleton (K := ℝ) A (targetValue : ℝ) hA).toFun
+
+-- Apply formula: ⟨c • A, _⟩ = c • ⟨A, _⟩ in submodule, then use LinearMap.map_smul
+-- Result: myLinearMap(c • A) = c * targetValue
 ```
+
+Key lemmas:
+- `LinearPMap.mkSpanSingleton_apply`: f(A) = targetValue
+- `Submodule.mem_span_singleton`: x ∈ span{A} ↔ ∃ c, c • A = x
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/Dual/SpanIntersection.lean` (NEW, 104 LOC, 0 sorries)
-- `docs/ArchimedeanClosure/LEARNINGS_misc.md` (added span intersection learning)
+- `AfTests/ArchimedeanClosure/Dual/SeparatingFunctional.lean` (NEW, 114 LOC, 0 sorries)
 - `HANDOFF.md` (this file)
 
