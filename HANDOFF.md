@@ -1,97 +1,75 @@
 # Handoff: 2026-01-24
 
 ## Session Summary
-Project transition from GNS (complete) to Archimedean Closure (new).
+Began Archimedean Closure Phase 1.1: Created FreeStarAlgebra definition.
 
 ---
 
 ## Completed This Session
 
-1. **GNS Audit** - Rigorous verification of GNS formalization
-   - Confirmed 0 sorries, 0 custom axioms
-   - Both theorems fully proven (`gns_theorem`, `gns_uniqueness`)
-   - 2,455 LOC across 23 files, all under 200 LOC limit
-   - Only standard Mathlib axioms (propext, Classical.choice, Quot.sound)
+1. **AC-P1.1: FreeStarAlgebra definition** (beads: af-tests-izj)
+   - Created `AfTests/ArchimedeanClosure/Algebra/FreeStarAlgebra.lean` (53 LOC)
+   - Defined `FreeStarAlgebra n := FreeAlgebra ℂ (Fin n)`
+   - Uses mathlib's existing star structure from `Mathlib.Algebra.Star.Free`
+   - Key: `FreeAlgebra.star_ι` gives self-adjoint generators
 
-2. **Beads Cleanup** - Closed 15 obsolete issues from previous project
-   - All `af-tests-*` and `af-v3z` issues closed
-   - Issue tracker now clean (0 open issues)
+2. **Important Learning Documented**
+   - Mathlib's `FreeAlgebra.instStarRing` fixes scalars: `star (algebraMap c) = algebraMap c`
+   - This does NOT give `StarModule ℂ` (no conjugate-linearity)
+   - See `docs/ArchimedeanClosure/LEARNINGS.md` for details
 
-3. **Project Transition** - Updated CLAUDE.md for Archimedean Closure
-   - Archimedean Closure now active project
-   - GNS marked as complete with reusable infrastructure noted
-   - Added key Mathlib imports and risk assessment
+3. **Directory Structure Created**
+   - `AfTests/ArchimedeanClosure/{Algebra,State,Boundedness,Topology,Seminorm,Dual,Representation,Main}/`
 
 ---
 
 ## Current State
 
-### GNS Construction: COMPLETE
-- `State.gns_theorem` - Proven
-- `State.gns_uniqueness` - Proven
-- No further work needed
+### Archimedean Closure: Phase 1 In Progress
 
-### Archimedean Closure: NOT STARTED
-- Documentation complete (README, ARCHITECTURE, FILE_PLAN)
-- No code written yet
-- Directory structure not created
+| File | Status | LOC |
+|------|--------|-----|
+| Algebra/FreeStarAlgebra.lean | ✅ Done | 53 |
+| Algebra/QuadraticModule.lean | 🔲 Ready | - |
+| Algebra/Archimedean.lean | 🔲 Blocked by QuadraticModule | - |
+
+### GNS Construction: COMPLETE
+- No changes this session
 
 ---
 
 ## Next Steps
 
-1. **Create directory structure**
-   ```bash
-   mkdir -p AfTests/ArchimedeanClosure/{Algebra,State,Boundedness,Topology,Seminorm,Dual,Representation,Main}
-   ```
+1. **AC-P1.2: QuadraticModule cone** (beads: af-tests-1ie)
+   - Now unblocked by FreeStarAlgebra
+   - See FILE_PLAN.md lines 94-134
 
-2. **Create LEARNINGS.md**
-   ```bash
-   touch docs/ArchimedeanClosure/LEARNINGS.md
-   ```
-
-3. **Start Phase 1: Algebraic Setup**
-   - `Algebra/FreeStarAlgebra.lean` (~50 LOC)
-   - `Algebra/QuadraticModule.lean` (~50 LOC)
-   - `Algebra/Archimedean.lean` (~40 LOC)
-
-4. **Create beads issues for Phase 1**
-   ```bash
-   bd create --title="AC-1: FreeStarAlgebra definition" --type=task --priority=2
-   bd create --title="AC-2: QuadraticModule cone" --type=task --priority=2
-   bd create --title="AC-3: Archimedean property" --type=task --priority=2
-   ```
+2. After QuadraticModule:
+   - AC-P1.3: Archimedean property
+   - Continue Phase 1 completion
 
 ---
 
-## Key Resources
+## Key Decisions Made
 
-| Resource | Location |
-|----------|----------|
-| Main theorem statement | `docs/ArchimedeanClosure/README.md` |
-| Architecture & phases | `docs/ArchimedeanClosure/ARCHITECTURE.md` |
-| Detailed file specs | `docs/ArchimedeanClosure/FILE_PLAN.md` |
-| GNS Cauchy-Schwarz (reuse) | `AfTests/GNS/State/CauchySchwarz.lean` |
-| Riesz extension | `Mathlib.Analysis.Convex.Cone.Extension` |
-| Tychonoff | `Mathlib.Topology.Compactness.Compact` |
+1. **FreeStarAlgebra as abbrev**: Using `abbrev` rather than `def` to inherit all typeclass instances automatically from `FreeAlgebra`
 
----
-
-## Risk Areas to Watch
-
-### High Risk
-- Quadratic module generating property (selfAdjoint_decomp)
-- GNS representation is constrained proof
-- Seminorm equivalence with C*-seminorm
-
-### Medium Risk
-- Free *-algebra quotient construction
-- M-positive state structure definition
+2. **Star structure limitation accepted**: The mathlib star doesn't conjugate scalars, but this is acceptable for our use case since the quadratic module M lives in self-adjoints (real subspace)
 
 ---
 
 ## Files Modified This Session
 
-- `CLAUDE.md` - Updated for new project
-- `HANDOFF.md` - This file
-- Beads: 15 issues closed
+- `AfTests/ArchimedeanClosure/Algebra/FreeStarAlgebra.lean` (NEW)
+- `docs/ArchimedeanClosure/LEARNINGS.md` (NEW)
+- Created directory structure for ArchimedeanClosure
+
+---
+
+## Open Issues
+
+```
+bd ready
+```
+- af-tests-1ie: AC-P1.2: QuadraticModule cone (P2, now unblocked)
+- af-tests-yeda: AC-P7.1: Constrained representation def (P2, can be done later)
