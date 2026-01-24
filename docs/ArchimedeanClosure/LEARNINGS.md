@@ -241,3 +241,14 @@ All files importing `FreeStarAlgebra` need refactoring (RF-2 through RF-6):
 - `QuadraticModule.lean` - change ℂ → ℝ in smul
 - `MPositiveState.lean` - redesign for ℝ-linear functionals
 - `NonEmptiness.lean` - scalar extraction should now work
+
+---
+
+## 2026-01-24: RF-2 Complete - QuadraticModule Uses Native ℝ-Scaling
+
+### Change Made
+Changed `(c : ℂ) • m` to `c • m` in `QuadraticModuleSet.smul_mem`.
+
+### Why This Is Simpler
+Over the ℝ-algebra, ℝ-scaling is native via the `Module ℝ (FreeAlgebra ℝ X)` instance.
+No cast to ℂ needed - this was a workaround for the ℂ-algebra that's no longer needed.

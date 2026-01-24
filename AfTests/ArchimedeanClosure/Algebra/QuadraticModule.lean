@@ -56,14 +56,14 @@ theorem star_generator_mul_mem_weighted (j : Fin n) (b : FreeStarAlgebra n) :
 
 This is the carrier set for defining M-positive states. We define it as an inductive
 set capturing exactly the closure of generators under addition and nonnegative real scaling.
-Note: We use ℂ-scaling with real coefficients since FreeStarAlgebra is a ℂ-algebra.
+Since FreeStarAlgebra is now an ℝ-algebra, ℝ-scaling is native.
 -/
 inductive QuadraticModuleSet (n : ℕ) : Set (FreeStarAlgebra n) where
   | generator_mem : ∀ m ∈ QuadraticModuleGenerators n, QuadraticModuleSet n m
   | add_mem : ∀ m₁ m₂, QuadraticModuleSet n m₁ → QuadraticModuleSet n m₂ →
       QuadraticModuleSet n (m₁ + m₂)
   | smul_mem : ∀ (c : ℝ) (m), 0 ≤ c → QuadraticModuleSet n m →
-      QuadraticModuleSet n ((c : ℂ) • m)
+      QuadraticModuleSet n (c • m)
 
 /-- Abbreviation for the quadratic module. -/
 abbrev QuadraticModule (n : ℕ) : Set (FreeStarAlgebra n) := QuadraticModuleSet n
@@ -87,7 +87,7 @@ theorem QuadraticModule.add_mem {m₁ m₂ : FreeStarAlgebra n}
 /-- QuadraticModule is closed under nonnegative ℝ-scaling. -/
 theorem QuadraticModule.smul_mem {c : ℝ} (hc : 0 ≤ c) {m : FreeStarAlgebra n}
     (hm : m ∈ QuadraticModule n) :
-    (c : ℂ) • m ∈ QuadraticModule n :=
+    c • m ∈ QuadraticModule n :=
   QuadraticModuleSet.smul_mem c m hc hm
 
 end FreeStarAlgebra
