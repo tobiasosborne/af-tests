@@ -1,6 +1,6 @@
 # AF-Tests: Lean 4 Formalization Project
 
-## 🏆 GOLDEN RULES 🏆
+## GOLDEN RULES
 
 > **ERRORS are NOT failures.** Document learnings and negative results instead.
 > That is true success.
@@ -13,20 +13,53 @@
 
 ## Current Projects
 
-### GNS Construction (Active)
-Formalizing the Gelfand-Naimark-Segal construction in Lean 4.
+### Archimedean Closure (Active)
+Formalizing the characterization of positivity in constrained C*-algebra representations.
+
+**Main Theorem:** A ∈ M̄ ⟺ A ≥ 0 in all constrained *-representations
+
+**Documentation:** `docs/ArchimedeanClosure/README.md`
+**Architecture:** `docs/ArchimedeanClosure/ARCHITECTURE.md`
+**File Plan:** `docs/ArchimedeanClosure/FILE_PLAN.md`
+**Code:** `AfTests/ArchimedeanClosure/`
+
+#### Key Concepts
+1. **Free *-algebra A₀** = ℂ⟨g₁,...,gₙ⟩ with self-adjoint generators
+2. **Quadratic module** M = {Σ aᵢ*aᵢ + Σ bⱼₖ*gⱼbⱼₖ}
+3. **Archimedean property**: ∀a, ∃N, N·1 - a*a ∈ M
+4. **M-positive state**: φ : A₀ → ℂ with φ(1)=1 and φ(m)≥0 for m∈M
+5. **State seminorm**: ||a||_M = sup{|φ(a)| : φ ∈ S_M}
+
+#### Implementation Phases
+| Phase | Description | Est. LOC |
+|-------|-------------|----------|
+| 1 | Algebraic Setup (FreeStarAlgebra, QuadraticModule, Archimedean) | 140 |
+| 2 | States (MPositiveState, NonEmptiness) | 120 |
+| 3 | Boundedness (Cauchy-Schwarz, ArchimedeanBound, GeneratingCone) | 110 |
+| 4 | Topology (StateTopology, Compactness) | 110 |
+| 5 | Seminorm (StateSeminorm, Closure) | 105 |
+| 6 | Dual Characterization (Riesz extension application) | 215 |
+| 7 | Representations (Constrained, GNSConstrained) | 110 |
+| 8 | Main Theorem | 55 |
+| **Total** | | **~965** |
+
+---
+
+### GNS Construction (Complete)
+Formalization of the Gelfand-Naimark-Segal construction. **FULLY PROVEN.**
 
 **Documentation:** `docs/GNS/README.md`
-**Code:** `AfTests/GNS/`
 **Learnings:** `docs/GNS/LEARNINGS.md`
+**Code:** `AfTests/GNS/` (2,455 LOC, 0 sorries)
 
-See [docs/GNS/README.md](docs/GNS/README.md) for full plan and status.
+**Proven Theorems:**
+- `State.gns_theorem` - GNS existence
+- `State.gns_uniqueness` - Uniqueness up to unitary equivalence
 
-#### Current Focus: GNS Uniqueness
-The main GNS theorem (`gns_theorem`) is **proven**. The uniqueness theorem is in progress.
-
-**Uniqueness Plan:** `docs/GNS/phases/06_main_uniqueness_plan.md`
-**Beads Issues:** `bd list | grep GNS-U` (12 granular steps, ~490 LOC total)
+**Reusable Infrastructure:**
+- Cauchy-Schwarz for states (`AfTests/GNS/State/CauchySchwarz.lean`)
+- State definition pattern
+- Completion/density proof techniques
 
 ---
 
@@ -49,6 +82,19 @@ Always search mathlib before writing custom proofs:
 - `lean_leansearch` - natural language search
 - `lean_local_search` - verify lemma exists
 
+### Key Mathlib for Archimedean Closure
+```lean
+import Mathlib.Algebra.FreeAlgebra
+import Mathlib.Algebra.Star.Basic
+import Mathlib.Algebra.Star.SelfAdjoint
+import Mathlib.Analysis.Convex.Cone.Extension  -- Riesz extension!
+import Mathlib.Analysis.Convex.Cone.Closure
+import Mathlib.Analysis.Seminorm
+import Mathlib.Topology.Compactness.Compact    -- Tychonoff
+import Mathlib.Topology.Algebra.Module.WeakDual
+import Mathlib.Geometry.Convex.Cone.Basic
+```
+
 ### Document Everything
 When you discover something interesting:
 1. Add it to the relevant `docs/*/LEARNINGS.md`
@@ -65,9 +111,6 @@ Use these consistently in docs and HANDOFF:
 | **Structure Done** | Definitions + statements complete | Yes |
 | **Proven** | All sorries eliminated | No |
 
-**Note:** "Done" in phase docs means "Structure Done" - the file has all intended
-definitions and theorem statements, but may still have sorries tracked as separate issues.
-
 ---
 
 ## Directory Structure
@@ -77,18 +120,25 @@ af-tests/
 ├── CLAUDE.md           # This file
 ├── HANDOFF.md          # Session handoff state
 ├── docs/
+│   ├── ArchimedeanClosure/
+│   │   ├── README.md       # Project overview
+│   │   ├── ARCHITECTURE.md # High-level design
+│   │   ├── FILE_PLAN.md    # Detailed file specs
+│   │   └── LEARNINGS.md    # Technical discoveries
 │   └── GNS/
-│       ├── README.md       # GNS overview
-│       ├── LEARNINGS.md    # Technical discoveries
-│       └── phases/         # Detailed phase docs
+│       ├── README.md       # GNS overview (complete)
+│       └── LEARNINGS.md    # Technical discoveries
 └── AfTests/
-    └── GNS/
-        ├── State/          # Phase 1
-        ├── NullSpace/      # Phase 2
-        ├── PreHilbert/     # Phase 3
-        ├── HilbertSpace/   # Phase 4
-        ├── Representation/ # Phase 5
-        └── Main/           # Phase 6
+    ├── ArchimedeanClosure/
+    │   ├── Algebra/        # Phase 1: FreeStarAlgebra, QuadraticModule
+    │   ├── State/          # Phase 2: MPositiveState
+    │   ├── Boundedness/    # Phase 3: Cauchy-Schwarz, bounds
+    │   ├── Topology/       # Phase 4: Compactness
+    │   ├── Seminorm/       # Phase 5: ||·||_M
+    │   ├── Dual/           # Phase 6: Riesz extension
+    │   ├── Representation/ # Phase 7: Constrained reps
+    │   └── Main/           # Phase 8: Main theorem
+    └── GNS/                # Complete GNS infrastructure
 ```
 
 ---
@@ -97,15 +147,18 @@ af-tests/
 
 ```bash
 # Build
-lake build                              # Build all
-lake build AfTests.GNS.State.Basic      # Build specific
+lake build                                      # Build all
+lake build AfTests.ArchimedeanClosure.Algebra.FreeStarAlgebra  # Build specific
 
 # Check LOC
-wc -l AfTests/**/*.lean | sort -n       # Lean files
-wc -l docs/**/*.md | sort -n            # Doc files
+wc -l AfTests/**/*.lean | sort -n              # Lean files
+wc -l docs/**/*.md | sort -n                   # Doc files
 
 # Find sorries
-grep -rn "sorry" AfTests/ --include="*.lean"
+grep -rn "sorry" AfTests/ArchimedeanClosure --include="*.lean"
+
+# Verify GNS (should show 0 sorries)
+grep -rn "sorry" AfTests/GNS --include="*.lean"
 ```
 
 ---
@@ -146,7 +199,7 @@ lean_completions    # Autocomplete
 **MANDATORY** checklist:
 
 ### 1. Document Learnings
-Add any discoveries to `docs/*/LEARNINGS.md`
+Add any discoveries to `docs/ArchimedeanClosure/LEARNINGS.md`
 
 ### 2. Update HANDOFF.md
 ```markdown
@@ -189,3 +242,23 @@ git status  # MUST show "up to date with origin"
 - You can't point to the exact step in the plan your code implements
 
 **STOP and re-read the plan if any of these apply.**
+
+---
+
+## Risk Assessment (Archimedean Closure)
+
+### Low Risk (mathlib support strong)
+- Tychonoff theorem
+- Riesz extension
+- Cone closures
+- Seminorm properties
+
+### Medium Risk (need custom work)
+- Free *-algebra with SA generators
+- M-positive state structure
+- Seminorm ||·||_M definition
+
+### High Risk (complex proofs)
+- Quadratic module generating property
+- GNS representation is constrained
+- Seminorm equivalence proof

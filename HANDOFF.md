@@ -1,103 +1,97 @@
-# Handoff: GNS Uniqueness COMPLETE
+# Handoff: 2026-01-24
 
-**Date:** 2026-01-24
-**Session Focus:** Complete GNS uniqueness theorem (Steps 9-12)
+## Session Summary
+Project transition from GNS (complete) to Archimedean Closure (new).
 
 ---
 
 ## Completed This Session
 
-1. **GNS-U9 (af-tests-7em): Cyclic vector mapping**
-   - `gnsIntertwinerEquiv_cyclic` - Proves `U(Ω_φ) = ξ`
+1. **GNS Audit** - Rigorous verification of GNS formalization
+   - Confirmed 0 sorries, 0 custom axioms
+   - Both theorems fully proven (`gns_theorem`, `gns_uniqueness`)
+   - 2,455 LOC across 23 files, all under 200 LOC limit
+   - Only standard Mathlib axioms (propext, Classical.choice, Quot.sound)
 
-2. **GNS-U10 (af-tests-2dx): Intertwining on quotient**
-   - `gnsIntertwiner_intertwines_quotient` - Proves `U(π_φ(a)[b]) = π(a)(U[b])`
+2. **Beads Cleanup** - Closed 15 obsolete issues from previous project
+   - All `af-tests-*` and `af-v3z` issues closed
+   - Issue tracker now clean (0 open issues)
 
-3. **GNS-U11 (af-tests-5xr): Full intertwining**
-   - `gnsIntertwiner_intertwines` - Proves `U(π_φ(a)x) = π(a)(Ux)` for all x
-
-4. **GNS-U12 (af-tests-4f9): FINAL UNIQUENESS THEOREM**
-   - `gns_uniqueness` - The complete GNS uniqueness theorem
-
----
-
-## Final State
-
-- **GNS existence theorem (`gns_theorem`):** PROVEN
-- **GNS uniqueness theorem (`gns_uniqueness`):** PROVEN
-- **Build status:** Passing (zero sorries)
-- **All 12 uniqueness steps:** COMPLETE
+3. **Project Transition** - Updated CLAUDE.md for Archimedean Closure
+   - Archimedean Closure now active project
+   - GNS marked as complete with reusable infrastructure noted
+   - Added key Mathlib imports and risk assessment
 
 ---
 
-## GNS Uniqueness Progress
+## Current State
 
-| Step | ID | Description | Status |
-|------|----|-------------|--------|
-| 1-8 | various | Foundation steps | Done |
-| 9 | af-tests-7em | Cyclic vector mapping | Done |
-| 10 | af-tests-2dx | Intertwining on quotient | Done |
-| 11 | af-tests-5xr | Full intertwining | Done |
-| 12 | af-tests-4f9 | Final theorem | Done |
+### GNS Construction: COMPLETE
+- `State.gns_theorem` - Proven
+- `State.gns_uniqueness` - Proven
+- No further work needed
 
-**ALL STEPS COMPLETE**
-
----
-
-## Uniqueness Files Created
-
-| File | Lines | Purpose |
-|------|-------|---------|
-| `Main/Uniqueness.lean` | 189 | Quotient-level intertwiner |
-| `Main/UniquenessExtension.lean` | 197 | Extension to Hilbert space |
-| `Main/UniquenessEquiv.lean` | 100 | LinearIsometryEquiv + cyclic vector |
-| `Main/UniquenessIntertwine.lean` | 79 | Intertwining property |
-| `Main/UniquenessTheorem.lean` | 57 | Final theorem statement |
-| **Total** | **622** | |
+### Archimedean Closure: NOT STARTED
+- Documentation complete (README, ARCHITECTURE, FILE_PLAN)
+- No code written yet
+- Directory structure not created
 
 ---
 
-## The GNS Uniqueness Theorem
+## Next Steps
 
-```lean
-theorem gns_uniqueness
-    (_hξ_norm : ‖ξ‖ = 1)
-    (hξ_cyclic : DenseRange (fun a => π a ξ))
-    (hξ_state : ∀ a : A, @inner ℂ H _ ξ (π a ξ) = φ a) :
-    ∃ U : φ.gnsHilbertSpace ≃ₗᵢ[ℂ] H,
-      U φ.gnsCyclicVector = ξ ∧
-      ∀ a : A, ∀ x : φ.gnsHilbertSpace, U (φ.gnsRep a x) = π a (U x)
-```
+1. **Create directory structure**
+   ```bash
+   mkdir -p AfTests/ArchimedeanClosure/{Algebra,State,Boundedness,Topology,Seminorm,Dual,Representation,Main}
+   ```
 
-**Translation:** For any cyclic *-representation (H, π, ξ) implementing the state φ,
-there exists a unitary equivalence U from the GNS Hilbert space to H that:
-1. Maps the canonical cyclic vector Ω_φ to ξ
-2. Intertwines the representations: U ∘ π_φ(a) = π(a) ∘ U
+2. **Create LEARNINGS.md**
+   ```bash
+   touch docs/ArchimedeanClosure/LEARNINGS.md
+   ```
+
+3. **Start Phase 1: Algebraic Setup**
+   - `Algebra/FreeStarAlgebra.lean` (~50 LOC)
+   - `Algebra/QuadraticModule.lean` (~50 LOC)
+   - `Algebra/Archimedean.lean` (~40 LOC)
+
+4. **Create beads issues for Phase 1**
+   ```bash
+   bd create --title="AC-1: FreeStarAlgebra definition" --type=task --priority=2
+   bd create --title="AC-2: QuadraticModule cone" --type=task --priority=2
+   bd create --title="AC-3: Archimedean property" --type=task --priority=2
+   ```
 
 ---
 
-## Key Learnings This Session
+## Key Resources
 
-### Completion Induction Pattern
-```lean
-induction x using UniformSpace.Completion.induction_on with
-| hp => apply isClosed_eq <cont_lhs> <cont_rhs>
-| ih y => <reduce to quotient case>
-```
+| Resource | Location |
+|----------|----------|
+| Main theorem statement | `docs/ArchimedeanClosure/README.md` |
+| Architecture & phases | `docs/ArchimedeanClosure/ARCHITECTURE.md` |
+| Detailed file specs | `docs/ArchimedeanClosure/FILE_PLAN.md` |
+| GNS Cauchy-Schwarz (reuse) | `AfTests/GNS/State/CauchySchwarz.lean` |
+| Riesz extension | `Mathlib.Analysis.Convex.Cone.Extension` |
+| Tychonoff | `Mathlib.Topology.Compactness.Compact` |
 
-### Clean Proof Chains
-The cyclic vector mapping proof chains through abstraction layers:
-- `gnsIntertwinerEquiv_apply` → `gnsCyclicVector_eq_coe` → `gnsIntertwiner_coe` → `gnsIntertwinerQuotient_cyclic`
+---
 
-### Multiplicativity of Star Algebra Homomorphisms
-- `_root_.map_mul`: `π(ab) = π(a) * π(b)`
-- `ContinuousLinearMap.mul_apply`: `(f * g) x = f (g x)`
+## Risk Areas to Watch
+
+### High Risk
+- Quadratic module generating property (selfAdjoint_decomp)
+- GNS representation is constrained proof
+- Seminorm equivalence with C*-seminorm
+
+### Medium Risk
+- Free *-algebra quotient construction
+- M-positive state structure definition
 
 ---
 
 ## Files Modified This Session
 
-- Modified: `AfTests/GNS/Main/UniquenessEquiv.lean` (80 → 100 lines)
-- Created: `AfTests/GNS/Main/UniquenessIntertwine.lean` (79 lines)
-- Created: `AfTests/GNS/Main/UniquenessTheorem.lean` (57 lines)
-- Modified: `HANDOFF.md` (this file)
+- `CLAUDE.md` - Updated for new project
+- `HANDOFF.md` - This file
+- Beads: 15 issues closed
