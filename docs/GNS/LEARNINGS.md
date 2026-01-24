@@ -127,6 +127,30 @@ be exactly what you need.
 
 ---
 
+## 2026-01-24: Quotient Module Construction in Mathlib
+
+**Discovery:** Constructing the quotient A ⧸ N_φ requires upgrading from `AddSubgroup`
+to `Submodule ℂ A`.
+
+**Key Mathlib APIs:**
+- `Submodule.mkQ` : the quotient map `A →ₗ[ℂ] A ⧸ N`
+- `Submodule.liftQ` : lift a linear map through the quotient (requires `N ≤ ker f`)
+- `Submodule.Quotient.mk` : the element-level quotient constructor
+- `Submodule.Quotient.mk_add` : `mk (a + b) = mk a + mk b`
+- `Submodule.Quotient.mk_surjective` : every element has a representative
+
+**Extensionality Pattern:** When proving `f = g` for linear maps on quotients:
+```lean
+ext x  -- gives x : A (the underlying type)
+-- Goal becomes: (f ∘ₗ mkQ) x = (g ∘ₗ mkQ) x
+simp [mkQ_apply, ...]
+```
+
+**Lesson:** The `ext` tactic for quotient modules doesn't give you `x : A ⧸ N`;
+it gives you `x : A` and a goal involving `mkQ x`. Structure your proofs accordingly.
+
+---
+
 ## Template for New Entries
 
 ```markdown

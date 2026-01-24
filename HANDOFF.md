@@ -1,24 +1,18 @@
 # Handoff: GNS Construction Progress
 
 **Date:** 2026-01-24
-**Session Focus:** NullSpace implementation (Basic + LeftIdeal)
+**Session Focus:** NullSpace/Quotient.lean implementation
 
 ---
 
 ## Completed This Session
 
-1. **Fixed P2: Stale line numbers in HANDOFF** (af-tests-pzj)
-   - Updated sorry locations to match actual line numbers
-
-2. **Implemented P2: NullSpace/Basic.lean** (af-tests-aqa)
-   - Created `State.gnsNullSpace : AddSubgroup A` (77 LOC, no sorries)
-   - Defined carrier as `{a : A | φ (star a * a) = 0}`
-   - Proved: zero_mem, add_mem (using Cauchy-Schwarz), neg_mem, smul_mem
-
-3. **Implemented P2: NullSpace/LeftIdeal.lean** (af-tests-y0u)
-   - Created `State.gnsNullSpace_mul_mem_left` (61 LOC, no sorries)
-   - Proved left ideal property: if a ∈ N_φ then b*a ∈ N_φ
-   - Uses "swapped" Cauchy-Schwarz (corrected LEARNINGS.md)
+1. **Implemented P2: NullSpace/Quotient.lean** (af-tests-ei1)
+   - Created `State.gnsNullIdeal : Submodule ℂ A` (108 LOC, no sorries)
+   - Defined `gnsQuotient := A ⧸ gnsNullIdeal φ`
+   - Defined `gnsQuotientMk : A →ₗ[ℂ] gnsQuotient` (quotient map)
+   - Defined `gnsLeftAction : A → gnsQuotient →ₗ[ℂ] gnsQuotient` (left A-action)
+   - Proved: `gnsLeftAction_mk`, `gnsLeftAction_mul`, `gnsLeftAction_one`, `gnsLeftAction_add`
 
 ---
 
@@ -26,9 +20,9 @@
 
 - **Build status:** Passing
 - **Sorry count:** 3 total
-  - State/Positivity.lean:67 - `sesqForm_conj_symm`
-  - State/CauchySchwarz.lean:56 - `inner_mul_le_norm_mul_norm_weak`
-  - State/CauchySchwarz.lean:71 - `inner_mul_le_norm_mul_norm`
+  - State/Positivity.lean:57 - `sesqForm_conj_symm`
+  - State/CauchySchwarz.lean:48 - `inner_mul_le_norm_mul_norm_weak`
+  - State/CauchySchwarz.lean:62 - `inner_mul_le_norm_mul_norm`
 
 ---
 
@@ -46,7 +40,7 @@
 |----------|------|--------|-------|
 | `af-tests-aqa` | NullSpace/Basic.lean | **Proven** | No sorries |
 | `af-tests-y0u` | NullSpace/LeftIdeal.lean | **Proven** | No sorries |
-| `af-tests-ei1` | NullSpace/Quotient.lean | **Ready** | Blocked was y0u |
+| `af-tests-ei1` | NullSpace/Quotient.lean | **Proven** | No sorries |
 
 ### Audit Issues
 | Issue ID | Priority | Status |
@@ -62,17 +56,16 @@
 
 ## Next Steps (Priority Order)
 
-1. **af-tests-ei1** (P2) - NullSpace/Quotient.lean (now unblocked)
+1. **Phase 3** - PreHilbert construction (af-tests-ec1, af-tests-q9f)
 2. Sorry elimination (P3): uo6, 03g, bgs
 
 ---
 
 ## Files Modified This Session
 
+- Created: `AfTests/GNS/NullSpace/Quotient.lean` (108 LOC, no sorries)
+- Updated: `docs/GNS/LEARNINGS.md` (added quotient module learning)
 - Updated: `HANDOFF.md`
-- Updated: `docs/GNS/LEARNINGS.md` (corrected left ideal proof strategy)
-- Created: `AfTests/GNS/NullSpace/Basic.lean` (77 LOC, no sorries)
-- Created: `AfTests/GNS/NullSpace/LeftIdeal.lean` (61 LOC, no sorries)
 
 ---
 
@@ -80,5 +73,6 @@
 
 ```bash
 bd ready
-bd show af-tests-ei1  # NullSpace/Quotient.lean (now unblocked)
+bd show af-tests-ec1  # PreHilbert/InnerProduct.lean (now unblocked)
+bd show af-tests-q9f  # PreHilbert/Seminorm.lean (now unblocked)
 ```
