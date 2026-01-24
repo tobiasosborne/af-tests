@@ -1,12 +1,13 @@
 # Handoff: 2026-01-24
 
 ## Completed This Session
-- **AC-P3.3 COMPLETE**: Generating cone lemma now fully proven (134 LOC, 0 sorries)
-  - Fixed `selfAdjoint_decomp` using `Commute.mul_self_sub_mul_self_eq`
-  - Key techniques: `abel` + `nsmul_eq_mul` pattern, `Algebra.smul_def` + `smul_smul`
-- **AC-P4.1 COMPLETE**: State space topology (50 LOC, 0 sorries)
-  - Pointwise convergence topology via `TopologicalSpace.induced`
-  - `eval_continuous`: evaluation at any element is continuous
+- **AC-P4.2 Structure Done**: Compactness embedding lemmas (76 LOC, 0 sorries)
+  - `toProductFun`: embeds states into product space
+  - `toProductFun_injective`: embedding is injective
+  - `bound`: defines √Nₐ bound function
+  - `apply_mem_closedBall`: states are bounded
+  - `stateSet_subset_product`: S_M ⊆ product of bounded balls
+  - Key technique: Section organization to control variable scope
 
 ---
 
@@ -38,14 +39,20 @@
 | File | Status | LOC | Sorries |
 |------|--------|-----|---------|
 | Topology/StateTopology.lean | ✅ | 50 | 0 |
-| Topology/Compactness.lean | Not started | - | - |
+| Topology/Compactness.lean | Structure Done | 76 | 0 |
 | Topology/Continuity.lean | Not started | - | - |
+
+**Note**: Compactness.lean contains the embedding and boundedness lemmas. Next steps for
+Phase 4 completion:
+- Prove `product_compact` (Tychonoff)
+- Prove `stateSet_isClosed` (S_M is closed)
+- Prove `stateSet_isCompact` (final result)
 
 ---
 
 ## Next Steps
 
-1. **Phase 4**: Compactness (Tychonoff for bounded states)
+1. **Phase 4**: Complete compactness proof (Tychonoff + closed = compact)
 2. **Phase 5**: Seminorm (StateSeminorm, SeminormProps, Closure)
 3. **Phase 6**: Dual characterization (Forward, SpanIntersection, Riesz extension)
 
@@ -63,7 +70,6 @@ See `docs/ArchimedeanClosure/LEARNINGS.md` for:
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/Boundedness/GeneratingCone.lean` (sorry eliminated)
-- `AfTests/ArchimedeanClosure/Topology/StateTopology.lean` (NEW)
+- `AfTests/ArchimedeanClosure/Topology/Compactness.lean` (NEW)
 - `HANDOFF.md` (this file)
 

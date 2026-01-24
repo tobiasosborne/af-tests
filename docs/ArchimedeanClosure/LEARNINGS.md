@@ -681,3 +681,60 @@ Build `Commute a b` hypotheses using:
 - `Commute.neg_left`, `Commute.neg_right` (negation)
 
 Then use `Commute.mul_self_sub_mul_self_eq`, `Commute.add_sq`, etc.
+
+---
+
+## 2026-01-24: Section Organization for Variable Scope Control
+
+### Challenge
+When a file has some definitions/theorems that require `[IsArchimedean n]` and others that
+don't, the automatic variable inclusion can trigger linter warnings about unused variables.
+
+### Solution
+Use `section ... end` blocks to control variable scope:
+
+```lean
+variable {n : ℕ}
+
+section Embedding
+-- Definitions that don't need IsArchimedean
+def toProductFun (φ : MPositiveState n) : FreeStarAlgebra n → ℝ := fun a => φ a
+theorem toProductFun_injective : Function.Injective (toProductFun (n := n)) := ...
+end Embedding
+
+section Bounded
+variable [IsArchimedean n]
+-- Theorems that need IsArchimedean
+theorem apply_mem_closedBall (φ : MPositiveState n) (a : FreeStarAlgebra n) : ... := ...
+end Bounded
+```
+
+### Why This Works
+The `variable` inside `section Bounded` only applies within that section. Definitions
+outside don't inherit the `[IsArchimedean n]` instance, avoiding the unused variable warning.
+
+---
+
+## 2026-01-24: FunLike Extensionality for Custom Structures
+
+### Challenge
+When defining a structure with a `FunLike` instance (like `MPositiveState`), the `ext`
+tactic may not work because there's no `@[ext]` attribute registered for the type.
+
+### Solution
+Use `DFunLike.coe_injective'` directly:
+
+```lean
+theorem toProductFun_injective : Function.Injective (toProductFun (n := n)) := by
+  intro φ ψ h
+  apply DFunLike.coe_injective'
+  exact h
+```
+
+### Alternative
+Register an extensionality lemma with `@[ext]` attribute:
+```lean
+@[ext]
+theorem ext {φ ψ : MPositiveState n} (h : ∀ a, φ a = ψ a) : φ = ψ :=
+  DFunLike.coe_injective' (funext h)
+```
