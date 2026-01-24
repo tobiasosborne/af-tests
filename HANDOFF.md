@@ -1,21 +1,16 @@
 # Handoff: GNS Construction Progress
 
 **Date:** 2026-01-24
-**Session Focus:** PreHilbert/Positive.lean and HilbertSpace/Completion.lean
+**Session Focus:** HilbertSpace/CyclicVector.lean
 
 ---
 
 ## Completed This Session
 
-1. **Implemented P3: PreHilbert/Positive.lean** (af-tests-9me)
-   - Positive definiteness proofs (73 LOC, no sorries)
-   - Key lemmas: `gnsInner_self_eq_zero_iff`, `gnsInner_pos_def`
-   - Phase 3 PreHilbert complete!
-
-2. **Implemented P4: HilbertSpace/Completion.lean** (af-tests-8pg)
-   - Hilbert space completion (71 LOC, no sorries)
-   - Key definitions: `gnsHilbertSpace`, `gnsQuotientInnerProductSpace`
-   - Automatic `CompleteSpace` and `InnerProductSpace` on completion
+1. **Implemented P4: HilbertSpace/CyclicVector.lean** (af-tests-dx9)
+   - Cyclic vector Ω_φ = [1] definition (90 LOC, no sorries)
+   - Key lemmas: `gnsCyclicVector_inner_self`, `gnsCyclicVector_norm`, `gnsCyclicVector_ne_zero`
+   - Phase 4 HilbertSpace complete!
 
 ---
 
@@ -23,9 +18,9 @@
 
 - **Build status:** Passing
 - **Sorry count:** 3 total (unchanged)
-  - State/Positivity.lean:57 - `sesqForm_conj_symm`
-  - State/CauchySchwarz.lean:48 - `inner_mul_le_norm_mul_norm_weak`
-  - State/CauchySchwarz.lean:62 - `inner_mul_le_norm_mul_norm`
+  - State/Positivity.lean:67 - `sesqForm_conj_symm`
+  - State/CauchySchwarz.lean:56 - `inner_mul_le_norm_mul_norm_weak`
+  - State/CauchySchwarz.lean:71 - `inner_mul_le_norm_mul_norm`
 
 ---
 
@@ -52,37 +47,34 @@
 | `af-tests-q9f` | PreHilbert/Seminorm.lean | **Proven** | No sorries |
 | `af-tests-9me` | PreHilbert/Positive.lean | **Proven** | No sorries |
 
-### Phase 4: HilbertSpace (in progress)
+### Phase 4: HilbertSpace (COMPLETE)
 | Issue ID | File | Status | Notes |
 |----------|------|--------|-------|
 | `af-tests-8pg` | HilbertSpace/Completion.lean | **Proven** | No sorries |
-| `af-tests-dx9` | HilbertSpace/CyclicVector.lean | **Not Started** | Now ready |
+| `af-tests-dx9` | HilbertSpace/CyclicVector.lean | **Proven** | No sorries |
 
 ---
 
 ## Next Steps (Priority Order)
 
-1. **Phase 4** - HilbertSpace/CyclicVector.lean (af-tests-dx9) - now unblocked
-2. **Phase 5** - Representation/PreRep.lean (af-tests-155) - ready
-3. **Sorry elimination** (P3): uo6, 03g, bgs
-4. Refactor LEARNINGS.md (exceeds 200 LOC at ~250 lines)
+1. **Phase 5** - Representation/PreRep.lean (af-tests-155) - ready
+2. **Sorry elimination** (P3): uo6, 03g, bgs
+3. Refactor LEARNINGS.md (exceeds 200 LOC at ~250 lines)
 
 ---
 
 ## Key Learning This Session
 
-**Instance Chain from Core:** When building `InnerProductSpace` from
-`PreInnerProductSpace.Core`, must use explicit `@` syntax to ensure
-`SeminormedAddCommGroup` and `NormedSpace` derive from the same Core,
-avoiding instance diamonds.
+**Completion Embedding Lemmas:** When working with `UniformSpace.Completion`, use:
+- `UniformSpace.Completion.norm_coe` - `‖↑x‖ = ‖x‖`
+- `UniformSpace.Completion.inner_coe` - `⟪↑a, ↑b⟫ = ⟪a, b⟫`
+These preserve norms and inner products under the embedding.
 
 ---
 
 ## Files Modified This Session
 
-- Created: `AfTests/GNS/PreHilbert/Positive.lean` (73 LOC, no sorries)
-- Created: `AfTests/GNS/HilbertSpace/Completion.lean` (71 LOC, no sorries)
-- Updated: `docs/GNS/LEARNINGS.md` (added instance chain entry)
+- Created: `AfTests/GNS/HilbertSpace/CyclicVector.lean` (90 LOC, no sorries)
 - Updated: `HANDOFF.md`
 
 ---
@@ -91,5 +83,5 @@ avoiding instance diamonds.
 
 ```bash
 bd ready
-bd show af-tests-dx9  # HilbertSpace/CyclicVector.lean
+bd show af-tests-155  # Representation/PreRep.lean
 ```
