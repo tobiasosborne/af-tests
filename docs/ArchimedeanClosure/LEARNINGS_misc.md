@@ -129,3 +129,50 @@ The prime convention avoids namespace collision.
 ```lean
 import Mathlib.Algebra.Star.StarAlgHom
 ```
+
+---
+
+## RCLike.re vs Complex.re
+
+### Challenge
+When working with inner products over ℂ, `inner_self_nonneg` gives:
+```lean
+inner_self_nonneg : 0 ≤ RCLike.re ⟪x, x⟫_ℂ
+```
+But goals often have `.re` (Complex field accessor):
+```lean
+⊢ 0 ≤ (⟪v, v⟫_ℂ).re
+```
+These are definitionally equal, but Lean's pattern matching doesn't unify them.
+
+### Solution
+Use `RCLike.re_eq_complex_re` to convert:
+```lean
+have h : 0 ≤ RCLike.re ⟪v, v⟫_ℂ := inner_self_nonneg
+simp only [RCLike.re_eq_complex_re] at h
+exact h
+```
+
+### Import
+```lean
+import Mathlib.Analysis.Complex.Basic  -- RCLike.re_eq_complex_re
+```
+
+---
+
+## inner_smul_real_right Type Annotation
+
+### Challenge
+`inner_smul_real_right` fails to pattern match without explicit types:
+```lean
+-- Fails: inner_smul_real_right ξ (π.toStarAlgHom a ξ) c
+```
+
+### Solution
+Provide explicit type annotation on the inner product:
+```lean
+have h : (⟪ξ, (c : ℂ) • (π.toStarAlgHom a ξ)⟫_ℂ : ℂ) = c • ⟪ξ, (π.toStarAlgHom a ξ)⟫_ℂ :=
+  inner_smul_real_right ξ _ c
+```
+
+The `(_ : ℂ)` annotation helps Lean resolve the coercion.
