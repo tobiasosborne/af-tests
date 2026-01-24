@@ -1,18 +1,17 @@
 # Handoff: GNS Construction Progress
 
 **Date:** 2026-01-24
-**Session Focus:** PreHilbert/Seminorm.lean implementation
+**Session Focus:** PreHilbert/Positive.lean implementation
 
 ---
 
 ## Completed This Session
 
-1. **Implemented P3: PreHilbert/Seminorm.lean** (af-tests-q9f)
-   - Created `State.gnsNorm : gnsQuotient φ → ℝ` (96 LOC, no sorries)
-   - Defined `PreInnerProductSpace.Core` instance for mathlib compatibility
-   - Key discovery: Physics vs Math inner product convention mismatch
-   - Defined: `gnsNorm`, `gnsNorm_mk`, `gnsInner_self_nonneg`, `gnsInner_self_im`
-   - Added: `gnsInner_smul_right` for mathlib convention compatibility
+1. **Implemented P3: PreHilbert/Positive.lean** (af-tests-9me)
+   - Created positive definiteness proofs (73 LOC, no sorries)
+   - Key lemmas: `gnsInner_self_eq_zero_iff`, `gnsInner_pos_def`
+   - Also: `gnsNorm_eq_zero_iff`, `gnsNorm_pos`
+   - Phase 3 PreHilbert is now complete!
 
 ---
 
@@ -42,37 +41,38 @@
 | `af-tests-y0u` | NullSpace/LeftIdeal.lean | **Proven** | No sorries |
 | `af-tests-ei1` | NullSpace/Quotient.lean | **Proven** | No sorries |
 
-### Phase 3: PreHilbert (in progress)
+### Phase 3: PreHilbert (COMPLETE)
 | Issue ID | File | Status | Notes |
 |----------|------|--------|-------|
 | `af-tests-ec1` | PreHilbert/InnerProduct.lean | **Proven** | No sorries |
 | `af-tests-q9f` | PreHilbert/Seminorm.lean | **Proven** | No sorries |
-| `af-tests-9me` | PreHilbert/Positive.lean | **Not Started** | Now ready |
+| `af-tests-9me` | PreHilbert/Positive.lean | **Proven** | No sorries |
 
 ---
 
 ## Next Steps (Priority Order)
 
-1. **Phase 3** - PreHilbert/Positive.lean (af-tests-9me) - now unblocked
-2. Sorry elimination (P3): uo6, 03g, bgs
+1. **Phase 4** - HilbertSpace/Completion.lean (af-tests-8pg) - now unblocked
+2. **Sorry elimination** (P3): uo6, 03g, bgs
 3. Refactor LEARNINGS.md (exceeds 200 LOC at 231 lines)
 
 ---
 
-## Key Learning This Session
+## Key Pattern This Session
 
-**Inner Product Convention Mismatch:** The GNS inner product `⟨[a], [b]⟩ = φ(b*a)`
-uses physics convention (linear in first arg), but mathlib expects math convention
-(conjugate-linear in first arg). Resolution: define `Inner` with swapped arguments.
-
-See `docs/GNS/LEARNINGS.md` for full details.
+**Positive definiteness proof:** The connection `Submodule.Quotient.mk_eq_zero`
+directly links quotient zero with submodule membership, making the proof
+nearly one-liner:
+```lean
+rw [Submodule.Quotient.mk_eq_zero]
+exact mem_gnsNullIdeal_iff φ
+```
 
 ---
 
 ## Files Modified This Session
 
-- Created: `AfTests/GNS/PreHilbert/Seminorm.lean` (96 LOC, no sorries)
-- Updated: `docs/GNS/LEARNINGS.md` (added convention mismatch entry)
+- Created: `AfTests/GNS/PreHilbert/Positive.lean` (73 LOC, no sorries)
 - Updated: `HANDOFF.md`
 
 ---
@@ -81,5 +81,5 @@ See `docs/GNS/LEARNINGS.md` for full details.
 
 ```bash
 bd ready
-bd show af-tests-9me  # PreHilbert/Positive.lean
+bd show af-tests-8pg  # HilbertSpace/Completion.lean
 ```
