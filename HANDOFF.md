@@ -1,16 +1,16 @@
 # Handoff: GNS Construction Progress
 
 **Date:** 2026-01-24
-**Session Focus:** Define status terminology in project conventions
+**Session Focus:** Fix stale documentation line numbers
 
 ---
 
 ## Completed This Session
 
-1. **Fixed P1: Status terminology** (af-tests-aea)
-   - Added "Status Terminology" section to CLAUDE.md
-   - Defined: Not Started, Ready, In Progress, Structure Done, Proven
-   - Updated 01_states.md to use correct statuses
+1. **Fixed P2: Stale line numbers in HANDOFF** (af-tests-pzj)
+   - Updated sorry locations to match actual line numbers:
+     - Positivity.lean: 57 → 67
+     - CauchySchwarz.lean: 48 → 56, 62 → 71
 
 ---
 
@@ -18,9 +18,9 @@
 
 - **Build status:** Passing
 - **Sorry count:** 3 total
-  - State/Positivity.lean:57 - `sesqForm_conj_symm`
-  - State/CauchySchwarz.lean:48 - `inner_mul_le_norm_mul_norm_weak`
-  - State/CauchySchwarz.lean:62 - `inner_mul_le_norm_mul_norm`
+  - State/Positivity.lean:67 - `sesqForm_conj_symm`
+  - State/CauchySchwarz.lean:56 - `inner_mul_le_norm_mul_norm_weak`
+  - State/CauchySchwarz.lean:71 - `inner_mul_le_norm_mul_norm`
 
 ---
 
@@ -46,23 +46,20 @@
 | af-tests-op0 | P1 | **CLOSED** |
 | af-tests-wmn | P3 | **CLOSED** |
 | af-tests-aea | P1 | **CLOSED** |
-| af-tests-pzj | P2 | OPEN |
+| af-tests-pzj | P2 | **CLOSED** |
 
 ---
 
 ## Next Steps (Priority Order)
 
-1. **af-tests-pzj** (P2) - Fix stale line numbers in HANDOFF
-2. **af-tests-aqa** (P2) - NullSpace/Basic.lean implementation
-3. Sorry elimination (P3): uo6, 03g, bgs
+1. **af-tests-aqa** (P2) - NullSpace/Basic.lean implementation
+2. Sorry elimination (P3): uo6, 03g, bgs
 
 ---
 
 ## Files Modified This Session
 
-- Updated: `CLAUDE.md` (added Status Terminology section)
-- Updated: `docs/GNS/phases/01_states.md` (correct status values)
-- Updated: `HANDOFF.md` (this file)
+- Updated: `HANDOFF.md` (fixed stale line numbers, marked pzj closed)
 
 ---
 
@@ -70,6 +67,5 @@
 
 ```bash
 bd ready
-bd show af-tests-pzj  # Line numbers fix
 bd show af-tests-aqa  # NullSpace implementation
 ```
