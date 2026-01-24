@@ -1,0 +1,123 @@
+/-
+Copyright (c) 2026. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: AF-Tests Project
+-/
+import AfTests.GNS.Representation.Star
+import Mathlib.Analysis.Normed.Operator.LinearIsometry
+
+/-!
+# GNS Uniqueness Theorem
+
+The GNS representation is unique up to unitary equivalence.
+
+## Main results
+
+* `State.gnsIntertwinerQuotientFun` - The candidate intertwiner map on quotient
+* `State.gnsIntertwinerQuotient_isometry` - Isometry property
+* `State.gnsIntertwinerQuotient_cyclic` - Maps cyclic vector to ξ
+
+## Mathematical Background
+
+Given (H, π, ξ) a cyclic *-representation with:
+- π : A →⋆ₐ[ℂ] (H →L[ℂ] H)
+- ‖ξ‖ = 1
+- ∀ a, ⟪ξ, π(a)ξ⟫ = φ(a)
+- DenseRange (fun a => π a ξ)
+
+Then the map U₀([a]) = π(a)ξ extends to a unitary intertwiner U : H_φ ≃ₗᵢ[ℂ] H.
+
+### Key Lemmas
+
+1. Well-definedness: [a] = [b] implies π(a)ξ = π(b)ξ
+2. Isometry: ‖π(a)ξ‖ = ‖[a]‖
+3. Cyclic: U₀([1]) = ξ
+-/
+
+namespace State
+
+variable {A : Type*} [CStarAlgebra A] (φ : State A)
+variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
+variable (π : A →⋆ₐ[ℂ] (H →L[ℂ] H)) (ξ : H)
+
+/-! ### The intertwiner construction -/
+
+/-- Given a *-representation π and vector ξ satisfying the state condition,
+    the map a ↦ π(a)ξ descends to a well-defined function on the quotient.
+
+    Well-definedness: if a - b ∈ N_φ, then φ((a-b)*(a-b)) = 0.
+    Since ⟨ξ, π(c)ξ⟩ = φ(c) for all c, we have
+    ‖π(a-b)ξ‖² = ⟨ξ, π((a-b)*(a-b))ξ⟩ = φ((a-b)*(a-b)) = 0. -/
+noncomputable def gnsIntertwinerQuotientFun
+    (hξ_state : ∀ a : A, @inner ℂ H _ ξ (π a ξ) = φ a) : φ.gnsQuotient → H := fun x =>
+  Quotient.liftOn x (fun a => π a ξ) (by
+    intro a b hab
+    -- hab says a ≈ b, meaning a - b ∈ gnsNullIdeal, so φ((a-b)*(a-b)) = 0
+    have hab' : a - b ∈ φ.gnsNullIdeal := (Submodule.quotientRel_def φ.gnsNullIdeal).mp hab
+    have h_null : φ (star (a - b) * (a - b)) = 0 := hab'
+    -- Goal: π(a)ξ = π(b)ξ, equivalently π(a-b)ξ = 0
+    suffices h : π (a - b) ξ = 0 by
+      have hsub : π a ξ - π b ξ = π (a - b) ξ := by
+        rw [← ContinuousLinearMap.sub_apply, ← _root_.map_sub]
+      rw [← sub_eq_zero, hsub, h]
+    -- Show π(a-b)ξ = 0 via inner_self_eq_zero
+    rw [← @inner_self_eq_zero ℂ]
+    -- ⟨π(a-b)ξ, π(a-b)ξ⟩ = ⟨ξ, π(a-b)† (π(a-b) ξ)⟩ by adjoint property
+    -- Using adjoint_inner_right: ⟨x, A† y⟩ = ⟨A x, y⟩
+    have h_adj : @inner ℂ H _ (π (a - b) ξ) (π (a - b) ξ) =
+        @inner ℂ H _ ξ ((π (a - b)).adjoint (π (a - b) ξ)) := by
+      rw [ContinuousLinearMap.adjoint_inner_right]
+    -- π(a-b)† = π((a-b)*)
+    have h_star : (π (a - b)).adjoint = π (star (a - b)) := by
+      have := π.map_star' (a - b)
+      simp only [ContinuousLinearMap.star_eq_adjoint] at this
+      exact this.symm
+    -- π((a-b)*) (π(a-b) ξ) = π((a-b)* * (a-b)) ξ
+    have h_mul : π (star (a - b)) (π (a - b) ξ) = π (star (a - b) * (a - b)) ξ := by
+      conv_lhs => rw [← ContinuousLinearMap.comp_apply, ← ContinuousLinearMap.mul_def,
+                      ← _root_.map_mul]
+    rw [h_adj, h_star, h_mul, hξ_state, h_null])
+
+/-- The intertwiner is isometric: ‖U₀([a])‖ = ‖[a]‖.
+
+    Proof: ‖π(a)ξ‖² = ⟨π(a)ξ, π(a)ξ⟩ = ⟨ξ, π(a*a)ξ⟩ = φ(a*a) = ‖[a]‖² -/
+theorem gnsIntertwinerQuotient_isometry
+    (hξ_state : ∀ a : A, @inner ℂ H _ ξ (π a ξ) = φ a) (x : φ.gnsQuotient) :
+    ‖gnsIntertwinerQuotientFun φ π ξ hξ_state x‖ = ‖x‖ := by
+  obtain ⟨a, rfl⟩ := Submodule.Quotient.mk_surjective φ.gnsNullIdeal x
+  -- By definition, gnsIntertwinerQuotientFun φ π ξ hξ_state [a] = π(a)ξ
+  change ‖π a ξ‖ = ‖Submodule.Quotient.mk (p := φ.gnsNullIdeal) a‖
+  -- ‖π(a)ξ‖² = φ(a*a) = ‖[a]‖²
+  rw [← sq_eq_sq₀ (norm_nonneg _) (norm_nonneg _)]
+  -- LHS: ‖π(a)ξ‖²
+  have h_lhs : ‖π a ξ‖^2 = RCLike.re (@inner ℂ H _ ξ (π (star a * a) ξ)) := by
+    have h1 : ‖π a ξ‖^2 = RCLike.re (@inner ℂ H _ (π a ξ) (π a ξ)) := by
+      rw [← @inner_self_eq_norm_sq ℂ H]
+    rw [h1]
+    have h_adj : @inner ℂ H _ (π a ξ) (π a ξ) = @inner ℂ H _ ξ ((π a).adjoint (π a ξ)) := by
+      rw [ContinuousLinearMap.adjoint_inner_right]
+    have h_star : (π a).adjoint = π (star a) := by
+      have := π.map_star' a
+      simp only [ContinuousLinearMap.star_eq_adjoint] at this
+      exact this.symm
+    rw [h_adj, h_star]
+    have h_mul : π (star a) (π a ξ) = π (star a * a) ξ := by
+      conv_lhs => rw [← ContinuousLinearMap.comp_apply, ← ContinuousLinearMap.mul_def,
+                      ← _root_.map_mul]
+    rw [h_mul]
+  rw [h_lhs, hξ_state]
+  -- RHS: ‖[a]‖² in the GNS quotient
+  rw [@InnerProductSpace.Core.norm_eq_sqrt_re_inner ℂ _ _ _ _ φ.gnsPreInnerProductCore]
+  rw [Real.sq_sqrt (φ.gnsPreInnerProductCore.re_inner_nonneg _)]
+  simp only [inner_eq_gnsInner_swap, gnsInner_mk]
+
+/-- The intertwiner sends the cyclic vector to ξ: U₀([1]) = π(1)ξ = ξ. -/
+theorem gnsIntertwinerQuotient_cyclic
+    (hξ_state : ∀ a : A, @inner ℂ H _ ξ (π a ξ) = φ a) :
+    gnsIntertwinerQuotientFun φ π ξ hξ_state φ.gnsCyclicVectorQuotient = ξ := by
+  -- By definition, gnsCyclicVectorQuotient = [1], and U₀([1]) = π(1)ξ = ξ
+  change π 1 ξ = ξ
+  rw [_root_.map_one]
+  rfl
+
+end State

@@ -109,3 +109,28 @@ theorem gnsPreRep_inner_star (a b c : A) :
 **Lesson:** When working with the mathlib inner product on completions, always track
 which convention is used. The `inner_eq_gnsInner_swap` lemma is essential for
 converting between the two conventions.
+
+---
+
+## GNS Uniqueness Intertwiner: Quotient Lift via Well-Definedness
+
+**Discovery:** The GNS uniqueness intertwiner U₀ : A/N_φ → H is constructed via
+`Quotient.liftOn`, which requires proving well-definedness on equivalence classes.
+
+**Key Insight:** If [a] = [b] in A/N_φ (i.e., a - b ∈ N_φ), then π(a)ξ = π(b)ξ.
+
+**Proof Technique:**
+1. From a - b ∈ N_φ, we have φ((a-b)*(a-b)) = 0
+2. Use `inner_self_eq_zero ℂ`: π(a-b)ξ = 0 ↔ ⟨π(a-b)ξ, π(a-b)ξ⟩ = 0
+3. Apply `ContinuousLinearMap.adjoint_inner_right`: ⟨π(a-b)ξ, π(a-b)ξ⟩ = ⟨ξ, π(a-b)† π(a-b)ξ⟩
+4. Use *-representation property: π(a-b)† = π((a-b)*)
+5. Use multiplication property: π((a-b)*) π(a-b) = π((a-b)*(a-b))
+6. Apply state condition: ⟨ξ, π((a-b)*(a-b))ξ⟩ = φ((a-b)*(a-b)) = 0
+
+**Implementation Note:** The `change` tactic is essential when working with
+`Quotient.liftOn` on `Submodule.Quotient.mk`, as the definitional equality isn't
+always recognized by `simp`. Use `change` to make the goal match the expected form.
+
+**Lesson:** Proving well-definedness of quotient maps often reduces to showing
+the null space condition implies the desired equality. The adjoint inner product
+identity is the key tool for connecting inner products to the state.

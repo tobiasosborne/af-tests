@@ -9,7 +9,7 @@ The culmination: φ(a) = ⟨Ω_φ, π_φ(a)Ω_φ⟩ and uniqueness.
 | File | LOC Target | Status | Key Content |
 |------|------------|--------|-------------|
 | `Main/VectorState.lean` | 50-70 | **Proven** | φ(a) = ⟨Ω, π(a)Ω⟩ |
-| `Main/Uniqueness.lean` | 70-90 | Not Started | Unitary equivalence |
+| `Main/Uniqueness.lean` | 70-90 | **Proven** | Intertwiner construction |
 | `Main/Theorem.lean` | 40-60 | Not Started | Main theorem statement |
 
 ## Main Theorems

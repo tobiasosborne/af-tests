@@ -1,22 +1,26 @@
 # Handoff: GNS Construction Progress
 
 **Date:** 2026-01-24
-**Session Focus:** Implemented Main/VectorState.lean - GNS vector state theorem
+**Session Focus:** Implemented Main/Uniqueness.lean - GNS intertwiner construction
 
 ---
 
 ## Completed This Session
 
-1. **Created `AfTests/GNS/Main/VectorState.lean`** (68 lines)
-   - `gns_vector_state` - The fundamental GNS identity: φ(a) = ⟪Ω_φ, π_φ(a)Ω_φ⟫
-   - `gnsRep_recovers_state` - Alternative formulation
-   - Helper lemmas: `gnsCyclicVectorQuotient_inner_mk`, `gnsCyclicVector_inner_mk`
+1. **Created `AfTests/GNS/Main/Uniqueness.lean`** (123 lines)
+   - `gnsIntertwinerQuotientFun` - The intertwiner U₀([a]) = π(a)ξ on the quotient
+   - `gnsIntertwinerQuotient_isometry` - Proves ‖U₀([a])‖ = ‖[a]‖
+   - `gnsIntertwinerQuotient_cyclic` - Proves U₀([1]) = ξ
 
-2. **Key proof technique:** Used existing lemmas `gnsRep_cyclicVector` (π(a)Ω = [a])
-   combined with `inner_eq_gnsInner_swap` to handle the mathlib inner product convention.
+2. **Key proof techniques:**
+   - Well-definedness via `Quotient.liftOn` with `Submodule.quotientRel_def`
+   - Isometry via `inner_self_eq_zero` and `ContinuousLinearMap.adjoint_inner_right`
+   - The *-representation star property: π(a)† = π(a*)
+   - Using `change` instead of `show` to handle quotient definitional equalities
 
 3. **Updated documentation:**
-   - `docs/GNS/phases/06_main.md` - Marked VectorState.lean as Proven
+   - `docs/GNS/phases/06_main.md` - Marked Uniqueness.lean as Proven
+   - `docs/GNS/learnings/inner-product-conventions.md` - Added intertwiner technique
 
 ---
 
@@ -37,42 +41,49 @@
 | P3: PreHilbert | 3 | 3 | 0 | 0 | **100%** |
 | P4: HilbertSpace | 2 | 2 | 0 | 0 | **100%** |
 | P5: Representation | 4 | 4 | 0 | 0 | **100%** |
-| P6: Main | 3 | 1 | 0 | 2 | 33% |
-| **TOTAL** | **19** | **17** | **0** | **2** | **89%** |
+| P6: Main | 3 | 2 | 0 | 1 | 67% |
+| **TOTAL** | **19** | **18** | **0** | **1** | **95%** |
 
 ---
 
 ## Remaining Sorries
 
-None! All sorries eliminated in Phases 1-5 and now VectorState in Phase 6.
+None! All sorries eliminated in Phases 1-5 and now VectorState + Uniqueness in Phase 6.
 
 ---
 
 ## Next Steps (Priority Order)
 
-1. **Phase 6** - Remaining main theorems:
-   - `Main/Uniqueness.lean` - Unitary equivalence theorem
-   - `Main/Theorem.lean` - Main GNS theorem bundle
+1. **Phase 6** - Final main theorem:
+   - `Main/Theorem.lean` - Main GNS theorem bundle (existence statement)
 
 ---
 
 ## Files Modified This Session
 
-- Created: `AfTests/GNS/Main/VectorState.lean` (68 lines)
+- Created: `AfTests/GNS/Main/Uniqueness.lean` (123 lines)
 - Updated: `docs/GNS/phases/06_main.md`
+- Updated: `docs/GNS/learnings/inner-product-conventions.md`
 - Updated: `HANDOFF.md`
 
 ---
 
-## Technical Note
+## Technical Notes
 
-**Proof of Vector State Identity:** The proof is straightforward once you have:
-1. `gnsRep_cyclicVector`: π(a)Ω = [a] (quotient class of a)
-2. `gnsCyclicVector_eq_coe`: Ω is the embedding of [1]
-3. `inner_eq_gnsInner_swap`: inner x y = gnsInner y x (mathlib convention swap)
-4. `gnsInner_mk`: gnsInner [a] [b] = φ(b* · a)
+**Uniqueness Intertwiner Construction:**
 
-Combining these: ⟪Ω, π(a)Ω⟫ = ⟪[1], [a]⟫ = gnsInner [a] [1] = φ(1* · a) = φ(a)
+Given another cyclic *-representation (H, π, ξ) with ⟨ξ, π(a)ξ⟩ = φ(a):
+
+1. Define U₀ : gnsQuotient → H by U₀([a]) = π(a)ξ
+2. Well-defined: [a] = [b] implies a - b ∈ N_φ, so φ((a-b)*(a-b)) = 0,
+   hence ‖π(a-b)ξ‖² = ⟨ξ, π((a-b)*(a-b))ξ⟩ = 0
+3. Isometric: ‖π(a)ξ‖² = ⟨ξ, π(a*a)ξ⟩ = φ(a*a) = ‖[a]‖²
+4. Cyclic: U₀([1]) = π(1)ξ = ξ
+
+The key lemma pattern uses:
+- `Submodule.quotientRel_def` to convert a ≈ b to a - b ∈ N_φ
+- `inner_self_eq_zero` to reduce π(a-b)ξ = 0 to inner product = 0
+- `ContinuousLinearMap.adjoint_inner_right` for the adjoint identity
 
 ---
 
@@ -80,5 +91,5 @@ Combining these: ⟪Ω, π(a)Ω⟫ = ⟪[1], [a]⟫ = gnsInner [a] [1] = φ(1* �
 
 ```bash
 bd ready                 # See available work
-bd show <id>             # Review next issue
+bd show af-tests-t09     # Review Main/Theorem.lean task
 ```
