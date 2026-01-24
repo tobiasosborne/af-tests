@@ -1,11 +1,10 @@
 # Handoff: 2026-01-24
 
 ## Completed This Session
-- **Extended SeminormTopology.lean** (af-tests-85of):
-  - `quadraticModuleClosure_eq_closure` - ε-δ closure = topological closure
-  - `isClosed_quadraticModuleClosure` - M̄ is closed in seminorm topology
-  - Helper lemmas: `finset_sup_unit_eq`, `stateSeminormSeminorm_sub_comm`, `seminorm_ball_mem_nhds`
-  - Now 116 LOC, 0 sorries
+- **Proved `riesz_extension_exists`** (af-tests-2nag, af-tests-1188):
+  - Used `ProperCone.hyperplane_separation_point` from mathlib
+  - Bypassed the "generating condition" problem in `riesz_extension`
+  - RieszApplication.lean: 98 LOC, 0 sorries
 
 ---
 
@@ -54,36 +53,39 @@
 
 ---
 
-### Phase 6: Ready to Continue
+### Phase 6: In Progress
 
 | File | Status | LOC | Sorries | Notes |
 |------|--------|-----|---------|-------|
 | Dual/Forward.lean | ✅ | 67 | 0 | |
 | Dual/SpanIntersection.lean | ✅ | 104 | 0 | |
 | Dual/SeparatingFunctional.lean | ✅ | 114 | 0 | |
-| Dual/RieszApplication.lean | **Ready** | 147 | 2 | Topology done! |
-| Dual/ComplexExtension.lean | Not Started | - | - | |
+| Dual/RieszApplication.lean | ✅ | 98 | 0 | **Completed this session!** |
+| Dual/ComplexExtension.lean | Not Started | - | - | Next |
 | Dual/Normalization.lean | Not Started | - | - | |
 
 ---
 
-## Key Progress: ProperCone Infrastructure Complete
+## Key Achievement: Geometric Hahn-Banach Approach
 
-**All prerequisites for ProperCone.hyperplane_separation_point are now done:**
-1. TopologicalSpace on FreeStarAlgebra from stateSeminorm ✓
-2. LocallyConvexSpace instance ✓
-3. `isClosed_quadraticModuleClosure` - M̄ is closed ✓
+Instead of fighting with `riesz_extension`'s generating condition, we used:
 
-**Next step**: Construct ProperCone from M̄ and apply separation theorem in RieszApplication.lean
+```lean
+theorem ProperCone.hyperplane_separation_point
+  [LocallyConvexSpace ℝ E] {x₀ : E} (C : ProperCone ℝ E) (hx₀ : x₀ ∉ C) :
+    ∃ f : E →L[ℝ] ℝ, (∀ x ∈ C, 0 ≤ f x) ∧ f x₀ < 0
+```
+
+The infrastructure we built (seminorm topology, locally convex space, closed M̄) paid off perfectly.
 
 ---
 
 ## Next Steps
 
-1. **[P1] af-tests-2nag**: Prove riesz_extension_exists (now unblocked!)
-   - Use `ProperCone.hyperplane_separation_point` with M̄
-2. **AC-P6.5**: ComplexExtension.lean
-3. **AC-P6.6**: Normalization.lean
+1. **AC-P6.5**: ComplexExtension.lean - Extend ψ from ℝ to ℂ
+2. **AC-P6.6**: Normalization.lean - Normalize to get a state
+3. **AC-P7**: Representations (constrained reps, vector states, GNS)
+4. **AC-P8**: Main theorem
 
 ---
 
@@ -91,7 +93,7 @@
 
 See `docs/ArchimedeanClosure/LEARNINGS.md` for full index:
 - `LEARNINGS_dual.md`: Span intersection, separating functional
-- `LEARNINGS_extension.md`: Extension theorems, SeminormFamily pattern, **closedness proof**
+- `LEARNINGS_extension.md`: **ProperCone approach** ✓
 - `LEARNINGS_topology.md`: Closedness proofs, Tychonoff, seminorm closure
 - `LEARNINGS_misc.md`: Section scoping, FunLike, imports
 - `LEARNINGS_states.md`: Cauchy-Schwarz, Archimedean bounds
@@ -100,7 +102,7 @@ See `docs/ArchimedeanClosure/LEARNINGS.md` for full index:
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/Topology/SeminormTopology.lean` (extended to 116 LOC)
+- `AfTests/ArchimedeanClosure/Dual/RieszApplication.lean` (rewritten, 98 LOC, 0 sorries)
 - `docs/ArchimedeanClosure/LEARNINGS_extension.md` (updated status)
 - `HANDOFF.md` (this file)
 
@@ -108,4 +110,4 @@ See `docs/ArchimedeanClosure/LEARNINGS.md` for full index:
 
 ## Known Issues
 
-- None currently - topology infrastructure is complete!
+- None currently!

@@ -3,151 +3,96 @@ Copyright (c) 2026 AF-Tests Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: AF-Tests Contributors
 -/
-import AfTests.ArchimedeanClosure.Dual.SeparatingFunctional
-import AfTests.ArchimedeanClosure.Boundedness.GeneratingCone
-import Mathlib.Analysis.Convex.Cone.Extension
+import AfTests.ArchimedeanClosure.Topology.SeminormTopology
+import Mathlib.Analysis.Convex.Cone.Dual
 
-/-! # Applying Riesz Extension to Get Separating Functional
+/-! # Separating Functional via Geometric Hahn-Banach
 
-This file extends the separating functional from `span{A}` to all of `(A₀)_sa`.
+This file constructs a separating functional for the dual characterization theorem.
 
 ## Main results
 
-* `riesz_extension_exists` - For A ∉ M̄, there exists ψ : (A₀)_sa → ℝ with ψ ≥ 0 on M and ψ(A) < 0
+* `riesz_extension_exists` - For A ∉ M̄, there exists ψ : A₀ → ℝ with ψ ≥ 0 on M and ψ(A) < 0
 
 ## Mathematical Background
 
-The Riesz Extension Theorem (`riesz_extension` in mathlib) states:
-Given a convex cone s and a partial linear map f on domain D with f ≥ 0 on s ∩ D,
-if the "generating" condition `∀ y, ∃ x ∈ D, x + y ∈ s` holds, then f extends to
-the whole space while preserving nonnegativity on s.
+We use `ProperCone.hyperplane_separation_point` from mathlib, which is a consequence of
+the geometric Hahn-Banach separation theorem for locally convex spaces.
 
-### The Generating Condition Challenge
+### Key Steps
 
-For our setup:
-- Cone s = QuadraticModule n (or its intersection with selfAdjointPart)
-- Domain D = Submodule.span ℝ {A}
-- We have: ψ₀ ≥ 0 on M ∩ span{A} (from `separatingOnSpan_nonneg_on_M_cap_span`)
+1. **Topology**: FreeStarAlgebra gets a topology from the state seminorm ||·||_M
+2. **LocallyConvexSpace**: Seminorm topologies are always locally convex
+3. **ProperCone**: M̄ (closure of quadratic module) forms a proper cone:
+   - Nonempty (0 ∈ M̄)
+   - Closed (by definition of closure)
+   - Cone (closed under + and ℝ≥0 scaling)
+4. **Separation**: For A ∉ M̄, there exists continuous f with f ≥ 0 on M̄ and f(A) < 0
 
-The generating condition requires: ∀ y, ∃ c ∈ ℝ, cA + y ∈ M.
-This is NOT directly satisfied for a 1-dimensional domain.
-
-### Key Insight: The Generating Property of M
-
-From `quadraticModule_selfAdjoint_generating`:
-Every self-adjoint x can be written as x = (1/4)m₁ - (1/4)m₂ for m₁, m₂ ∈ M ∩ (A₀)_sa.
-
-This shows M ∩ (A₀)_sa generates (A₀)_sa as differences, which is related to but
-different from mathlib's generating condition.
-
-### Mathematical Resolution
-
-The mathematical argument proceeds:
-1. Define ψ₀ on span{A} with ψ₀(A) = -1 < 0
-2. M ∩ (A₀)_sa generates (A₀)_sa (our `quadraticModule_selfAdjoint_generating`)
-3. Apply the Riesz extension principle (via Zorn's lemma) to extend ψ₀
-4. The generating property ensures the extension can be done while preserving M-nonnegativity
-
-The direct application of mathlib's `riesz_extension` requires additional work
-to verify the specific generating condition format.
+This avoids the "generating condition" difficulties of the Riesz extension theorem.
 
 ## References
 
 * Schmüdgen, "The Moment Problem" (2017), Chapter 3
-* Blekherman, Parrilo, Thomas, "Semidefinite Optimization and Convex Algebraic Geometry"
+* Rudin, "Functional Analysis" (1991), Chapter 3 (Hahn-Banach separation)
 -/
 
 namespace FreeStarAlgebra
 
 variable {n : ℕ} [IsArchimedean n]
 
-/-! ### Converting separatingOnSpan to a LinearPMap -/
+/-! ### ProperCone from Quadratic Module Closure -/
 
-/-- The separating functional as a LinearPMap on the full algebra.
-This is the starting point for Riesz extension. -/
-noncomputable def separatingPMap {A : FreeStarAlgebra n}
-    (hA_not : A ∉ quadraticModuleClosure) :
-    (FreeStarAlgebra n) →ₗ.[ℝ] ℝ :=
-  ⟨Submodule.span ℝ {A}, separatingOnSpan hA_not⟩
+section WithTopology
+/-! Setup the seminorm topology and locally convex structure. -/
 
-omit [IsArchimedean n] in
-theorem separatingPMap_domain {A : FreeStarAlgebra n}
-    (hA_not : A ∉ quadraticModuleClosure) :
-    (separatingPMap hA_not).domain = Submodule.span ℝ {A} := rfl
+attribute [local instance] seminormTopology
+attribute [local instance] locallyConvexSpace_seminormTopology
 
-omit [IsArchimedean n] in
-/-- The separating PMap is nonnegative on M ∩ domain. -/
-theorem separatingPMap_nonneg_on_M {A : FreeStarAlgebra n}
-    (hA_not : A ∉ quadraticModuleClosure)
-    (x : (separatingPMap hA_not).domain)
-    (hx : (x : FreeStarAlgebra n) ∈ QuadraticModule n) :
-    0 ≤ (separatingPMap hA_not) x := by
-  have hx_span : (x : FreeStarAlgebra n) ∈ Submodule.span ℝ {A} := x.property
-  exact separatingOnSpan_nonneg_on_M_cap_span hA_not hx hx_span
+/-- The closure M̄ as a ProperCone.
 
-/-! ### The Main Extension Theorem -/
+A ProperCone is a nonempty, closed, convex cone. M̄ satisfies:
+- Nonempty: 0 ∈ M̄ (from `zero_mem_closure`)
+- Closed: by `isClosed_quadraticModuleClosure`
+- Cone: closed under + and ℝ≥0 scaling (from `closure_add_mem`, `closure_smul_mem`) -/
+noncomputable def quadraticModuleClosureProperCone : ProperCone ℝ (FreeStarAlgebra n) :=
+  ⟨{
+    toAddSubmonoid := {
+      carrier := quadraticModuleClosure
+      add_mem' := fun ha hb => closure_add_mem ha hb
+      zero_mem' := zero_mem_closure
+    }
+    smul_mem' := fun c _ ha => closure_smul_mem c.property ha
+  }, isClosed_quadraticModuleClosure⟩
 
-omit [IsArchimedean n] in
-/-- **Key Lemma**: M ∩ (A₀)_sa satisfies a form of the generating condition.
+/-- Membership in the ProperCone is equivalent to membership in the closure. -/
+theorem mem_quadraticModuleClosureProperCone (a : FreeStarAlgebra n) :
+    a ∈ quadraticModuleClosureProperCone ↔ a ∈ quadraticModuleClosure := Iff.rfl
 
-For any y ∈ (A₀)_sa, there exist m ∈ M ∩ (A₀)_sa such that m + y' ∈ M for some y'
-related to y. This follows from `quadraticModule_selfAdjoint_generating`. -/
-theorem generating_condition_from_decomp {y : FreeStarAlgebra n}
-    (hy : IsSelfAdjoint y) :
-    ∃ m₁ : FreeStarAlgebra n, m₁ ∈ QuadraticModule n ∧
-    ∃ m₂ : FreeStarAlgebra n, m₂ ∈ QuadraticModule n ∧
-      IsSelfAdjoint m₁ ∧ IsSelfAdjoint m₂ ∧
-      y = (1/4 : ℝ) • m₁ - (1/4 : ℝ) • m₂ := by
-  obtain ⟨m₁, ⟨hm₁_M, hm₁_sa⟩, m₂, ⟨hm₂_M, hm₂_sa⟩, h_eq⟩ :=
-    quadraticModule_selfAdjoint_generating y hy
-  exact ⟨m₁, hm₁_M, m₂, hm₂_M, hm₁_sa, hm₂_sa, h_eq⟩
+/-! ### Main Separation Theorem -/
 
-/-- **Main Extension Theorem**: For A ∉ M̄ (self-adjoint), there exists a linear
-functional on the self-adjoint part that is nonnegative on M and negative on A.
+/-- **Main Theorem**: For A ∉ M̄, there exists a linear functional ψ with
+ψ ≥ 0 on M and ψ(A) < 0.
 
-This is the core result needed for the backward direction of the dual characterization.
-The proof uses the Riesz extension principle combined with:
-1. The separating functional `separatingOnSpan` with ψ₀(A) = -1 < 0
-2. The generating property of M ∩ (A₀)_sa for (A₀)_sa -/
+This is the core result for the backward direction of the dual characterization.
+The proof uses geometric Hahn-Banach separation: since M̄ is a proper cone in
+a locally convex space and A ∉ M̄, there exists a separating hyperplane. -/
 theorem riesz_extension_exists {A : FreeStarAlgebra n}
-    (hA : IsSelfAdjoint A) (hA_not : A ∉ quadraticModuleClosure) :
+    (_hA : IsSelfAdjoint A) (hA_not : A ∉ quadraticModuleClosure) :
     ∃ ψ : FreeStarAlgebra n →ₗ[ℝ] ℝ,
       (∀ m ∈ QuadraticModule n, 0 ≤ ψ m) ∧ ψ A < 0 := by
-  /-
-  BLOCKING: This proof requires topology infrastructure (see af-tests-lm26).
+  -- Apply ProperCone.hyperplane_separation_point
+  obtain ⟨f, hf_nonneg_closure, hf_neg⟩ :=
+    ProperCone.hyperplane_separation_point quadraticModuleClosureProperCone hA_not
+  -- Convert continuous linear map to linear map
+  use f.toLinearMap
+  constructor
+  · -- ψ ≥ 0 on M follows from M ⊆ M̄ and ψ ≥ 0 on M̄
+    intro m hm
+    exact hf_nonneg_closure m (quadraticModule_subset_closure hm)
+  · -- ψ(A) < 0 is immediate
+    exact hf_neg
 
-  **Why direct riesz_extension doesn't work**: Mathlib's `riesz_extension`
-  requires `∀ y, ∃ x ∈ domain, x + y ∈ M`. For domain = span{A} (1-dim),
-  this asks whether M + span{A} = E, which is false.
-
-  **Recommended approach**: Use `ProperCone.hyperplane_separation_point`
-  which gives exactly what we need:
-  ```
-  ∃ f : E →L[ℝ] ℝ, (∀ x ∈ C, 0 ≤ f x) ∧ f x₀ < 0
-  ```
-
-  **Prerequisites** (see af-tests-lm26):
-  1. TopologicalSpace on FreeStarAlgebra from stateSeminorm
-  2. LocallyConvexSpace instance
-  3. Show M is closed (build ProperCone from M)
-
-  **Alternative**: Custom Zorn argument using `quadraticModule_selfAdjoint_generating`
-  to show constraint intervals are nonempty at each extension step.
-
-  See LEARNINGS_dual.md "Deep Dive" section for full analysis.
-  -/
-  sorry
-
-/-- Corollary: The extended functional preserves the value at A. -/
-theorem riesz_extension_apply_A {A : FreeStarAlgebra n}
-    (hA : IsSelfAdjoint A) (hA_not : A ∉ quadraticModuleClosure) :
-    ∃ ψ : FreeStarAlgebra n →ₗ[ℝ] ℝ,
-      (∀ m ∈ QuadraticModule n, 0 ≤ ψ m) ∧
-      ψ A = separatingOnSpan hA_not ⟨A, Submodule.mem_span_singleton_self A⟩ := by
-  obtain ⟨ψ, hψ_nonneg, hψ_A_neg⟩ := riesz_extension_exists hA hA_not
-  refine ⟨ψ, hψ_nonneg, ?_⟩
-  -- The extension should agree with ψ₀ on span{A}
-  -- This is guaranteed by the Riesz extension theorem
-  sorry
+end WithTopology
 
 end FreeStarAlgebra
