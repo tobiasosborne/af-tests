@@ -195,8 +195,24 @@ Key discovery for `cross_term_opt_re`:
   reports "no progress" inside the file. Possibly due to instance resolution
   differences or simp lemma availability.
 
-**Next step:** Debug why simp behaves differently in file vs standalone context.
-Options: (1) use explicit calc proof, (2) check simp trace, (3) add needed simp lemmas.
+**Resolution (2026-01-24):** Eliminated the sorry by avoiding simp entirely in favor
+of explicit rewrites. Key discoveries:
+
+1. The `let μ := -c/d` binding causes syntactic mismatch with `rw` - use
+   `simp only [show μ = -c / d from rfl]` to unfold it first.
+
+2. Addition associativity requires explicit `convert ... using 2; ring` to
+   restructure terms before pattern matching.
+
+3. Complex division real-part extraction: `((-a : ℂ) / b).re` requires explicit
+   `Complex.div_ofReal_re`, `Complex.neg_re`, `Complex.ofReal_re` rewrites.
+
+4. Final inequality step: multiply by `d.re > 0`, expand with `add_mul`, then
+   use `div_mul_cancel₀` to simplify `(-|c|²/d.re) * d.re = -|c|²`.
+
+**Final proof structure:**
+- `cross_term_opt_identity`: algebraic identity without `let` binding
+- Main proof: unfold μ → reassociate → apply identity → extract real part → linarith
 
 ---
 
