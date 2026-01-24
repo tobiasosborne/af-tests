@@ -1,6 +1,13 @@
 # Handoff: 2026-01-24
 
 ## Completed This Session
+- **AC-P6.2 COMPLETE**: Created `Dual/SpanIntersection.lean` (104 LOC, 0 sorries)
+  - `positive_smul_not_in_M`: If A ∉ M̄ and c > 0, then c • A ∉ M
+  - `self_not_in_M`: Corollary - A itself is not in M
+  - `separating_nonneg_on_span_cap_M`: Separating functional ψ₀(λA) = -λε is nonneg on M ∩ span{A}
+  - `span_cap_M_nonpos_coeff`: Elements of M ∩ span{A} have coeff ≤ 0
+  - **Key insight**: We don't need full M ∩ span{A} = {0}; only λ > 0 case matters
+
 - **AC-P6.1 COMPLETE**: Created `Dual/Forward.lean` (67 LOC, 0 sorries)
   - `MPositiveState.apply_sub`: φ(a - m) = φ(a) - φ(m)
   - `closure_implies_nonneg`: A ∈ M̄ ⟹ φ(A) ≥ 0 for all φ ∈ S_M
@@ -59,7 +66,7 @@
 | File | Status | LOC | Sorries |
 |------|--------|-----|---------|
 | Dual/Forward.lean | ✅ | 67 | 0 |
-| Dual/SpanIntersection.lean | Not Started | - | - |
+| Dual/SpanIntersection.lean | ✅ | 104 | 0 |
 | Dual/SeparatingFunctional.lean | Not Started | - | - |
 | Dual/RieszApplication.lean | Not Started | - | - |
 | Dual/ComplexExtension.lean | Not Started | - | - |
@@ -69,10 +76,10 @@
 
 ## Next Steps
 
-1. **AC-P6.2**: SpanIntersection.lean - Prove M ∩ span{A} = {0} when A ∉ M̄
-2. **AC-P6.3**: SeparatingFunctional.lean - Construct ψ₀ on span{A} with ψ₀(A) < 0
-3. **AC-P6.4**: RieszApplication.lean - Apply Riesz extension theorem
-4. Continue with normalization and main theorem
+1. **AC-P6.3**: SeparatingFunctional.lean - Construct ψ₀ on span{A} with ψ₀(A) < 0
+2. **AC-P6.4**: RieszApplication.lean - Apply Riesz extension theorem
+3. **AC-P6.5**: ComplexExtension.lean - Extend real functional to complex
+4. **AC-P6.6**: Normalization.lean - Normalize to get M-positive state
 
 ---
 
@@ -109,6 +116,7 @@ def seminormClosure (p : Seminorm ℝ E) (S : Set E) : Set E :=
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/Dual/Forward.lean` (NEW, 67 LOC, 0 sorries)
+- `AfTests/ArchimedeanClosure/Dual/SpanIntersection.lean` (NEW, 104 LOC, 0 sorries)
+- `docs/ArchimedeanClosure/LEARNINGS_misc.md` (added span intersection learning)
 - `HANDOFF.md` (this file)
 

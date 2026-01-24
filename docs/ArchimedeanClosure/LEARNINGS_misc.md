@@ -298,3 +298,52 @@ When a theorem only uses lemmas like `stateSeminorm_zero` that don't require
 omit [IsArchimedean n] in
 theorem quadraticModule_subset_closure : ... := ...
 ```
+
+---
+
+## Span Intersection for Riesz Extension (AC-P6.2)
+
+### Key Insight: Only Positive Scalars Matter
+
+For Riesz extension, we define a separating functional ψ₀(λA) = -λε on span{A}.
+We need ψ₀ ≥ 0 on M ∩ span{A}. The key observation:
+
+1. **λ > 0 case**: If λA ∈ M, then A = (1/λ)(λA) ∈ M by cone property → A ∈ M̄.
+   Contradiction. So this case never occurs.
+2. **λ ≤ 0 case**: ψ₀(λA) = -λε ≥ 0 automatically (since -λ ≥ 0 and ε > 0).
+
+### We Don't Need Full M ∩ span{A} = {0}
+
+The FILE_PLAN specified proving M ∩ span{A} = {0}, but this is **stronger than needed**.
+The λ < 0 case (negative multiples of A in M) doesn't cause problems for the
+separating functional—it's automatically nonneg.
+
+### What We Actually Proved
+
+```lean
+-- If A ∉ M̄ and c > 0, then c • A ∉ M
+theorem positive_smul_not_in_M {A} (hA_not : A ∉ quadraticModuleClosure)
+    {c : ℝ} (hc : 0 < c) : c • A ∉ QuadraticModule n
+
+-- The separating functional is nonneg on M ∩ span{A}
+theorem separating_nonneg_on_span_cap_M {A} (hA_not : A ∉ quadraticModuleClosure)
+    {ε : ℝ} (hε : 0 < ε) {x} (hx_in_M : x ∈ QuadraticModule n)
+    {coeff : ℝ} (hx_eq : x = coeff • A) : 0 ≤ -coeff * ε
+
+-- Coefficients of M ∩ span{A} elements are ≤ 0
+theorem span_cap_M_nonpos_coeff {A} (hA_not : A ∉ quadraticModuleClosure)
+    {coeff : ℝ} (hcoeff_smul_in_M : coeff • A ∈ QuadraticModule n) : coeff ≤ 0
+```
+
+### Proof Pattern
+
+The core argument is beautifully simple:
+```lean
+theorem positive_smul_not_in_M ... := by
+  intro h_cA_in_M
+  have h_A_in_M : A ∈ QuadraticModule n := by
+    have h_eq : A = c⁻¹ • (c • A) := by rw [smul_smul, inv_mul_cancel₀ _, one_smul]
+    rw [h_eq]
+    exact QuadraticModule.smul_mem (le_of_lt (inv_pos.mpr hc)) h_cA_in_M
+  exact hA_not (quadraticModule_subset_closure h_A_in_M)
+```
