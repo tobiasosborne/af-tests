@@ -57,3 +57,35 @@ Could use `ConvexCone.hull ℝ (generators)` but this requires:
 - Less direct control over the carrier
 
 The inductive definition is simpler and gives us direct membership proofs.
+
+---
+
+## 2026-01-24: Classical.choose vs Nat.find
+
+### Challenge
+The FILE_PLAN suggested using `Nat.find` to get the minimal Archimedean bound:
+```lean
+noncomputable def archimedeanBound [IsArchimedean n] (a : FreeStarAlgebra n) : ℕ :=
+  Nat.find (IsArchimedean.bound a)
+```
+
+This fails because `Nat.find` requires `DecidablePred`, but membership in
+`QuadraticModule n` is not decidable (it's an inductive set).
+
+### Solution
+Use `Classical.choose` instead:
+```lean
+noncomputable def archimedeanBound [IsArchimedean n] (a : FreeStarAlgebra n) : ℕ :=
+  Classical.choose (IsArchimedean.bound a)
+
+theorem archimedeanBound_spec [IsArchimedean n] (a : FreeStarAlgebra n) :
+    ... ∈ QuadraticModule n :=
+  Classical.choose_spec (IsArchimedean.bound a)
+```
+
+### Trade-off
+- `Nat.find` gives the *minimal* witness (useful for bounds reasoning)
+- `Classical.choose` gives *some* witness (sufficient for our purposes)
+
+For the Archimedean closure proof, we only need existence of a bound, not minimality.
+If minimality becomes important later, we can add decidability or use a different approach.

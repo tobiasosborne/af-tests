@@ -1,34 +1,36 @@
 # Handoff: 2026-01-24
 
 ## Session Summary
-Completed AC-P1.2: Created QuadraticModule definition using inductive set.
+Completed AC-P1.3: Created Archimedean property definition. Phase 1 complete!
 
 ---
 
 ## Completed This Session
 
-1. **AC-P1.2: QuadraticModule cone** (beads: af-tests-1ie)
-   - Created `AfTests/ArchimedeanClosure/Algebra/QuadraticModule.lean` (93 LOC)
-   - Defined `QuadraticModuleSet n` as inductive set with 3 constructors
-   - Defined generators: `squareSet` (star a * a) and `generatorWeightedSet` (star b * gⱼ * b)
-   - Key theorems: `star_mul_self_mem`, `star_generator_mul_mem`, `add_mem`, `smul_mem`
+1. **AC-P1.3: Archimedean property** (beads: af-tests-c5m)
+   - Created `AfTests/ArchimedeanClosure/Algebra/Archimedean.lean` (46 LOC)
+   - Defined `IsArchimedean n` class: ∀a, ∃N, N·1 - a*a ∈ M
+   - Defined `archimedeanBound` using `Classical.choose`
+   - Proven `archimedeanBound_spec` using `Classical.choose_spec`
 
 2. **Important Learning Documented**
-   - ℝ-scaling via (c : ℂ) • m avoids need for RestrictScalars
-   - Inductive set simpler than ConvexCone.hull for our purposes
+   - `Nat.find` requires `DecidablePred` which QuadraticModule doesn't have
+   - Use `Classical.choose` for non-decidable existentials
    - See `docs/ArchimedeanClosure/LEARNINGS.md`
 
 ---
 
 ## Current State
 
-### Archimedean Closure: Phase 1 Nearly Complete
+### Archimedean Closure: Phase 1 COMPLETE ✅
 
 | File | Status | LOC |
 |------|--------|-----|
 | Algebra/FreeStarAlgebra.lean | ✅ Done | 53 |
 | Algebra/QuadraticModule.lean | ✅ Done | 93 |
-| Algebra/Archimedean.lean | 🔲 Ready | - |
+| Algebra/Archimedean.lean | ✅ Done | 46 |
+
+**Total Phase 1: 192 LOC** (target was ~140)
 
 ### GNS Construction: COMPLETE
 - No changes this session
@@ -37,31 +39,30 @@ Completed AC-P1.2: Created QuadraticModule definition using inductive set.
 
 ## Next Steps
 
-1. **AC-P1.3: Archimedean property** (needs beads issue)
-   - Define `IsArchimedean n` class
-   - Define `archimedeanBound` function
-   - See FILE_PLAN.md lines 138-165
+1. **Phase 2: States** (next priority)
+   - af-tests-ukh: AC-P2.1: MPositiveState structure
+   - Then: MPositiveStateProps, NonEmptiness
 
-2. After Phase 1:
-   - Phase 2: MPositiveState
-   - Continue through plan
+2. **Phase 3: Boundedness**
+   - af-tests-0su: AC-P3.2: Archimedean bound for states (now unblocked)
+   - af-tests-fjy: AC-P3.3: Generating cone lemma
 
 ---
 
 ## Key Decisions Made
 
-1. **Inductive set over ConvexCone**: The `QuadraticModuleSet` inductive type
-   gives direct membership proofs without needing RestrictScalars infrastructure.
+1. **Classical.choose over Nat.find**: QuadraticModule membership is not decidable,
+   so we use Classical.choose to get a witness. We don't need minimality.
 
-2. **ℂ-scaling with real coefficients**: `(c : ℂ) • m` for `0 ≤ c : ℝ` works
-   because nonnegative reals embed into ℂ.
+2. **Consistent ℂ-scaling pattern**: All real scaling uses `((r : ℝ) : ℂ) • x`
+   pattern established in QuadraticModule.
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/Algebra/QuadraticModule.lean` (NEW - 93 LOC)
-- `docs/ArchimedeanClosure/LEARNINGS.md` (updated with new learning)
+- `AfTests/ArchimedeanClosure/Algebra/Archimedean.lean` (NEW - 46 LOC)
+- `docs/ArchimedeanClosure/LEARNINGS.md` (updated with Classical.choose learning)
 
 ---
 
@@ -70,5 +71,6 @@ Completed AC-P1.2: Created QuadraticModule definition using inductive set.
 ```
 bd ready
 ```
-- af-tests-yeda: AC-P7.1: Constrained representation def (P2, can be done later)
-- Need to create: AC-P1.3: Archimedean property
+- Phase 2: af-tests-ukh (MPositiveState)
+- Phase 3: af-tests-0su (now unblocked), af-tests-fjy
+- Phase 7: af-tests-yeda (can be done later)
