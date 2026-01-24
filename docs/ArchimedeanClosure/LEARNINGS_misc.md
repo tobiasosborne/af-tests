@@ -248,3 +248,53 @@ simp [φ.toFun.map_zero]
 ```lean
 import Mathlib.Data.Real.Pointwise  -- Real.mul_iSup_of_nonneg
 ```
+
+---
+
+## Seminorm Closure without Topology (AC-P5.3)
+
+### Challenge
+Defining closure of M in ||·||_M topology requires a `TopologicalSpace` instance on
+`FreeStarAlgebra n`. Setting up topology from seminorm requires `WithSeminorms` machinery.
+
+### Solution
+Define closure directly via ε-δ definition:
+
+```lean
+def quadraticModuleClosure : Set (FreeStarAlgebra n) :=
+  {a | ∀ ε > 0, ∃ m ∈ QuadraticModule n, stateSeminorm (a - m) < ε}
+```
+
+This is exactly the standard closure definition for a metric/seminorm topology,
+without needing to instantiate `TopologicalSpace`.
+
+### Proving Cone Properties
+
+Use ε/2 trick for addition:
+```lean
+theorem closure_add_mem {a b} (ha : a ∈ closure) (hb : b ∈ closure) :
+    a + b ∈ closure := by
+  intro ε hε
+  obtain ⟨ma, hma, ha'⟩ := ha (ε / 2) (by linarith)
+  obtain ⟨mb, hmb, hb'⟩ := hb (ε / 2) (by linarith)
+  refine ⟨ma + mb, QuadraticModule.add_mem hma hmb, ?_⟩
+  calc stateSeminorm (a + b - (ma + mb))
+      = stateSeminorm ((a - ma) + (b - mb)) := by congr 1; abel
+    _ ≤ stateSeminorm (a - ma) + stateSeminorm (b - mb) := stateSeminorm_add _ _
+    _ < ε / 2 + ε / 2 := add_lt_add ha' hb'
+    _ = ε := by ring
+```
+
+For scaling by c > 0, use ε/c:
+```lean
+obtain ⟨m, hm, hma⟩ := ha (ε / c) (div_pos hε hcpos)
+-- Then: c * (ε / c) = ε
+```
+
+### Linter: `omit [IsArchimedean n] in`
+When a theorem only uses lemmas like `stateSeminorm_zero` that don't require
+`IsArchimedean`, the linter complains. Use:
+```lean
+omit [IsArchimedean n] in
+theorem quadraticModule_subset_closure : ... := ...
+```

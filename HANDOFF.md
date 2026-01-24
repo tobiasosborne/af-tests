@@ -1,11 +1,12 @@
 # Handoff: 2026-01-24
 
 ## Completed This Session
-- **AC-P5.2 COMPLETE**: Created `SeminormProps.lean` (80 LOC, 0 sorries)
-  - `stateSeminorm_zero`: ||0||_M = 0
-  - `stateSeminorm_neg`: ||-a||_M = ||a||_M
-  - `stateSeminorm_smul`: ||c • a||_M = |c| * ||a||_M
-  - `stateSeminormSeminorm`: Seminorm ℝ (FreeStarAlgebra n) instance
+- **AC-P5.3 COMPLETE**: Created `Closure.lean` (95 LOC, 0 sorries)
+  - `quadraticModuleClosure`: ε-δ definition of closure in ||·||_M topology
+  - `quadraticModule_subset_closure`: M ⊆ M̄
+  - `zero_mem_closure`: 0 ∈ M̄
+  - `closure_add_mem`: M̄ is closed under addition
+  - `closure_smul_mem`: M̄ is closed under nonneg ℝ-scaling
 
 ---
 
@@ -39,35 +40,34 @@
 | Topology/StateTopology.lean | ✅ | 50 | 0 |
 | Topology/Closedness.lean | ✅ | 138 | 0 |
 | Topology/Compactness.lean | ✅ | 171 | 0 |
-| Topology/Continuity.lean | Not started | - | - |
+| Topology/Continuity.lean | Skipped | - | - |
 
-**Phase 4 complete for compactness. Continuity optional (may skip to Phase 5).**
+**Phase 4 complete for compactness. Continuity optional (skipped to Phase 5).**
 
 ---
 
-### Phase 5: IN PROGRESS
+### Phase 5: COMPLETE
 
 | File | Status | LOC | Sorries |
 |------|--------|-----|---------|
 | Seminorm/StateSeminorm.lean | ✅ | 89 | 0 |
 | Seminorm/SeminormProps.lean | ✅ | 80 | 0 |
-| Seminorm/Closure.lean | Not started | - | - |
+| Seminorm/Closure.lean | ✅ | 95 | 0 |
 
 ---
 
 ## Next Steps
 
-1. **Phase 5**: Continue Seminorm (SeminormProps.lean for smul homogeneity, Closure.lean)
-2. **Phase 6**: Dual characterization (Forward, SpanIntersection, Riesz extension)
-3. **Phase 7**: Representations (Constrained, VectorState, GNSConstrained)
-4. **Phase 8**: Main theorem
+1. **Phase 6**: Dual characterization (Forward.lean, SpanIntersection.lean, RieszApplication.lean)
+2. **Phase 7**: Representations (Constrained, VectorState, GNSConstrained)
+3. **Phase 8**: Main theorem
 
 ---
 
 ## Key Learnings Reference
 
 See `docs/ArchimedeanClosure/LEARNINGS.md` for index, including:
-- `LEARNINGS_misc.md`: `ofFunction` pattern, closedness proofs, ciSup patterns
+- `LEARNINGS_misc.md`: `ofFunction` pattern, closedness proofs, ciSup patterns, **seminorm closure pattern**
 - `LEARNINGS_states.md`: Cauchy-Schwarz, Archimedean bounds
 
 ### Key ciSup Patterns
@@ -78,11 +78,17 @@ See `docs/ArchimedeanClosure/LEARNINGS.md` for index, including:
 - Use `Real.mul_iSup_of_nonneg` for scalar multiplication (import `Mathlib.Data.Real.Pointwise`)
 - Use `change` to expose `φ.toFun` when FunLike coercion obscures it
 
+### Seminorm Closure Pattern
+Define closure directly via ε-δ instead of setting up TopologicalSpace:
+```lean
+def seminormClosure (p : Seminorm ℝ E) (S : Set E) : Set E :=
+  {a | ∀ ε > 0, ∃ m ∈ S, p (a - m) < ε}
+```
+
 ---
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/Seminorm/SeminormProps.lean` (NEW, 80 LOC, 0 sorries)
-- `docs/ArchimedeanClosure/LEARNINGS_misc.md` (added ciSup patterns)
+- `AfTests/ArchimedeanClosure/Seminorm/Closure.lean` (NEW, 95 LOC, 0 sorries)
 - `HANDOFF.md` (this file)
 
