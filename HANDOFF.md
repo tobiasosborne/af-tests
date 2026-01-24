@@ -1,7 +1,7 @@
 # Handoff: GNS Construction Progress
 
 **Date:** 2026-01-24
-**Session Focus:** Fixed CauchySchwarz.lean LOC violation (af-tests-zdo)
+**Session Focus:** Fixed both LOC violations (af-tests-zdo, af-tests-1zf)
 
 ---
 
@@ -12,7 +12,12 @@
    - `CauchySchwarzTight.lean` (127 lines): Tight C-S + consequences
    - Updated imports in `NullSpace/Basic.lean` and `PreHilbert/InnerProduct.lean`
 
-2. **Build passes, zero sorries**
+2. **Split state-and-positivity.md** (234 → 87 + 135 lines)
+   - `state-and-positivity.md` (87 lines): Core state/positivity learnings
+   - `cauchy-schwarz-proof.md` (135 lines): Cauchy-Schwarz specific learnings
+   - Updated LEARNINGS.md index
+
+3. **Build passes, zero sorries, zero LOC violations**
 
 ---
 
@@ -20,7 +25,7 @@
 
 - **Build status:** Passing (zero sorries!)
 - **Sorry count:** 0 total
-- **LOC violations:** 1 remaining (af-tests-1zf: state-and-positivity.md)
+- **LOC violations:** 0
 
 ---
 
@@ -46,28 +51,21 @@ None! All sorries eliminated.
 
 ## Next Steps (Priority Order)
 
-1. **af-tests-1zf (P0)** - Split state-and-positivity.md to fix LOC violation
-2. **Phase 5** - Representation/Star.lean (af-tests-8r4)
-3. **Phase 6** - Main theorems (after P5 complete)
+1. **Phase 5** - Representation/Star.lean (af-tests-8r4)
+2. **Phase 6** - Main theorems (after P5 complete)
 
 ---
 
 ## Files Modified This Session
 
-- Refactored: `AfTests/GNS/State/CauchySchwarz.lean` (223 → 119 lines, weak C-S only)
-- Created: `AfTests/GNS/State/CauchySchwarzTight.lean` (127 lines, tight C-S + consequences)
+- Refactored: `AfTests/GNS/State/CauchySchwarz.lean` (223 → 119 lines)
+- Created: `AfTests/GNS/State/CauchySchwarzTight.lean` (127 lines)
 - Updated: `AfTests/GNS/NullSpace/Basic.lean` (import change)
 - Updated: `AfTests/GNS/PreHilbert/InnerProduct.lean` (import change)
+- Refactored: `docs/GNS/learnings/state-and-positivity.md` (234 → 87 lines)
+- Created: `docs/GNS/learnings/cauchy-schwarz-proof.md` (135 lines)
+- Updated: `docs/GNS/LEARNINGS.md` (index update)
 - Updated: `HANDOFF.md`
-
----
-
-## Technical Notes for Next Session
-
-**File split pattern used:**
-- Identify logical groupings (weak vs tight Cauchy-Schwarz)
-- Move higher-level results to new file that imports base
-- Update downstream imports to use the file with the theorems they need
 
 ---
 
@@ -75,6 +73,5 @@ None! All sorries eliminated.
 
 ```bash
 bd ready                 # See available work
-bd show af-tests-1zf     # state-and-positivity.md LOC violation (P0)
 bd show af-tests-8r4     # Representation/Star.lean
 ```

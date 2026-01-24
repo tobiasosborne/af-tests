@@ -11,8 +11,15 @@ Detailed learnings are organized by topic in the `learnings/` subdirectory.
 
 ### [State and Positivity](learnings/state-and-positivity.md)
 - State Definition Requires Im = 0
+- Conjugate Symmetry via Algebraic Polarization
 - ℂ Has No Natural PartialOrder in Mathlib
+- State Monotonicity via Spectral Ordering
+
+### [Cauchy-Schwarz Proof](learnings/cauchy-schwarz-proof.md)
 - Cauchy-Schwarz Proof Strategy (real vs complex parameters)
+- Weak Cauchy-Schwarz Implementation
+- Tight Cauchy-Schwarz: Optimal μ Selection
+- Lean Implementation (avoiding simp, explicit rewrites)
 
 ### [Quotient Construction](learnings/quotient-construction.md)
 - Quotient Module Construction in Mathlib (key APIs)
