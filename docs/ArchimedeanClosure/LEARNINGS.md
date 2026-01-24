@@ -259,3 +259,50 @@ No cast to ℂ needed - this was a workaround for the ℂ-algebra that's no long
 
 ### Change Made
 Changed `((N : ℝ) : ℂ) • 1` to `(N : ℝ) • 1` in `IsArchimedean` and `archimedeanBound_spec`.
+
+---
+
+## 2026-01-24: RF-4 Complete - MPositiveState Redesigned for ℝ-Linear Structure
+
+### Change Made
+Replaced ℂ-linear `MPositiveState` with ℝ-linear design:
+```lean
+-- OLD (ℂ-linear, problematic)
+structure MPositiveState (n : ℕ) where
+  toFun : FreeStarAlgebra n →ₗ[ℂ] ℂ
+  map_m_nonneg : ∀ m ∈ QuadraticModule n, 0 ≤ (toFun m).re
+  map_m_real : ∀ m ∈ QuadraticModule n, (toFun m).im = 0
+
+-- NEW (ℝ-linear, cleaner)
+structure MPositiveState (n : ℕ) where
+  toFun : FreeStarAlgebra n →ₗ[ℝ] ℝ
+  map_star : ∀ a, toFun (star a) = toFun a
+  map_m_nonneg : ∀ m ∈ QuadraticModule n, 0 ≤ toFun m
+```
+
+### Key Design Decisions
+
+1. **Codomain is ℝ, not ℂ**: No need for `map_m_real` - automatic.
+
+2. **Explicit `map_star` condition**: The symmetry `φ(star a) = φ(a)` was previously
+   deferred to MPositiveStateProps. Making it part of the structure is:
+   - Mathematically cleaner (captures "state on *-algebra" directly)
+   - Easier to work with (available immediately on any MPositiveState)
+   - Matches the physics literature (states are symmetric functionals)
+
+3. **No `selfAdjoint` subtype**: Considered using `selfAdjoint (FreeStarAlgebra n) →ₗ[ℝ] ℝ`
+   but this requires manually instantiating `Module ℝ` on the subtype since:
+   - `FreeAlgebra ℝ X` does NOT have `StarModule ℝ` (the automatic SMul instance)
+   - Need to prove `star (c • a) = c • star a` manually using `FreeAlgebra.star_algebraMap`
+   Using full algebra + `map_star` condition is simpler.
+
+### Technical Note: star_smul for ℝ-Algebras
+For `FreeAlgebra ℝ X`, we have `star (c • a) = c • star a` for `c : ℝ` because:
+```lean
+star (c • a) = star (algebraMap c * a)     -- Algebra.smul_def
+            = star a * star (algebraMap c) -- star_mul
+            = star a * algebraMap c        -- FreeAlgebra.star_algebraMap
+            = algebraMap c * star a        -- Algebra.commutes
+            = c • star a                   -- Algebra.smul_def
+```
+This could be used to define `Module ℝ (selfAdjoint (FreeAlgebra ℝ X))` if needed later.

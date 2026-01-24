@@ -1,9 +1,7 @@
 # Handoff: 2026-01-24
 
 ## Completed This Session
-- **RF-1 COMPLETE**: Refactored `FreeStarAlgebra` from `ℂ` to `ℝ`
-- **RF-2 COMPLETE**: Updated `QuadraticModule` for ℝ-scaling
-- **RF-3 COMPLETE**: Updated `Archimedean` for ℝ-scaling
+- **RF-4 COMPLETE**: Redesigned `MPositiveState` for ℝ-linear structure
 
 ---
 
@@ -16,9 +14,9 @@
 | ~~af-tests-zpmh~~ | ~~RF-1: FreeStarAlgebra ℂ → ℝ~~ | **DONE** |
 | ~~af-tests-ted9~~ | ~~RF-2: QuadraticModule for ℝ~~ | **DONE** |
 | ~~af-tests-lhmy~~ | ~~RF-3: Archimedean for ℝ~~ | **DONE** |
-| af-tests-amdb | RF-4: MPositiveState redesign | Ready |
-| af-tests-cfc9 | RF-5: MPositiveStateProps update | Blocked by RF-4 |
-| af-tests-6r38 | RF-6: NonEmptiness fix | Blocked by RF-4 |
+| ~~af-tests-amdb~~ | ~~RF-4: MPositiveState redesign~~ | **DONE** |
+| af-tests-cfc9 | RF-5: MPositiveStateProps update | Ready |
+| af-tests-6r38 | RF-6: NonEmptiness fix | Ready |
 
 ### File Status
 
@@ -27,26 +25,37 @@
 | Algebra/FreeStarAlgebra.lean | ✅ | 56 |
 | Algebra/QuadraticModule.lean | ✅ | 93 |
 | Algebra/Archimedean.lean | ✅ | 46 |
-| State/MPositiveState.lean | ⚠️ | 92 |
+| State/MPositiveState.lean | ✅ | 100 |
 | State/MPositiveStateProps.lean | ⚠️ | 69 |
-| State/NonEmptiness.lean | ⛔ | 103 |
+| State/NonEmptiness.lean | ⚠️ | 103 |
 
-**Phase 1 Algebra layer complete!**
+**Phase 1 + MPositiveState refactoring complete!**
 
 ---
 
 ## Next Steps
 
-1. **RF-4**: Major redesign of MPositiveState for ℝ-linear functionals
-   - States become ℝ-linear on self-adjoints
-   - This is the most significant refactoring task
+1. **RF-5**: Update MPositiveStateProps for new MPositiveState structure
+   - Remove `map_star` proof (now an axiom in structure)
+   - Update `apply_real_of_isSelfAdjoint` (codomain is ℝ, automatic)
+
+2. **RF-6**: Fix NonEmptiness - scalar extraction should now work over ℝ
+
+---
+
+## Key Design Decision (RF-4)
+
+MPositiveState redesigned from ℂ-linear to ℝ-linear:
+- `toFun : FreeStarAlgebra n →ₗ[ℝ] ℝ` (not ℂ)
+- Explicit `map_star : ∀ a, toFun (star a) = toFun a`
+- No `map_m_real` needed (codomain is ℝ)
+
+See LEARNINGS.md for full rationale.
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/Algebra/FreeStarAlgebra.lean` (RF-1)
-- `AfTests/ArchimedeanClosure/Algebra/QuadraticModule.lean` (RF-2)
-- `AfTests/ArchimedeanClosure/Algebra/Archimedean.lean` (RF-3)
+- `AfTests/ArchimedeanClosure/State/MPositiveState.lean` (RF-4)
 - `docs/ArchimedeanClosure/LEARNINGS.md`
 - `HANDOFF.md`
