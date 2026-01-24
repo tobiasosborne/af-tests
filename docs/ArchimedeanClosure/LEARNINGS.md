@@ -333,3 +333,47 @@ Rewrote MPositiveStateProps for the ℝ-linear structure. Key simplifications:
 Moving `map_star` from theorem to axiom was the right call - it eliminates complex
 polarization proofs and makes the structure cleaner. Properties that were hard to
 prove over ℂ become trivial over ℝ.
+
+---
+
+## 2026-01-24: RF-6 Complete - NonEmptiness Proven Over ℝ
+
+### The Fix That Worked
+With FreeStarAlgebra over ℝ (not ℂ), scalar extraction gives an M-positive state!
+
+### Key Proof Insight
+The crucial observation is that `scalarExtraction` is an **algebra homomorphism**.
+This means:
+```
+scalarExtraction(star a * a) = scalarExtraction(star a) * scalarExtraction(a)
+                              = scalarExtraction(a) * scalarExtraction(a)   [by scalarExtraction_star]
+                              = scalarExtraction(a)²
+```
+And `x² ≥ 0` for all `x : ℝ`. This is a 3-line proof!
+
+### Why This Was BLOCKED Over ℂ
+Over ℂ, the same reasoning gives:
+```
+scalarExtraction(star a * a) = scalarExtraction(a)²
+```
+But for `a = algebraMap I` (imaginary unit), `scalarExtraction(a) = I`, so
+`scalarExtraction(a)² = I² = -1`, which is **not** nonnegative!
+
+### Theorems Proven
+1. `scalarExtraction_star`: φ(star a) = φ(a) (by induction, star reverses/fixes)
+2. `scalarExtraction_star_mul_self_nonneg`: φ(star a * a) ≥ 0 (algebra hom + sq ≥ 0)
+3. `scalarExtraction_star_mul_generator_mul_self_nonneg`: φ(star a * g_j * a) = 0
+4. `scalarExtraction_m_nonneg`: φ(m) ≥ 0 for all m ∈ M (induction on M)
+5. `scalarState`: Constructs the canonical M-positive state
+6. `MPositiveStateSet_nonempty`: S_M ≠ ∅
+
+### Technical Note: Generator-Weighted Squares
+For `star a * g_j * a`, scalar extraction gives 0 (not just ≥ 0) because:
+- `scalarExtraction` is an algebra hom
+- `scalarExtraction(g_j) = 0` for all generators
+- So `scalarExtraction(... * g_j * ...) = ... * 0 * ... = 0`
+
+This is actually cleaner than the pure squares case!
+
+### Files Modified
+- `AfTests/ArchimedeanClosure/State/NonEmptiness.lean` (149 LOC, 0 sorries)

@@ -8,31 +8,24 @@ import Mathlib.Algebra.FreeAlgebra
 
 /-! # Non-emptiness of S_M
 
-This file addresses the non-emptiness of the state space S_M.
+This file proves that the state space S_M is nonempty.
 
 ## Main definitions
 
-* `scalarExtraction` - Linear functional extracting scalar coefficient
+* `scalarExtraction` - ℝ-linear functional extracting scalar coefficient
 
-## Mathematical Issue (Critical)
+## Main results
 
-The FreeAlgebra star structure from mathlib does NOT conjugate scalars:
-  star (algebraMap c) = algebraMap c  (NOT algebraMap (conj c))
+* `scalarExtraction_star_mul_self_nonneg` - scalar extraction is nonneg on star a * a
+* `MPositiveStateSet_nonempty` - S_M ≠ ∅
 
-This means for a = algebraMap I (the imaginary unit):
-  star a * a = algebraMap (I * I) = algebraMap (-1) ∈ M
+## Mathematical Background
 
-But scalarExtraction (algebraMap (-1)) = -1, which has NEGATIVE real part!
+With FreeStarAlgebra over ℝ (not ℂ), scalar extraction works correctly:
+- For any c : ℝ, we have star(c·1) * (c·1) = c² ≥ 0
+- This was BLOCKED over ℂ where star(I·1) * (I·1) = -1
 
-This breaks the standard "scalar extraction gives M-positive state" argument.
-
-## Possible Resolutions
-
-1. Work over ℝ: Use FreeAlgebra ℝ (Fin n), extend to ℂ-valued functionals
-2. Quotient: Take quotient by star(c·1) = conj(c)·1 relations
-3. Axiomatize: Add existence of M-positive states as hypothesis
-
-See LEARNINGS.md for full discussion.
+See LEARNINGS.md for the full story of why ℝ-algebra is required.
 -/
 
 namespace FreeStarAlgebra
@@ -42,12 +35,12 @@ variable {n : ℕ}
 /-- Scalar extraction: the algebra map inverse, extracting coefficient of 1.
 
 This is `FreeAlgebra.algebraMapInv`, which maps generators to 0 and
-extracts the scalar part. Note: This is an AlgHom, hence ℂ-linear. -/
-noncomputable def scalarExtraction : FreeStarAlgebra n →ₐ[ℂ] ℂ :=
+extracts the scalar part. -/
+noncomputable def scalarExtraction : FreeStarAlgebra n →ₐ[ℝ] ℝ :=
   FreeAlgebra.algebraMapInv
 
 /-- scalarExtraction as a linear map. -/
-noncomputable def scalarExtractionLinear : FreeStarAlgebra n →ₗ[ℂ] ℂ :=
+noncomputable def scalarExtractionLinear : FreeStarAlgebra n →ₗ[ℝ] ℝ :=
   scalarExtraction.toLinearMap
 
 /-- Scalar extraction maps 1 to 1. -/
@@ -65,42 +58,92 @@ theorem scalarExtraction_generator (j : Fin n) : scalarExtraction (generator j) 
 /-- Scalar extraction extracts the scalar part.
 
 For a = algebraMap c + (terms with generators), we have scalarExtraction a = c. -/
-theorem scalarExtraction_algebraMap (c : ℂ) :
-    scalarExtraction (algebraMap (R := ℂ) (A := FreeStarAlgebra n) c) = c := by
+theorem scalarExtraction_algebraMap (c : ℝ) :
+    scalarExtraction (algebraMap (R := ℝ) (A := FreeStarAlgebra n) c) = c := by
   exact FreeAlgebra.algebraMap_leftInverse c
 
-/-! ## The Obstacle
+/-- Scalar extraction commutes with star.
 
-The following theorem would be needed for M-positivity, but it FAILS due to
-the star structure not conjugating scalars.
+This uses that star reverses words (and fixes scalars/generators), so the
+scalar part (coefficient of empty word) is preserved. -/
+theorem scalarExtraction_star (a : FreeStarAlgebra n) :
+    scalarExtraction (star a) = scalarExtraction a := by
+  -- Use induction on the FreeAlgebra structure
+  induction a using FreeAlgebra.induction with
+  | grade0 c =>
+    -- star (algebraMap c) = algebraMap c for ℝ-algebras
+    simp only [FreeAlgebra.star_algebraMap]
+  | grade1 j =>
+    -- star (ι j) = ι j (generators are self-adjoint)
+    simp only [FreeAlgebra.star_ι]
+  | add a b iha ihb =>
+    simp only [star_add, map_add, iha, ihb]
+  | mul a b iha ihb =>
+    simp only [star_mul, map_mul, iha, ihb, mul_comm]
 
-For a = algebraMap I, we have:
-  star a * a = algebraMap (-1)
-  scalarExtraction (star a * a) = -1
+/-- Scalar extraction gives nonnegative values on star a * a over ℝ.
 
-So the real part is NEGATIVE, not nonnegative!
+The key insight: scalarExtraction is an algebra homomorphism, so
+  scalarExtraction(star a * a) = scalarExtraction(star a) * scalarExtraction(a)
+                                = scalarExtraction(a) * scalarExtraction(a)
+                                = scalarExtraction(a)²
+And any real squared is nonnegative. -/
+theorem scalarExtraction_star_mul_self_nonneg (a : FreeStarAlgebra n) :
+    0 ≤ scalarExtraction (star a * a) := by
+  -- Use that scalarExtraction is an algebra homomorphism
+  rw [map_mul, scalarExtraction_star]
+  exact mul_self_nonneg _
+
+/-- Scalar extraction of generator-weighted squares is zero (hence nonnegative).
+
+For star a * g_j * a, the scalar part is 0 since every term contains g_j. -/
+theorem scalarExtraction_star_mul_generator_mul_self_nonneg (a : FreeStarAlgebra n) (j : Fin n) :
+    0 ≤ scalarExtraction (star a * generator j * a) := by
+  -- scalarExtraction of anything containing a generator is 0
+  -- since scalarExtraction(g_j) = 0 and it's an algebra hom
+  simp only [map_mul, scalarExtraction_generator, mul_zero, zero_mul, le_refl]
+
+/-- Scalar extraction is nonnegative on all elements of the quadratic module.
+
+This uses induction on QuadraticModuleSet membership:
+- star a * a: nonneg by scalarExtraction_star_mul_self_nonneg
+- star a * g_j * a: zero by scalarExtraction_star_mul_generator_mul_self_nonneg
+- sums: sum of nonneg is nonneg
+- nonneg scalar multiples: nonneg * nonneg = nonneg
 -/
+theorem scalarExtraction_m_nonneg {m : FreeStarAlgebra n} (hm : m ∈ QuadraticModule n) :
+    0 ≤ scalarExtraction m := by
+  induction hm with
+  | generator_mem m hgen =>
+    -- m ∈ QuadraticModuleGenerators = squareSet ∪ generatorWeightedSet
+    rcases hgen with ⟨a, rfl⟩ | ⟨j, b, rfl⟩
+    · exact scalarExtraction_star_mul_self_nonneg a
+    · exact scalarExtraction_star_mul_generator_mul_self_nonneg b j
+  | add_mem _ _ _ _ ih₁ ih₂ =>
+    simp only [map_add]
+    exact add_nonneg ih₁ ih₂
+  | smul_mem c _ hc _ ih =>
+    simp only [map_smul, smul_eq_mul]
+    exact mul_nonneg hc ih
 
-/-- BLOCKED: This fails due to star structure not conjugating scalars.
+/-- The scalar extraction functional as an M-positive state.
 
-Counter-example: a = algebraMap I gives scalarExtraction (star a * a) = -1.
+This constructs an M-positive state by:
+- Linear map: scalarExtractionLinear
+- Symmetry: scalarExtraction_star
+- Normalization: scalarExtraction_one
+- M-positivity: scalarExtraction_m_nonneg
+-/
+noncomputable def scalarState : MPositiveState n where
+  toFun := scalarExtractionLinear
+  map_star := scalarExtraction_star
+  map_one := scalarExtraction_one
+  map_m_nonneg := fun _ hm => scalarExtraction_m_nonneg hm
 
-For this to work, we would need star (c • 1) = conj(c) • 1, but the
-FreeAlgebra star structure has star (c • 1) = c • 1. -/
-theorem scalarExtraction_star_mul_self_nonneg_BLOCKED (a : FreeStarAlgebra n) :
-    0 ≤ (scalarExtraction (star a * a)).re := by
-  sorry -- BLOCKED: Counter-example exists, see docstring
+/-- The set S_M of M-positive states is nonempty.
 
-/-- S_M is nonempty.
-
-APPROACH NEEDED: The standard scalar extraction approach fails (see above).
-Alternative approaches:
-1. Restrict to subalgebra where star conjugates properly
-2. Use Hahn-Banach/Riesz extension with different base functional
-3. Add as hypothesis that n ≥ 1 and use generator-based construction
-
-For now, this is axiomatized pending resolution of the star structure issue. -/
-theorem MPositiveStateSet_nonempty : (MPositiveStateSet n).Nonempty := by
-  sorry -- BLOCKED: Requires resolution of star structure issue
+scalarState provides a canonical witness. -/
+theorem MPositiveStateSet_nonempty : (MPositiveStateSet n).Nonempty :=
+  ⟨scalarState, Set.mem_univ _⟩
 
 end FreeStarAlgebra
