@@ -1,30 +1,33 @@
 # Handoff: 2026-01-24
 
 ## Session Summary
-Completed AC-P2.2: MPositiveState properties (with 2 sorries requiring polarization proofs).
+Attempted AC-P2.3 (NonEmptiness) and discovered a **critical blocking issue**:
+the FreeAlgebra star structure breaks the scalar extraction approach.
 
 ---
 
 ## Completed This Session
 
-1. **AC-P2.2: MPositiveState properties** (beads: af-tests-y95)
-   - Created `AfTests/ArchimedeanClosure/State/MPositiveStateProps.lean` (69 LOC)
-   - `apply_star_mul_self_real` - proven
-   - `apply_real_of_isSelfAdjoint` - sorry (needs polarization identity)
-   - `map_star` - sorry (needs polarization from positivity)
-   - `apply_add_star_real` - proven (uses map_star)
+1. **AC-P2.3: S_M non-emptiness** (beads: af-tests-dlx) - BLOCKED
+   - Created `AfTests/ArchimedeanClosure/State/NonEmptiness.lean` (103 LOC)
+   - `scalarExtraction` - defined using `FreeAlgebra.algebraMapInv` ✓
+   - `scalarExtraction_one` - proven ✓
+   - `scalarExtraction_generator` - proven ✓
+   - `scalarExtraction_algebraMap` - proven ✓
+   - `scalarExtraction_star_mul_self_nonneg` - BLOCKED (counter-example!)
+   - `MPositiveStateSet_nonempty` - sorry (blocked by above)
 
-2. **Learning Documented**
-   - Detailed analysis of what's needed to fill the 2 sorries
-   - Proof strategies for polarization arguments
-   - Challenge: star structure doesn't conjugate scalars
-   - See `docs/ArchimedeanClosure/LEARNINGS.md`
+2. **Critical Learning Documented**
+   - The star structure on `FreeAlgebra ℂ X` does NOT conjugate scalars
+   - For `a = algebraMap I`, we get `star a * a = algebraMap(-1)` in M
+   - But `scalarExtraction(algebraMap(-1)) = -1` has NEGATIVE real part!
+   - This breaks the standard proof that scalar extraction gives M-positive state
 
 ---
 
 ## Current State
 
-### Archimedean Closure: Phase 2 IN PROGRESS
+### Archimedean Closure: Phase 2 BLOCKED
 
 | File | Status | LOC | Sorries |
 |------|--------|-----|---------|
@@ -33,42 +36,53 @@ Completed AC-P2.2: MPositiveState properties (with 2 sorries requiring polarizat
 | Algebra/Archimedean.lean | ✅ Done | 46 | 0 |
 | State/MPositiveState.lean | ✅ Done | 92 | 0 |
 | State/MPositiveStateProps.lean | ⚠️ Sorries | 69 | 2 |
+| State/NonEmptiness.lean | ⛔ BLOCKED | 103 | 2 |
 
-**Total: 353 LOC** (2 sorries)
+**Total: 456 LOC** (4 sorries)
 
 ### GNS Construction: COMPLETE
 - No changes this session
 
 ---
 
-## Next Steps
+## Critical Issue: Star Structure
 
-1. **Phase 2: States** (continue)
-   - af-tests-dlx: AC-P2.3: S_M non-emptiness
-   - Consider: Fill sorries in MPositiveStateProps or add `map_star` as axiom
+The star structure from `Mathlib.Algebra.Star.Free` satisfies:
+```
+star (algebraMap c) = algebraMap c    -- scalars FIXED, not conjugated!
+```
 
-2. **Phase 3: Boundedness** (ready)
-   - af-tests-03l: AC-P3.1: Cauchy-Schwarz (blocked by af-tests-y95 sorries?)
-   - af-tests-fjy: AC-P3.3: Generating cone lemma
+This means `star(I·1) * (I·1) = -1·1 ∈ M`, but scalar extraction gives `-1 < 0`.
+
+**Resolution paths documented in LEARNINGS.md:**
+1. Work over ℝ instead of ℂ
+2. Quotient algebra to enforce conjugation
+3. Restrict M definition
+4. Axiomatize non-emptiness
+5. Use different base state construction
 
 ---
 
-## Key Decisions Made
+## Next Steps
 
-1. **Sorries for polarization proofs**: Rather than spend excessive time on the
-   polarization proofs, documented the strategies and left as sorry. These can be:
-   - Filled later with the detailed proof
-   - Avoided by adding `map_star` as an axiom in MPositiveState
+1. **Architectural decision needed**: How to resolve the star structure issue?
+   - Option A: Rebuild Phase 1 over ℝ (significant refactor)
+   - Option B: Add `StarModule ℂ` via quotient (complex)
+   - Option C: Axiomatize `MPositiveStateSet_nonempty` (pragmatic)
+   - Option D: Restrict M to exclude pure scalar squares (changes semantics)
 
-2. **File structure**: MPositiveStateProps.lean adds theorems that depend on
-   MPositiveState, keeping the base definition minimal.
+2. **Phase 3+ can proceed** if we axiomatize non-emptiness:
+   - af-tests-03l: AC-P3.1: Cauchy-Schwarz
+   - af-tests-fjy: AC-P3.3: Generating cone lemma
+   - af-tests-il1: AC-P4.1: State space topology
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/State/MPositiveStateProps.lean` (NEW - 69 LOC)
-- `docs/ArchimedeanClosure/LEARNINGS.md` (updated with sorry analysis)
+- `AfTests/ArchimedeanClosure/State/NonEmptiness.lean` (NEW - 103 LOC)
+- `docs/ArchimedeanClosure/LEARNINGS.md` (updated with critical finding)
+- `HANDOFF.md` (this file)
 
 ---
 
@@ -78,6 +92,8 @@ Completed AC-P2.2: MPositiveState properties (with 2 sorries requiring polarizat
 |------|---------|--------|
 | MPositiveStateProps.lean | `apply_real_of_isSelfAdjoint` | Needs polarization identity |
 | MPositiveStateProps.lean | `map_star` | Needs polarization from positivity |
+| NonEmptiness.lean | `scalarExtraction_star_mul_self_nonneg` | **BLOCKED**: Counter-example exists |
+| NonEmptiness.lean | `MPositiveStateSet_nonempty` | Blocked by above |
 
 ---
 
@@ -86,6 +102,6 @@ Completed AC-P2.2: MPositiveState properties (with 2 sorries requiring polarizat
 ```
 bd ready
 ```
-- Phase 2: af-tests-dlx (NonEmptiness)
+- Phase 2: af-tests-dlx (NonEmptiness) - IN PROGRESS but BLOCKED
 - Phase 3: af-tests-03l (Cauchy-Schwarz), af-tests-fjy (GeneratingCone)
 - Phase 4+: Multiple issues ready

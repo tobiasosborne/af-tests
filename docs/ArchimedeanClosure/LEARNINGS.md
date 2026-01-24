@@ -154,3 +154,64 @@ Consider whether to:
 1. Add `map_star` as an axiom in `MPositiveState` structure, OR
 2. Restrict to proofs that only use `apply_m_real` on M elements, OR
 3. Work through the polarization proof carefully accounting for the star structure
+
+---
+
+## 2026-01-24: NonEmptiness BLOCKED - Star Structure Breaks Scalar Extraction
+
+### Critical Finding
+The standard "scalar extraction gives M-positive state" approach **FAILS** due to
+the star structure not conjugating scalars.
+
+### The Problem
+For `FreeAlgebra ℂ X`, the star structure satisfies:
+- `star (algebraMap c) = algebraMap c` (scalars are FIXED)
+
+Consider `a = algebraMap I` (the imaginary unit embedded in the algebra):
+```
+star a = algebraMap I        (since star fixes scalars)
+star a * a = algebraMap (I * I) = algebraMap (-1)
+```
+
+Since `star a * a` is always in the quadratic module M, we have `algebraMap (-1) ∈ M`.
+
+### Scalar Extraction Failure
+The scalar extraction functional is `FreeAlgebra.algebraMapInv`, which:
+- Maps generators to 0
+- Extracts the scalar coefficient: `algebraMapInv (algebraMap c) = c`
+
+Applying this to our M-element:
+```
+scalarExtraction (algebraMap (-1)) = -1
+```
+
+This has **negative real part**, violating M-positivity requirement!
+
+### Mathlib Functions Used
+- `FreeAlgebra.algebraMapInv : FreeAlgebra R X →ₐ[R] R`
+- `FreeAlgebra.algebraMap_leftInverse : algebraMapInv ∘ algebraMap = id`
+- `FreeAlgebra.star_algebraMap : star (algebraMap c) = algebraMap c`
+
+### Counter-Example Summary
+| Element | In M? | Scalar Extraction | Real Part | M-Positive? |
+|---------|-------|-------------------|-----------|-------------|
+| `star(algebraMap I) * algebraMap I` | ✓ | `-1` | `-1` | ✗ |
+
+### Implications
+This is a fundamental obstacle. The scalar extraction approach used in many
+functional analysis proofs assumes `star(c·1) = conj(c)·1`, giving `|c|² ≥ 0`.
+Our star structure gives `c² ∈ ℂ`, which can have negative real part.
+
+### Resolution Paths
+1. **Work over ℝ**: Use `FreeAlgebra ℝ (Fin n)`, then ℂ-valued states separately
+2. **Quotient algebra**: Take quotient by relations `star(c·1) = conj(c)·1`
+3. **Restrict M**: Exclude "pathological" squares from M definition
+4. **Axiomatize**: Add `MPositiveStateSet_nonempty` as hypothesis
+5. **Different base state**: Use Hahn-Banach/Riesz with non-scalar-extraction base
+
+### Current Status
+File `State/NonEmptiness.lean` created with:
+- ✓ `scalarExtraction` defined using `FreeAlgebra.algebraMapInv`
+- ✓ `scalarExtraction_one`, `scalarExtraction_generator` proven
+- ✗ `scalarExtraction_star_mul_self_nonneg` BLOCKED (counter-example exists)
+- ✗ `MPositiveStateSet_nonempty` as sorry pending resolution
