@@ -86,3 +86,28 @@ continuity considerations.
 
 **Lesson:** When composing a function with a surjective map, prove `DenseRange` via
 set equality rather than `DenseRange.comp`. This sidesteps topology issues entirely.
+
+---
+
+## Extension vs Map for Completions
+
+**Discovery:** Mathlib has two ways to extend functions to completions:
+- `UniformSpace.Completion.map f` - for `f : α → β` where target is also a completion
+- `UniformSpace.Completion.extension f` - for `f : α → β` where target is complete
+
+**Problem:** When extending an isometry `U₀ : A/N_φ → H` to `H_φ → H`, we need
+`extension` because `H` is complete but not a completion of something.
+
+**Resolution:** Use `UniformSpace.Completion.extension`:
+```lean
+noncomputable def gnsIntertwinerFun ... : φ.gnsHilbertSpace → H :=
+  UniformSpace.Completion.extension (gnsIntertwinerQuotientFun ...)
+```
+
+Key lemmas:
+- `extension_coe hf a` - extension agrees on embedded elements (requires `UniformContinuous f`)
+- `continuous_extension` - extension is continuous
+- `Isometry.completion_extension` - extension of isometry is an isometry
+
+**Lesson:** Use `extension` when the target is a complete space. Use `map` when the
+target is itself a completion (e.g., extending `f : α → β` to `Completion α → Completion β`).

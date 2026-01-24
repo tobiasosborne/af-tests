@@ -1,0 +1,107 @@
+/-
+Copyright (c) 2026. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: AF-Tests Project
+-/
+import AfTests.GNS.Main.Uniqueness
+import Mathlib.Topology.MetricSpace.Completion
+
+/-!
+# GNS Intertwiner Extension
+
+Extends the quotient-level intertwiner U₀ : A/N_φ →ₗᵢ[ℂ] H to the full Hilbert space H_φ.
+
+## Main definitions
+
+* `gnsIntertwinerFun` - The extended function H_φ → H via completion extension
+
+## Main results
+
+* `gnsIntertwinerFun_coe` - Extension agrees with U₀ on embedded quotient elements
+-/
+
+namespace State
+
+variable {A : Type*} [CStarAlgebra A] (φ : State A)
+variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℂ H] [CompleteSpace H]
+variable (π : A →⋆ₐ[ℂ] (H →L[ℂ] H)) (ξ : H)
+
+/-! ### Extension to Hilbert space -/
+
+/-- The underlying function of U₀ is uniformly continuous (isometries are).
+    This allows extension to the completion. -/
+theorem gnsIntertwinerQuotientFun_uniformContinuous
+    (hξ_state : ∀ a : A, @inner ℂ H _ ξ (π a ξ) = φ a) :
+    UniformContinuous (gnsIntertwinerQuotientFun φ π ξ hξ_state) :=
+  (gnsIntertwinerQuotientLinearIsometry φ π ξ hξ_state).isometry.uniformContinuous
+
+/-- Extend U₀ to the full Hilbert space H_φ = completion of A/N_φ.
+    Uses the universal property of completions: uniformly continuous maps extend uniquely. -/
+noncomputable def gnsIntertwinerFun
+    (hξ_state : ∀ a : A, @inner ℂ H _ ξ (π a ξ) = φ a) : φ.gnsHilbertSpace → H :=
+  UniformSpace.Completion.extension (gnsIntertwinerQuotientFun φ π ξ hξ_state)
+
+/-- The extension agrees with U₀ on embedded quotient elements. -/
+theorem gnsIntertwinerFun_coe
+    (hξ_state : ∀ a : A, @inner ℂ H _ ξ (π a ξ) = φ a)
+    (x : φ.gnsQuotient) :
+    gnsIntertwinerFun φ π ξ hξ_state x = gnsIntertwinerQuotientFun φ π ξ hξ_state x := by
+  unfold gnsIntertwinerFun
+  exact UniformSpace.Completion.extension_coe
+    (gnsIntertwinerQuotientFun_uniformContinuous φ π ξ hξ_state) x
+
+/-- The extension is continuous. -/
+theorem gnsIntertwinerFun_continuous
+    (hξ_state : ∀ a : A, @inner ℂ H _ ξ (π a ξ) = φ a) :
+    Continuous (gnsIntertwinerFun φ π ξ hξ_state) :=
+  UniformSpace.Completion.continuous_extension
+
+/-- The extension preserves addition.
+    Proof by density: both sides are continuous and agree on dense quotient. -/
+theorem gnsIntertwinerFun_add
+    (hξ_state : ∀ a : A, @inner ℂ H _ ξ (π a ξ) = φ a)
+    (x y : φ.gnsHilbertSpace) :
+    gnsIntertwinerFun φ π ξ hξ_state (x + y) =
+    gnsIntertwinerFun φ π ξ hξ_state x + gnsIntertwinerFun φ π ξ hξ_state y := by
+  refine UniformSpace.Completion.induction_on₂ x y ?_ ?_
+  · exact isClosed_eq (gnsIntertwinerFun_continuous φ π ξ hξ_state |>.comp continuous_add)
+        ((gnsIntertwinerFun_continuous φ π ξ hξ_state |>.comp continuous_fst).add
+         (gnsIntertwinerFun_continuous φ π ξ hξ_state |>.comp continuous_snd))
+  · intro a b
+    simp only [← UniformSpace.Completion.coe_add]
+    rw [gnsIntertwinerFun_coe, gnsIntertwinerFun_coe, gnsIntertwinerFun_coe]
+    exact gnsIntertwinerQuotient_add φ π ξ hξ_state a b
+
+/-- The extension preserves scalar multiplication.
+    Proof by density: both sides are continuous and agree on dense quotient. -/
+theorem gnsIntertwinerFun_smul
+    (hξ_state : ∀ a : A, @inner ℂ H _ ξ (π a ξ) = φ a)
+    (c : ℂ) (x : φ.gnsHilbertSpace) :
+    gnsIntertwinerFun φ π ξ hξ_state (c • x) =
+    c • gnsIntertwinerFun φ π ξ hξ_state x := by
+  refine UniformSpace.Completion.induction_on x ?_ ?_
+  · have hc1 := gnsIntertwinerFun_continuous φ π ξ hξ_state |>.comp (continuous_const_smul c)
+    have hc2 := (continuous_const_smul c).comp (gnsIntertwinerFun_continuous φ π ξ hξ_state)
+    exact isClosed_eq hc1 hc2
+  · intro a
+    simp only [← UniformSpace.Completion.coe_smul]
+    rw [gnsIntertwinerFun_coe, gnsIntertwinerFun_coe]
+    exact gnsIntertwinerQuotient_smul φ π ξ hξ_state c a
+
+/-- The extended intertwiner as a ContinuousLinearMap H_φ →L[ℂ] H. -/
+noncomputable def gnsIntertwiner
+    (hξ_state : ∀ a : A, @inner ℂ H _ ξ (π a ξ) = φ a) : φ.gnsHilbertSpace →L[ℂ] H where
+  toFun := gnsIntertwinerFun φ π ξ hξ_state
+  map_add' := gnsIntertwinerFun_add φ π ξ hξ_state
+  map_smul' := gnsIntertwinerFun_smul φ π ξ hξ_state
+  cont := gnsIntertwinerFun_continuous φ π ξ hξ_state
+
+/-- The ContinuousLinearMap agrees with U₀ on embedded quotient elements. -/
+@[simp]
+theorem gnsIntertwiner_coe
+    (hξ_state : ∀ a : A, @inner ℂ H _ ξ (π a ξ) = φ a)
+    (x : φ.gnsQuotient) :
+    gnsIntertwiner φ π ξ hξ_state x = gnsIntertwinerQuotientFun φ π ξ hξ_state x :=
+  gnsIntertwinerFun_coe φ π ξ hξ_state x
+
+end State

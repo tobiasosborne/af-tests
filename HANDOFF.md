@@ -1,25 +1,26 @@
-# Handoff: GNS Uniqueness Step 3 Complete
+# Handoff: GNS Uniqueness Step 4 Complete
 
 **Date:** 2026-01-24
-**Session Focus:** Implement GNS-U3 (LinearIsometry on quotient)
+**Session Focus:** Implement GNS-U4 (Extend intertwiner to Hilbert space)
 
 ---
 
 ## Completed This Session
 
-1. **Implemented GNS-U3 (af-tests-rb9): LinearIsometry on quotient**
-   - `gnsIntertwinerQuotientLinearIsometry` - wraps LinearMap + isometry as LinearIsometry
-   - Compacted header docstring to stay under 200 LOC
-   - File: `Main/Uniqueness.lean` (189 lines)
+1. **Implemented GNS-U4 (af-tests-hqt): Extend intertwiner to Hilbert space**
+   - Created `Main/UniquenessExtension.lean` (107 lines, no sorries)
+   - `gnsIntertwinerFun` - extended function via `UniformSpace.Completion.extension`
+   - `gnsIntertwiner` - wrapped as `ContinuousLinearMap` H_φ →L[ℂ] H
+   - Proved linearity via density argument using `induction_on₂`/`induction_on`
 
 ---
 
 ## Current State
 
-- **GNS existence theorem (`gns_theorem`):** ✅ Proven
-- **GNS uniqueness theorem (`gns_uniqueness`):** ⏳ In Progress (3/12 steps)
+- **GNS existence theorem (`gns_theorem`):** Proven
+- **GNS uniqueness theorem (`gns_uniqueness`):** In Progress (4/12 steps)
 - **Build status:** Passing (zero sorries)
-- **Next ready issue:** `af-tests-hqt` (GNS-U4: Extension to Hilbert space)
+- **Next ready issue:** `af-tests-ywt` (GNS-U5: Prove extension is isometry)
 
 ---
 
@@ -27,11 +28,11 @@
 
 | Step | ID | Description | Status |
 |------|----|-------------|--------|
-| 1 | af-tests-aov | Linearity of U₀ | ✅ Done |
-| 2 | af-tests-6tj | LinearMap structure | ✅ Done |
-| 3 | af-tests-rb9 | LinearIsometry on quotient | ✅ Done |
-| 4 | af-tests-hqt | Extension to Hilbert space | Ready |
-| 5 | af-tests-ywt | Extension is isometry | Blocked by 4 |
+| 1 | af-tests-aov | Linearity of U₀ | Done |
+| 2 | af-tests-6tj | LinearMap structure | Done |
+| 3 | af-tests-rb9 | LinearIsometry on quotient | Done |
+| 4 | af-tests-hqt | Extension to Hilbert space | Done |
+| 5 | af-tests-ywt | Extension is isometry | Ready |
 | 6 | af-tests-5nd | Dense range | Blocked by 5 |
 | 7 | af-tests-usd | Surjectivity | Blocked by 6 |
 | 8 | af-tests-7hr | LinearIsometryEquiv | Blocked by 7 |
@@ -44,32 +45,49 @@
 
 ## Next Steps
 
-Start with `af-tests-hqt` (GNS-U4):
+Start with `af-tests-ywt` (GNS-U5):
 ```bash
-bd show af-tests-hqt           # View details
-bd update af-tests-hqt --status=in_progress  # Claim it
+bd show af-tests-ywt           # View details
+bd update af-tests-ywt --status=in_progress  # Claim it
 ```
 
-Implement in new file `Main/UniquenessExtension.lean`:
-- `gnsIntertwiner` - extend U₀ to full Hilbert space via completion
-- Key mathlib: `Isometry.completion_extension`
+Implement in `Main/UniquenessExtension.lean`:
+- `gnsIntertwiner_norm` - prove ‖U(x)‖ = ‖x‖ using `Isometry.completion_extension`
+- `gnsIntertwinerLinearIsometry` - wrap as LinearIsometry
+
+---
+
+## Key Implementation Details
+
+### Extension Pattern
+Used `UniformSpace.Completion.extension` which extends uniformly continuous functions:
+```lean
+noncomputable def gnsIntertwinerFun ... : φ.gnsHilbertSpace → H :=
+  UniformSpace.Completion.extension (gnsIntertwinerQuotientFun ...)
+```
+
+### Linearity by Density
+Proved `map_add'` and `map_smul'` using completion induction:
+```lean
+refine UniformSpace.Completion.induction_on₂ x y ?_ ?_
+· -- IsClosed proof
+· -- Proof on dense quotient
+```
 
 ---
 
 ## Files Modified This Session
 
-- Modified: `AfTests/GNS/Main/Uniqueness.lean` (compacted header, added LinearIsometry)
+- Created: `AfTests/GNS/Main/UniquenessExtension.lean` (107 lines)
 - Modified: `HANDOFF.md` (this file)
 
 ---
 
-## Learning: Topology Diamond
+## Learning: Extension via Completion
 
-The `gnsIntertwinerQuotientLinearIsometry_continuous` theorem was dropped due to
-topology instance mismatch:
-- Quotient has `QuotientModule.Quotient.topologicalSpace`
-- LinearIsometry gives `PseudoMetricSpace.toUniformSpace.toTopologicalSpace`
+The key mathlib API for extending isometries to completions:
+- `UniformSpace.Completion.extension f` - extends uniformly continuous `f : α → β` to `Completion α → β`
+- `UniformSpace.Completion.extension_coe hf a` - proves extension agrees on embedded elements
+- `UniformSpace.Completion.continuous_extension` - extension is continuous
 
-These should be equal for seminormed quotients, but Lean doesn't unify them
-automatically. Not blocking for the construction - continuity follows from
-the LinearIsometry structure when needed.
+For linearity, must prove manually via `induction_on`/`induction_on₂` with `isClosed_eq`.
