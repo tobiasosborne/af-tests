@@ -1,7 +1,7 @@
-# Handoff: GNS Uniqueness Step 9 Complete
+# Handoff: GNS Uniqueness Step 10 Complete
 
 **Date:** 2026-01-24
-**Session Focus:** Implement GNS-U9 (Cyclic vector mapping)
+**Session Focus:** Implement GNS-U9 and GNS-U10 (Cyclic vector + Intertwining on quotient)
 
 ---
 
@@ -9,19 +9,23 @@
 
 1. **Implemented GNS-U9 (af-tests-7em): Prove cyclic vector mapping**
    - `gnsIntertwinerEquiv_cyclic` - Proves `U(Ω_φ) = ξ`
-   - Proof chain: `gnsIntertwinerEquiv_apply` → `gnsCyclicVector_eq_coe` → `gnsIntertwiner_coe` → `gnsIntertwinerQuotient_cyclic`
+
+2. **Implemented GNS-U10 (af-tests-2dx): Prove intertwining on quotient**
+   - `gnsIntertwiner_intertwines_quotient` - Proves `U(π_φ(a)[b]) = π(a)(U[b])`
+   - File: `Main/UniquenessIntertwine.lean` (new, 49 lines)
 
 ---
 
 ## Current State
 
 - **GNS existence theorem (`gns_theorem`):** Proven
-- **GNS uniqueness theorem (`gns_uniqueness`):** In Progress (9/12 steps)
+- **GNS uniqueness theorem (`gns_uniqueness`):** In Progress (10/12 steps)
 - **Build status:** Passing (zero sorries)
 - **Files:**
   - `Main/UniquenessExtension.lean` (197 lines)
   - `Main/UniquenessEquiv.lean` (100 lines)
-- **Next ready issue:** `af-tests-2dx` (GNS-U10)
+  - `Main/UniquenessIntertwine.lean` (49 lines) - NEW
+- **Next ready issue:** `af-tests-5xr` (GNS-U11)
 
 ---
 
@@ -38,54 +42,59 @@
 | 7 | af-tests-usd | Surjectivity | Done |
 | 8 | af-tests-7hr | LinearIsometryEquiv | Done |
 | 9 | af-tests-7em | Cyclic vector mapping | Done |
-| 10 | af-tests-2dx | Intertwining on quotient | Ready |
-| 11 | af-tests-5xr | Full intertwining | Blocked by 10 |
+| 10 | af-tests-2dx | Intertwining on quotient | Done |
+| 11 | af-tests-5xr | Full intertwining | Ready |
 | 12 | af-tests-4f9 | Final theorem | Blocked by 11 |
 
 ---
 
 ## Next Steps
 
-**GNS-U10 (af-tests-2dx):** Intertwining on quotient
-- Prove `U([ab]) = π(a)(U[b])` on quotient elements
-- File: `Main/UniquenessIntertwine.lean` (new)
+**GNS-U11 (af-tests-5xr):** Full intertwining property
+- Extend intertwining from quotient to full Hilbert space by density
+- File: `Main/UniquenessIntertwine.lean` (append)
 
-After GNS-U10 unblocks:
-- **GNS-U11:** Extend intertwining to full Hilbert space by density
+After GNS-U11:
 - **GNS-U12:** State final `gns_uniqueness` theorem
 
 ---
 
 ## Key Implementation Details
 
-### Cyclic Vector Mapping Proof
+### Intertwining on Quotient Proof
 ```lean
-theorem gnsIntertwinerEquiv_cyclic ... : gnsIntertwinerEquiv ... φ.gnsCyclicVector = ξ := by
-  rw [gnsIntertwinerEquiv_apply]   -- U = gnsIntertwiner
-  rw [gnsCyclicVector_eq_coe]      -- Ω_φ = embed([1])
-  rw [gnsIntertwiner_coe]          -- U(embed(x)) = U₀(x)
-  exact gnsIntertwinerQuotient_cyclic ...  -- U₀([1]) = ξ
+theorem gnsIntertwiner_intertwines_quotient ... :
+    gnsIntertwiner ... (φ.gnsPreRep a x : φ.gnsHilbertSpace) =
+    π a (gnsIntertwiner ... (x : φ.gnsHilbertSpace)) := by
+  obtain ⟨b, rfl⟩ := Submodule.Quotient.mk_surjective ...
+  simp only [gnsPreRep_mk]           -- π_φ(a)[b] = [ab]
+  rw [gnsIntertwiner_coe, gnsIntertwiner_coe]  -- reduce to quotient function
+  change π (a * b) ξ = π a (π b ξ)   -- both sides explicit
+  rw [_root_.map_mul, ContinuousLinearMap.mul_apply]  -- multiplicativity of π
 ```
 
-The proof elegantly chains: equiv → CLinMap → extension_coe → quotient property.
+The key insight: both sides reduce to `π(ab)ξ` via multiplicativity of the representation.
 
 ---
 
 ## Files Modified This Session
 
 - Modified: `AfTests/GNS/Main/UniquenessEquiv.lean` (80 → 100 lines)
+- Created: `AfTests/GNS/Main/UniquenessIntertwine.lean` (49 lines)
 - Modified: `HANDOFF.md` (this file)
 
 ---
 
 ## Learnings
 
-### Clean Proof Chains via Rewriting
-The cyclic vector mapping proof is a textbook example of using `rw` to chain through
-multiple levels of abstraction:
-1. `LinearIsometryEquiv` → `ContinuousLinearMap` (by definition)
-2. Hilbert space element → embedded quotient element
-3. Extension on embedded → original function on quotient
-4. Quotient function on `[1]` → `ξ`
+### Quotient-to-Completion Pattern
+For properties that hold on the quotient, to extend to the Hilbert space completion:
+1. Use `gnsIntertwiner_coe` to reduce to quotient-level function
+2. Apply quotient induction to get representatives
+3. Use `gnsPreRep_mk` to simplify left multiplication
+4. Reduce to algebraic properties (here: multiplicativity of π)
 
-Each step is definitional or uses a previously proven lemma. No computation needed.
+### Multiplicativity of Star Algebra Homomorphisms
+`π : A →⋆ₐ[ℂ] (H →L[ℂ] H)` satisfies:
+- `_root_.map_mul`: `π(ab) = π(a) * π(b)` (as multiplication in the target ring)
+- `ContinuousLinearMap.mul_apply`: `(f * g) x = f (g x)` (composition)
