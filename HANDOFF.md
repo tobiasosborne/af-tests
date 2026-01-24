@@ -19,9 +19,9 @@
 
 - **Build status:** Passing
 - **Sorry count:** 3 total
-  - State/Positivity.lean:57 - `sesqForm_conj_symm`
-  - State/CauchySchwarz.lean:48 - `inner_mul_le_norm_mul_norm_weak`
-  - State/CauchySchwarz.lean:62 - `inner_mul_le_norm_mul_norm`
+  - State/Positivity.lean:67 - `sesqForm_conj_symm`
+  - State/CauchySchwarz.lean:56 - `inner_mul_le_norm_mul_norm_weak`
+  - State/CauchySchwarz.lean:71 - `inner_mul_le_norm_mul_norm`
 
 ---
 
