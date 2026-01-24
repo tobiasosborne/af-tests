@@ -411,3 +411,32 @@ star (c • a) = star (algebraMap c * a)     -- Algebra.smul_def
 
 ### Files Created
 - `AfTests/ArchimedeanClosure/Boundedness/CauchySchwarzM.lean` (104 LOC, 0 sorries)
+
+---
+
+## 2026-01-24: AC-P3.2 Complete - Archimedean Bound for States
+
+### The Result
+Proved: φ(star a * a) ≤ Nₐ, φ(a)² ≤ Nₐ, and |φ(a)| ≤ √Nₐ
+
+### Key Proof Technique
+The central argument is simple:
+1. Archimedean property: N·1 - star a * a ∈ M
+2. M-positivity: φ(N·1 - star a * a) ≥ 0
+3. Linearity: N·φ(1) - φ(star a * a) ≥ 0
+4. Normalization: N - φ(star a * a) ≥ 0 (since φ(1) = 1)
+
+### Technical Note: FunLike Coercion vs LinearMap
+When working with `MPositiveState` (which has `FunLike` instance), the coercion `φ a`
+is syntactically different from `φ.toFun a`. This affects simp lemmas:
+- `map_neg φ.toFun` works for `φ.toFun (-x) = -(φ.toFun x)`
+- But `map_neg φ` does NOT work because the coercion is different
+
+Solution: Use `congr 1` + `exact φ.toFun.map_neg _` instead of simp.
+
+### Import Note
+Required `Mathlib.Analysis.SpecialFunctions.Pow.Real` for `Real.sqrt` and related
+lemmas like `Real.sq_sqrt` and `Real.sqrt_nonneg`.
+
+### Files Created
+- `AfTests/ArchimedeanClosure/Boundedness/ArchimedeanBound.lean` (73 LOC, 0 sorries)

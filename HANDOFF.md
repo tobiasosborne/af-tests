@@ -1,10 +1,9 @@
 # Handoff: 2026-01-24
 
 ## Completed This Session
-- **RF-6 COMPLETE**: NonEmptiness proven (1 sorry → 0)
-- **AC-P3.1 COMPLETE**: Cauchy-Schwarz for M-positive states (104 LOC, 0 sorries)
-  - Key theorems: `cauchy_schwarz`, `apply_sq_le`
-  - Technical: manual star_smul proof, non-commutative expansion via simp+abel
+- **AC-P3.2 COMPLETE**: Archimedean bound for states (73 LOC, 0 sorries)
+  - Key theorems: `apply_star_mul_self_le_bound`, `apply_bound`, `apply_abs_le`
+  - Technical: FunLike coercion vs LinearMap.map_neg - use congr+exact pattern
 
 ---
 
@@ -26,20 +25,20 @@
 | File | Status | LOC | Sorries |
 |------|--------|-----|---------|
 | Boundedness/CauchySchwarzM.lean | ✅ | 104 | 0 |
+| Boundedness/ArchimedeanBound.lean | ✅ | 73 | 0 |
 
 ---
 
 ## Next Steps
 
-1. **AC-P3.2**: Archimedean bound for states (depends on AC-P3.1 ✓)
-2. **AC-P3.3**: Generating cone lemma
-3. **Phase 4-5**: Topology and Seminorm
+1. **AC-P3.3**: Generating cone lemma (last of Phase 3)
+2. **Phase 4**: Topology (StateTopology, Compactness)
+3. **Phase 5**: Seminorm (StateSeminorm, SeminormProps, Closure)
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/State/NonEmptiness.lean` (RF-6)
-- `AfTests/ArchimedeanClosure/Boundedness/CauchySchwarzM.lean` (AC-P3.1, NEW)
+- `AfTests/ArchimedeanClosure/Boundedness/ArchimedeanBound.lean` (NEW)
 - `docs/ArchimedeanClosure/LEARNINGS.md`
 - `HANDOFF.md`
