@@ -122,17 +122,19 @@ theorem inner_mul_le_norm_mul_norm_weak (a b : A) :
 /-- The Cauchy-Schwarz inequality for states (tight form):
     |φ(b*a)|² ≤ φ(a*a) · φ(b*b).
 
-    This is the fundamental inequality for the GNS construction. -/
+    The proof uses the complex λ-optimization argument:
+    For μ = -φ(b*a)/φ(b*b), the positivity φ((a + μ·b)*(a + μ·b)) ≥ 0 expands to
+    φ(a*a).re - |φ(b*a)|²/φ(b*b).re ≥ 0 when φ(b*b).re > 0. -/
 theorem inner_mul_le_norm_mul_norm (a b : A) :
     Complex.normSq (φ (star b * a)) ≤ (φ (star a * a)).re * (φ (star b * b)).re := by
-  -- The tight bound requires the complex discriminant argument:
-  -- For λ ∈ ℂ, we have φ((a + λ·b)*(a + λ·b)) ≥ 0
-  -- Setting λ = -conj(φ(star b * a)) / φ(star b * b) (when φ(star b * b) ≠ 0)
-  -- gives the tight inequality after simplification.
-  --
-  -- The case φ(star b * b) = 0 is handled separately: the quadratic argument
-  -- with t : ℝ shows Re(φ(star b * a)) = 0, and similarly Im = 0.
-  sorry
+  rcases eq_or_lt_of_le (φ.apply_star_mul_self_nonneg b) with hbb | hbb
+  · -- Case: φ(b*b).re = 0. Weak C-S gives |φ(b*a)|² ≤ 0
+    have h := inner_mul_le_norm_mul_norm_weak φ a b
+    simp only [← hbb, mul_zero] at h ⊢
+    linarith [Complex.normSq_nonneg (φ (star b * a))]
+  · -- Case: φ(b*b).re > 0. Complex optimization gives tight bound
+    -- TODO: Complex algebraic calculation (see docs/GNS/learnings for details)
+    sorry
 
 /-- Cauchy-Schwarz with sesquilinear form notation. -/
 theorem sesqForm_abs_sq_le (a b : A) :

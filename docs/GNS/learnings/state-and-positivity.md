@@ -134,3 +134,41 @@ quadratic discriminant approach.
 **Lesson:** The weak Cauchy-Schwarz (factor 2) is sufficient for many GNS
 applications and can be proved with real parameters. The tight bound needs
 genuine complex optimization.
+
+---
+
+## Tight Cauchy-Schwarz: Optimal μ Selection (In Progress)
+
+**Discovery:** The tight Cauchy-Schwarz |φ(b*a)|² ≤ φ(a*a)·φ(b*b) requires μ = -c/d
+(NOT -conj(c)/d as often stated informally), where c = φ(star b * a), d = φ(star b * b).
+
+**Case Analysis:**
+1. **φ(b*b).re = 0:** The weak C-S immediately gives |φ(b*a)|² ≤ 0, so φ(b*a) = 0. ✓ PROVEN
+2. **φ(b*b).re > 0:** Complex optimization argument needed. IN PROGRESS
+
+**Key Calculation for Case 2:**
+For μ = -c/d where d is real (Im(φ(b*b)) = 0):
+```
+φ((a + μ•b)*(a + μ•b)) = φ(a*a) + μ*conj(c) + conj(μ)*c + |μ|²*d
+                       = φ(a*a) + (-|c|²/d) + (-|c|²/d) + |c|²/d
+                       = φ(a*a) - |c|²/d
+```
+The key insight: μ*conj(c) = -c*conj(c)/d = -|c|²/d is REAL (not just μ*conj(c) + conj(μ)*c).
+
+**Why μ = -c/d works:**
+- μ*conj(c) = (-c/d)*conj(c) = -c*conj(c)/d = -|c|²/d (real)
+- conj(μ) = -conj(c)/d (since d is real)
+- conj(μ)*c = -conj(c)*c/d = -|c|²/d (also real, same value!)
+- |μ|² = |c|²/d²
+- |μ|²*d = |c|²/d
+
+So the sum is φ(a*a) - 2*|c|²/d + |c|²/d = φ(a*a) - |c|²/d.
+
+**Lean Implementation Challenges:**
+1. `star_div'` doesn't exist - need `star_div` or manual computation
+2. `field_simp` and `ring` hit recursion limits with complex expressions
+3. Need to carefully track real vs complex arithmetic
+
+**Partial Solution:**
+- Case 1 proven directly using weak C-S + positivity of normSq
+- Case 2 requires more careful algebraic setup, possibly extracting helper lemmas
