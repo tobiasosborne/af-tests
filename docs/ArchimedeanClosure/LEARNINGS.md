@@ -476,3 +476,208 @@ Left `sorry` on `selfAdjoint_decomp`. All downstream theorems use it correctly:
 
 ### Files Created
 - `AfTests/ArchimedeanClosure/Boundedness/GeneratingCone.lean` (112 LOC, 1 sorry)
+
+---
+
+## 2026-01-24: SOLUTION FOUND - selfAdjoint_decomp via Commute Lemmas
+
+### The Problem Recap
+The identity `x = ¼(1+x)² - ¼(1-x)²` for self-adjoint x failed due to:
+1. `ring` tactic doesn't work on non-commutative `FreeAlgebra`
+2. Scalar `(1/4 : ℝ)` has type inference issues with `smul`
+3. Direct expansion approaches hit additive grouping problems
+
+### The Key Insight: Commute Lemmas
+
+Mathlib provides `Commute.mul_self_sub_mul_self_eq` for non-commutative rings:
+```lean
+theorem mul_self_sub_mul_self_eq {a b : R} (h : Commute a b) :
+    a * a - b * b = (a + b) * (a - b)
+```
+
+**Critical observation**: `(1+x)` and `(1-x)` commute in any ring because:
+- `1` commutes with everything (`Commute.one_left`, `Commute.one_right`)
+- `x` commutes with itself (`Commute.refl`)
+- Commutativity distributes over `+` and `-` (`Commute.add_left/right`, `Commute.sub_left/right`)
+
+### Building the Commute Hypothesis
+
+```lean
+have hcomm : Commute (1 + x) (1 - x) := by
+  apply Commute.add_left
+  · exact (Commute.one_left _).sub_right (Commute.one_left x)
+  · exact (Commute.one_right x).sub_right (Commute.refl x)
+```
+
+Breakdown:
+1. `Commute (1 + x) (1 - x)` splits into `Commute 1 (1-x)` and `Commute x (1-x)` via `add_left`
+2. `Commute 1 (1-x)` splits into `Commute 1 1` and `Commute 1 x` via `sub_right`
+3. `Commute x (1-x)` splits into `Commute x 1` and `Commute x x` via `sub_right`
+4. All base cases are covered by `one_left`, `one_right`, `refl`
+
+### The abel + nsmul Pattern
+
+For simplifying `(1+x) + (1-x) = 2`:
+```lean
+have sum_eq : (1 : FreeStarAlgebra n) + x + (1 - x) = 2 := by
+  have h : (1 : FreeStarAlgebra n) + x + (1 - x) = (2 : ℕ) • (1 : FreeStarAlgebra n) := by abel
+  rw [h, nsmul_eq_mul, Nat.cast_ofNat, mul_one]
+```
+
+**Why this works**:
+- `abel` normalizes additive expressions and produces `(2 : ℕ) • 1` (natural number smul)
+- `nsmul_eq_mul` converts `(n : ℕ) • a = (n : R) * a` in a ring
+- `Nat.cast_ofNat` handles the `(2 : ℕ)` to `(2 : FreeStarAlgebra n)` cast
+- `mul_one` finishes
+
+For `(1+x) - (1-x) = 2 * x`:
+```lean
+have diff_eq : (1 : FreeStarAlgebra n) + x - (1 - x) = 2 * x := by
+  have h : (1 : FreeStarAlgebra n) + x - (1 - x) = (2 : ℕ) • x := by abel
+  rw [h, nsmul_eq_mul, Nat.cast_ofNat]
+```
+
+### Scalar Multiplication Cancellation
+
+For `x = (1/4) • (2 * (2 * x))`:
+```lean
+-- Step 1: Associate multiplications
+simp only [← mul_assoc]
+-- Now: x = (1/4) • (2 * 2 * x)
+
+-- Step 2: Simplify 2 * 2 = 4
+have h_four : (2 : FreeStarAlgebra n) * 2 = 4 := by norm_num
+rw [h_four]
+-- Now: x = (1/4) • (4 * x)
+
+-- Step 3: Convert ring multiplication to scalar multiplication
+have h_scalar : (4 : FreeStarAlgebra n) * x = (4 : ℝ) • x := by
+  rw [Algebra.smul_def]; rfl
+rw [h_scalar]
+-- Now: x = (1/4) • (4 • x)
+
+-- Step 4: Combine scalars and simplify
+rw [smul_smul]
+-- Now: x = ((1/4) * 4) • x
+norm_num
+-- (1/4) * 4 = 1, so 1 • x = x ✓
+```
+
+**Key lemmas**:
+- `Algebra.smul_def`: `c • a = algebraMap c * a` (converts ring mult to smul)
+- `smul_smul`: `a • (b • x) = (a * b) • x`
+- `norm_num`: Handles `(1/4) * 4 = 1`
+
+### Complete Proof (Tested & Verified)
+
+```lean
+theorem selfAdjoint_decomp {x : FreeStarAlgebra n} (hx : IsSelfAdjoint x) :
+    x = (1/4 : ℝ) • (star (1 + x) * (1 + x)) -
+        (1/4 : ℝ) • (star (1 - x) * (1 - x)) := by
+  -- Step 1: Use self-adjointness to simplify star terms
+  have h1 : star (1 + x) = 1 + x := (isSelfAdjoint_one_add hx).star_eq
+  have h2 : star (1 - x) = 1 - x := (isSelfAdjoint_one_sub hx).star_eq
+  rw [h1, h2]
+  -- Step 2: Factor out (1/4) scalar
+  rw [← smul_sub]
+  -- Step 3: Build Commute hypothesis and apply difference of squares
+  have hcomm : Commute (1 + x) (1 - x) := by
+    apply Commute.add_left
+    · exact (Commute.one_left _).sub_right (Commute.one_left x)
+    · exact (Commute.one_right x).sub_right (Commute.refl x)
+  rw [hcomm.mul_self_sub_mul_self_eq]
+  -- Step 4: Simplify (1+x) + (1-x) = 2 and (1+x) - (1-x) = 2*x
+  have sum_eq : (1 : FreeStarAlgebra n) + x + (1 - x) = 2 := by
+    have h : (1 : FreeStarAlgebra n) + x + (1 - x) = (2 : ℕ) • (1 : FreeStarAlgebra n) := by abel
+    rw [h, nsmul_eq_mul, Nat.cast_ofNat, mul_one]
+  have diff_eq : (1 : FreeStarAlgebra n) + x - (1 - x) = 2 * x := by
+    have h : (1 : FreeStarAlgebra n) + x - (1 - x) = (2 : ℕ) • x := by abel
+    rw [h, nsmul_eq_mul, Nat.cast_ofNat]
+  rw [sum_eq, diff_eq]
+  -- Step 5: Simplify (1/4) • (2 * (2 * x)) = x
+  simp only [← mul_assoc]
+  have h_four : (2 : FreeStarAlgebra n) * 2 = 4 := by norm_num
+  rw [h_four]
+  have h_scalar : (4 : FreeStarAlgebra n) * x = (4 : ℝ) • x := by
+    rw [Algebra.smul_def]; rfl
+  rw [h_scalar, smul_smul]
+  norm_num
+```
+
+### Required Import
+
+```lean
+import Mathlib.Algebra.Ring.Commute  -- For Commute lemmas
+```
+
+This may already be transitively imported via other Algebra imports.
+
+### Mathlib Lemmas Used (Summary)
+
+| Lemma | Location | Purpose |
+|-------|----------|---------|
+| `Commute.one_left` | `Mathlib.Algebra.Group.Commute.Defs` | 1 commutes left |
+| `Commute.one_right` | `Mathlib.Algebra.Group.Commute.Defs` | 1 commutes right |
+| `Commute.refl` | `Mathlib.Algebra.Group.Commute.Defs` | Self-commutativity |
+| `Commute.add_left` | `Mathlib.Algebra.Ring.Commute` | Sum commutes |
+| `Commute.sub_right` | `Mathlib.Algebra.Ring.Commute` | Difference commutes |
+| `Commute.mul_self_sub_mul_self_eq` | `Mathlib.Algebra.Ring.Commute` | Diff of squares |
+| `smul_sub` | `Mathlib.Algebra.Module.Defs` | `a•p - a•q = a•(p-q)` |
+| `smul_smul` | `Mathlib.Algebra.Module.Defs` | `a•(b•x) = (a*b)•x` |
+| `nsmul_eq_mul` | `Mathlib.Algebra.Ring.Defs` | `(n:ℕ)•x = n*x` |
+| `Algebra.smul_def` | `Mathlib.Algebra.Algebra.Basic` | `c•a = algebraMap c * a` |
+
+### Why Previous Approaches Failed
+
+1. **Direct `ring`**: Non-commutative algebra, `ring` assumes commutativity
+2. **Manual expansion with `simp [add_mul, mul_add]`**: Works for expansion but scalars messy
+3. **Calc chains with `(4 : ℝ)⁻¹`**: Type inference couldn't unify scalar types
+4. **Using `add_smul` directly**: Type class resolution for Module instance problematic
+
+### Lessons Learned
+
+1. **Commute lemmas are powerful** for non-commutative identities when elements do commute
+2. **`abel` + `nsmul_eq_mul` pattern** handles additive simplification in non-comm algebras
+3. **`Algebra.smul_def` + `smul_smul`** cleanly handles scalar multiplication
+4. **`norm_num`** works on the scalar level even when `ring` fails on the algebra
+
+---
+
+## 2026-01-24: Non-Commutative Algebra Proof Patterns (Reference)
+
+### Pattern 1: Expansion in Non-Commutative Algebras
+
+When `ring` doesn't work, use:
+```lean
+simp only [add_mul, mul_add, smul_mul_assoc, mul_smul_comm, smul_add, smul_smul]
+abel
+```
+
+**Used in**: `CauchySchwarzM.lean:65`
+
+### Pattern 2: Additive Simplification
+
+When you need `x + y + ... = n • z` in a non-commutative ring:
+```lean
+have h : expr = (n : ℕ) • z := by abel
+rw [h, nsmul_eq_mul, Nat.cast_ofNat, ...]
+```
+
+### Pattern 3: Scalar Multiplication Cancellation
+
+When you need `(a : ℝ) • ((b : R) * x) = (a * b) • x`:
+```lean
+have h : (b : R) * x = (b : ℝ) • x := by rw [Algebra.smul_def]; rfl
+rw [h, smul_smul]
+```
+
+### Pattern 4: Commutativity in Non-Commutative Rings
+
+Build `Commute a b` hypotheses using:
+- `Commute.one_left`, `Commute.one_right` (unit commutes)
+- `Commute.refl` (self-commutation)
+- `Commute.add_left`, `Commute.add_right` (distribute over +)
+- `Commute.sub_left`, `Commute.sub_right` (distribute over -)
+- `Commute.neg_left`, `Commute.neg_right` (negation)
+
+Then use `Commute.mul_self_sub_mul_self_eq`, `Commute.add_sq`, etc.
