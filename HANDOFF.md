@@ -1,34 +1,39 @@
 # Handoff: GNS Construction Progress
 
 **Date:** 2026-01-24
-**Session Focus:** Representation/Bounded.lean - Boundedness of pre-representation
+**Session Focus:** Representation/Extension.lean - Extend representation to completion
 
 ---
 
 ## Completed This Session
 
-1. **Implemented P5.2: Representation/Bounded.lean** (af-tests-6wx)
-   - Pre-representation boundedness structure (79 LOC)
-   - Key theorem: `gnsPreRep_norm_le : ‖π(a)x‖ ≤ ‖a‖ * ‖x‖`
-   - Helper: `gnsQuotient_norm_sq` relating norm to inner product
-   - **Status:** Structure Done (1 sorry for spectral ordering)
+1. **Implemented P5.3: Representation/Extension.lean** (af-tests-9we)
+   - Extension of pre-representation to Hilbert space completion (159 LOC)
+   - Key definitions:
+     - `gnsPreRepContinuous` - pre-rep as ContinuousLinearMap
+     - `gnsRep` - full representation on H_φ
+   - Key lemmas:
+     - `gnsRep_coe` - agrees with pre-rep on embedded quotient
+     - `gnsRep_cyclicVector` - π_φ(a)Ω_φ = [a]
+     - `gnsRep_mul` - multiplicative: π_φ(ab) = π_φ(a) ∘L π_φ(b)
+     - `gnsRep_one` - identity: π_φ(1) = id
+     - `gnsRep_add` - additive: π_φ(a+b) = π_φ(a) + π_φ(b)
+   - **Status:** Proven (no sorries in this file)
 
-2. **Documented learning** about state spectral ordering challenge
-   - States don't fit `OrderHomClass` pattern (ℂ lacks `StarOrderedRing`)
-   - Key mathlib lemmas identified: `star_mul_le_algebraMap_norm_sq`, `conjugate_le_conjugate`
-
-3. **Created new beads issue** for sorry elimination (af-tests-z9g)
+2. **Documented learnings:**
+   - Extending ContinuousLinearMap to completion (manual construction)
+   - Typeclass diamond in GNS quotient topology
 
 ---
 
 ## Current State
 
 - **Build status:** Passing
-- **Sorry count:** 4 total
+- **Sorry count:** 4 total (unchanged from previous session)
   - State/Positivity.lean:67 - `sesqForm_conj_symm`
   - State/CauchySchwarz.lean:56 - `inner_mul_le_norm_mul_norm_weak`
   - State/CauchySchwarz.lean:71 - `inner_mul_le_norm_mul_norm`
-  - **NEW:** Representation/Bounded.lean:77 - `gnsPreRep_norm_le`
+  - Representation/Bounded.lean:77 - `gnsPreRep_norm_le`
 
 ---
 
@@ -66,33 +71,36 @@
 |----------|------|--------|-------|
 | `af-tests-155` | Representation/PreRep.lean | **Proven** | No sorries |
 | `af-tests-6wx` | Representation/Bounded.lean | **Structure Done** | 1 sorry (z9g) |
-| `af-tests-???` | Representation/Extension.lean | **Not Started** | Blocked by 6wx |
+| `af-tests-9we` | Representation/Extension.lean | **Proven** | No sorries |
+| `af-tests-8r4` | Representation/Star.lean | **Not Started** | Next priority |
 
 ---
 
 ## Next Steps (Priority Order)
 
-1. **Phase 5** - Representation/Extension.lean - extend to completion (now unblocked)
+1. **Phase 5** - Representation/Star.lean - *-representation property
 2. **Sorry elimination** (P2-P3): z9g (Bounded), uo6, 03g, bgs
-3. Refactor LEARNINGS.md (exceeds 200 LOC at ~275 lines)
+3. Refactor LEARNINGS.md (now ~330 lines, exceeds 200 LOC)
 
 ---
 
 ## Key Learnings This Session
 
-1. **State Spectral Ordering:** Proving `‖π(a)x‖ ≤ ‖a‖ * ‖x‖` requires showing
-   states respect spectral order. Key lemmas: `star_mul_le_algebraMap_norm_sq`,
-   `conjugate_le_conjugate`. Challenge: ℂ lacks `StarOrderedRing`.
+1. **ContinuousLinearMap Extension:** Mathlib lacks `ContinuousLinearMap.completion`.
+   Must manually construct using `UniformSpace.Completion.map` + induction principles.
 
 2. **Typeclass Diamond:** The quotient has two topologies (quotient vs seminormed).
-   Use explicit `@` syntax with `gnsQuotientSeminormedAddCommGroup` to avoid conflicts.
+   Use explicit `@` syntax with `gnsQuotientSeminormedAddCommGroup.toUniformSpace`.
+
+3. **Induction Pattern:** Use `| hp => isClosed_eq <cont1> <cont2>` for closure,
+   then `| ih x => ...` to prove on the dense subspace.
 
 ---
 
 ## Files Modified This Session
 
-- Created: `AfTests/GNS/Representation/Bounded.lean` (79 LOC, 1 sorry)
-- Updated: `docs/GNS/LEARNINGS.md` (added spectral ordering entry)
+- Created: `AfTests/GNS/Representation/Extension.lean` (159 LOC, no sorries)
+- Updated: `docs/GNS/LEARNINGS.md` (added 2 entries)
 - Updated: `HANDOFF.md`
 
 ---
@@ -101,5 +109,5 @@
 
 ```bash
 bd ready
-bd show af-tests-z9g  # Sorry elimination: gnsPreRep_norm_le
+bd show af-tests-8r4  # Representation/Star.lean
 ```
