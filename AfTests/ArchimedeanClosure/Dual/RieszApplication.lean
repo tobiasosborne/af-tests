@@ -114,21 +114,27 @@ theorem riesz_extension_exists {A : FreeStarAlgebra n}
     ∃ ψ : FreeStarAlgebra n →ₗ[ℝ] ℝ,
       (∀ m ∈ QuadraticModule n, 0 ≤ ψ m) ∧ ψ A < 0 := by
   /-
-  Proof sketch:
-  1. Start with separatingOnSpan on span{A} where ψ₀(A) = -1 < 0
-  2. By `separatingOnSpan_nonneg_on_M_cap_span`, ψ₀ ≥ 0 on M ∩ span{A}
-  3. By `quadraticModule_selfAdjoint_generating`, M generates the self-adjoint part
-  4. Apply Riesz extension principle to extend ψ₀ to all of FreeStarAlgebra n
-  5. The extension maintains ψ ≥ 0 on M and ψ(A) = -1 < 0
+  BLOCKING: This proof requires topology infrastructure (see af-tests-lm26).
 
-  The main technical challenge is verifying the generating condition in the
-  specific format required by mathlib's `riesz_extension`. This requires
-  showing that for the cone M, the condition `∀ y, ∃ x ∈ domain, x + y ∈ M`
-  is satisfied when we consider the full extension process.
+  **Why direct riesz_extension doesn't work**: Mathlib's `riesz_extension`
+  requires `∀ y, ∃ x ∈ domain, x + y ∈ M`. For domain = span{A} (1-dim),
+  this asks whether M + span{A} = E, which is false.
 
-  Alternative approach: Use separation theorem for convex cones
-  (`ConvexCone.hyperplane_separation_of_nonempty_of_isClosed_of_notMem`)
-  but this requires an inner product space structure.
+  **Recommended approach**: Use `ProperCone.hyperplane_separation_point`
+  which gives exactly what we need:
+  ```
+  ∃ f : E →L[ℝ] ℝ, (∀ x ∈ C, 0 ≤ f x) ∧ f x₀ < 0
+  ```
+
+  **Prerequisites** (see af-tests-lm26):
+  1. TopologicalSpace on FreeStarAlgebra from stateSeminorm
+  2. LocallyConvexSpace instance
+  3. Show M is closed (build ProperCone from M)
+
+  **Alternative**: Custom Zorn argument using `quadraticModule_selfAdjoint_generating`
+  to show constraint intervals are nonempty at each extension step.
+
+  See LEARNINGS_dual.md "Deep Dive" section for full analysis.
   -/
   sorry
 

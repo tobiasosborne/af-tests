@@ -1,10 +1,14 @@
 # Handoff: 2026-01-24
 
 ## Completed This Session
-- **Closed af-tests-112**: S_M compactness (Compactness.lean verified: 171 LOC, 0 sorries)
-- **Closed af-tests-oa2j**: Split LEARNINGS_misc.md (442→111 LOC)
-  - Created `LEARNINGS_topology.md` (188 LOC): Closedness, Tychonoff, seminorm closure
-  - Created `LEARNINGS_dual.md` (145 LOC): Riesz extension, span intersection, Hahn-Banach
+- **Documented Riesz extension challenge**: Added "Deep Dive" section to LEARNINGS_dual.md
+  - Why `riesz_extension` generating condition fails for 1-dim domain
+  - Why `exists_extension_of_le_sublinear` gives wrong type of bound
+  - Identified `ProperCone.hyperplane_separation_point` as solution
+  - Outlined topology infrastructure needed
+- **Created af-tests-lm26**: Topology infrastructure task for separation
+- **Updated RieszApplication.lean**: Clearer blocking comment with path forward
+- **Created af-tests-ap0d**: LEARNINGS_dual.md exceeds 200 LOC (P0)
 
 ---
 
@@ -54,52 +58,52 @@
 
 ---
 
-### Phase 6: IN PROGRESS
+### Phase 6: BLOCKED on Topology Infrastructure
 
-| File | Status | LOC | Sorries |
-|------|--------|-----|---------|
-| Dual/Forward.lean | ✅ | 67 | 0 |
-| Dual/SpanIntersection.lean | ✅ | 104 | 0 |
-| Dual/SeparatingFunctional.lean | ✅ | 114 | 0 |
-| Dual/RieszApplication.lean | Structure | 147 | 2 |
-| Dual/ComplexExtension.lean | Not Started | - | - |
-| Dual/Normalization.lean | Not Started | - | - |
+| File | Status | LOC | Sorries | Notes |
+|------|--------|-----|---------|-------|
+| Dual/Forward.lean | ✅ | 67 | 0 | |
+| Dual/SpanIntersection.lean | ✅ | 104 | 0 | |
+| Dual/SeparatingFunctional.lean | ✅ | 114 | 0 | |
+| Dual/RieszApplication.lean | **BLOCKED** | 147 | 2 | Needs af-tests-lm26 |
+| Dual/ComplexExtension.lean | Not Started | - | - | |
+| Dual/Normalization.lean | Not Started | - | - | |
 
 ---
 
-## Critical Issue: Riesz Extension Generating Condition
+## Critical Blocking Issue: Topology Infrastructure
 
-**Problem**: Mathlib's `riesz_extension` requires:
-```
-∀ y, ∃ x ∈ domain, x + y ∈ s  (where s = cone, domain = span{A})
-```
+**Issue**: `riesz_extension_exists` requires separating a point from cone M.
 
-This asks if M + span{A} = E, which is false for 1-dimensional span{A}.
+**Solution**: Use `ProperCone.hyperplane_separation_point` from Mathlib.
 
-**What we have**: `quadraticModule_selfAdjoint_generating` proves M - M = (A₀)_sa
+**Prerequisites (af-tests-lm26)**:
+1. TopologicalSpace on FreeStarAlgebra (from stateSeminorm)
+2. LocallyConvexSpace instance
+3. Show M is closed → ProperCone
 
-**Recommended Approaches** (see `LEARNINGS_dual.md`):
-1. **Hahn-Banach Separation**: Use `RCLike.geometric_hahn_banach_closed_point`
-   - Requires setting up TopologicalSpace on FreeStarAlgebra from seminorm
-   - Requires LocallyConvexSpace instance
-2. **Custom Zorn argument**: Build extension step-by-step
-3. Inner product separation (not natural for this algebra)
+See `LEARNINGS_dual.md` "Deep Dive" section for full analysis.
 
 ---
 
 ## Next Steps
 
-1. **AC-P6.4 COMPLETE**: Fill sorries in RieszApplication.lean (requires Hahn-Banach setup or custom Zorn)
-2. **AC-P6.5**: ComplexExtension.lean - Extend real functional to complex
-3. **AC-P6.6**: Normalization.lean - Normalize to get M-positive state
+1. **[P0] af-tests-ap0d**: Split LEARNINGS_dual.md (259 LOC > 200 limit)
+2. **[P1] af-tests-lm26**: Topology/SeminormTopology.lean (~50 LOC)
+   - Define TopologicalSpace from stateSeminorm
+   - LocallyConvexSpace instance
+   - Show M is closed in this topology
+3. **[P1] af-tests-2nag**: Complete riesz_extension_exists (blocked on lm26)
+4. **AC-P6.5**: ComplexExtension.lean
+5. **AC-P6.6**: Normalization.lean
 
 ---
 
 ## Key Learnings Reference
 
 See `docs/ArchimedeanClosure/LEARNINGS.md` for full index:
-- `LEARNINGS_dual.md`: Riesz extension challenge, Hahn-Banach approach (NEW)
-- `LEARNINGS_topology.md`: Closedness proofs, Tychonoff, seminorm closure (NEW)
+- `LEARNINGS_dual.md`: Riesz extension challenge, **ProperCone separation path** (NEW)
+- `LEARNINGS_topology.md`: Closedness proofs, Tychonoff, seminorm closure
 - `LEARNINGS_misc.md`: Section scoping, FunLike, imports
 - `LEARNINGS_states.md`: Cauchy-Schwarz, Archimedean bounds
 
@@ -107,14 +111,12 @@ See `docs/ArchimedeanClosure/LEARNINGS.md` for full index:
 
 ## Files Modified This Session
 
-- `docs/ArchimedeanClosure/LEARNINGS_topology.md` (NEW, 188 LOC)
-- `docs/ArchimedeanClosure/LEARNINGS_dual.md` (NEW, 145 LOC)
-- `docs/ArchimedeanClosure/LEARNINGS_misc.md` (refactored, 111 LOC)
-- `docs/ArchimedeanClosure/LEARNINGS.md` (updated index)
+- `docs/ArchimedeanClosure/LEARNINGS_dual.md` (added "Deep Dive" section, now 259 LOC)
+- `AfTests/ArchimedeanClosure/Dual/RieszApplication.lean` (updated comment)
 - `HANDOFF.md` (this file)
 
 ---
 
 ## Known Issues
 
-- None currently (LEARNINGS_misc.md split completed)
+- **[P0]** LEARNINGS_dual.md at 259 LOC (limit 200) - needs split
