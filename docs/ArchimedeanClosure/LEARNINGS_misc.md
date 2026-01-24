@@ -381,3 +381,62 @@ rw [h, LinearMap.map_smul]
 ```lean
 import Mathlib.LinearAlgebra.LinearPMap
 ```
+
+---
+
+## Riesz Extension Generating Condition Challenge (AC-P6.4)
+
+### Mathlib's `riesz_extension` Theorem
+
+```lean
+riesz_extension :
+  (s : ConvexCone ℝ E) (f : E →ₗ.[ℝ] ℝ) →
+  (∀ (x : ↥f.domain), ↑x ∈ s → 0 ≤ ↑f x) →       -- f ≥ 0 on s ∩ domain
+  (∀ (y : E), ∃ x ∈ f.domain, ↑x + y ∈ s) →      -- generating condition
+  ∃ g, (∀ (x : ↥f.domain), g ↑x = ↑f x) ∧ ∀ x ∈ s, 0 ≤ g x
+```
+
+### The Challenge
+
+For extending from `span{A}` (1-dimensional) with cone `M = QuadraticModule`:
+- Condition 1 ✓: `separatingOnSpan_nonneg_on_M_cap_span` gives f ≥ 0 on M ∩ span{A}
+- Condition 2 ✗: `∀ y, ∃ c, cA + y ∈ M` is **NOT** generally true
+
+The generating condition requires every y can be "shifted" by some domain element into the cone.
+For a 1-dimensional domain, this essentially asks whether M + span{A} = E, which is false.
+
+### What We Have vs What We Need
+
+**We proved** (`quadraticModule_selfAdjoint_generating`):
+- M ∩ (A₀)_sa generates (A₀)_sa as differences: ∀ x, x = (1/4)m₁ - (1/4)m₂
+
+**Mathlib needs**:
+- `∀ y, ∃ x ∈ domain, x + y ∈ M`
+
+These are related (both about "generating") but not identical.
+
+### Alternative Approaches
+
+1. **Separation theorem**: `ConvexCone.hyperplane_separation_of_nonempty_of_isClosed_of_notMem`
+   requires inner product space structure (not natural for FreeStarAlgebra)
+
+2. **Custom proof**: Prove a version of Riesz extension that uses our generating property directly
+
+3. **Zorn's lemma directly**: The underlying Riesz proof uses Zorn. We could:
+   - Start with ψ₀ on span{A}
+   - Extend step-by-step using the generating property
+   - Show the maximal extension covers all of (A₀)_sa
+
+### Current Status (AC-P6.4)
+
+File `Dual/RieszApplication.lean` created with:
+- Structure and theorem statements
+- `riesz_extension_exists`: main result (sorry)
+- Clear documentation of the mathematical challenge
+
+This is the key step requiring additional work to close.
+
+### Import
+```lean
+import Mathlib.Analysis.Convex.Cone.Extension
+```

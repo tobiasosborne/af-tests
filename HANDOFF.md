@@ -1,13 +1,13 @@
 # Handoff: 2026-01-24
 
 ## Completed This Session
-- **AC-P6.3 COMPLETE**: Created `Dual/SeparatingFunctional.lean` (114 LOC, 0 sorries)
-  - `not_in_closure_ne_zero`: A ∉ M̄ implies A ≠ 0 (since 0 ∈ M ⊆ M̄)
-  - `separatingOnSpan`: Linear map ψ₀ : span{A} →ₗ[ℝ] ℝ with ψ₀(A) = -1
-  - `separatingOnSpan_apply_A`: ψ₀(A) = -1 < 0
-  - `separatingOnSpan_apply_smul`: ψ₀(c • A) = -c
-  - `separatingOnSpan_nonneg_on_M_cap_span`: ψ₀ ≥ 0 on M ∩ span{A}
-  - **Key Pattern**: Used `LinearPMap.mkSpanSingleton` to define linear map on span
+- **AC-P6.4 STRUCTURE**: Created `Dual/RieszApplication.lean` (147 LOC, 2 sorries)
+  - `separatingPMap`: Converts separatingOnSpan to a LinearPMap
+  - `separatingPMap_nonneg_on_M`: Verifies nonneg condition for Riesz
+  - `generating_condition_from_decomp`: Helper showing M generates (A₀)_sa
+  - `riesz_extension_exists`: Main theorem (sorry) - extends ψ₀ to full algebra
+  - **KEY CHALLENGE IDENTIFIED**: Mathlib's `riesz_extension` has generating condition
+    `∀ y, ∃ x ∈ domain, x + y ∈ M` which is not directly satisfied for 1-dim domain
 
 ---
 
@@ -64,15 +64,35 @@
 | Dual/Forward.lean | ✅ | 67 | 0 |
 | Dual/SpanIntersection.lean | ✅ | 104 | 0 |
 | Dual/SeparatingFunctional.lean | ✅ | 114 | 0 |
-| Dual/RieszApplication.lean | Not Started | - | - |
+| Dual/RieszApplication.lean | Structure | 147 | 2 |
 | Dual/ComplexExtension.lean | Not Started | - | - |
 | Dual/Normalization.lean | Not Started | - | - |
 
 ---
 
+## Critical Issue: Riesz Extension Generating Condition
+
+**Problem**: Mathlib's `riesz_extension` requires:
+```
+∀ y, ∃ x ∈ domain, x + y ∈ s  (where s = cone, domain = span{A})
+```
+
+This asks if M + span{A} = E, which is false for 1-dimensional span{A}.
+
+**What we have**: `quadraticModule_selfAdjoint_generating` proves M - M = (A₀)_sa
+
+**What we need**: Either:
+1. Custom Riesz extension using our generating property
+2. Separation theorem (requires inner product)
+3. Direct Zorn's lemma argument
+
+See `LEARNINGS_misc.md` for detailed analysis.
+
+---
+
 ## Next Steps
 
-1. **AC-P6.4**: RieszApplication.lean - Apply Riesz extension theorem
+1. **AC-P6.4 COMPLETE**: Fill sorries in RieszApplication.lean (requires mathematical work)
 2. **AC-P6.5**: ComplexExtension.lean - Extend real functional to complex
 3. **AC-P6.6**: Normalization.lean - Normalize to get M-positive state
 
@@ -81,27 +101,19 @@
 ## Key Learnings Reference
 
 See `docs/ArchimedeanClosure/LEARNINGS.md` for index, including:
-- `LEARNINGS_misc.md`: `ofFunction` pattern, closedness proofs, ciSup patterns, **seminorm closure pattern**
+- `LEARNINGS_misc.md`: Riesz extension challenge (NEW), `ofFunction` pattern, closedness proofs
 - `LEARNINGS_states.md`: Cauchy-Schwarz, Archimedean bounds
-
-### LinearPMap.mkSpanSingleton Pattern (NEW)
-To define a linear map on span{A} for A ≠ 0:
-```lean
-noncomputable def myLinearMap (hA : A ≠ 0) : Submodule.span ℝ {A} →ₗ[ℝ] ℝ :=
-  (LinearPMap.mkSpanSingleton (K := ℝ) A (targetValue : ℝ) hA).toFun
-
--- Apply formula: ⟨c • A, _⟩ = c • ⟨A, _⟩ in submodule, then use LinearMap.map_smul
--- Result: myLinearMap(c • A) = c * targetValue
-```
-
-Key lemmas:
-- `LinearPMap.mkSpanSingleton_apply`: f(A) = targetValue
-- `Submodule.mem_span_singleton`: x ∈ span{A} ↔ ∃ c, c • A = x
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/Dual/SeparatingFunctional.lean` (NEW, 114 LOC, 0 sorries)
+- `AfTests/ArchimedeanClosure/Dual/RieszApplication.lean` (NEW, 147 LOC, 2 sorries)
+- `docs/ArchimedeanClosure/LEARNINGS_misc.md` (updated with Riesz extension analysis)
 - `HANDOFF.md` (this file)
 
+---
+
+## Known Issues
+
+- `LEARNINGS_misc.md` is 442 lines (exceeds 200 LOC limit) - needs split
