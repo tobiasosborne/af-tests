@@ -113,3 +113,44 @@ structure definition. This will need to be:
 2. Added as an explicit hypothesis
 
 This is intentional - keep the base definition minimal, add properties as theorems.
+
+---
+
+## 2026-01-24: MPositiveStateProps Sorries Analysis
+
+### Two Open Sorries
+`MPositiveStateProps.lean` has 2 sorries that require careful proofs:
+
+1. **`apply_real_of_isSelfAdjoint`**: Show `(φ a).im = 0` when `star a = a`
+2. **`map_star`**: Show `φ(star a) = conj(φ(a))` for all `a`
+
+### Proof Strategy for `apply_real_of_isSelfAdjoint`
+For self-adjoint `a`, use the polarization identity:
+```
+a = 1/4 * (1+a)*(1+a) - 1/4 * (1-a)*(1-a)
+```
+Since `(1±a)` is still self-adjoint when `a` is, and `star(1+a)*(1+a) ∈ M`,
+we get `φ(a)` as a real linear combination of real values.
+
+**Prerequisites:**
+- Prove `star(1+a) = 1 + a` when `a` is self-adjoint
+- Show the identity `a = 1/4 * star(1+a)*(1+a) - 1/4 * star(1-a)*(1-a)` holds
+- Use `map_m_real` to conclude
+
+### Proof Strategy for `map_star`
+Standard argument from positivity uses polarization:
+1. From `φ(star(a+λb) * (a+λb)) ≥ 0` for all `λ ∈ ℂ`
+2. Expand and extract: `φ(star(a)*b) + λ*φ(star(b)*a) + conj(λ)*φ(star(a)*b) + |λ|²*φ(star(b)*b)`
+3. Analyze the positive semidefinite quadratic form
+4. Derive `φ(star(b)*a) = conj(φ(star(a)*b))`
+5. Set `b = 1`: `φ(star(a)) = conj(φ(a))`
+
+**Challenge:** The FreeAlgebra star structure may complicate step 1-2.
+The expansion `star(a + λb) = star(a) + λ*star(b)` (NOT `conj(λ)*star(b)`)
+due to the scalar-fixing star.
+
+### Recommendation
+Consider whether to:
+1. Add `map_star` as an axiom in `MPositiveState` structure, OR
+2. Restrict to proofs that only use `apply_m_real` on M elements, OR
+3. Work through the polarization proof carefully accounting for the star structure
