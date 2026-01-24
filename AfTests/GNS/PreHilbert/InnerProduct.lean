@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: AF-Tests Project
 -/
 import AfTests.GNS.NullSpace.Quotient
-import AfTests.GNS.State.CauchySchwarz
+import AfTests.GNS.State.CauchySchwarzTight
 
 /-!
 # GNS Inner Product

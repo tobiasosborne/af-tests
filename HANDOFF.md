@@ -1,25 +1,18 @@
 # Handoff: GNS Construction Progress
 
 **Date:** 2026-01-24
-**Session Focus:** Eliminated tight Cauchy-Schwarz sorry (af-tests-dwe)
+**Session Focus:** Fixed CauchySchwarz.lean LOC violation (af-tests-zdo)
 
 ---
 
 ## Completed This Session
 
-1. **Eliminated tight C-S sorry** (CauchySchwarz.lean)
-   - Added `cross_term_opt_identity` helper lemma (lines 135-150)
-   - Completed `inner_mul_le_norm_mul_norm` proof (lines 161-202)
-   - Key: avoid simp, use explicit rewrites for complex division
+1. **Split CauchySchwarz.lean** (223 → 119 + 127 lines)
+   - `CauchySchwarz.lean` (119 lines): Weak C-S with helper lemmas
+   - `CauchySchwarzTight.lean` (127 lines): Tight C-S + consequences
+   - Updated imports in `NullSpace/Basic.lean` and `PreHilbert/InnerProduct.lean`
 
-2. **Zero sorries remain in entire GNS project!**
-
-3. **Updated Learnings**
-   - Documented solution strategy in state-and-positivity.md
-   - Key insights: unfold let bindings, reassociate additions, explicit real-part extraction
-
-4. **Created LOC violation issue** (af-tests-zdo)
-   - CauchySchwarz.lean is 223 lines (limit: 200)
+2. **Build passes, zero sorries**
 
 ---
 
@@ -27,6 +20,7 @@
 
 - **Build status:** Passing (zero sorries!)
 - **Sorry count:** 0 total
+- **LOC violations:** 1 remaining (af-tests-1zf: state-and-positivity.md)
 
 ---
 
@@ -34,13 +28,13 @@
 
 | Phase | Files | Proven | Structure Done | Not Started | Progress |
 |-------|-------|--------|----------------|-------------|----------|
-| P1: States | 3 | 3 | 0 | 0 | **100%** |
+| P1: States | 4 | 4 | 0 | 0 | **100%** |
 | P2: NullSpace | 3 | 3 | 0 | 0 | **100%** |
 | P3: PreHilbert | 3 | 3 | 0 | 0 | **100%** |
 | P4: HilbertSpace | 2 | 2 | 0 | 0 | **100%** |
 | P5: Representation | 4 | 3 | 0 | 1 | **75%** |
 | P6: Main | 3 | 0 | 0 | 3 | 0% |
-| **TOTAL** | **18** | **14** | **0** | **4** | **78%** |
+| **TOTAL** | **19** | **15** | **0** | **4** | **79%** |
 
 ---
 
@@ -52,29 +46,28 @@ None! All sorries eliminated.
 
 ## Next Steps (Priority Order)
 
-1. **af-tests-zdo (P0)** - Split CauchySchwarz.lean to fix LOC violation (223 > 200)
-2. **af-tests-1zf (P0)** - Split state-and-positivity.md to fix LOC violation
-3. **Phase 5** - Representation/Star.lean (af-tests-8r4)
-4. **Phase 6** - Main theorems (after P5 complete)
+1. **af-tests-1zf (P0)** - Split state-and-positivity.md to fix LOC violation
+2. **Phase 5** - Representation/Star.lean (af-tests-8r4)
+3. **Phase 6** - Main theorems (after P5 complete)
 
 ---
 
 ## Files Modified This Session
 
-- Modified: `AfTests/GNS/State/CauchySchwarz.lean` (added helper, eliminated sorry)
-- Updated: `docs/GNS/learnings/state-and-positivity.md` (documented solution)
+- Refactored: `AfTests/GNS/State/CauchySchwarz.lean` (223 → 119 lines, weak C-S only)
+- Created: `AfTests/GNS/State/CauchySchwarzTight.lean` (127 lines, tight C-S + consequences)
+- Updated: `AfTests/GNS/NullSpace/Basic.lean` (import change)
+- Updated: `AfTests/GNS/PreHilbert/InnerProduct.lean` (import change)
 - Updated: `HANDOFF.md`
 
 ---
 
 ## Technical Notes for Next Session
 
-**Key proof techniques that worked:**
-
-1. **Let binding unfold:** `simp only [show μ = -c / d from rfl]`
-2. **Addition reassociation:** `convert hpos using 2; ring`
-3. **Complex real-part extraction:** explicit `Complex.div_ofReal_re`, `Complex.neg_re`
-4. **Division cancel:** `div_mul_cancel₀ (-a) hne`
+**File split pattern used:**
+- Identify logical groupings (weak vs tight Cauchy-Schwarz)
+- Move higher-level results to new file that imports base
+- Update downstream imports to use the file with the theorems they need
 
 ---
 
@@ -82,6 +75,6 @@ None! All sorries eliminated.
 
 ```bash
 bd ready                 # See available work
-bd show af-tests-zdo     # CauchySchwarz.lean LOC violation (P0)
 bd show af-tests-1zf     # state-and-positivity.md LOC violation (P0)
+bd show af-tests-8r4     # Representation/Star.lean
 ```
