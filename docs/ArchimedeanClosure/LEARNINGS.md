@@ -89,3 +89,27 @@ theorem archimedeanBound_spec [IsArchimedean n] (a : FreeStarAlgebra n) :
 
 For the Archimedean closure proof, we only need existence of a bound, not minimality.
 If minimality becomes important later, we can add decidability or use a different approach.
+
+---
+
+## 2026-01-24: MPositiveState Definition (Phase 2 Start)
+
+### Approach
+Defined `MPositiveState` using ℂ-linear functionals (`FreeStarAlgebra n →ₗ[ℂ] ℂ`)
+with separate properties for M-positivity:
+- `map_m_nonneg`: `0 ≤ (toFun m).re` for m ∈ M
+- `map_m_real`: `(toFun m).im = 0` for m ∈ M
+
+### Why This Works
+Despite the star structure not satisfying `StarModule ℂ`, the M-positivity definition
+only requires checking values on M elements. Since M consists of "squares" (star a * a)
+and generator-weighted squares, these are morally self-adjoint, so demanding they map
+to real values is natural.
+
+### Deferred Question
+The conjugate-symmetry property `φ(star a) = conj(φ(a))` is NOT part of the basic
+structure definition. This will need to be:
+1. Proven as a consequence (in MPositiveStateProps.lean), OR
+2. Added as an explicit hypothesis
+
+This is intentional - keep the base definition minimal, add properties as theorems.
