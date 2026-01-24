@@ -1,106 +1,91 @@
 # Handoff: GNS Construction Progress
 
 **Date:** 2026-01-24
-**Session Focus:** Representation/Extension.lean - Extend representation to completion
+**Session Focus:** Project audit and LEARNINGS.md refactor
 
 ---
 
 ## Completed This Session
 
-1. **Implemented P5.3: Representation/Extension.lean** (af-tests-9we)
-   - Extension of pre-representation to Hilbert space completion (159 LOC)
-   - Key definitions:
-     - `gnsPreRepContinuous` - pre-rep as ContinuousLinearMap
-     - `gnsRep` - full representation on H_φ
-   - Key lemmas:
-     - `gnsRep_coe` - agrees with pre-rep on embedded quotient
-     - `gnsRep_cyclicVector` - π_φ(a)Ω_φ = [a]
-     - `gnsRep_mul` - multiplicative: π_φ(ab) = π_φ(a) ∘L π_φ(b)
-     - `gnsRep_one` - identity: π_φ(1) = id
-     - `gnsRep_add` - additive: π_φ(a+b) = π_φ(a) + π_φ(b)
-   - **Status:** Proven (no sorries in this file)
+1. **Project Audit** - Comprehensive review of GNS subproject
+   - Verified 4 sorries exist (all tracked in beads)
+   - Confirmed 0 external axioms
+   - All 14 Lean files under 200 LOC
+   - No documentation drift detected
 
-2. **Documented learnings:**
-   - Extending ContinuousLinearMap to completion (manual construction)
-   - Typeclass diamond in GNS quotient topology
+2. **Upgraded Sorry Issues to P0** (BLOCKER status)
+   - af-tests-uo6: sesqForm_conj_symm
+   - af-tests-03g: inner_mul_le_norm_mul_norm_weak
+   - af-tests-bgs: inner_mul_le_norm_mul_norm
+   - af-tests-z9g: gnsPreRep_norm_le (blocked by 03g, bgs)
+   - Added planning requirement to all sorry issues
+
+3. **Refactored LEARNINGS.md** (af-tests-5q9) - P0 LOC violation fixed
+   - Split 331-line file into 6 files, all under 100 LOC
+   - Created `docs/GNS/learnings/` subdirectory with:
+     - `state-and-positivity.md` (67 LOC)
+     - `quotient-construction.md` (60 LOC)
+     - `inner-product-conventions.md` (82 LOC)
+     - `completion-topology.md` (56 LOC)
+     - `project-audit.md` (56 LOC)
+   - Main LEARNINGS.md now 79 LOC (index + quick reference)
 
 ---
 
 ## Current State
 
 - **Build status:** Passing
-- **Sorry count:** 4 total (unchanged from previous session)
-  - State/Positivity.lean:67 - `sesqForm_conj_symm`
-  - State/CauchySchwarz.lean:56 - `inner_mul_le_norm_mul_norm_weak`
-  - State/CauchySchwarz.lean:71 - `inner_mul_le_norm_mul_norm`
-  - Representation/Bounded.lean:77 - `gnsPreRep_norm_le`
+- **Sorry count:** 4 total (all P0, tracked)
+  - State/Positivity.lean:67 - `sesqForm_conj_symm` (af-tests-uo6)
+  - State/CauchySchwarz.lean:56 - `inner_mul_le_norm_mul_norm_weak` (af-tests-03g)
+  - State/CauchySchwarz.lean:71 - `inner_mul_le_norm_mul_norm` (af-tests-bgs)
+  - Representation/Bounded.lean:77 - `gnsPreRep_norm_le` (af-tests-z9g, blocked)
 
 ---
 
-## GNS Issue Summary
+## GNS Progress Summary
 
-### Phase 1: States (3 files)
-| Issue ID | File | Status | Notes |
-|----------|------|--------|-------|
-| `af-tests-li5` | State/Basic.lean | **Proven** | No sorries |
-| `af-tests-dor` | State/Positivity.lean | **Structure Done** | 1 sorry (uo6) |
-| `af-tests-s50` | State/CauchySchwarz.lean | **Structure Done** | 2 sorries (03g, bgs) |
+| Phase | Files | Proven | Structure Done | Not Started | Progress |
+|-------|-------|--------|----------------|-------------|----------|
+| P1: States | 3 | 1 | 2 | 0 | 66.7% |
+| P2: NullSpace | 3 | 3 | 0 | 0 | **100%** |
+| P3: PreHilbert | 3 | 3 | 0 | 0 | **100%** |
+| P4: HilbertSpace | 2 | 2 | 0 | 0 | **100%** |
+| P5: Representation | 4 | 2 | 1 | 1 | 62.5% |
+| P6: Main | 3 | 0 | 0 | 3 | 0% |
+| **TOTAL** | **18** | **11** | **3** | **4** | **69%** |
 
-### Phase 2: Null Space (3 files)
-| Issue ID | File | Status | Notes |
-|----------|------|--------|-------|
-| `af-tests-aqa` | NullSpace/Basic.lean | **Proven** | No sorries |
-| `af-tests-y0u` | NullSpace/LeftIdeal.lean | **Proven** | No sorries |
-| `af-tests-ei1` | NullSpace/Quotient.lean | **Proven** | No sorries |
+---
 
-### Phase 3: PreHilbert (COMPLETE)
-| Issue ID | File | Status | Notes |
-|----------|------|--------|-------|
-| `af-tests-ec1` | PreHilbert/InnerProduct.lean | **Proven** | No sorries |
-| `af-tests-q9f` | PreHilbert/Seminorm.lean | **Proven** | No sorries |
-| `af-tests-9me` | PreHilbert/Positive.lean | **Proven** | No sorries |
+## P0 Blockers (Ready to Work)
 
-### Phase 4: HilbertSpace (COMPLETE)
-| Issue ID | File | Status | Notes |
-|----------|------|--------|-------|
-| `af-tests-8pg` | HilbertSpace/Completion.lean | **Proven** | No sorries |
-| `af-tests-dx9` | HilbertSpace/CyclicVector.lean | **Proven** | No sorries |
+| Issue | File | Notes |
+|-------|------|-------|
+| af-tests-uo6 | Positivity.lean:67 | Conjugate symmetry proof |
+| af-tests-03g | CauchySchwarz.lean:56 | Weak Cauchy-Schwarz (factor 2) |
+| af-tests-bgs | CauchySchwarz.lean:71 | Tight Cauchy-Schwarz |
 
-### Phase 5: Representation (in progress)
-| Issue ID | File | Status | Notes |
-|----------|------|--------|-------|
-| `af-tests-155` | Representation/PreRep.lean | **Proven** | No sorries |
-| `af-tests-6wx` | Representation/Bounded.lean | **Structure Done** | 1 sorry (z9g) |
-| `af-tests-9we` | Representation/Extension.lean | **Proven** | No sorries |
-| `af-tests-8r4` | Representation/Star.lean | **Not Started** | Next priority |
+**Blocked P0:**
+- af-tests-z9g (blocked by 03g, bgs)
 
 ---
 
 ## Next Steps (Priority Order)
 
-1. **Phase 5** - Representation/Star.lean - *-representation property
-2. **Sorry elimination** (P2-P3): z9g (Bounded), uo6, 03g, bgs
-3. Refactor LEARNINGS.md (now ~330 lines, exceeds 200 LOC)
-
----
-
-## Key Learnings This Session
-
-1. **ContinuousLinearMap Extension:** Mathlib lacks `ContinuousLinearMap.completion`.
-   Must manually construct using `UniformSpace.Completion.map` + induction principles.
-
-2. **Typeclass Diamond:** The quotient has two topologies (quotient vs seminormed).
-   Use explicit `@` syntax with `gnsQuotientSeminormedAddCommGroup.toUniformSpace`.
-
-3. **Induction Pattern:** Use `| hp => isClosed_eq <cont1> <cont2>` for closure,
-   then `| ih x => ...` to prove on the dense subspace.
+1. **Eliminate P0 sorries** - Start with uo6 or 03g (unblocked)
+2. **Phase 5** - Representation/Star.lean (af-tests-8r4)
+3. **Phase 6** - Main theorems (after P5 complete)
 
 ---
 
 ## Files Modified This Session
 
-- Created: `AfTests/GNS/Representation/Extension.lean` (159 LOC, no sorries)
-- Updated: `docs/GNS/LEARNINGS.md` (added 2 entries)
+- Refactored: `docs/GNS/LEARNINGS.md` (331 → 79 LOC)
+- Created: `docs/GNS/learnings/state-and-positivity.md` (67 LOC)
+- Created: `docs/GNS/learnings/quotient-construction.md` (60 LOC)
+- Created: `docs/GNS/learnings/inner-product-conventions.md` (82 LOC)
+- Created: `docs/GNS/learnings/completion-topology.md` (56 LOC)
+- Created: `docs/GNS/learnings/project-audit.md` (56 LOC)
 - Updated: `HANDOFF.md`
 
 ---
@@ -108,6 +93,7 @@
 ## Commands for Next Session
 
 ```bash
-bd ready
-bd show af-tests-8r4  # Representation/Star.lean
+bd ready                 # See available work
+bd show af-tests-uo6     # Conjugate symmetry sorry
+bd show af-tests-03g     # Weak Cauchy-Schwarz sorry
 ```
