@@ -1,7 +1,7 @@
 # Handoff: GNS Construction Progress
 
 **Date:** 2026-01-24
-**Session Focus:** NullSpace/Basic.lean implementation
+**Session Focus:** NullSpace implementation (Basic + LeftIdeal)
 
 ---
 
@@ -14,6 +14,11 @@
    - Created `State.gnsNullSpace : AddSubgroup A` (77 LOC, no sorries)
    - Defined carrier as `{a : A | φ (star a * a) = 0}`
    - Proved: zero_mem, add_mem (using Cauchy-Schwarz), neg_mem, smul_mem
+
+3. **Implemented P2: NullSpace/LeftIdeal.lean** (af-tests-y0u)
+   - Created `State.gnsNullSpace_mul_mem_left` (61 LOC, no sorries)
+   - Proved left ideal property: if a ∈ N_φ then b*a ∈ N_φ
+   - Uses "swapped" Cauchy-Schwarz (corrected LEARNINGS.md)
 
 ---
 
@@ -40,7 +45,8 @@
 | Issue ID | File | Status | Notes |
 |----------|------|--------|-------|
 | `af-tests-aqa` | NullSpace/Basic.lean | **Proven** | No sorries |
-| `af-tests-y0u` | NullSpace/LeftIdeal.lean | **Ready** | Blocked was aqa |
+| `af-tests-y0u` | NullSpace/LeftIdeal.lean | **Proven** | No sorries |
+| `af-tests-ei1` | NullSpace/Quotient.lean | **Ready** | Blocked was y0u |
 
 ### Audit Issues
 | Issue ID | Priority | Status |
@@ -56,15 +62,17 @@
 
 ## Next Steps (Priority Order)
 
-1. **af-tests-y0u** (P2) - NullSpace/LeftIdeal.lean (now unblocked)
+1. **af-tests-ei1** (P2) - NullSpace/Quotient.lean (now unblocked)
 2. Sorry elimination (P3): uo6, 03g, bgs
 
 ---
 
 ## Files Modified This Session
 
-- Updated: `HANDOFF.md` (fixed stale line numbers, added NullSpace status)
+- Updated: `HANDOFF.md`
+- Updated: `docs/GNS/LEARNINGS.md` (corrected left ideal proof strategy)
 - Created: `AfTests/GNS/NullSpace/Basic.lean` (77 LOC, no sorries)
+- Created: `AfTests/GNS/NullSpace/LeftIdeal.lean` (61 LOC, no sorries)
 
 ---
 
@@ -72,5 +80,5 @@
 
 ```bash
 bd ready
-bd show af-tests-y0u  # NullSpace/LeftIdeal.lean (now unblocked)
+bd show af-tests-ei1  # NullSpace/Quotient.lean (now unblocked)
 ```

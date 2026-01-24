@@ -104,33 +104,26 @@ automated checks (e.g., grep for documented names in code).
 
 ---
 
-## 2026-01-24: Left Ideal Property Uses Boundedness, Not Cauchy-Schwarz
+## 2026-01-24: Left Ideal Property DOES Use Cauchy-Schwarz (Corrected)
 
-**Discovery:** The theorem `null_space_left_ideal` (proving ba ∈ N_φ when a ∈ N_φ)
-was misplaced in CauchySchwarz.lean.
+**Discovery:** The left ideal property (ba ∈ N_φ when a ∈ N_φ) CAN be proven
+using Cauchy-Schwarz, contrary to the earlier incorrect claim about boundedness.
 
-**Problem:** The proof strategy was incorrectly documented as "C-S applied cleverly"
-but actually requires **boundedness of the state**:
-```
-φ((ba)*(ba)) = φ(a* · (b*b) · a)
-By boundedness: |φ(x* · c · x)| ≤ ‖c‖ · φ(x*x)
-Since φ(a*a) = 0, result follows
-```
+**Proof (implemented in NullSpace/LeftIdeal.lean):**
+1. Need: φ((ba)*(ba)) = 0 when φ(a*a) = 0
+2. Compute: (ba)*(ba) = a* b* b a = a* · (b*ba)
+3. By Cauchy-Schwarz (swapped): |φ(a* · x)|² ≤ φ(x*x).re · φ(a*a).re
+4. Since φ(a*a) = 0, we get φ(a* · x) = 0 for all x
+5. Taking x = b*ba gives φ((ba)*(ba)) = 0
 
-This is fundamentally different from Cauchy-Schwarz, which gives:
-- |φ(b*a)|² ≤ φ(a*a) · φ(b*b)
+**Key insight:** The "swapped" Cauchy-Schwarz lemma:
+- Original: `apply_star_mul_eq_zero_of_apply_star_self_eq_zero` gives φ(x*a) = 0
+- Swapped: `apply_mul_star_eq_zero_of_apply_star_self_eq_zero` gives φ(a*x) = 0
+Both follow from the same `inner_mul_le_norm_mul_norm` theorem.
 
-The left ideal property needs:
-- |φ(a* · c · a)| ≤ ‖c‖ · φ(a*a)
-
-**Resolution:**
-- Removed `null_space_left_ideal` from CauchySchwarz.lean
-- Added note pointing to NullSpace/LeftIdeal.lean (where it belongs)
-- Corrected proof strategy in docs/GNS/phases/02_nullspace.md
-
-**Lesson:** When a proof doesn't use the file's main result, it's probably
-misplaced. Follow the dependency arrow: if theorem X doesn't use theorem Y,
-X probably doesn't belong in Y's file.
+**Lesson:** When a proof seems to require a stronger hypothesis (like boundedness),
+try rearranging the existing lemmas. The "swapped" version of a consequence may
+be exactly what you need.
 
 ---
 
