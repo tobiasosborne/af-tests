@@ -215,3 +215,29 @@ File `State/NonEmptiness.lean` created with:
 - ✓ `scalarExtraction_one`, `scalarExtraction_generator` proven
 - ✗ `scalarExtraction_star_mul_self_nonneg` BLOCKED (counter-example exists)
 - ✗ `MPositiveStateSet_nonempty` as sorry pending resolution
+
+---
+
+## 2026-01-24: RF-1 Complete - FreeStarAlgebra Now Uses ℝ
+
+### Change Made
+Refactored `FreeStarAlgebra n` from `FreeAlgebra ℂ (Fin n)` to `FreeAlgebra ℝ (Fin n)`.
+
+### Why This Fixes Scalar Extraction
+Over ℝ, for any scalar `c : ℝ`:
+```
+star (algebraMap c) * algebraMap c = algebraMap (c * c) = algebraMap (c²)
+```
+Since `c² ≥ 0` for all real `c`, scalar extraction maps every `star a * a` to a
+nonnegative real, as required for M-positivity.
+
+### Technical Details
+- `FreeAlgebra.star_ι` still works: `star (ι j) = ι j` (generators self-adjoint)
+- Proof of `isSelfAdjoint_generator` changed to use `unfold` + `exact`
+- Import changed from `Mathlib.Data.Complex.Basic` to `Mathlib.Data.Real.Basic`
+
+### Downstream Impact
+All files importing `FreeStarAlgebra` need refactoring (RF-2 through RF-6):
+- `QuadraticModule.lean` - change ℂ → ℝ in smul
+- `MPositiveState.lean` - redesign for ℝ-linear functionals
+- `NonEmptiness.lean` - scalar extraction should now work

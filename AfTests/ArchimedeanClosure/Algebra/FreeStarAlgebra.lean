@@ -6,11 +6,11 @@ Authors: AF-Tests Contributors
 import Mathlib.Algebra.FreeAlgebra
 import Mathlib.Algebra.Star.Free
 import Mathlib.Algebra.Star.SelfAdjoint
-import Mathlib.Data.Complex.Basic
+import Mathlib.Data.Real.Basic
 
 /-! # Free *-Algebra with Self-Adjoint Generators
 
-This file defines the free *-algebra on n self-adjoint generators over ℂ.
+This file defines the free *-algebra on n self-adjoint generators over ℝ.
 
 ## Main definitions
 
@@ -20,24 +20,27 @@ This file defines the free *-algebra on n self-adjoint generators over ℂ.
 
 ## Implementation Notes
 
-We use `FreeAlgebra ℂ (Fin n)` with the star structure from `Mathlib.Algebra.Star.Free`.
-Note: This star structure fixes scalars (`star (algebraMap c) = algebraMap c`), so it
-does NOT satisfy `StarModule ℂ`. See LEARNINGS.md for discussion.
+We use `FreeAlgebra ℝ (Fin n)` with the star structure from `Mathlib.Algebra.Star.Free`.
+Working over ℝ ensures that for any scalar c, star(c·1) * (c·1) = c² ≥ 0, which is
+essential for scalar extraction to yield M-positive states.
+
+See LEARNINGS.md for the critical discovery about why ℂ doesn't work.
 -/
 
-/-- The free *-algebra on n self-adjoint generators over ℂ. -/
-abbrev FreeStarAlgebra (n : ℕ) := FreeAlgebra ℂ (Fin n)
+/-- The free *-algebra on n self-adjoint generators over ℝ. -/
+abbrev FreeStarAlgebra (n : ℕ) := FreeAlgebra ℝ (Fin n)
 
 namespace FreeStarAlgebra
 
 variable {n : ℕ}
 
 /-- The j-th generator gⱼ of the free *-algebra. -/
-def generator (j : Fin n) : FreeStarAlgebra n := FreeAlgebra.ι ℂ j
+def generator (j : Fin n) : FreeStarAlgebra n := FreeAlgebra.ι ℝ j
 
 /-- Generators are self-adjoint: star(gⱼ) = gⱼ. -/
-theorem isSelfAdjoint_generator (j : Fin n) : IsSelfAdjoint (generator j) :=
-  FreeAlgebra.star_ι j
+theorem isSelfAdjoint_generator (j : Fin n) : IsSelfAdjoint (generator j) := by
+  unfold IsSelfAdjoint generator
+  exact FreeAlgebra.star_ι j
 
 /-- The generator embedding. -/
 def ι : Fin n → FreeStarAlgebra n := generator
