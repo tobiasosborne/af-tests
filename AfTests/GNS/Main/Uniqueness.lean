@@ -173,4 +173,23 @@ theorem gnsIntertwinerQuotient_zero
   change π 0 ξ = 0
   rw [_root_.map_zero, ContinuousLinearMap.zero_apply]
 
+/-! ### LinearMap structure -/
+
+/-- U₀ as a linear map gnsQuotient →ₗ[ℂ] H.
+    Combines the function with its linearity properties into a LinearMap structure. -/
+noncomputable def gnsIntertwinerQuotientLinearMap
+    (hξ_state : ∀ a : A, @inner ℂ H _ ξ (π a ξ) = φ a) :
+    φ.gnsQuotient →ₗ[ℂ] H where
+  toFun := gnsIntertwinerQuotientFun φ π ξ hξ_state
+  map_add' := gnsIntertwinerQuotient_add φ π ξ hξ_state
+  map_smul' := gnsIntertwinerQuotient_smul φ π ξ hξ_state
+
+/-- The LinearMap agrees with the underlying function. -/
+@[simp]
+theorem gnsIntertwinerQuotientLinearMap_apply
+    (hξ_state : ∀ a : A, @inner ℂ H _ ξ (π a ξ) = φ a)
+    (x : φ.gnsQuotient) :
+    gnsIntertwinerQuotientLinearMap φ π ξ hξ_state x =
+    gnsIntertwinerQuotientFun φ π ξ hξ_state x := rfl
+
 end State

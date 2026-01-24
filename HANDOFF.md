@@ -1,33 +1,26 @@
-# Handoff: GNS Uniqueness Step 1 Complete
+# Handoff: GNS Uniqueness Step 2 Complete
 
 **Date:** 2026-01-24
-**Session Focus:** Implement GNS-U1 (linearity of intertwiner on quotient)
+**Session Focus:** Implement GNS-U2 (LinearMap structure)
 
 ---
 
 ## Completed This Session
 
-1. **Implemented GNS-U1 (af-tests-aov): Linearity of intertwiner**
-   - `gnsIntertwinerQuotient_add` - preserves addition
-   - `gnsIntertwinerQuotient_smul` - preserves scalar multiplication
-   - `gnsIntertwinerQuotient_zero` - maps zero to zero
+1. **Implemented GNS-U2 (af-tests-6tj): LinearMap structure**
+   - `gnsIntertwinerQuotientLinearMap` - wraps U₀ as a `LinearMap`
+   - `gnsIntertwinerQuotientLinearMap_apply` - simp lemma for unfolding
    - All proofs complete, no sorries
-   - File: `Main/Uniqueness.lean` (176 lines, under 200 limit)
-
-2. **Documented learning**
-   - Added section on "Scalar Multiplication with StarAlgHom" to
-     `docs/GNS/learnings/quotient-construction.md`
-   - Key insight: `map_smul` doesn't work directly; use `Algebra.smul_def`
-     and `AlgHomClass.commutes` instead
+   - File: `Main/Uniqueness.lean` (195 lines, under 200 limit)
 
 ---
 
 ## Current State
 
 - **GNS existence theorem (`gns_theorem`):** ✅ Proven
-- **GNS uniqueness theorem (`gns_uniqueness`):** ⏳ In Progress (1/12 steps)
+- **GNS uniqueness theorem (`gns_uniqueness`):** ⏳ In Progress (2/12 steps)
 - **Build status:** Passing (zero sorries)
-- **Next ready issue:** `af-tests-6tj` (GNS-U2: LinearMap structure)
+- **Next ready issue:** `af-tests-rb9` (GNS-U3: LinearIsometry on quotient)
 
 ---
 
@@ -36,8 +29,8 @@
 | Step | ID | Description | Status |
 |------|----|-------------|--------|
 | 1 | af-tests-aov | Linearity of U₀ | ✅ Done |
-| 2 | af-tests-6tj | LinearMap structure | Ready |
-| 3 | af-tests-rb9 | LinearIsometry on quotient | Blocked by 2 |
+| 2 | af-tests-6tj | LinearMap structure | ✅ Done |
+| 3 | af-tests-rb9 | LinearIsometry on quotient | Ready |
 | 4 | af-tests-hqt | Extension to Hilbert space | Blocked by 3 |
 | 5 | af-tests-ywt | Extension is isometry | Blocked by 4 |
 | 6 | af-tests-5nd | Dense range | Blocked by 5 |
@@ -52,36 +45,31 @@
 
 ## Next Steps
 
-Start with `af-tests-6tj` (GNS-U2):
+Start with `af-tests-rb9` (GNS-U3):
 ```bash
-bd show af-tests-6tj           # View details
-bd update af-tests-6tj --status=in_progress  # Claim it
+bd show af-tests-rb9           # View details
+bd update af-tests-rb9 --status=in_progress  # Claim it
 ```
 
 Then implement in `Main/Uniqueness.lean`:
-- `gnsIntertwinerQuotientLinearMap` - wrap the function as a LinearMap using
-  the three lemmas proven in U1
+- `gnsIntertwinerQuotientLinearIsometry` - combine LinearMap with isometry property
+- `gnsIntertwinerQuotientLinearIsometry_continuous` - prove continuity
 
 ---
 
 ## Files Modified This Session
 
-- Modified: `AfTests/GNS/Main/Uniqueness.lean` (+53 lines: 3 linearity theorems)
-- Modified: `docs/GNS/learnings/quotient-construction.md` (+27 lines: StarAlgHom smul pattern)
+- Modified: `AfTests/GNS/Main/Uniqueness.lean` (+19 lines: LinearMap definition + simp lemma)
 - Modified: `HANDOFF.md` (this file)
 
 ---
 
-## Key Learning
+## Implementation Note
 
-**StarAlgHom scalar multiplication pattern:**
-```lean
--- To prove: π(c • a) = c • π(a)
-rw [Algebra.smul_def, _root_.map_mul, ContinuousLinearMap.mul_apply]
-rw [AlgHomClass.commutes]
-simp only [Algebra.algebraMap_eq_smul_one, ContinuousLinearMap.smul_apply,
-  ContinuousLinearMap.one_apply]
-```
+Step 2 was straightforward: the `LinearMap` structure in Lean 4 requires:
+- `toFun` - the underlying function
+- `map_add'` - additivity
+- `map_smul'` - scalar multiplication
 
-The `map_smul` lemma doesn't unify directly for StarAlgHom because the scalar
-actions on source and target types are different. Decompose via `Algebra.smul_def`.
+We had all three from Step 1. The `map_zero'` property is not required - it's
+derivable from `map_smul' 0 x`.
