@@ -7,6 +7,7 @@ import AfTests.ArchimedeanClosure.Topology.StateTopology
 import AfTests.ArchimedeanClosure.Boundedness.ArchimedeanBound
 import Mathlib.Topology.Compactness.Compact
 import Mathlib.Topology.MetricSpace.Basic
+import Mathlib.Topology.MetricSpace.ProperSpace
 
 /-! # Compactness of State Space S_M
 
@@ -68,6 +69,20 @@ theorem stateSet_subset_product :
   intro f ⟨φ, hφ⟩ a
   rw [← hφ]
   exact φ.apply_mem_closedBall a
+
+/-- The product of closed balls is compact (Tychonoff). -/
+theorem product_compact :
+    IsCompact { f : FreeStarAlgebra n → ℝ | ∀ a, f a ∈ Metric.closedBall (0 : ℝ) (bound a) } := by
+  -- Rewrite using Set.pi
+  have h_eq : { f : FreeStarAlgebra n → ℝ | ∀ a, f a ∈ Metric.closedBall (0 : ℝ) (bound a) } =
+      Set.univ.pi (fun a => Metric.closedBall (0 : ℝ) (bound a)) := by
+    ext f
+    simp only [Set.mem_setOf_eq, Set.mem_pi, Set.mem_univ, true_implies]
+  rw [h_eq]
+  -- Apply Tychonoff: product of compact sets is compact
+  apply isCompact_univ_pi
+  intro a
+  exact ProperSpace.isCompact_closedBall 0 (bound a)
 
 end Bounded
 
