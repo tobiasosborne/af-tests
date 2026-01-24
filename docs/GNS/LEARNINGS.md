@@ -151,6 +151,39 @@ it gives you `x : A` and a goal involving `mkQ x`. Structure your proofs accordi
 
 ---
 
+## 2026-01-24: Well-Definedness for Binary Functions on Quotients
+
+**Discovery:** Defining binary functions on `Submodule.Quotient` requires careful
+handling of the quotient relation.
+
+**Problem:** `Quotient.liftOn₂` requires proving that if `a₁ ≈ b₁` and `a₂ ≈ b₂`,
+then `f a₁ a₂ = f b₁ b₂`. For submodule quotients:
+- The relation `a ≈ b` is defined via `QuotientAddGroup.leftRel`
+- `leftRel_apply.mp` gives `-a + b ∈ p` (not `a - b ∈ p`!)
+- Need to convert: `-a + b = b - a` (by `neg_add_eq_sub`), then negate to get `a - b`
+
+**Key Mathlib APIs:**
+- `QuotientAddGroup.leftRel_apply : leftRel s x y ↔ -x + y ∈ s`
+- `neg_add_eq_sub : -a + b = b - a`
+- `Submodule.Quotient.mk_surjective p x` - note: takes submodule as first arg
+
+**Pattern for obtain on quotients:**
+```lean
+obtain ⟨a, rfl⟩ := Submodule.Quotient.mk_surjective φ.gnsNullIdeal x
+```
+
+**Pattern for proving complex equalities:**
+When showing `φ x = φ y` for a linear form φ:
+```lean
+have h1 : φ x - φ y = φ (x - y) := by rw [← φ.map_sub]
+rw [← sub_eq_zero, h1, h_zero]  -- where h_zero : φ (x - y) = 0
+```
+
+**Lesson:** The left coset relation uses `-a + b ∈ p`, not `a - b ∈ p`. Always
+check the exact form of quotient relations before using them.
+
+---
+
 ## Template for New Entries
 
 ```markdown

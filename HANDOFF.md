@@ -1,18 +1,17 @@
 # Handoff: GNS Construction Progress
 
 **Date:** 2026-01-24
-**Session Focus:** NullSpace/Quotient.lean implementation
+**Session Focus:** PreHilbert/InnerProduct.lean implementation
 
 ---
 
 ## Completed This Session
 
-1. **Implemented P2: NullSpace/Quotient.lean** (af-tests-ei1)
-   - Created `State.gnsNullIdeal : Submodule ℂ A` (108 LOC, no sorries)
-   - Defined `gnsQuotient := A ⧸ gnsNullIdeal φ`
-   - Defined `gnsQuotientMk : A →ₗ[ℂ] gnsQuotient` (quotient map)
-   - Defined `gnsLeftAction : A → gnsQuotient →ₗ[ℂ] gnsQuotient` (left A-action)
-   - Proved: `gnsLeftAction_mk`, `gnsLeftAction_mul`, `gnsLeftAction_one`, `gnsLeftAction_add`
+1. **Implemented P3: PreHilbert/InnerProduct.lean** (af-tests-ec1)
+   - Created `State.gnsInner : gnsQuotient φ → gnsQuotient φ → ℂ` (127 LOC, no sorries)
+   - Proved well-definedness using Cauchy-Schwarz + conjugate symmetry
+   - Defined: `gnsInner_mk`, `gnsInner_conj_symm`, `gnsInner_add_left`, `gnsInner_smul_left`
+   - Key lemmas: `sesqForm_eq_of_sub_mem_gnsNullIdeal_left`, `..._right`
 
 ---
 
@@ -35,36 +34,34 @@
 | `af-tests-dor` | State/Positivity.lean | **Structure Done** | 1 sorry (af-tests-uo6) |
 | `af-tests-s50` | State/CauchySchwarz.lean | **Structure Done** | 2 sorries (03g, bgs) |
 
-### Phase 2: Null Space
+### Phase 2: Null Space (3 files)
 | Issue ID | File | Status | Notes |
 |----------|------|--------|-------|
 | `af-tests-aqa` | NullSpace/Basic.lean | **Proven** | No sorries |
 | `af-tests-y0u` | NullSpace/LeftIdeal.lean | **Proven** | No sorries |
 | `af-tests-ei1` | NullSpace/Quotient.lean | **Proven** | No sorries |
 
-### Audit Issues
-| Issue ID | Priority | Status |
-|----------|----------|--------|
-| af-tests-7kl | P0 | **CLOSED** |
-| af-tests-9u6 | P2 | **CLOSED** |
-| af-tests-op0 | P1 | **CLOSED** |
-| af-tests-wmn | P3 | **CLOSED** |
-| af-tests-aea | P1 | **CLOSED** |
-| af-tests-pzj | P2 | **CLOSED** |
+### Phase 3: PreHilbert (in progress)
+| Issue ID | File | Status | Notes |
+|----------|------|--------|-------|
+| `af-tests-ec1` | PreHilbert/InnerProduct.lean | **Proven** | No sorries |
+| `af-tests-q9f` | PreHilbert/Seminorm.lean | **Not Started** | Next up |
+| `af-tests-9me` | PreHilbert/Positive.lean | **Blocked** | Depends on ec1 |
 
 ---
 
 ## Next Steps (Priority Order)
 
-1. **Phase 3** - PreHilbert construction (af-tests-ec1, af-tests-q9f)
-2. Sorry elimination (P3): uo6, 03g, bgs
+1. **Phase 3** - PreHilbert/Positive.lean (af-tests-9me) - now unblocked
+2. **Phase 3** - PreHilbert/Seminorm.lean (af-tests-q9f)
+3. Sorry elimination (P3): uo6, 03g, bgs
 
 ---
 
 ## Files Modified This Session
 
-- Created: `AfTests/GNS/NullSpace/Quotient.lean` (108 LOC, no sorries)
-- Updated: `docs/GNS/LEARNINGS.md` (added quotient module learning)
+- Created: `AfTests/GNS/PreHilbert/InnerProduct.lean` (127 LOC, no sorries)
+- Updated: `docs/GNS/LEARNINGS.md` (added well-definedness pattern)
 - Updated: `HANDOFF.md`
 
 ---
@@ -73,6 +70,6 @@
 
 ```bash
 bd ready
-bd show af-tests-ec1  # PreHilbert/InnerProduct.lean (now unblocked)
-bd show af-tests-q9f  # PreHilbert/Seminorm.lean (now unblocked)
+bd show af-tests-9me  # PreHilbert/Positive.lean (now unblocked)
+bd show af-tests-q9f  # PreHilbert/Seminorm.lean
 ```
