@@ -96,3 +96,41 @@ constant often requires genuinely complex parameters, not just "apply twice."
 **Lean-specific note:** The tactic `ring` doesn't work on non-commutative rings.
 Use manual rewrites with `smul_mul_assoc`, `mul_smul_comm`, `smul_smul` for
 expansions involving scalar multiplication in C*-algebras.
+
+---
+
+## Weak Cauchy-Schwarz Implementation (Completed)
+
+**Discovery:** Successfully proved `inner_mul_le_norm_mul_norm_weak` using the
+quadratic discriminant approach.
+
+**Key Implementation Details:**
+
+1. **Quadratic expansion helper:** Expand star(a + t•b)*(a + t•b) algebraically
+   - Use `star_smul` with `Complex.conj_ofReal` for real t (conj(t) = t)
+   - Use `smul_add`, `smul_smul` for distributing scalars
+   - Use `abel` (NOT `ring`) for non-commutative additive normalization
+
+2. **Cross-term handling:** Show φ(star a * b + star b * a) = 2 · Re(φ(star b * a))
+   - Use `sesqForm_conj_symm` to get φ(star a * b) = conj(φ(star b * a))
+   - z + conj(z) = 2 · Re(z)
+
+3. **Discriminant application:**
+   - Form quadratic: `(φ(star b * b)).re * t² + 2 * (φ(star b * a)).re * t + (φ(star a * a)).re`
+   - Apply `discrim_le_zero` (requires `∀ t, 0 ≤ quadratic(t)`)
+   - Use `nlinarith [sq_nonneg ...]` to finish the inequality
+
+4. **Imaginary bound via I·b substitution:**
+   - star(I • b) = (-I) • star b (use `Complex.conj_I`)
+   - φ(star(I•b) * a) = -I * φ(star b * a), so Re(...) = Im(φ(star b * a))
+   - φ(star(I•b) * (I•b)) = φ(star b * b) (since (-I)*I = 1)
+
+**Key Lean Lemmas Used:**
+- `discrim_le_zero` from `Mathlib.Algebra.QuadraticDiscriminant`
+- `Complex.normSq_apply`: normSq z = z.re² + z.im²
+- `Complex.I_mul`: I * z = { re := -z.im, im := z.re }
+- `Complex.re_ofNat`, `Complex.im_ofNat`: for simplifying (2 : ℂ).re = 2
+
+**Lesson:** The weak Cauchy-Schwarz (factor 2) is sufficient for many GNS
+applications and can be proved with real parameters. The tight bound needs
+genuine complex optimization.
