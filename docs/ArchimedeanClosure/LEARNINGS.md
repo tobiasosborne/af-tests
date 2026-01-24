@@ -377,3 +377,37 @@ This is actually cleaner than the pure squares case!
 
 ### Files Modified
 - `AfTests/ArchimedeanClosure/State/NonEmptiness.lean` (149 LOC, 0 sorries)
+
+---
+
+## 2026-01-24: AC-P3.1 Complete - Cauchy-Schwarz for M-Positive States
+
+### The Result
+Proved the Cauchy-Schwarz inequality: φ(star b * a)² ≤ φ(star a * a) · φ(star b * b)
+
+### Key Lemmas
+1. `star_smul_real`: star(c • a) = c • star a for c : ℝ (manual proof via algebra structure)
+2. `sesqForm_symm`: φ(star a * b) = φ(star b * a) (from map_star)
+3. `quadratic_nonneg`: The quadratic discriminant setup
+4. `cauchy_schwarz`: Main theorem via discriminant bound
+5. `apply_sq_le`: Corollary φ(a)² ≤ φ(star a * a)
+
+### Technical Note: star_smul for ℝ
+FreeAlgebra doesn't have a StarModule instance, so we prove star_smul manually:
+```lean
+star (c • a) = star (algebraMap c * a)     -- Algebra.smul_def
+            = star a * star (algebraMap c) -- star_mul
+            = star a * algebraMap c        -- FreeAlgebra.star_algebraMap
+            = algebraMap c * star a        -- Algebra.commutes
+            = c • star a                   -- Algebra.smul_def
+```
+
+### Non-Commutative Expansion Challenge
+`ring` tactic doesn't work for non-commutative algebras. Used explicit simp with:
+- `add_mul`, `mul_add` - distribution
+- `smul_mul_assoc`, `mul_smul_comm` - scalar-mul interaction
+- `smul_add`, `smul_smul` - scalar distribution
+- `abel` - final additive regrouping
+
+### Files Created
+- `AfTests/ArchimedeanClosure/Boundedness/CauchySchwarzM.lean` (104 LOC, 0 sorries)

@@ -2,26 +2,15 @@
 
 ## Completed This Session
 - **RF-6 COMPLETE**: NonEmptiness proven (1 sorry → 0)
-  - Key insight: scalarExtraction is algebra hom, so φ(star a * a) = φ(a)² ≥ 0
-  - Generator-weighted squares: φ(star a * g_j * a) = 0 (even cleaner!)
-  - `MPositiveStateSet_nonempty` proven via `scalarState` construction
+- **AC-P3.1 COMPLETE**: Cauchy-Schwarz for M-positive states (104 LOC, 0 sorries)
+  - Key theorems: `cauchy_schwarz`, `apply_sq_le`
+  - Technical: manual star_smul proof, non-commutative expansion via simp+abel
 
 ---
 
 ## Current State
 
-### Refactoring COMPLETE!
-
-| Issue | Title | Status |
-|-------|-------|--------|
-| ~~af-tests-zpmh~~ | ~~RF-1: FreeStarAlgebra ℂ → ℝ~~ | **DONE** |
-| ~~af-tests-ted9~~ | ~~RF-2: QuadraticModule for ℝ~~ | **DONE** |
-| ~~af-tests-lhmy~~ | ~~RF-3: Archimedean for ℝ~~ | **DONE** |
-| ~~af-tests-amdb~~ | ~~RF-4: MPositiveState redesign~~ | **DONE** |
-| ~~af-tests-cfc9~~ | ~~RF-5: MPositiveStateProps update~~ | **DONE** |
-| ~~af-tests-6r38~~ | ~~RF-6: NonEmptiness fix~~ | **DONE** |
-
-### File Status
+### Phase 1-2: COMPLETE (Refactoring Done)
 
 | File | Status | LOC | Sorries |
 |------|--------|-----|---------|
@@ -32,21 +21,25 @@
 | State/MPositiveStateProps.lean | ✅ | 63 | 0 |
 | State/NonEmptiness.lean | ✅ | 149 | 0 |
 
-**All RF-1 through RF-6 complete! Phase 1-2 infrastructure fully proven.**
+### Phase 3: In Progress
+
+| File | Status | LOC | Sorries |
+|------|--------|-----|---------|
+| Boundedness/CauchySchwarzM.lean | ✅ | 104 | 0 |
 
 ---
 
 ## Next Steps
 
-1. **Phase 3**: Boundedness lemmas (Cauchy-Schwarz, ArchimedeanBound)
-   - `bd ready` shows AC-P3.1, AC-P3.3 available
-
-2. **Phase 4-5**: Topology and Seminorm (depends on Phase 3)
+1. **AC-P3.2**: Archimedean bound for states (depends on AC-P3.1 ✓)
+2. **AC-P3.3**: Generating cone lemma
+3. **Phase 4-5**: Topology and Seminorm
 
 ---
 
 ## Files Modified This Session
 
 - `AfTests/ArchimedeanClosure/State/NonEmptiness.lean` (RF-6)
+- `AfTests/ArchimedeanClosure/Boundedness/CauchySchwarzM.lean` (AC-P3.1, NEW)
 - `docs/ArchimedeanClosure/LEARNINGS.md`
 - `HANDOFF.md`
