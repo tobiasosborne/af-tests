@@ -238,6 +238,31 @@ Then build `InnerProductSpace` using the same Core.
 
 ---
 
+## 2026-01-24: State Spectral Ordering and Boundedness
+
+**Discovery:** Proving `‖π(a)x‖ ≤ ‖a‖ * ‖x‖` requires showing states respect the
+C*-algebra spectral ordering.
+
+**Problem:** The proof needs:
+1. `CStarAlgebra.star_mul_le_algebraMap_norm_sq`: `a*a ≤ ‖a‖² · 1`
+2. `conjugate_le_conjugate`: `b*(a*a)b ≤ b*(‖a‖² · 1)b = ‖a‖² · b*b`
+3. States preserve ordering: if `x ≤ y` then `(φ x).re ≤ (φ y).re`
+
+The third step is non-trivial because:
+- States map to ℂ, which lacks `StarOrderedRing`
+- We know `φ(a*a) ≥ 0` is real, but not for all positive cone elements
+- The spectral order uses closure of `{s*s}`, not just star_mul_self
+
+**Resolution:** Left as sorry (af-tests-z9g). Possible approaches:
+- Prove states are positive on the full spectral cone
+- Use continuous functional calculus directly
+- Find an alternative proof avoiding spectral order
+
+**Lesson:** Mathlib's spectral order infrastructure is powerful but states to ℂ
+don't fit the `OrderHomClass` pattern directly. Need custom positivity lemmas.
+
+---
+
 ## Template for New Entries
 
 ```markdown

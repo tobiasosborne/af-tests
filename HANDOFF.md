@@ -1,30 +1,34 @@
 # Handoff: GNS Construction Progress
 
 **Date:** 2026-01-24
-**Session Focus:** HilbertSpace/CyclicVector.lean & Representation/PreRep.lean
+**Session Focus:** Representation/Bounded.lean - Boundedness of pre-representation
 
 ---
 
 ## Completed This Session
 
-1. **Implemented P4: HilbertSpace/CyclicVector.lean** (af-tests-dx9)
-   - Cyclic vector Ω_φ = [1] definition (90 LOC, no sorries)
-   - Key lemmas: `gnsCyclicVector_inner_self`, `gnsCyclicVector_norm`, `gnsCyclicVector_ne_zero`
-   - Phase 4 HilbertSpace complete!
+1. **Implemented P5.2: Representation/Bounded.lean** (af-tests-6wx)
+   - Pre-representation boundedness structure (79 LOC)
+   - Key theorem: `gnsPreRep_norm_le : ‖π(a)x‖ ≤ ‖a‖ * ‖x‖`
+   - Helper: `gnsQuotient_norm_sq` relating norm to inner product
+   - **Status:** Structure Done (1 sorry for spectral ordering)
 
-2. **Implemented P5: Representation/PreRep.lean** (af-tests-155)
-   - Pre-representation π_φ(a) on quotient (95 LOC, no sorries)
-   - Key lemmas: `gnsPreRep_mul`, `gnsPreRep_one`, `gnsPreRep_add`, `gnsPreRep_smul`
+2. **Documented learning** about state spectral ordering challenge
+   - States don't fit `OrderHomClass` pattern (ℂ lacks `StarOrderedRing`)
+   - Key mathlib lemmas identified: `star_mul_le_algebraMap_norm_sq`, `conjugate_le_conjugate`
+
+3. **Created new beads issue** for sorry elimination (af-tests-z9g)
 
 ---
 
 ## Current State
 
 - **Build status:** Passing
-- **Sorry count:** 3 total (unchanged)
+- **Sorry count:** 4 total
   - State/Positivity.lean:67 - `sesqForm_conj_symm`
   - State/CauchySchwarz.lean:56 - `inner_mul_le_norm_mul_norm_weak`
   - State/CauchySchwarz.lean:71 - `inner_mul_le_norm_mul_norm`
+  - **NEW:** Representation/Bounded.lean:77 - `gnsPreRep_norm_le`
 
 ---
 
@@ -61,33 +65,34 @@
 | Issue ID | File | Status | Notes |
 |----------|------|--------|-------|
 | `af-tests-155` | Representation/PreRep.lean | **Proven** | No sorries |
-| `af-tests-6wx` | Representation/Bounded.lean | **Not Started** | Now ready |
+| `af-tests-6wx` | Representation/Bounded.lean | **Structure Done** | 1 sorry (z9g) |
+| `af-tests-???` | Representation/Extension.lean | **Not Started** | Blocked by 6wx |
 
 ---
 
 ## Next Steps (Priority Order)
 
-1. **Phase 5** - Representation/Bounded.lean (af-tests-6wx) - now unblocked
-2. **Sorry elimination** (P3): uo6, 03g, bgs
-3. Refactor LEARNINGS.md (exceeds 200 LOC at ~250 lines)
+1. **Phase 5** - Representation/Extension.lean - extend to completion (now unblocked)
+2. **Sorry elimination** (P2-P3): z9g (Bounded), uo6, 03g, bgs
+3. Refactor LEARNINGS.md (exceeds 200 LOC at ~275 lines)
 
 ---
 
 ## Key Learnings This Session
 
-1. **Completion Embedding Lemmas:** When working with `UniformSpace.Completion`:
-   - `UniformSpace.Completion.norm_coe` - `‖↑x‖ = ‖x‖`
-   - `UniformSpace.Completion.inner_coe` - `⟪↑a, ↑b⟫ = ⟪a, b⟫`
+1. **State Spectral Ordering:** Proving `‖π(a)x‖ ≤ ‖a‖ * ‖x‖` requires showing
+   states respect spectral order. Key lemmas: `star_mul_le_algebraMap_norm_sq`,
+   `conjugate_le_conjugate`. Challenge: ℂ lacks `StarOrderedRing`.
 
-2. **Quotient Extensionality:** When using `ext x` on linear maps over quotients,
-   `x : A` (the underlying type) and goals involve `mkQ x`. No need for `mk_surjective`.
+2. **Typeclass Diamond:** The quotient has two topologies (quotient vs seminormed).
+   Use explicit `@` syntax with `gnsQuotientSeminormedAddCommGroup` to avoid conflicts.
 
 ---
 
 ## Files Modified This Session
 
-- Created: `AfTests/GNS/HilbertSpace/CyclicVector.lean` (90 LOC, no sorries)
-- Created: `AfTests/GNS/Representation/PreRep.lean` (95 LOC, no sorries)
+- Created: `AfTests/GNS/Representation/Bounded.lean` (79 LOC, 1 sorry)
+- Updated: `docs/GNS/LEARNINGS.md` (added spectral ordering entry)
 - Updated: `HANDOFF.md`
 
 ---
@@ -96,5 +101,5 @@
 
 ```bash
 bd ready
-bd show af-tests-6wx  # Representation/Bounded.lean
+bd show af-tests-z9g  # Sorry elimination: gnsPreRep_norm_le
 ```
