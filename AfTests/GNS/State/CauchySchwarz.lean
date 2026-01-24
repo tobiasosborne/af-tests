@@ -119,6 +119,24 @@ theorem inner_mul_le_norm_mul_norm_weak (a b : A) :
   have := add_le_add hre him
   linarith
 
+/-! ### Helper lemmas for tight Cauchy-Schwarz -/
+
+/-- Expansion of star(a + μ•b) * (a + μ•b) for complex μ -/
+private lemma expand_star_add_smul (a b : A) (μ : ℂ) :
+    star (a + μ • b) * (a + μ • b) =
+    star a * a + μ • (star a * b) + starRingEnd ℂ μ • (star b * a) +
+    (Complex.normSq μ : ℂ) • (star b * b) := by
+  have hμ : star (μ • b) = starRingEnd ℂ μ • star b := star_smul μ b
+  rw [star_add, hμ]
+  simp only [add_mul, mul_add, smul_mul_assoc, mul_smul_comm, smul_add, smul_smul]
+  have : μ * starRingEnd ℂ μ = Complex.normSq μ := Complex.mul_conj μ
+  rw [this]; abel
+
+-- TODO: cross_term_opt_re helper - see docs/GNS/learnings/state-and-positivity.md
+-- The proof works in standalone tests but has context-dependent simp issues.
+-- Proof strategy: rw [neg_div]; simp only [map_neg, map_div₀, Complex.conj_ofReal]
+-- then use c * conj c = normSq c and field_simp/ring.
+
 /-- The Cauchy-Schwarz inequality for states (tight form):
     |φ(b*a)|² ≤ φ(a*a) · φ(b*b).
 

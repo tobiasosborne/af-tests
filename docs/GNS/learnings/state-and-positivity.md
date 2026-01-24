@@ -180,6 +180,24 @@ So the sum is φ(a*a) - 2*|c|²/d + |c|²/d = φ(a*a) - |c|²/d.
 
 **Proposed fix:** Helper lemmas working in ℝ, avoiding complex division in simp
 
+**Session 2026-01-24 Progress:**
+Added `expand_star_add_smul` helper lemma that expands star(a + μ•b)*(a + μ•b) for complex μ.
+
+Key discovery for `cross_term_opt_re`:
+- Proof WORKS in standalone tests but fails in CauchySchwarz.lean context
+- The working strategy:
+  ```lean
+  rw [neg_div]  -- First: convert -c/d to -(c/d)
+  simp only [map_neg, map_div₀, Complex.conj_ofReal]  -- Then: simplify conj(-(c/d))
+  -- Then use: c * conj c = normSq c, and field_simp/ring
+  ```
+- **Context-dependent simp issue:** Same simp call succeeds in isolation but
+  reports "no progress" inside the file. Possibly due to instance resolution
+  differences or simp lemma availability.
+
+**Next step:** Debug why simp behaves differently in file vs standalone context.
+Options: (1) use explicit calc proof, (2) check simp trace, (3) add needed simp lemmas.
+
 ---
 
 ## State Monotonicity via Spectral Ordering (Completed)

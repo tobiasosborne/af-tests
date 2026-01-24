@@ -1,19 +1,27 @@
 # Handoff: GNS Construction Progress
 
 **Date:** 2026-01-24
-**Session Focus:** Tight Cauchy-Schwarz investigation (af-tests-dwe)
+**Session Focus:** Tight Cauchy-Schwarz helper lemmas (af-tests-dwe)
 
 ---
 
 ## Completed This Session
 
-1. **Investigated af-tests-dwe** - Documented blockers for tight C-S proof
-   - Attempted proof using μ = -c/d optimization
-   - Identified 3 specific Lean tactic blockers (see learnings)
-   - Documented proposed decomposition into helper lemmas
+1. **Added `expand_star_add_smul` helper** (CauchySchwarz.lean:124-133)
+   - Expands star(a + μ•b)*(a + μ•b) for complex μ
+   - Uses star_smul, smul_smul, mul_conj, abel
 
-2. **Updated Learnings**
-   - Added "Session 2026-01-24 Blockers" to state-and-positivity.md
+2. **Documented `cross_term_opt_re` proof strategy**
+   - Proof WORKS in standalone tests
+   - Context-dependent simp issue: fails in CauchySchwarz.lean
+   - Working strategy documented in learnings and TODO comment
+
+3. **Updated Learnings**
+   - Added "Session 2026-01-24 Progress" to state-and-positivity.md
+   - Documented context-dependent simp behavior
+
+4. **Created LOC violation issue** (af-tests-1zf)
+   - state-and-positivity.md is 218 lines (limit: 200)
 
 ---
 
@@ -21,7 +29,7 @@
 
 - **Build status:** Passing (with 1 sorry)
 - **Sorry count:** 1 total
-  - State/CauchySchwarz.lean:137 - tight C-S case φ(b*b).re > 0 (af-tests-dwe)
+  - State/CauchySchwarz.lean:153 - tight C-S case φ(b*b).re > 0 (af-tests-dwe)
 
 ---
 
@@ -43,42 +51,45 @@
 
 | Issue | File | Notes |
 |-------|------|-------|
-| af-tests-dwe | CauchySchwarz.lean:137 | Tight C-S - needs helper lemmas |
+| af-tests-dwe | CauchySchwarz.lean:153 | Tight C-S - helper partially done |
 
 ---
 
 ## Next Steps (Priority Order)
 
-1. **af-tests-dwe** - Create helper lemmas for tight C-S (see technical notes)
-2. **Phase 5** - Representation/Star.lean (af-tests-8r4)
-3. **Phase 6** - Main theorems (after P5 complete)
+1. **af-tests-1zf (P0)** - Split state-and-positivity.md to fix LOC violation
+2. **af-tests-dwe** - Debug simp context issue or use explicit calc proof
+3. **Phase 5** - Representation/Star.lean (af-tests-8r4)
+4. **Phase 6** - Main theorems (after P5 complete)
 
 ---
 
 ## Files Modified This Session
 
-- Updated: `docs/GNS/learnings/state-and-positivity.md` (added blockers section)
+- Modified: `AfTests/GNS/State/CauchySchwarz.lean` (added expand_star_add_smul, TODO)
+- Updated: `docs/GNS/learnings/state-and-positivity.md` (added progress section)
 - Updated: `HANDOFF.md`
 
 ---
 
 ## Technical Notes for Next Session
 
-**For af-tests-dwe (tight C-S case 2) - BLOCKING ISSUES:**
+**For af-tests-dwe (tight C-S case 2):**
 
-1. **Term structure mismatch:** After `simp [star_add, add_mul, ...]`:
-   - Result: `star a * a + conj(μ) • (star b * a) + μ • (star a * b + conj(μ) • (star b * b))`
-   - Problem: Nested, not flat. `smul_smul` can't rewrite
+The `cross_term_opt_re` proof works in standalone but fails in file context:
+```lean
+-- This works standalone:
+rw [neg_div]
+simp only [map_neg, map_div₀, Complex.conj_ofReal]
+-- Then: c * conj c = normSq c, field_simp, ring
 
-2. **simp recursion limit:** When μ = -c/d, `simp` with division lemmas hits max recursion
+-- In CauchySchwarz.lean: simp reports "no progress" after rw [neg_div]
+```
 
-3. **Rewrite mismatch:** After `Complex.mul_re` simp, terms become real arithmetic
-   - `μ.re * (conj c).re - μ.im * (conj c).im`
-   - Can't rewrite with complex-level equation `μ * conj c = -|c|²/d`
-
-**Proposed solution:** Write helper lemmas that work entirely in ℝ:
-- `tight_cs_cross_re`: Compute `(μ*conj(c) + conj(μ)*c + |μ|²*d).re` when d real
-- Avoid passing complex division through simp
+**Debugging options:**
+1. Use `set_option trace.simp true` to see what's happening
+2. Replace simp with explicit calc proof
+3. Check if imports differ between file and standalone test
 
 ---
 
@@ -86,5 +97,6 @@
 
 ```bash
 bd ready                 # See available work
+bd show af-tests-1zf     # LOC violation (P0)
 bd show af-tests-dwe     # Tight C-S remaining case
 ```
