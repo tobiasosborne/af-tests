@@ -72,9 +72,31 @@ theorem selfAdjoint_decomp {x : FreeStarAlgebra n} (hx : IsSelfAdjoint x) :
   -- Use self-adjointness: star(1+x) = 1+x, star(1-x) = 1-x
   have h1 : star (1 + x) = 1 + x := (isSelfAdjoint_one_add hx).star_eq
   have h2 : star (1 - x) = 1 - x := (isSelfAdjoint_one_sub hx).star_eq
-  rw [h1, h2]
-  -- The rest is pure algebra: ¼(1+x)² - ¼(1-x)² = x
-  sorry
+  rw [h1, h2, ← smul_sub]
+  -- Build Commute hypothesis: (1+x) and (1-x) commute
+  have hcomm : Commute (1 + x) (1 - x) := by
+    apply Commute.add_left
+    · exact (Commute.one_left _).sub_right (Commute.one_left x)
+    · exact (Commute.one_right x).sub_right (Commute.refl x)
+  -- Apply difference of squares: a²-b² = (a+b)(a-b) when a,b commute
+  rw [hcomm.mul_self_sub_mul_self_eq]
+  -- Simplify (1+x) + (1-x) = 2
+  have sum_eq : (1 : FreeStarAlgebra n) + x + (1 - x) = 2 := by
+    have h : (1 : FreeStarAlgebra n) + x + (1 - x) = (2 : ℕ) • (1 : FreeStarAlgebra n) := by abel
+    rw [h, nsmul_eq_mul, Nat.cast_ofNat, mul_one]
+  -- Simplify (1+x) - (1-x) = 2*x
+  have diff_eq : (1 : FreeStarAlgebra n) + x - (1 - x) = 2 * x := by
+    have h : (1 : FreeStarAlgebra n) + x - (1 - x) = (2 : ℕ) • x := by abel
+    rw [h, nsmul_eq_mul, Nat.cast_ofNat]
+  rw [sum_eq, diff_eq]
+  -- Simplify (1/4) • (2 * (2 * x)) = x
+  simp only [← mul_assoc]
+  have h_four : (2 : FreeStarAlgebra n) * 2 = 4 := by norm_num
+  rw [h_four]
+  have h_scalar : (4 : FreeStarAlgebra n) * x = (4 : ℝ) • x := by
+    rw [Algebra.smul_def]; rfl
+  rw [h_scalar, smul_smul]
+  norm_num
 
 /-- Both terms in the decomposition are in M (for any x). -/
 theorem decomp_terms_in_M (x : FreeStarAlgebra n) :
