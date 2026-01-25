@@ -263,3 +263,54 @@ import Mathlib.Analysis.InnerProductSpace.Completion -- UniformSpace.Completion.
 import Mathlib.Analysis.InnerProductSpace.Positive   -- ContinuousLinearMap.IsPositive
 import Mathlib.Algebra.Star.StarAlgHom              -- StarAlgHom
 ```
+
+---
+
+## Vector Normalization for IsPositive Proofs
+
+### Challenge
+To prove `T.IsPositive`, we need `0 ≤ T.reApplyInnerSelf x` for all `x`.
+But vector states only give us information about unit vectors.
+
+### Solution: Normalize and Scale
+```lean
+by_cases hx : x = 0
+· simp [hx, ContinuousLinearMap.reApplyInnerSelf_apply]
+· -- For nonzero x, normalize to unit vector
+  set u := (‖x‖⁻¹ : ℂ) • x with hu_def
+  have hu_norm : ‖u‖ = 1 := norm_smul_inv_norm hx
+  -- Use vector state on u, then scale back
+  have hx_eq : x = (‖x‖ : ℂ) • u := by
+    rw [hu_def, smul_smul, mul_inv_cancel₀ ...]
+  -- Result: Re⟨x, Tx⟩ = ‖x‖² * Re⟨u, Tu⟩ ≥ 0
+```
+
+### Key Lemmas
+- `norm_smul_inv_norm : x ≠ 0 → ‖(‖x‖⁻¹ : 𝕜) • x‖ = 1`
+- `inner_smul_left/right` for distributing scalars
+- `Complex.conj_ofReal` for conjugate of real cast
+
+### Complex Number Manipulation
+For `((↑r : ℂ)^2).re = r^2`:
+```lean
+have hcast : (↑‖x‖ : ℂ)^2 = (‖x‖^2 : ℝ) := by norm_cast
+have hre : (↑‖x‖ ^ 2 : ℂ).re = ‖x‖^2 := by rw [hcast]; exact Complex.ofReal_re _
+```
+
+---
+
+## IsSelfAdjoint.map for StarAlgHom
+
+### Pattern
+When A is self-adjoint in domain and π is a *-homomorphism:
+```lean
+have hπA_sa : IsSelfAdjoint (π A) := hA.map π.toStarAlgHom
+```
+
+This uses `IsSelfAdjoint.map` from `Mathlib.Algebra.Star.SelfAdjoint`.
+
+### Converting to adjoint equation
+```lean
+rw [← ContinuousLinearMap.isSelfAdjoint_iff'] at hπA_sa
+-- Now: hπA_sa : ContinuousLinearMap.adjoint (π A) = π A
+```

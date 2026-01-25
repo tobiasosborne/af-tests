@@ -47,11 +47,49 @@ theorem state_nonneg_implies_rep_positive (A : FreeStarAlgebra n)
     (hA_states : ∀ φ : FreeStarAlgebra.MPositiveState n, 0 ≤ φ A) :
     ∀ π : ConstrainedStarRep n, (π A).IsPositive := by
   intro π
-  -- The proof uses that vector states from π are M-positive (VectorState.lean)
-  -- For any v, the vector state φ_v gives φ_v(A) = Re⟨v, π(A)v⟩ ≥ 0 by hypothesis
-  -- Since A is self-adjoint, π(A) is self-adjoint, so ⟨v, π(A)v⟩ is real
-  -- Hence π(A) is positive (symmetric + nonneg inner products)
-  sorry
+  -- Use isPositive_def': need IsSelfAdjoint and nonneg reApplyInnerSelf
+  rw [ContinuousLinearMap.isPositive_def']
+  refine ⟨hA.map π.toStarAlgHom, ?_⟩
+  -- For any x, reApplyInnerSelf x = Re⟨π(A)x, x⟩ ≥ 0
+  intro x
+  by_cases hx : x = 0
+  · simp [hx, ContinuousLinearMap.reApplyInnerSelf_apply]
+  · -- For nonzero x, normalize to unit vector
+    set u := (‖x‖⁻¹ : ℂ) • x with hu_def
+    have hx_norm : ‖x‖ ≠ 0 := norm_ne_zero_iff.mpr hx
+    have hu_norm : ‖u‖ = 1 := norm_smul_inv_norm hx
+    -- Vector state from unit vector is M-positive: φ(A) = Re⟨u, π(A)u⟩ ≥ 0
+    have hφ := hA_states (vectorState π u hu_norm)
+    change 0 ≤ (⟪u, π.apply A u⟫_ℂ).re at hφ
+    -- π(A) is self-adjoint: adjoint = self
+    have hπA_sa : ContinuousLinearMap.adjoint (π A) = π A := by
+      rw [← ContinuousLinearMap.isSelfAdjoint_iff']
+      exact hA.map π.toStarAlgHom
+    -- reApplyInnerSelf x = Re⟨π(A)x, x⟩
+    rw [ContinuousLinearMap.reApplyInnerSelf_apply]
+    simp only [RCLike.re_eq_complex_re]
+    -- For self-adjoint: Re⟨Tx,x⟩ = Re⟨x,Tx⟩
+    have hsym : (⟪(π A) x, x⟫_ℂ).re = (⟪x, (π A) x⟫_ℂ).re := by
+      rw [← ContinuousLinearMap.adjoint_inner_left (π A) x x, hπA_sa]
+    rw [hsym]
+    -- x = ‖x‖ • u, so scale the inner product
+    have hx_eq : x = (‖x‖ : ℂ) • u := by
+      rw [hu_def, smul_smul, mul_inv_cancel₀ (Complex.ofReal_ne_zero.mpr hx_norm), one_smul]
+    rw [hx_eq]
+    -- Expand ⟨‖x‖•u, π(A)(‖x‖•u)⟩
+    simp only [inner_smul_left, map_smul, inner_smul_right]
+    simp only [Complex.conj_ofReal]
+    -- Re(‖x‖ * ‖x‖ * ⟨u, π(A)u⟩) = ‖x‖² * Re⟨u, π(A)u⟩
+    have hmul : (↑‖x‖ * (↑‖x‖ * ⟪u, (π A) u⟫_ℂ)).re = ‖x‖^2 * (⟪u, (π A) u⟫_ℂ).re := by
+      rw [← mul_assoc, ← sq]
+      -- (↑‖x‖^2).re = ‖x‖^2 and (↑‖x‖^2).im = 0
+      simp only [Complex.mul_re]
+      have hcast : (↑‖x‖ : ℂ)^2 = (‖x‖^2 : ℝ) := by norm_cast
+      have hre : (↑‖x‖ ^ 2 : ℂ).re = ‖x‖^2 := by rw [hcast]; exact Complex.ofReal_re _
+      have him : (↑‖x‖ ^ 2 : ℂ).im = 0 := by rw [hcast]; exact Complex.ofReal_im _
+      rw [hre, him, zero_mul, sub_zero]
+    rw [hmul]
+    exact mul_nonneg (sq_nonneg _) hφ
 
 /-! ### Backward Direction: Representations to States -/
 
