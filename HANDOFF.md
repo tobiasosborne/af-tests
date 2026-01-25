@@ -2,16 +2,19 @@
 
 ## Completed This Session
 
-### Created gnsBoundedPreRep Definition
-Successfully applied the topology diamond resolution pattern from previous session.
+### Created GNS Extension (Steps 1-2 Complete)
+Extended the GNS pre-representation to the Hilbert space completion.
 
-Created `AfTests/ArchimedeanClosure/GNS/Extension.lean` with:
+Created/updated `AfTests/ArchimedeanClosure/GNS/Extension.lean` with:
 - `gnsBoundedPreRep` - pre-representation as `ContinuousLinearMap` using explicit `@` syntax
+- `gnsBoundedPreRep_uniformContinuous` - uniform continuity proof
+- `gnsRep` - extension to `gnsHilbertSpaceReal` via `Completion.map`
 - All instances derived from `gnsQuotientNormedAddCommGroup` for consistency
-- Bound: `Real.sqrt (archimedeanBound a)` from `gnsLeftAction_bounded`
 
-**This resolves the blocker** documented in Session 15 by successfully applying
-the explicit @ syntax pattern from `docs/GNS/learnings/completion-topology.md`.
+Also added `gnsQuotientNormedSpace` instance to Completion.lean.
+
+**Pattern used:** `letI : UniformSpace φ.gnsQuotient := ...` inside tactic block
+to establish the correct UniformSpace instance for completion operations.
 
 ---
 
@@ -34,7 +37,7 @@ the explicit @ syntax pattern from `docs/GNS/learnings/completion-topology.md`.
 | GNS/ComplexifyInner.lean | Done | 160 | 0 | Full InnerProductSpace + embed_norm |
 | GNS/ComplexifyGNS.lean | Done | 76 | 0 | Complexified GNS + Ω_ℂ norm |
 | GNS/Bounded.lean | Done | 148 | 0 | Archimedean boundedness |
-| GNS/Extension.lean | In Progress | 53 | 0 | gnsBoundedPreRep done |
+| GNS/Extension.lean | In Progress | 101 | 0 | gnsBoundedPreRep + gnsRep done |
 
 ---
 
@@ -49,14 +52,14 @@ The sorry requires constructing a `ConstrainedStarRep` from an M-positive state.
 - ✅ Boundedness: `gnsLeftAction_bounded`
 
 **What's missing:**
-1. ✅ **gnsBoundedPreRep**: Wrap `gnsLeftAction` as `ContinuousLinearMap` (DONE - Session 16)
-2. **Extension to completion**: Extend to `gnsHilbertSpaceReal` using `Completion.map`
-3. **Extension to complexification**: Extend to `gnsHilbertSpaceComplex`
+1. ✅ **gnsBoundedPreRep**: Wrap `gnsLeftAction` as `ContinuousLinearMap` (DONE)
+2. ✅ **gnsRep**: Extend to `gnsHilbertSpaceReal` using `Completion.map` (DONE)
+3. **Extension to complexification**: Extend `gnsRep` to `gnsHilbertSpaceComplex`
 4. **Star algebra homomorphism**: Package as `→⋆ₐ[ℝ]` preserving star/mult/identity
 5. **Generator positivity**: Prove `π(gⱼ).IsPositive` for each generator
 6. **Vector state formula**: Prove φ(a) = Re⟨Ω, π(a)Ω⟩
 
-**Next step:** Add `gnsRep` using `Completion.map` (step 2).
+**Next step:** Extend `gnsRep` to the complexified space (step 3).
 
 ---
 
@@ -74,11 +77,21 @@ The explicit @ syntax from the original GNS Extension.lean works for the Archime
 GNS as well. Key is deriving ALL instances from `gnsQuotientNormedAddCommGroup`:
 - TopologicalSpace from `.toUniformSpace.toTopologicalSpace`
 - AddCommMonoid from `.toAddCommMonoid`
-- Module from `NormedSpace.toModule`
+- Module from `gnsQuotientNormedSpace.toModule`
+
+**letI pattern for completion induction:**
+When extending to completion via `Completion.map`, use `letI` inside tactic block:
+```lean
+noncomputable def gnsRep (a : FreeStarAlgebra n) : ... := by
+  letI : UniformSpace φ.gnsQuotient := φ.gnsQuotientNormedAddCommGroup.toUniformSpace
+  exact { ... }
+```
+This establishes the correct UniformSpace for all completion operations.
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/GNS/Extension.lean` (NEW - 53 LOC: gnsBoundedPreRep)
+- `AfTests/ArchimedeanClosure/GNS/Extension.lean` (101 LOC: gnsBoundedPreRep + gnsRep)
+- `AfTests/ArchimedeanClosure/GNS/Completion.lean` (+4 LOC: gnsQuotientNormedSpace)
 - `HANDOFF.md` (this file)

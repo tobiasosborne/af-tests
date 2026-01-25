@@ -13,6 +13,7 @@ This file extends the pre-representation from the GNS quotient to the Hilbert sp
 ## Main definitions
 
 * `MPositiveState.gnsBoundedPreRep` - Pre-representation as ContinuousLinearMap
+* `MPositiveState.gnsRep` - GNS representation extended to the Hilbert space
 
 ## Implementation Notes
 
@@ -42,15 +43,58 @@ noncomputable def gnsBoundedPreRep (a : FreeStarAlgebra n) :
       φ.gnsQuotientNormedAddCommGroup.toAddCommMonoid φ.gnsQuotient
       (@UniformSpace.toTopologicalSpace _ φ.gnsQuotientNormedAddCommGroup.toUniformSpace)
       φ.gnsQuotientNormedAddCommGroup.toAddCommMonoid
-      (NormedSpace.toModule (R := ℝ) (M := φ.gnsQuotient))
-      (NormedSpace.toModule (R := ℝ) (M := φ.gnsQuotient)) :=
+      φ.gnsQuotientNormedSpace.toModule φ.gnsQuotientNormedSpace.toModule :=
   @LinearMap.mkContinuous ℝ ℝ φ.gnsQuotient φ.gnsQuotient _ _
     φ.gnsQuotientNormedAddCommGroup.toSeminormedAddCommGroup
     φ.gnsQuotientNormedAddCommGroup.toSeminormedAddCommGroup
-    (NormedSpace.toModule (R := ℝ) (M := φ.gnsQuotient))
-    (NormedSpace.toModule (R := ℝ) (M := φ.gnsQuotient))
+    φ.gnsQuotientNormedSpace.toModule φ.gnsQuotientNormedSpace.toModule
     (RingHom.id ℝ) (φ.gnsPreRep a) (Real.sqrt (archimedeanBound a))
     (fun x => φ.gnsLeftAction_bounded a x)
+
+/-- The pre-representation is uniformly continuous with respect to the seminormed topology. -/
+theorem gnsBoundedPreRep_uniformContinuous (a : FreeStarAlgebra n) :
+    @UniformContinuous _ _ φ.gnsQuotientNormedAddCommGroup.toUniformSpace
+      φ.gnsQuotientNormedAddCommGroup.toUniformSpace (φ.gnsBoundedPreRep a) :=
+  (φ.gnsBoundedPreRep a).uniformContinuous
+
+/-! ### Extension to Hilbert space completion -/
+
+/-- The GNS representation extended to the real Hilbert space completion.
+
+Uses UniformSpace.Completion.map with the uniformly continuous pre-rep.
+The explicit letI establishes the correct UniformSpace instance. -/
+noncomputable def gnsRep (a : FreeStarAlgebra n) :
+    φ.gnsHilbertSpaceReal →L[ℝ] φ.gnsHilbertSpaceReal := by
+  letI : UniformSpace φ.gnsQuotient := φ.gnsQuotientNormedAddCommGroup.toUniformSpace
+  exact {
+    toLinearMap := {
+      toFun := UniformSpace.Completion.map (φ.gnsBoundedPreRep a)
+      map_add' := fun x y => by
+        have huc : UniformContinuous (φ.gnsBoundedPreRep a) :=
+          (φ.gnsBoundedPreRep a).uniformContinuous
+        induction x, y using UniformSpace.Completion.induction_on₂ with
+        | hp =>
+          refine isClosed_eq ?_ ?_
+          · exact (UniformSpace.Completion.continuous_map).comp continuous_add
+          · exact (UniformSpace.Completion.continuous_map).comp continuous_fst |>.add <|
+              (UniformSpace.Completion.continuous_map).comp continuous_snd
+        | ih x y =>
+          simp only [← UniformSpace.Completion.coe_add,
+            UniformSpace.Completion.map_coe huc, (φ.gnsBoundedPreRep a).map_add]
+      map_smul' := fun c x => by
+        have huc : UniformContinuous (φ.gnsBoundedPreRep a) :=
+          (φ.gnsBoundedPreRep a).uniformContinuous
+        induction x using UniformSpace.Completion.induction_on with
+        | hp =>
+          refine isClosed_eq ?_ ?_
+          · exact (UniformSpace.Completion.continuous_map).comp (continuous_const_smul c)
+          · exact (continuous_const_smul c).comp (UniformSpace.Completion.continuous_map)
+        | ih x =>
+          simp only [RingHom.id_apply, ← UniformSpace.Completion.coe_smul,
+            UniformSpace.Completion.map_coe huc, (φ.gnsBoundedPreRep a).map_smul]
+    }
+    cont := UniformSpace.Completion.continuous_map
+  }
 
 end MPositiveState
 
