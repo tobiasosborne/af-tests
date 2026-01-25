@@ -124,6 +124,16 @@ noncomputable instance instInnerProductSpaceCore :
   smul_left := fun p q c => inner_smul_left' c p q
   definite := inner_definite'
 
+/-! ### Full InnerProductSpace Structure -/
+
+/-- NormedAddCommGroup from InnerProductSpace.Core. -/
+noncomputable instance instNormedAddCommGroup : NormedAddCommGroup (Complexification H) :=
+  @InnerProductSpace.Core.toNormedAddCommGroup ℂ _ _ _ _ instInnerProductSpaceCore
+
+/-- Full InnerProductSpace instance for the complexification. -/
+noncomputable instance instInnerProductSpace : InnerProductSpace ℂ (Complexification H) :=
+  @InnerProductSpace.ofCore ℂ _ _ _ _ instInnerProductSpaceCore.toCore
+
 end Complexification
 
 end ArchimedeanClosure

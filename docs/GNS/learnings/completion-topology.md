@@ -240,19 +240,24 @@ theorem embed_add (x y : H) : embed (x + y) = embed x + embed y := by
   simp only [Prod.mk_add_mk, add_zero]
 ```
 
-**Progress (2026-01-25): ALL AXIOMS + CORE INSTANCE COMPLETE!**
-- ✅ `Module ℂ (Complexification H)` instance COMPLETE (Complexify.lean)
-- ✅ `Inner ℂ (Complexification H)` instance COMPLETE (Complexify.lean)
+**Progress (2026-01-25): COMPLEXIFICATION COMPLETE!**
+- ✅ `Module ℂ (Complexification H)` instance (Complexify.lean)
+- ✅ `Inner ℂ (Complexification H)` instance (Complexify.lean)
 - ✅ All 5 axioms proven (ComplexifyInner.lean)
-- ✅ `InnerProductSpace.Core ℂ (Complexification H)` instance COMPLETE
+- ✅ `InnerProductSpace.Core ℂ (Complexification H)` instance
+- ✅ `NormedAddCommGroup (Complexification H)` instance
+- ✅ `InnerProductSpace ℂ (Complexification H)` instance
 
-**Next step:** Add `NormedAddCommGroup` + full `InnerProductSpace` instance.
+**Complexification is now a complex Hilbert space!**
 
 **Key techniques:**
 - The `module` tactic solves goals involving module scalar multiplication that `ring` cannot.
 - Use `Complex.ext` for equality of complex numbers (not generic `ext`).
 - `InnerProductSpace.Core.smul_left` expects `(x y : F) (r : 𝕜)` order - use lambda wrapper
   if your theorem has `(r : 𝕜) (x y : F)` order: `smul_left := fun p q c => inner_smul_left' c p q`
+- When using `InnerProductSpace.Core.toNormedAddCommGroup` and `InnerProductSpace.ofCore`,
+  use explicit `@` to avoid typeclass resolution getting stuck on metavariables:
+  `@InnerProductSpace.Core.toNormedAddCommGroup ℂ _ _ _ _ instInnerProductSpaceCore`
 - Use `real_inner_self_nonneg` (not `inner_self_nonneg`) when the goal is `0 ≤ ⟪x, x⟫_ℝ`.
   The generic `inner_self_nonneg` returns `0 ≤ RCLike.re ⟪x, x⟫_𝕜` which doesn't unify.
 - `real_inner_comm` is the mathlib lemma for real inner product symmetry.

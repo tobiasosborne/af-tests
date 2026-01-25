@@ -2,23 +2,23 @@
 
 ## Completed This Session
 
-### GNS-Complexify: InnerProductSpace.Core instance added (af-tests-v2ad)
+### GNS-Complexify: COMPLETE! (af-tests-v2ad)
 
-Packaged all 5 proven axioms into a proper Mathlib structure:
+Full `InnerProductSpace ℂ (Complexification H)` instance now available:
 
 ```lean
+-- From ComplexifyInner.lean
 noncomputable instance instInnerProductSpaceCore :
-    InnerProductSpace.Core ℂ (Complexification H) where
-  inner := fun p q => ⟪p, q⟫_ℂ
-  conj_inner_symm := inner_conj_symm'
-  re_inner_nonneg := inner_nonneg_re'
-  add_left := inner_add_left'
-  smul_left := fun p q c => inner_smul_left' c p q
-  definite := inner_definite'
+    InnerProductSpace.Core ℂ (Complexification H) where ...
+
+noncomputable instance instNormedAddCommGroup : NormedAddCommGroup (Complexification H) :=
+  @InnerProductSpace.Core.toNormedAddCommGroup ℂ _ _ _ _ instInnerProductSpaceCore
+
+noncomputable instance instInnerProductSpace : InnerProductSpace ℂ (Complexification H) :=
+  @InnerProductSpace.ofCore ℂ _ _ _ _ instInnerProductSpaceCore.toCore
 ```
 
-**Learning:** Mathlib's `smul_left` field expects `(x y : F) (r : 𝕜)` argument order.
-Use lambda wrapper if your theorem has different order.
+**The complexification of a real Hilbert space is now a complex Hilbert space!**
 
 ---
 
@@ -38,39 +38,35 @@ Use lambda wrapper if your theorem has different order.
 | GNS/PreRep.lean | Done | 65 | 0 | |
 | GNS/Completion.lean | Done | 113 | 0 | |
 | GNS/Complexify.lean | Done | 193 | 0 | Module + Inner |
-| **GNS/ComplexifyInner.lean** | **Done** | **129** | **0** | **All 5 axioms + Core** |
+| **GNS/ComplexifyInner.lean** | **Done** | **139** | **0** | **Full InnerProductSpace!** |
 
 ---
 
-## Complexification Progress
+## Complexification: COMPLETE
 
-**Status:** `InnerProductSpace.Core` instance complete!
-
-**Completed:**
-- `Module ℂ (Complexification H)` instance (Complexify.lean)
-- `Inner ℂ (Complexification H)` instance (Complexify.lean)
-- All 5 axioms proven (ComplexifyInner.lean)
-- `InnerProductSpace.Core ℂ (Complexification H)` instance (ComplexifyInner.lean)
-
-**Next:** Add `NormedAddCommGroup` and full `InnerProductSpace` instance.
+All infrastructure for complexifying real Hilbert spaces:
+- `Module ℂ (Complexification H)`
+- `Inner ℂ (Complexification H)`
+- `InnerProductSpace.Core ℂ (Complexification H)`
+- `NormedAddCommGroup (Complexification H)`
+- `InnerProductSpace ℂ (Complexification H)`
 
 ---
 
 ## Next Steps (Priority Order)
 
-### 1. Complete Complexification Instance (af-tests-v2ad)
-- Add `NormedAddCommGroup (Complexification H)` from the Core
-- Use `InnerProductSpace.Core.toNormedAddCommGroup` or similar
-- Then get full `InnerProductSpace ℂ (Complexification H)`
-
-### 2. GNS-6: Boundedness (af-tests-kvgb)
+### 1. GNS-6: Boundedness (af-tests-kvgb)
 Prove representation is bounded using Archimedean property.
+
+### 2. Fill `gns_representation_exists`
+Now that complexification is complete, can construct the GNS representation
+mapping to a complex Hilbert space.
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/GNS/ComplexifyInner.lean` (added Core instance)
+- `AfTests/ArchimedeanClosure/GNS/ComplexifyInner.lean` (added full instances)
 - `docs/GNS/learnings/completion-topology.md` (updated progress)
 - `HANDOFF.md` (this file)
 
@@ -78,17 +74,18 @@ Prove representation is bounded using Archimedean property.
 
 ## Known Issues
 
-- **completion-topology.md exceeds 200 LOC** (~269 LOC)
+- **completion-topology.md exceeds 200 LOC** (~271 LOC)
 - **LEARNINGS_misc.md exceeds 200 LOC** (316 LOC) - tracked by af-tests-2d6o
-- `gns_representation_exists` - needs full complexification + construction
+- `gns_representation_exists` - needs GNS construction with complexified space
 
 ---
 
 ## Learnings (from this session)
 
-**InnerProductSpace.Core.smul_left argument order:**
-Mathlib's `smul_left` expects `∀ (x y : F) (r : 𝕜), inner (r • x) y = conj r * inner x y`
-but you may have proven `∀ (r : 𝕜) (x y : F), ...`. Use a lambda wrapper:
+**Explicit @ for Core instances:**
+When using `InnerProductSpace.Core.toNormedAddCommGroup` or `InnerProductSpace.ofCore`,
+typeclass resolution can get stuck on metavariables. Use explicit `@` application:
 ```lean
-smul_left := fun p q c => inner_smul_left' c p q
+@InnerProductSpace.Core.toNormedAddCommGroup ℂ _ _ _ _ instInnerProductSpaceCore
+@InnerProductSpace.ofCore ℂ _ _ _ _ instInnerProductSpaceCore.toCore
 ```
