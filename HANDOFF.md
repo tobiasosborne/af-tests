@@ -1,128 +1,123 @@
 # Handoff: 2026-01-25
 
 ## Completed This Session
-- **Created `Representation/GNSConstrained.lean`** (87 LOC, 2 sorries):
-  - `state_nonneg_implies_rep_positive`: Forward direction (sorry'd)
-  - `gns_representation_exists`: GNS existence (sorry'd - core GNS construction)
-  - `gns_constrained_implies_state_nonneg`: Backward direction (uses GNS existence)
+
+### Research & Planning for GNS Construction
+- **Spawned 4 parallel research agents** to explore:
+  1. Existing AfTests/GNS codebase (complete, 2,455 LOC, 0 sorries)
+  2. Current GNSConstrained.lean (2 sorries to eliminate)
+  3. Mathematical literature (Schmudgen 2020, Cimpric 2009)
+  4. Mathlib tools for GNS construction
+
+### Key Discovery: Archimedean Property Guarantees Boundedness
+**Critical insight from Schmudgen (2020):** For general *-algebras, GNS may produce
+unbounded operators. BUT when the quadratic module is Archimedean, all M-positive
+representations act by **bounded operators**. This is why our approach works!
+
+### Created 12 Detailed Beads Issues
+Full GNS construction breakdown with dependencies:
+
+| ID | Title | Est LOC | Status |
+|----|-------|---------|--------|
+| af-tests-zcbe | GNS-1: state_nonneg_implies_rep_positive | ~20 | Ready |
+| af-tests-ft2f | GNS-2a: Define gnsNullSpace | ~30 | Ready |
+| af-tests-aim5 | GNS-2b: Left ideal property | ~30 | Blocked |
+| af-tests-keje | GNS-3a: Quotient and inner | ~35 | Blocked |
+| af-tests-7qgk | GNS-3b: PreInnerProductSpace.Core | ~35 | Blocked |
+| af-tests-dcph | GNS-4: Completion + cyclic vector | ~40 | Blocked |
+| af-tests-o0cv | GNS-5: Left multiplication | ~40 | Blocked |
+| af-tests-kvgb | GNS-6: Boundedness (Archimedean!) | ~50 | Blocked |
+| af-tests-9m2l | GNS-7a: Extension to completion | ~35 | Blocked |
+| af-tests-3f8y | GNS-7b: Star-algebra hom | ~35 | Blocked |
+| af-tests-wjlg | GNS-8: Generators → positive | ~40 | Blocked |
+| af-tests-ogm3 | GNS-9: gns_representation_exists | ~20 | Blocked |
+
+**Total: ~360 LOC across 12 issues**
+
+### Updated Documentation
+- `docs/ArchimedeanClosure/LEARNINGS_misc.md`: Added GNS construction section with:
+  - Archimedean boundedness insight
+  - 7-file construction overview
+  - C*-algebra vs FreeStarAlgebra comparison
+  - Proof strategy for generators → positive operators
+  - References (Schmudgen 2020, Cimpric 2009)
 
 ---
 
 ## Current State
 
-### Phase 1-2: COMPLETE
+### Phase 1-6: COMPLETE (0 sorries)
 
-| File | Status | LOC | Sorries |
-|------|--------|-----|---------|
-| Algebra/FreeStarAlgebra.lean | ✅ | 56 | 0 |
-| Algebra/QuadraticModule.lean | ✅ | 93 | 0 |
-| Algebra/Archimedean.lean | ✅ | 46 | 0 |
-| State/MPositiveState.lean | ✅ | 100 | 0 |
-| State/MPositiveStateProps.lean | ✅ | 63 | 0 |
-| State/NonEmptiness.lean | ✅ | 149 | 0 |
+All algebraic setup, states, boundedness, topology, seminorm, and dual characterization
+files are complete with no sorries.
 
-### Phase 3: COMPLETE
-
-| File | Status | LOC | Sorries |
-|------|--------|-----|---------|
-| Boundedness/CauchySchwarzM.lean | ✅ | 104 | 0 |
-| Boundedness/ArchimedeanBound.lean | ✅ | 73 | 0 |
-| Boundedness/GeneratingCone.lean | ✅ | 134 | 0 |
-
----
-
-### Phase 4: COMPLETE
-
-| File | Status | LOC | Sorries |
-|------|--------|-----|---------|
-| Topology/StateTopology.lean | ✅ | 50 | 0 |
-| Topology/Closedness.lean | ✅ | 138 | 0 |
-| Topology/Compactness.lean | ✅ | 171 | 0 |
-| Topology/SeminormTopology.lean | ✅ | 116 | 0 |
-| Topology/Continuity.lean | Skipped | - | - |
-
----
-
-### Phase 5: COMPLETE
-
-| File | Status | LOC | Sorries |
-|------|--------|-----|---------|
-| Seminorm/StateSeminorm.lean | ✅ | 89 | 0 |
-| Seminorm/SeminormProps.lean | ✅ | 80 | 0 |
-| Seminorm/Closure.lean | ✅ | 95 | 0 |
-
----
-
-### Phase 6: COMPLETE
+### Phase 7: STRUCTURE DONE (2 sorries)
 
 | File | Status | LOC | Sorries | Notes |
 |------|--------|-----|---------|-------|
-| Dual/Forward.lean | ✅ | 67 | 0 | |
-| Dual/SpanIntersection.lean | ✅ | 104 | 0 | |
-| Dual/SeparatingFunctional.lean | ✅ | 114 | 0 | |
-| Dual/RieszApplication.lean | ✅ | 98 | 0 | |
-| Dual/ComplexExtension.lean | ✅ | 137 | 0 | |
-| Dual/Normalization.lean | ✅ | 163 | 0 | |
+| Representation/Constrained.lean | ✅ | 87 | 0 | |
+| Representation/VectorState.lean | ✅ | 143 | 0 | |
+| Representation/GNSConstrained.lean | 🔶 | 87 | 2 | **Needs GNS construction** |
+
+### Phase 7.5: GNS Construction (NEW - 0/7 files)
+
+```
+AfTests/ArchimedeanClosure/GNS/
+├── NullSpace.lean   - NOT STARTED (GNS-2a, 2b)
+├── Quotient.lean    - NOT STARTED (GNS-3a, 3b)
+├── Completion.lean  - NOT STARTED (GNS-4)
+├── PreRep.lean      - NOT STARTED (GNS-5)
+├── Bounded.lean     - NOT STARTED (GNS-6)
+├── Extension.lean   - NOT STARTED (GNS-7a, 7b)
+└── Constrained.lean - NOT STARTED (GNS-8)
+```
 
 ---
 
-### Phase 7: COMPLETE (Structure Done)
+## Next Steps (Priority Order)
 
-| File | Status | LOC | Sorries | Notes |
-|------|--------|-----|---------|-------|
-| Representation/Constrained.lean | ✅ | 87 | 0 | Constrained *-rep structure |
-| Representation/VectorState.lean | ✅ | 143 | 0 | Vector states are M-positive |
-| Representation/GNSConstrained.lean | ✅ | 87 | 2 | **Completed this session!** |
+### Ready Now (No Blockers)
+1. **af-tests-zcbe** (GNS-1): Prove `state_nonneg_implies_rep_positive` (~20 LOC)
+   - Uses existing VectorState.lean
+   - Straightforward proof using vector states
 
----
+2. **af-tests-ft2f** (GNS-2a): Define `gnsNullSpace` (~30 LOC)
+   - Start of GNS pipeline
+   - Pattern: AfTests/GNS/NullSpace/Basic.lean
 
-## Key Discoveries This Session
-
-### ContinuousLinearMap.IsPositive
-`IsPositive T` requires TWO conditions:
-1. `(↑T).IsSymmetric` - the underlying LinearMap is symmetric
-2. `∀ v, 0 ≤ T.reApplyInnerSelf v` - nonnegative on all vectors
-
-Key lemmas:
-- `ContinuousLinearMap.star_eq_adjoint : star A = adjoint A`
-- `IsPositive.inner_nonneg_right : T.IsPositive → 0 ≤ ⟪v, T v⟫_ℂ`
-
-### The GNS Bridge
-The key equivalence for Main Theorem:
-- Forward: φ(A) ≥ 0 ∀ states → π(A) ≥ 0 ∀ constrained reps (uses VectorState)
-- Backward: π(A) ≥ 0 ∀ reps → φ(A) ≥ 0 ∀ states (requires GNS existence)
-
-The backward direction needs a full GNS construction for FreeStarAlgebra.
-
----
-
-## Next Steps
-
-1. **AC-P8.1**: Dual characterization theorem (af-tests-n6g3) - uses GNSConstrained
-2. **AC-P8.2**: Main theorem - combines dual char with state/rep bridge
-3. **GNS for FreeStarAlgebra**: Eliminate sorries in gns_representation_exists
+### Dependency Chain
+```
+GNS-2a → GNS-2b → GNS-3a → GNS-3b → GNS-4 ──┐
+                     │                       │
+                     └── GNS-5 → GNS-6 ──────┴── GNS-7a → GNS-7b → GNS-8 → GNS-9
+```
 
 ---
 
 ## Key Learnings Reference
 
-See `docs/ArchimedeanClosure/LEARNINGS.md` for full index:
-- `LEARNINGS_dual.md`: Span intersection, separating functional, symmetrization, normalization
-- `LEARNINGS_extension.md`: ProperCone approach
-- `LEARNINGS_topology.md`: Closedness proofs, Tychonoff, seminorm closure
-- `LEARNINGS_misc.md`: Section scoping, FunLike, imports, map_star', RCLike.re, **IsPositive** ✓
+- `docs/ArchimedeanClosure/LEARNINGS_misc.md`:
+  - **GNS Construction for FreeStarAlgebra** (NEW!)
+  - ContinuousLinearMap.IsPositive structure
+  - StarAlgHom.map_star' convention
+  - RCLike.re vs Complex.re
+
+- `docs/GNS/LEARNINGS.md`:
+  - Inner product convention (SWAP for mathlib)
+  - Quotient induction pattern
+  - Completion induction pattern
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/Representation/GNSConstrained.lean` (new, 87 LOC, 2 sorries)
-- `docs/ArchimedeanClosure/LEARNINGS_misc.md` (added IsPositive section)
+- `docs/ArchimedeanClosure/LEARNINGS_misc.md` (added GNS section, ~60 lines)
 - `HANDOFF.md` (this file)
+- `.beads/issues.jsonl` (12 new issues with dependencies)
 
 ---
 
 ## Known Issues
 
-- `gns_representation_exists` has sorry - needs full GNS construction
-- `state_nonneg_implies_rep_positive` has sorry - proof outline documented
+- `gns_representation_exists` (af-tests-ogm3) - needs full GNS construction (7 files)
+- `state_nonneg_implies_rep_positive` (af-tests-zcbe) - ready to prove now
