@@ -1,0 +1,128 @@
+% Preamble for Archimedean Closure Formalization
+% Auto-generated template for Lean 4 → LaTeX conversion
+
+%% ============================================================
+%% Document Class and Basic Packages
+%% ============================================================
+\documentclass[11pt,a4paper]{book}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+
+%% ============================================================
+%% Mathematics
+%% ============================================================
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{bm}
+\usepackage{mathrsfs}
+
+%% ============================================================
+%% Theorem Environments
+%% ============================================================
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{notation}[theorem]{Notation}
+
+%% ============================================================
+%% Custom Commands - Algebra
+%% ============================================================
+\newcommand{\Azero}{\mathcal{A}_0}           % Free *-algebra
+\newcommand{\M}{M}                            % Quadratic module
+\newcommand{\Mbar}{\overline{M}}              % Closure of M
+\newcommand{\SM}{S_M}                         % M-positive states
+\newcommand{\gen}[1]{g_{#1}}                  % Generator g_j
+\newcommand{\staralg}[1]{#1^*}                % Star/adjoint
+
+%% ============================================================
+%% Custom Commands - Analysis
+%% ============================================================
+\newcommand{\inner}[2]{\langle #1, #2 \rangle}      % Inner product
+\newcommand{\norm}[1]{\|#1\|}                        % Norm
+\newcommand{\seminorm}[1]{\|#1\|_M}                  % State seminorm
+\newcommand{\abs}[1]{|#1|}                           % Absolute value
+
+%% ============================================================
+%% Custom Commands - Operators
+%% ============================================================
+\newcommand{\Hilbert}{\mathcal{H}}                   % Hilbert space
+\newcommand{\HilbertPhi}{\mathcal{H}_\varphi}        % GNS Hilbert space
+\newcommand{\BH}{\mathcal{B}(\Hilbert)}              % Bounded operators
+\newcommand{\Rep}{\pi}                                % Representation
+
+%% ============================================================
+%% Custom Commands - Sets and Spaces
+%% ============================================================
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+
+%% ============================================================
+%% Formatting
+%% ============================================================
+\usepackage{enumitem}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+%% ============================================================
+%% Code Listings (for Lean snippets if needed)
+%% ============================================================
+\usepackage{listings}
+\lstdefinelanguage{Lean}{
+  keywords={def,theorem,lemma,example,structure,class,instance,where,
+            by,have,let,show,calc,sorry,admit,namespace,end,open,
+            variable,import,inductive,if,then,else,match,with},
+  morecomment=[l]{--},
+  morecomment=[n]{/-}{-/},
+  morestring=[b]",
+  sensitive=true,
+}
+\lstset{
+  language=Lean,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  commentstyle=\itshape,
+  breaklines=true,
+  frame=single,
+  xleftmargin=2em,
+}
+
+%% ============================================================
+%% Cross-referencing
+%% ============================================================
+\usepackage[capitalise,nameinlink]{cleveref}
+\crefname{theorem}{Theorem}{Theorems}
+\crefname{lemma}{Lemma}{Lemmas}
+\crefname{definition}{Definition}{Definitions}
+\crefname{proposition}{Proposition}{Propositions}
+\crefname{corollary}{Corollary}{Corollaries}
+\crefname{remark}{Remark}{Remarks}
+\crefname{example}{Example}{Examples}
+\crefname{chapter}{Chapter}{Chapters}
+\crefname{section}{Section}{Sections}
+
+%% ============================================================
+%% Title Information
+%% ============================================================
+\title{\textbf{Archimedean Closure of Quadratic Modules}\\[0.5em]
+       \large A Formalization in Lean 4}
+\author{Generated from Lean 4 Source Code}
+\date{\today}
