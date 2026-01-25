@@ -135,3 +135,32 @@ theorem archimedeanBound_spec [IsArchimedean n] (a : FreeStarAlgebra n) :
 - `Classical.choose` gives *some* witness
 
 For our purposes, existence of a bound is sufficient.
+
+---
+
+## Cyclic Vector Identity
+
+### The Key Identity
+`φ(a) = ⟨Ω, π(a)Ω⟩_ℝ`
+
+Where:
+- `Ω = coe'([1])` is the cyclic vector in the GNS Hilbert space
+- `π(a)` is the GNS representation
+
+### Proof Outline
+1. `π(a)Ω = coe'([a])` by left multiplication: `π(a)[1] = [a*1] = [a]`
+2. `⟨coe'([1]), coe'([a])⟩ = gnsInner [1] [a]` (completion preserves inner product)
+3. `gnsInner [1] [a] = φ(star a * 1)` by definition
+4. `= φ(star 1 * a)` by `sesqForm_symm`
+5. `= φ(1 * a) = φ(a)` by `star_one` and `one_mul`
+
+### Key Insight: gnsInner Order
+The inner product is defined as `gnsInner (mk a) (mk b) = φ(star b * a)`.
+So `gnsInner [1] [a] = φ(star a * 1)`, NOT `φ(star 1 * a)`.
+
+We need `sesqForm_symm : φ(star a * b) = φ(star b * a)` to swap the order.
+
+### File Reference
+`AfTests/ArchimedeanClosure/GNS/CyclicIdentity.lean`:
+- `gnsRep_cyclicVector` - π(a)(Ω) = coe'([a])
+- `gnsRep_inner_cyclicVector` - ⟨Ω, π(a)Ω⟩_ℝ = φ(a)

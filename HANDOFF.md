@@ -1,27 +1,23 @@
-# Handoff: 2026-01-25 (Session 26)
+# Handoff: 2026-01-25 (Session 27)
 
 ## Completed This Session
 
-### Added StarAlgHom properties for gnsRepComplex (Star.lean)
+### Added Cyclic Vector Identity (CyclicIdentity.lean)
 
-Proved all algebraic properties for the complexified GNS representation:
-
-```lean
-theorem gnsRepComplex_one : φ.gnsRepComplex 1 = ContinuousLinearMap.id ℂ _
-theorem gnsRepComplex_mul (a b) : φ.gnsRepComplex (a * b) = (φ.gnsRepComplex a).comp (φ.gnsRepComplex b)
-theorem gnsRepComplex_add (a b) : φ.gnsRepComplex (a + b) = φ.gnsRepComplex a + φ.gnsRepComplex b
-theorem gnsRepComplex_smul (r a) : φ.gnsRepComplex (r • a) = r • φ.gnsRepComplex a
--- Already had: gnsRepComplex_star
-```
-
-Also added supporting lemmas to Complexify.lean:
+Created new file with the key GNS identity:
 
 ```lean
-theorem mapComplex_id : mapComplex LinearMap.id = LinearMap.id
-theorem mapComplex_comp (T₁ T₂) : mapComplex (T₁.comp T₂) = (mapComplex T₁).comp (mapComplex T₂)
-theorem mapComplex_add (T₁ T₂) : mapComplex (T₁ + T₂) = mapComplex T₁ + mapComplex T₂
-theorem mapComplex_smul (r T) : mapComplex (r • T) = (r : ℂ) • mapComplex T
+theorem gnsRep_cyclicVector (a : FreeStarAlgebra n) :
+    φ.gnsRep a φ.gnsCyclicVector = coe'(Submodule.Quotient.mk a)
+
+theorem gnsRep_inner_cyclicVector (a : FreeStarAlgebra n) :
+    ⟨Ω, π(a)Ω⟩_ℝ = φ a
 ```
+
+This proves **Step 4** of what was needed for `gns_representation_exists`:
+- `φ(a) = ⟨Ω, π(a)Ω⟩_ℝ` in the real Hilbert space
+
+Key insight: `gnsInner [1] [a] = φ(star a * 1)`, so need `sesqForm_symm` to get `φ(a)`.
 
 ---
 
@@ -45,8 +41,9 @@ theorem mapComplex_smul (r T) : mapComplex (r • T) = (r : ℂ) • mapComplex 
 | GNS/ComplexifyGNS.lean | Done | 76 | 0 | |
 | GNS/Bounded.lean | Done | 148 | 0 | |
 | GNS/Extension.lean | Done | 242 | 0 | Exceeds 200 (tracked) |
-| GNS/Star.lean | Done | ~272 | 0 | Exceeds 200 (tracked) |
+| GNS/Star.lean | Done | ~326 | 0 | Exceeds 200 (tracked) |
 | GNS/Constrained.lean | Done | 138 | 0 | Generator positivity PROVEN |
+| GNS/CyclicIdentity.lean | **NEW** | 76 | 0 | Cyclic vector identity |
 
 ---
 
@@ -54,23 +51,24 @@ theorem mapComplex_smul (r T) : mapComplex (r • T) = (r : ℂ) • mapComplex 
 
 **Only 1 sorry remains:** `gns_representation_exists` in `GNSConstrained.lean:107`
 
-This requires building a `ConstrainedStarRep n` from the GNS construction. Still needed:
+This requires building a `ConstrainedStarRep n` from the GNS construction. Checklist:
 
 1. ✅ CompleteSpace for `gnsHilbertSpaceComplex`
 2. ✅ Generator positivity: `gnsRepComplex_generator_isPositive`
-3. ✅ **StarAlgHom for gnsRepComplex** - ALL DONE:
-   - ✅ `gnsRepComplex_one`: π_ℂ(1) = 1
-   - ✅ `gnsRepComplex_mul`: π_ℂ(a*b) = π_ℂ(a) * π_ℂ(b)
-   - ✅ `gnsRepComplex_add`: additive
-   - ✅ `gnsRepComplex_smul`: preserves ℝ scalars
-   - ✅ `gnsRepComplex_star`
-4. ❌ **Cyclic vector identity**: φ(a) = Re⟨Ω, π(a)Ω⟩
+3. ✅ **StarAlgHom for gnsRepComplex** - ALL DONE
+4. ✅ **Cyclic vector identity (real)**: ⟨Ω, π(a)Ω⟩_ℝ = φ(a) - DONE in CyclicIdentity.lean
+5. ❌ **Cyclic vector identity (complex)**: Re⟨Ω_ℂ, π_ℂ(a)Ω_ℂ⟩ = φ(a)
+
+For Step 5, need to show:
+- `π_ℂ(a)(Ω, 0) = (π(a)Ω, 0)` (componentwise action on embedded vector)
+- `Re⟨(Ω, 0), (π(a)Ω, 0)⟩_ℂ = ⟨Ω, π(a)Ω⟩_ℝ` (by Complexification.inner_re)
+- Then use `gnsRep_inner_cyclicVector`
 
 ---
 
 ## Known Issues
 
-- **Star.lean exceeds 200 LOC** (~272 LOC) - needs tracking
+- **Star.lean exceeds 200 LOC** (~326 LOC) - tracked by af-tests-kq0q
 - **Extension.lean exceeds 200 LOC** (242 LOC) - tracked by af-tests-qlhz
 - **completion-topology.md exceeds 200 LOC** (~490 LOC) - tracked by af-tests-8oaj
 - **LEARNINGS_misc.md exceeds 200 LOC** (316 LOC) - tracked by af-tests-2d6o
@@ -80,6 +78,6 @@ This requires building a `ConstrainedStarRep n` from the GNS construction. Still
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/GNS/Complexify.lean` (added mapComplex_id)
-- `AfTests/ArchimedeanClosure/GNS/Star.lean` (added gnsRepComplex_one)
+- `AfTests/ArchimedeanClosure/GNS/CyclicIdentity.lean` (NEW - cyclic vector identity)
+- `docs/ArchimedeanClosure/LEARNINGS_states.md` (added cyclic vector identity docs)
 - `HANDOFF.md` (this file)
