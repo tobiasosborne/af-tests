@@ -51,21 +51,31 @@ noncomputable def gnsBoundedPreRep (a : FreeStarAlgebra n) :
     (RingHom.id ℝ) (φ.gnsPreRep a) (Real.sqrt (archimedeanBound a))
     (fun x => φ.gnsLeftAction_bounded a x)
 
-/-- The pre-representation is uniformly continuous with respect to the seminormed topology. -/
+/-- The pre-representation is uniformly continuous with respect to the seminormed topology.
+
+The letI establishes the SeminormedAddCommGroup instance, which brings:
+- UniformSpace (from PseudoMetricSpace)
+- IsUniformAddGroup (from SeminormedAddCommGroup.to_isUniformAddGroup)
+Both are required by ContinuousLinearMap.uniformContinuous. -/
 theorem gnsBoundedPreRep_uniformContinuous (a : FreeStarAlgebra n) :
     @UniformContinuous _ _ φ.gnsQuotientNormedAddCommGroup.toUniformSpace
-      φ.gnsQuotientNormedAddCommGroup.toUniformSpace (φ.gnsBoundedPreRep a) :=
-  (φ.gnsBoundedPreRep a).uniformContinuous
+      φ.gnsQuotientNormedAddCommGroup.toUniformSpace (φ.gnsBoundedPreRep a) := by
+  letI : SeminormedAddCommGroup φ.gnsQuotient :=
+    φ.gnsQuotientNormedAddCommGroup.toSeminormedAddCommGroup
+  exact (φ.gnsBoundedPreRep a).uniformContinuous
 
 /-! ### Extension to Hilbert space completion -/
 
 /-- The GNS representation extended to the real Hilbert space completion.
 
 Uses UniformSpace.Completion.map with the uniformly continuous pre-rep.
-The explicit letI establishes the correct UniformSpace instance. -/
+The letI establishes SeminormedAddCommGroup, which brings:
+- UniformSpace (from PseudoMetricSpace)
+- IsUniformAddGroup (for Completion.induction and .uniformContinuous) -/
 noncomputable def gnsRep (a : FreeStarAlgebra n) :
     φ.gnsHilbertSpaceReal →L[ℝ] φ.gnsHilbertSpaceReal := by
-  letI : UniformSpace φ.gnsQuotient := φ.gnsQuotientNormedAddCommGroup.toUniformSpace
+  letI : SeminormedAddCommGroup φ.gnsQuotient :=
+    φ.gnsQuotientNormedAddCommGroup.toSeminormedAddCommGroup
   exact {
     toLinearMap := {
       toFun := UniformSpace.Completion.map (φ.gnsBoundedPreRep a)

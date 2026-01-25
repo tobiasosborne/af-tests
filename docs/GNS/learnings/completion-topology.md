@@ -310,3 +310,42 @@ ArchimedeanClosure GNS requires similar careful instance management.
 2. Derive them ALL from the same root instance (e.g., gnsQuotientNormedAddCommGroup)
 3. Use explicit `@` application with full instance specification
 4. The pattern from the original GNS Extension.lean is the correct template
+
+---
+
+## Solution: letI with SeminormedAddCommGroup (2026-01-25)
+
+**Discovery:** When calling methods like `.uniformContinuous` on a `ContinuousLinearMap`
+that was defined with explicit `@` instances, Lean fails to synthesize `UniformSpace`
+and `IsUniformAddGroup` via normal typeclass resolution.
+
+**Problem:** The definition `gnsBoundedPreRep` uses explicit @ to select the seminormed
+topology. But calling `(φ.gnsBoundedPreRep a).uniformContinuous` fails with:
+```
+failed to synthesize UniformSpace φ.gnsQuotient
+failed to synthesize IsUniformAddGroup φ.gnsQuotient
+```
+
+The `.uniformContinuous` method doesn't see the explicit instances from the type.
+
+**Resolution:** Use `letI` to establish `SeminormedAddCommGroup` before method calls:
+```lean
+theorem gnsBoundedPreRep_uniformContinuous (a : FreeStarAlgebra n) :
+    @UniformContinuous _ _ φ.gnsQuotientNormedAddCommGroup.toUniformSpace
+      φ.gnsQuotientNormedAddCommGroup.toUniformSpace (φ.gnsBoundedPreRep a) := by
+  letI : SeminormedAddCommGroup φ.gnsQuotient :=
+    φ.gnsQuotientNormedAddCommGroup.toSeminormedAddCommGroup
+  exact (φ.gnsBoundedPreRep a).uniformContinuous
+```
+
+The `SeminormedAddCommGroup` instance brings:
+- `UniformSpace` (from `PseudoMetricSpace`)
+- `IsUniformAddGroup` (from `SeminormedAddCommGroup.to_isUniformAddGroup`)
+
+**Key insight:** `letI` makes instances available to typeclass synthesis within its scope.
+This bridges the gap between explicit @ types and method calls that use synthesis.
+
+**Lesson:** When you have explicit @ types that don't match synthesis expectations:
+1. Use `letI` to establish the needed instances in scope
+2. Prefer `SeminormedAddCommGroup` over `UniformSpace` alone - it brings more instances
+3. This pattern is simpler than using explicit @ for every method call
