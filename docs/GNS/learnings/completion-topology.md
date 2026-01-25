@@ -246,9 +246,7 @@ theorem embed_add (x y : H) : embed (x + y) = embed x + embed y := by
 - ✅ `inner_conj_symm'` - Conjugate symmetry proven (ComplexifyInner.lean)
 - ✅ `inner_add_left'` - Additivity proven (ComplexifyInner.lean)
 - ✅ `inner_nonneg_re'` - Positivity proven (ComplexifyInner.lean)
-
-**Remaining for PreInnerProductSpace.Core:**
-- `inner_smul_left` - Scalar multiplication: ⟪c • p, q⟫ = conj(c) * ⟪p, q⟫
+- ✅ `inner_smul_left'` - Scalar multiplication proven (ComplexifyInner.lean)
 
 **Remaining for InnerProductSpace.Core:**
 - `inner_definite` - Definiteness: ⟪p, p⟫ = 0 → p = 0

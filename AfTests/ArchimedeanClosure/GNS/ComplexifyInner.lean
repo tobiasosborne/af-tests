@@ -15,13 +15,11 @@ real inner product space.
 * `inner_conj_symm'` - Conjugate symmetry: conj⟪q, p⟫ = ⟪p, q⟫
 * `inner_add_left'` - Additivity: ⟪p + p', q⟫ = ⟪p, q⟫ + ⟪p', q⟫
 * `inner_nonneg_re'` - Positivity: 0 ≤ Re⟪p, p⟫
+* `inner_smul_left'` - Scalar multiplication: ⟪c • p, q⟫ = conj(c) * ⟪p, q⟫
 
 ## TODO
 
-Remaining axiom for PreInnerProductSpace.Core:
-* `inner_smul_left` - Scalar multiplication: ⟪c • p, q⟫ = conj(c) * ⟪p, q⟫
-
-And for InnerProductSpace.Core:
+Remaining axiom for InnerProductSpace.Core:
 * `inner_definite` - Definiteness: ⟪p, p⟫ = 0 → p = 0
 -/
 
@@ -69,6 +67,32 @@ theorem inner_nonneg_re' (p : Complexification H) :
     0 ≤ (⟪p, p⟫_ℂ).re := by
   simp only [inner_re]
   exact add_nonneg real_inner_self_nonneg real_inner_self_nonneg
+
+/-- Scalar multiplication: ⟪c • p, q⟫_ℂ = conj(c) * ⟪p, q⟫_ℂ.
+
+For c = a + bi, expands c • p = (a·x - b·y, a·y + b·x) and uses real inner
+product linearity. -/
+theorem inner_smul_left' (c : ℂ) (p q : Complexification H) :
+    ⟪c • p, q⟫_ℂ = starRingEnd ℂ c * ⟪p, q⟫_ℂ := by
+  apply Complex.ext
+  · -- Real part: Re⟪c•p, q⟫ = Re(conj(c) * ⟪p,q⟫) = a·Re⟪p,q⟫ + b·Im⟪p,q⟫
+    simp only [inner_re, smul_fst, smul_snd, Complex.mul_re, Complex.conj_re,
+               Complex.conj_im, inner_im]
+    -- LHS: ⟪a·x₁ - b·y₁, x₂⟫ + ⟪a·y₁ + b·x₁, y₂⟫
+    -- Use inner_sub_left and inner_add_left, then inner_smul_left
+    rw [inner_sub_left (𝕜 := ℝ), inner_add_left (𝕜 := ℝ)]
+    rw [inner_smul_left (𝕜 := ℝ), inner_smul_left (𝕜 := ℝ),
+        inner_smul_left (𝕜 := ℝ), inner_smul_left (𝕜 := ℝ)]
+    simp only [RCLike.conj_to_real]
+    ring
+  · -- Imaginary part: Im⟪c•p, q⟫ = Im(conj(c) * ⟪p,q⟫) = a·Im⟪p,q⟫ - b·Re⟪p,q⟫
+    simp only [inner_im, smul_fst, smul_snd, Complex.mul_im, Complex.conj_re,
+               Complex.conj_im, inner_re]
+    rw [inner_sub_left (𝕜 := ℝ), inner_add_left (𝕜 := ℝ)]
+    rw [inner_smul_left (𝕜 := ℝ), inner_smul_left (𝕜 := ℝ),
+        inner_smul_left (𝕜 := ℝ), inner_smul_left (𝕜 := ℝ)]
+    simp only [RCLike.conj_to_real]
+    ring
 
 end Complexification
 
