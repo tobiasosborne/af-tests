@@ -198,6 +198,13 @@ theorem mapComplex_id : mapComplex (LinearMap.id (R := ℝ) (M := H)) = LinearMa
   · simp only [mapComplex_fst, LinearMap.id_apply]
   · simp only [mapComplex_snd, LinearMap.id_apply]
 
+/-- Composition of maps complexifies to composition: (T₁ ∘ T₂)_ℂ = T₁_ℂ ∘ T₂_ℂ. -/
+theorem mapComplex_comp (T₁ T₂ : H →ₗ[ℝ] H) :
+    mapComplex (T₁.comp T₂) = (mapComplex T₁).comp (mapComplex T₂) := by
+  ext p
+  · simp only [mapComplex_fst, LinearMap.comp_apply]
+  · simp only [mapComplex_snd, LinearMap.comp_apply]
+
 /-! ### Complex Inner Product -/
 
 variable [Inner ℝ H]

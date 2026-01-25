@@ -2,26 +2,22 @@
 
 ## Completed This Session
 
-### Added `gnsRepComplex_one` (Star.lean)
+### Added `gnsRepComplex_one` and `gnsRepComplex_mul` (Star.lean)
 
-Proved that the complexified GNS representation sends 1 to the identity:
+Proved unit and multiplication preservation for the complexified GNS representation:
 
 ```lean
-theorem gnsRepComplex_one : φ.gnsRepComplex 1 = ContinuousLinearMap.id ℂ _ := by
-  ext p
-  · simp only [ContinuousLinearMap.id_apply]
-    unfold gnsRepComplex
-    simp only [LinearMap.mkContinuous_apply, Complexification.mapComplex_fst]
-    rw [gnsRep_one]
-    simp only [ContinuousLinearMap.coe_id, LinearMap.id_apply]
-  · -- similar for second component
+theorem gnsRepComplex_one : φ.gnsRepComplex 1 = ContinuousLinearMap.id ℂ _
+
+theorem gnsRepComplex_mul (a b : FreeStarAlgebra n) :
+    φ.gnsRepComplex (a * b) = (φ.gnsRepComplex a).comp (φ.gnsRepComplex b)
 ```
 
-Also added supporting lemma to Complexify.lean:
+Also added supporting lemmas to Complexify.lean:
 
 ```lean
-@[simp]
-theorem mapComplex_id : mapComplex (LinearMap.id (R := ℝ) (M := H)) = LinearMap.id
+theorem mapComplex_id : mapComplex LinearMap.id = LinearMap.id
+theorem mapComplex_comp (T₁ T₂) : mapComplex (T₁.comp T₂) = (mapComplex T₁).comp (mapComplex T₂)
 ```
 
 ---
@@ -61,7 +57,7 @@ This requires building a `ConstrainedStarRep n` from the GNS construction. Still
 2. ✅ Generator positivity: `gnsRepComplex_generator_isPositive`
 3. **StarAlgHom for gnsRepComplex** - needs:
    - ✅ `gnsRepComplex_one`: π_ℂ(1) = 1
-   - ❌ `gnsRepComplex_mul`: π_ℂ(a*b) = π_ℂ(a) * π_ℂ(b)
+   - ✅ `gnsRepComplex_mul`: π_ℂ(a*b) = π_ℂ(a) * π_ℂ(b)
    - ❌ `gnsRepComplex_add`: additive
    - ❌ `gnsRepComplex_smul_ℝ`: preserves ℝ scalars
    - ✅ `gnsRepComplex_star`

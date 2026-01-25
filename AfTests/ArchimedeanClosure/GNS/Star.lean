@@ -266,6 +266,21 @@ theorem gnsRepComplex_one : φ.gnsRepComplex 1 = ContinuousLinearMap.id ℂ _ :=
     rw [gnsRep_one]
     simp only [ContinuousLinearMap.coe_id, LinearMap.id_apply]
 
+/-- The complexified representation preserves multiplication: π_ℂ(a*b) = π_ℂ(a) ∘ π_ℂ(b). -/
+theorem gnsRepComplex_mul (a b : FreeStarAlgebra n) :
+    φ.gnsRepComplex (a * b) = (φ.gnsRepComplex a).comp (φ.gnsRepComplex b) := by
+  ext p
+  · simp only [ContinuousLinearMap.comp_apply]
+    unfold gnsRepComplex
+    simp only [LinearMap.mkContinuous_apply, Complexification.mapComplex_fst]
+    rw [gnsRep_mul]
+    rfl
+  · simp only [ContinuousLinearMap.comp_apply]
+    unfold gnsRepComplex
+    simp only [LinearMap.mkContinuous_apply, Complexification.mapComplex_snd]
+    rw [gnsRep_mul]
+    rfl
+
 end MPositiveState
 
 end FreeStarAlgebra
