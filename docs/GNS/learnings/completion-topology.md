@@ -349,3 +349,29 @@ This bridges the gap between explicit @ types and method calls that use synthesi
 1. Use `letI` to establish the needed instances in scope
 2. Prefer `SeminormedAddCommGroup` over `UniformSpace` alone - it brings more instances
 3. This pattern is simpler than using explicit @ for every method call
+
+---
+
+## Complexification Norm Identity (2026-01-25)
+
+**Discovery:** To prove continuity of `mapComplex T` for a CLM `T`, need `‖(x,y)‖² = ‖x‖² + ‖y‖²`.
+
+**Problem:** The norm on `Complexification H` comes from `InnerProductSpace.Core.toNormedAddCommGroup`.
+Relating it back to component norms requires explicit instance specification.
+
+**Resolution:**
+```lean
+private theorem complexification_norm_sq (p : Complexification H) :
+    ‖p‖^2 = ‖p.1‖^2 + ‖p.2‖^2 := by
+  rw [@norm_sq_eq_re_inner ℂ (Complexification H) _
+      Complexification.instNormedAddCommGroup.toSeminormedAddCommGroup
+      Complexification.instInnerProductSpace]
+  rw [RCLike.re_eq_complex_re]  -- Convert RCLike.re to Complex.re
+  rw [Complexification.inner_re, real_inner_self_eq_norm_sq, real_inner_self_eq_norm_sq]
+```
+
+Key: `RCLike.re_eq_complex_re` bridges `RCLike.re (inner ℂ p p)` to `(⟪p, p⟫_ℂ).re`.
+
+**Lesson:** When dealing with norms from InnerProductSpace.Core:
+1. Use `norm_sq_eq_re_inner` with explicit instances
+2. Convert between `RCLike.re` and field accessor `.re` using `RCLike.re_eq_complex_re`

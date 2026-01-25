@@ -159,6 +159,38 @@ theorem embed_smul_real (r : ℝ) (x : H) : embed (r • x) = (r : ℂ) • embe
   · simp only [embed_snd, smul_snd, embed_fst, Complex.ofReal_re, Complex.ofReal_im,
                smul_zero, zero_add, zero_smul]
 
+/-! ### Extending Real Linear Maps to Complexification -/
+
+/-- Extend a real linear map T : H → H to the complexification.
+
+For T : H →ₗ[ℝ] H, define T_ℂ : H_ℂ → H_ℂ by T_ℂ(x, y) = (T x, T y).
+This is ℂ-linear because T is ℝ-linear. -/
+def mapComplex (T : H →ₗ[ℝ] H) : Complexification H →ₗ[ℂ] Complexification H where
+  toFun p := (T p.1, T p.2)
+  map_add' p q := by
+    -- (p + q).1 = p.1 + q.1 for Complexification = H × H
+    change (T (p.1 + q.1), T (p.2 + q.2)) = (T p.1 + T q.1, T p.2 + T q.2)
+    simp only [map_add]
+  map_smul' c p := by
+    ext
+    · -- (T (c • p)).1 = (c • T p).1
+      simp only [smul_fst, T.map_sub, T.map_smul, RingHom.id_apply]
+    · -- (T (c • p)).2 = (c • T p).2
+      simp only [smul_snd, T.map_add, T.map_smul, RingHom.id_apply]
+
+@[simp]
+theorem mapComplex_fst (T : H →ₗ[ℝ] H) (p : Complexification H) :
+    (mapComplex T p).1 = T p.1 := rfl
+
+@[simp]
+theorem mapComplex_snd (T : H →ₗ[ℝ] H) (p : Complexification H) :
+    (mapComplex T p).2 = T p.2 := rfl
+
+/-- Extending preserves the embedding: T_ℂ(embed x) = embed(T x). -/
+theorem mapComplex_embed (T : H →ₗ[ℝ] H) (x : H) :
+    mapComplex T (embed x) = embed (T x) := by
+  ext <;> simp
+
 /-! ### Complex Inner Product -/
 
 variable [Inner ℝ H]

@@ -5,6 +5,7 @@ Authors: AF-Tests Contributors
 -/
 import AfTests.ArchimedeanClosure.GNS.Bounded
 import AfTests.ArchimedeanClosure.GNS.ComplexifyGNS
+import AfTests.ArchimedeanClosure.GNS.Complexify
 
 /-! # GNS Representation Extension
 
@@ -158,6 +159,83 @@ theorem gnsRep_one : φ.gnsRep 1 = ContinuousLinearMap.id ℝ _ := by
       rw [φ.gnsPreRep_one]
       rfl
     simp only [heq]
+
+/-- The representation preserves multiplication: π(a*b) = π(a) ∘ π(b). -/
+theorem gnsRep_mul (a b : FreeStarAlgebra n) :
+    φ.gnsRep (a * b) = (φ.gnsRep a).comp (φ.gnsRep b) := by
+  letI : SeminormedAddCommGroup φ.gnsQuotient :=
+    φ.gnsQuotientNormedAddCommGroup.toSeminormedAddCommGroup
+  ext x
+  induction x using UniformSpace.Completion.induction_on with
+  | hp =>
+    refine isClosed_eq ?_ ?_
+    · exact (φ.gnsRep (a * b)).continuous
+    · exact ((φ.gnsRep a).comp (φ.gnsRep b)).continuous
+  | ih y =>
+    simp only [gnsRep_coe, ContinuousLinearMap.comp_apply]
+    -- Goal: ↑(gnsBoundedPreRep (a*b) y) = ↑(gnsBoundedPreRep a (gnsBoundedPreRep b y))
+    congr 1
+    -- Goal: gnsBoundedPreRep (a*b) y = gnsBoundedPreRep a (gnsBoundedPreRep b y)
+    change (φ.gnsPreRep (a * b)) y = (φ.gnsPreRep a) ((φ.gnsPreRep b) y)
+    rw [φ.gnsPreRep_mul]
+    rfl
+
+/-! ### Extension to Complexified Hilbert Space -/
+
+open ArchimedeanClosure
+
+/-- Norm squared on complexification equals sum of component norm squares. -/
+private theorem complexification_norm_sq (p : Complexification φ.gnsHilbertSpaceReal) :
+    ‖p‖^2 = ‖p.1‖^2 + ‖p.2‖^2 := by
+  rw [@norm_sq_eq_re_inner ℂ (Complexification φ.gnsHilbertSpaceReal) _
+      Complexification.instNormedAddCommGroup.toSeminormedAddCommGroup
+      Complexification.instInnerProductSpace]
+  -- Convert RCLike.re to Complex.re
+  rw [RCLike.re_eq_complex_re]
+  rw [Complexification.inner_re, real_inner_self_eq_norm_sq, real_inner_self_eq_norm_sq]
+
+/-- The GNS representation extended to the complexified Hilbert space.
+
+For each algebra element a, gnsRepComplex a acts as gnsRep a on each component:
+(gnsRep a)_ℂ (x, y) = ((gnsRep a) x, (gnsRep a) y)
+
+This is ℂ-linear because the real action commutes with complex structure. -/
+noncomputable def gnsRepComplex (a : FreeStarAlgebra n) :
+    φ.gnsHilbertSpaceComplex →L[ℂ] φ.gnsHilbertSpaceComplex :=
+  LinearMap.mkContinuous
+    (Complexification.mapComplex (φ.gnsRep a).toLinearMap)
+    ‖φ.gnsRep a‖
+    (fun p => by
+      -- Need ‖mapComplex T p‖ ≤ ‖T‖ * ‖p‖
+      -- mapComplex T (x, y) = (T x, T y), so ‖(T x, T y)‖² = ‖T x‖² + ‖T y‖²
+      set q : Complexification φ.gnsHilbertSpaceReal :=
+        Complexification.mapComplex (φ.gnsRep a).toLinearMap p
+      have hq : q = ((φ.gnsRep a) p.1, (φ.gnsRep a) p.2) := rfl
+      -- Bound on operator norm
+      have h1 : ‖(φ.gnsRep a) p.1‖ ≤ ‖φ.gnsRep a‖ * ‖p.1‖ := (φ.gnsRep a).le_opNorm p.1
+      have h2 : ‖(φ.gnsRep a) p.2‖ ≤ ‖φ.gnsRep a‖ * ‖p.2‖ := (φ.gnsRep a).le_opNorm p.2
+      -- Square the bounds
+      have hsq1 : ‖(φ.gnsRep a) p.1‖^2 ≤ ‖φ.gnsRep a‖^2 * ‖p.1‖^2 := by
+        calc ‖(φ.gnsRep a) p.1‖^2 ≤ (‖φ.gnsRep a‖ * ‖p.1‖)^2 :=
+              sq_le_sq' (by linarith [norm_nonneg ((φ.gnsRep a) p.1)]) h1
+          _ = ‖φ.gnsRep a‖^2 * ‖p.1‖^2 := by ring
+      have hsq2 : ‖(φ.gnsRep a) p.2‖^2 ≤ ‖φ.gnsRep a‖^2 * ‖p.2‖^2 := by
+        calc ‖(φ.gnsRep a) p.2‖^2 ≤ (‖φ.gnsRep a‖ * ‖p.2‖)^2 :=
+              sq_le_sq' (by linarith [norm_nonneg ((φ.gnsRep a) p.2)]) h2
+          _ = ‖φ.gnsRep a‖^2 * ‖p.2‖^2 := by ring
+      -- Use norm² identity on complexification
+      have hnorm_q : ‖q‖^2 = ‖(φ.gnsRep a) p.1‖^2 + ‖(φ.gnsRep a) p.2‖^2 := by
+        rw [complexification_norm_sq]; rfl
+      have hnorm_p : ‖p‖^2 = ‖p.1‖^2 + ‖p.2‖^2 := complexification_norm_sq φ p
+      -- Final bound
+      rw [← Real.sqrt_sq (norm_nonneg q), hnorm_q]
+      calc Real.sqrt (‖(φ.gnsRep a) p.1‖^2 + ‖(φ.gnsRep a) p.2‖^2)
+          ≤ Real.sqrt (‖φ.gnsRep a‖^2 * ‖p.1‖^2 + ‖φ.gnsRep a‖^2 * ‖p.2‖^2) := by
+            apply Real.sqrt_le_sqrt; linarith
+        _ = Real.sqrt (‖φ.gnsRep a‖^2 * (‖p.1‖^2 + ‖p.2‖^2)) := by ring_nf
+        _ = ‖φ.gnsRep a‖ * Real.sqrt (‖p.1‖^2 + ‖p.2‖^2) := by
+            rw [Real.sqrt_mul (sq_nonneg _), Real.sqrt_sq (norm_nonneg _)]
+        _ = ‖φ.gnsRep a‖ * ‖p‖ := by rw [← hnorm_p, Real.sqrt_sq (norm_nonneg _)])
 
 end MPositiveState
 
