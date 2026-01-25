@@ -88,6 +88,26 @@ theorem gnsQuotient_one_norm :
       (Submodule.Quotient.mk 1) = φ.gnsInner _ _ := rfl
   rw [h, h_inner, RCLike.re_to_real, gnsInner_one_one, Real.sqrt_one]
 
+/-! ### Norm of cyclic vector in completion -/
+
+/-- The cyclic vector Ω has norm 1 in the completion.
+
+**Proof:**
+The embedding coe' : A₀/N_φ → Completion preserves norms.
+By gnsQuotient_one_norm, ‖[1]‖ = 1 in the quotient.
+Hence ‖Ω‖ = ‖coe'([1])‖ = ‖[1]‖ = 1. -/
+theorem gnsCyclicVector_norm :
+    @Norm.norm _ (@SeminormedAddCommGroup.toNorm _
+      (@NormedAddCommGroup.toSeminormedAddCommGroup _
+        (@UniformSpace.Completion.instNormedAddCommGroup φ.gnsQuotient
+          φ.gnsQuotientNormedAddCommGroup.toSeminormedAddCommGroup))) φ.gnsCyclicVector = 1 := by
+  -- Unfold gnsCyclicVector to expose coe' structure
+  unfold gnsCyclicVector
+  -- Use norm_coe: ‖coe' x‖ = ‖x‖
+  rw [@UniformSpace.Completion.norm_coe φ.gnsQuotient
+      φ.gnsQuotientNormedAddCommGroup.toSeminormedAddCommGroup]
+  exact gnsQuotient_one_norm φ
+
 end MPositiveState
 
 end FreeStarAlgebra

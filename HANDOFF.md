@@ -2,20 +2,17 @@
 
 ## Completed This Session
 
-### GNS-4 PROGRESS: Proved ‖[1]‖ = 1 in quotient (af-tests-dcph)
+### GNS-4 COMPLETE: Cyclic vector norm (af-tests-dcph)
 
-Extended `AfTests/ArchimedeanClosure/GNS/Completion.lean` (now 93 LOC):
+Extended `AfTests/ArchimedeanClosure/GNS/Completion.lean` (now 113 LOC):
 
 ```lean
--- NEW: Inner product and norm lemmas
 theorem gnsInner_one_one : φ.gnsInner [1] [1] = 1
-theorem gnsQuotient_one_norm : ‖[1]‖ = 1  (in quotient)
+theorem gnsQuotient_one_norm : ‖[1]‖ = 1  -- in quotient
+theorem gnsCyclicVector_norm : ‖Ω‖ = 1   -- in completion
 ```
 
-**Key technique**: When norms come from parametric Core instances, use explicit `@` and
-connect inner products via `rfl`. See `learnings/completion-topology.md`.
-
-**Still TODO for GNS-4**: `gnsCyclicVector_norm : ‖Ω‖ = 1` in completion (needs `norm_coe`)
+**Key technique**: Use `unfold` to expose `coe'` structure, then apply `norm_coe`.
 
 ---
 
@@ -33,7 +30,7 @@ connect inner products via `rfl`. See `learnings/completion-topology.md`.
 | GNS/NullSpace.lean | Done | 142 | 0 | |
 | GNS/Quotient.lean | Done | 182 | 0 | Inner + Core |
 | GNS/PreRep.lean | Done | 65 | 0 | Left action |
-| GNS/Completion.lean | **Partial** | **93** | **0** | ‖[1]‖=1 proven, need ‖Ω‖=1 |
+| GNS/Completion.lean | **Done** | **113** | **0** | ‖Ω‖=1 proven |
 
 ---
 
@@ -60,8 +57,8 @@ See `docs/GNS/learnings/completion-topology.md` for full analysis.
 ### 1. Resolve Real vs Complex Gap (NEW)
 Need to decide architectural approach. Complexification is the mathematically natural choice.
 
-### 2. GNS-4 Completion: Prove ‖Ω‖ = 1 in completion
-Use `UniformSpace.Completion.norm_coe` to lift `gnsQuotient_one_norm` to completion.
+### 2. GNS-4: ✓ COMPLETE
+`gnsCyclicVector_norm : ‖Ω‖ = 1` proven using `norm_coe`.
 
 ### 3. GNS-6: Boundedness
 Prove representation is bounded using Archimedean property.
