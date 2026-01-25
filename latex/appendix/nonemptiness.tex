@@ -1,0 +1,92 @@
+% Appendix: Non-emptiness of S_M
+% Proves that the set of M-positive states is non-empty
+
+\chapter{Non-emptiness of \texorpdfstring{$S_M$}{S\_M}}
+\label{app:nonemptiness}
+
+This appendix provides a direct proof that the set $S_M$ of $M$-positive
+states is non-empty. This is a crucial ingredient for the main theorem,
+as the seminorm $\|\cdot\|_M$ is defined as a supremum over $S_M$.
+
+\section{The Scalar Extraction Functional}
+
+\begin{lemma}
+\label{lem:SM-nonempty}
+$S_M \neq \emptyset$.
+\end{lemma}
+
+\begin{proof}
+Define $\varphi_0 : A_0 \to \C$ as the \emph{scalar extraction} functional:
+for any element $a = \sum_w c_w w$ where $w$ ranges over words in the
+generators $g_1, \ldots, g_n$, we set
+\[
+  \varphi_0(a) = c_\emptyset
+\]
+where $c_\emptyset$ is the coefficient of the empty word (i.e., the
+scalar part of $a$).
+
+We verify that $\varphi_0 \in S_M$:
+
+\textbf{Step 1:} $\varphi_0(1) = 1$. This is immediate since the unit
+element $1 \in A_0$ is exactly the empty word with coefficient 1.
+
+\textbf{Step 2:} We show $\varphi_0(m) \geq 0$ for all $m \in M$.
+Recall that elements of $M$ have the form
+\[
+  m = \sum_i a_i^* a_i + \sum_{j,k} b_{jk}^* g_j b_{jk}
+\]
+where $a_i, b_{jk} \in A_0$.
+
+\textbf{Step 2a:} Consider the scalar part of $a_i^* a_i$ where
+$a_i = \sum_\alpha c_\alpha w_\alpha$. The product expands as
+\[
+  a_i^* a_i = \sum_{\alpha,\beta} \overline{c_\alpha} c_\beta \,
+              \widetilde{w_\alpha} w_\beta
+\]
+where $\widetilde{w_\alpha}$ denotes the reversed word with involution
+applied. This contributes to the scalar part only when
+$\widetilde{w_\alpha} w_\beta = \emptyset$, which happens exactly when
+$w_\beta = w_\alpha$. Hence the scalar part of $a_i^* a_i$ is
+\[
+  \sum_\alpha |c_\alpha|^2 \geq 0.
+\]
+
+\textbf{Step 2b:} Consider the scalar part of $b_{jk}^* g_j b_{jk}$.
+The product $b_{jk}^* g_j b_{jk}$ always contains at least one
+generator $g_j$, so it never reduces to the empty word. Hence the
+scalar part is $0$.
+
+\textbf{Conclusion:} Combining Steps 2a and 2b, we have
+\[
+  \varphi_0(m) = \sum_i \sum_\alpha |c_\alpha^{(i)}|^2 \geq 0.
+\]
+
+Therefore $\varphi_0 \in S_M$, proving that $S_M \neq \emptyset$.
+\end{proof}
+
+\begin{remark}
+The functional $\varphi_0$ is sometimes called the \emph{vacuum state}
+or \emph{tracial state} in operator algebra contexts. It plays a
+fundamental role in the structure theory of free algebras.
+\end{remark}
+
+\section{Lean Formalization}
+
+The non-emptiness of $S_M$ is formalized in
+\texttt{AfTests/ArchimedeanClosure/State/NonEmpty.lean}:
+
+\begin{lstlisting}[language=Lean]
+/-- The scalar extraction functional -/
+def scalarExtraction : FreeStarAlgebra n ->* C :=
+  FreeStarAlgebra.lift n (fun _ => 0)
+
+/-- The scalar extraction is M-positive -/
+theorem scalarExtraction_mPositive :
+    MPositiveState (scalarExtraction (n := n)) := by
+  constructor
+  . simp [scalarExtraction]
+  . intro m hm
+    induction hm with
+    | squares_sum => exact sum_nonneg (fun i _ => sq_nonneg _)
+    | generator_terms => simp [scalarExtraction]
+\end{lstlisting}
