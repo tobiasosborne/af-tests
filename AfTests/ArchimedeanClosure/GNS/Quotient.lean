@@ -102,6 +102,44 @@ def gnsInner : φ.gnsQuotient → φ.gnsQuotient → ℝ := fun x y =>
 theorem gnsInner_mk (a b : FreeStarAlgebra n) :
     φ.gnsInner (Submodule.Quotient.mk a) (Submodule.Quotient.mk b) = φ (star b * a) := rfl
 
+/-! ### Inner product properties -/
+
+/-- The inner product is symmetric: ⟨x, y⟩ = ⟨y, x⟩.
+    This follows from sesqForm_symm: φ(star a * b) = φ(star b * a). -/
+theorem gnsInner_symm (x y : φ.gnsQuotient) : φ.gnsInner x y = φ.gnsInner y x := by
+  obtain ⟨a, rfl⟩ := φ.gnsQuotient_mk_surjective x
+  obtain ⟨b, rfl⟩ := φ.gnsQuotient_mk_surjective y
+  simp only [gnsInner_mk]
+  exact sesqForm_symm φ b a
+
+/-- The inner product ⟨x, x⟩ is nonnegative.
+    This follows from apply_star_mul_self_nonneg: φ(star a * a) ≥ 0. -/
+theorem gnsInner_nonneg (x : φ.gnsQuotient) : 0 ≤ φ.gnsInner x x := by
+  obtain ⟨a, rfl⟩ := φ.gnsQuotient_mk_surjective x
+  simp only [gnsInner_mk]
+  exact φ.apply_star_mul_self_nonneg a
+
+/-- The inner product is additive in the first argument:
+    ⟨x + y, z⟩ = ⟨x, z⟩ + ⟨y, z⟩. -/
+theorem gnsInner_add_left (x y z : φ.gnsQuotient) :
+    φ.gnsInner (x + y) z = φ.gnsInner x z + φ.gnsInner y z := by
+  obtain ⟨a, rfl⟩ := φ.gnsQuotient_mk_surjective x
+  obtain ⟨b, rfl⟩ := φ.gnsQuotient_mk_surjective y
+  obtain ⟨c, rfl⟩ := φ.gnsQuotient_mk_surjective z
+  simp only [← Submodule.Quotient.mk_add, gnsInner_mk]
+  rw [mul_add, φ.map_add]
+
+/-- The inner product is ℝ-linear in the first argument:
+    ⟨r • x, y⟩ = r * ⟨x, y⟩. -/
+theorem gnsInner_smul_left (r : ℝ) (x y : φ.gnsQuotient) :
+    φ.gnsInner (r • x) y = r * φ.gnsInner x y := by
+  obtain ⟨a, rfl⟩ := φ.gnsQuotient_mk_surjective x
+  obtain ⟨b, rfl⟩ := φ.gnsQuotient_mk_surjective y
+  simp only [← Submodule.Quotient.mk_smul, gnsInner_mk]
+  -- r • a = algebraMap r * a, and algebraMap r commutes to the front
+  rw [Algebra.smul_def, ← mul_assoc]
+  rw [← Algebra.commutes r (star b), mul_assoc, ← Algebra.smul_def, φ.map_smul]
+
 end MPositiveState
 
 end FreeStarAlgebra

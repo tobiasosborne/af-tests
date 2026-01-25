@@ -140,6 +140,28 @@ theorem selfAdjoint_decomp {x : FreeStarAlgebra n} (hx : IsSelfAdjoint x) :
 
 ---
 
+## Pattern 5: AlgebraMap Commutation
+
+When proving `φ(star b * (r • a)) = r * φ(star b * a)` for r : ℝ:
+
+```lean
+-- r • a = algebraMap r * a
+rw [Algebra.smul_def]
+-- Now have: φ(star b * (algebraMap r * a))
+-- Use ← mul_assoc to get: φ((star b * algebraMap r) * a)
+rw [← mul_assoc]
+-- Use Algebra.commutes to move algebraMap r: algebraMap r * x = x * algebraMap r
+rw [← Algebra.commutes r (star b)]
+-- Now have: φ((algebraMap r * star b) * a)
+rw [mul_assoc, ← Algebra.smul_def, φ.map_smul]
+```
+
+**Key insight**: `Algebra.commutes` says the image of the base ring is in the center.
+
+**Used in**: `GNS/Quotient.lean:gnsInner_smul_left`
+
+---
+
 ## Why Previous Approaches Failed
 
 1. **Direct `ring`**: Non-commutative algebra

@@ -1,32 +1,21 @@
-# Handoff: 2026-01-25 (Session 3)
+# Handoff: 2026-01-25 (Session 4)
 
 ## Completed This Session
 
-### GNS-2b: Prove gnsNullSpace is a left ideal (af-tests-aim5 - CLOSED)
+### GNS-3b partial: Inner product properties (af-tests-7qgk - IN PROGRESS)
 
-Added left ideal property to `AfTests/ArchimedeanClosure/GNS/NullSpace.lean`.
+Added 4 inner product lemmas to `AfTests/ArchimedeanClosure/GNS/Quotient.lean`:
 
-### GNS-3a: Define gnsQuotient and gnsInner (af-tests-keje - CLOSED)
-
-**New file:** `AfTests/ArchimedeanClosure/GNS/Quotient.lean` (107 LOC)
-
-**Key additions to NullSpace.lean** (now 142 LOC):
 ```lean
-theorem gnsNullSpace_smul_mem  -- Closure under ℝ-scalar multiplication
-def gnsNullIdeal : Submodule ℝ (FreeStarAlgebra n)  -- As ℝ-submodule
+theorem gnsInner_symm (x y : φ.gnsQuotient) : φ.gnsInner x y = φ.gnsInner y x
+theorem gnsInner_nonneg (x : φ.gnsQuotient) : 0 ≤ φ.gnsInner x x
+theorem gnsInner_add_left (x y z : φ.gnsQuotient) :
+    φ.gnsInner (x + y) z = φ.gnsInner x z + φ.gnsInner y z
+theorem gnsInner_smul_left (r : ℝ) (x y : φ.gnsQuotient) :
+    φ.gnsInner (r • x) y = r * φ.gnsInner x y
 ```
 
-**Key definitions in Quotient.lean:**
-```lean
-abbrev gnsQuotient := FreeStarAlgebra n ⧸ φ.gnsNullIdeal
-def gnsQuotientMk : FreeStarAlgebra n →ₗ[ℝ] φ.gnsQuotient
-def gnsInner : φ.gnsQuotient → φ.gnsQuotient → ℝ  -- ⟨[a],[b]⟩ = φ(star b * a)
-```
-
-**Well-definedness proofs:**
-- `sesqForm_eq_of_sub_mem_left` - φ(star b * a₁) = φ(star b * a₂) when a₁ - a₂ ∈ N_φ
-- `sesqForm_eq_of_sub_mem_right` - φ(star b₁ * a) = φ(star b₂ * a) when b₁ - b₂ ∈ N_φ
-- `sesqForm_eq_of_sub_mem` - Combined well-definedness
+These are exactly the properties needed for `PreInnerProductSpace.Core ℝ`.
 
 ---
 
@@ -41,33 +30,35 @@ def gnsInner : φ.gnsQuotient → φ.gnsQuotient → ℝ  -- ⟨[a],[b]⟩ = φ(
 | Representation/Constrained.lean | Done | 87 | 0 | |
 | Representation/VectorState.lean | Done | 143 | 0 | |
 | Representation/GNSConstrained.lean | In Progress | 126 | 1 | `gns_representation_exists` |
-| GNS/NullSpace.lean | **Done** | **142** | **0** | AddSubgroup + left ideal + Submodule |
-| GNS/Quotient.lean | **NEW** | **107** | **0** | Quotient + gnsInner |
+| GNS/NullSpace.lean | Done | 142 | 0 | AddSubgroup + left ideal + Submodule |
+| GNS/Quotient.lean | **In Progress** | **145** | **0** | Inner properties added |
 
 ---
 
 ## Next Steps (Priority Order)
 
-### GNS Construction Chain (unblocked)
-1. **GNS-3b**: Build PreInnerProductSpace.Core on quotient (~40 LOC)
-   - gnsInner_symm, gnsInner_add_left, gnsInner_smul_left, gnsInner_nonneg
-2. **GNS-4**: Build SeminormedAddCommGroup instance
-3. **GNS-5**: Define left multiplication action on quotient
+### GNS-3b Remaining Work
+1. Build `PreInnerProductSpace.Core ℝ φ.gnsQuotient` using the 4 lemmas
+2. Prove positive definiteness: `gnsInner x x = 0 ↔ x = 0`
 
-### Dependency Chain for gns_representation_exists
+### After GNS-3b
+1. **GNS-4**: Build SeminormedAddCommGroup instance and completion
+2. **GNS-5**: Define left multiplication action on quotient
+3. Continue chain toward `gns_representation_exists`
+
+### Dependency Chain
 ```
-GNS-2a ✓ → GNS-2b ✓ → GNS-3a ✓ → GNS-3b → GNS-4 ──┐
-                         │                         │
-                         └── GNS-5 → GNS-6 ────────┴── GNS-7a → GNS-7b → GNS-8 → GNS-9
+GNS-2a ✓ → GNS-2b ✓ → GNS-3a ✓ → GNS-3b (IN PROGRESS) → GNS-4 ──┐
+                        │                                        │
+                        └── GNS-5 → GNS-6 ────────┴── GNS-7a → GNS-7b → GNS-8 → GNS-9
 ```
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/Boundedness/CauchySchwarzM.lean` (+8 LOC, now 120)
-- `AfTests/ArchimedeanClosure/GNS/NullSpace.lean` (+60 LOC, now 142)
-- `AfTests/ArchimedeanClosure/GNS/Quotient.lean` (NEW, 107 LOC)
+- `AfTests/ArchimedeanClosure/GNS/Quotient.lean` (+37 LOC, now 145)
+- `docs/ArchimedeanClosure/LEARNINGS_proofs.md` (+20 LOC, Pattern 5: AlgebraMap Commutation)
 - `HANDOFF.md` (this file)
 
 ---
@@ -75,20 +66,19 @@ GNS-2a ✓ → GNS-2b ✓ → GNS-3a ✓ → GNS-3b → GNS-4 ──┐
 ## Known Issues
 
 - **LEARNINGS_misc.md exceeds 200 LOC** (316 LOC) - tracked by af-tests-2d6o
-- `gns_representation_exists` - needs full GNS construction (4 more files)
+- `gns_representation_exists` - needs full GNS construction (several more files)
+- **GNS-3b partially complete** - inner lemmas done, Core instance not yet built
 
 ---
 
 ## Learnings
 
-**FreeStarAlgebra is ℝ-algebra, not ℂ-algebra:**
-- `FreeStarAlgebra n = FreeAlgebra ℝ (Fin n)`
-- MPositiveState maps to ℝ
-- gnsNullIdeal is `Submodule ℝ`, not `Submodule ℂ`
-- gnsInner returns ℝ, not ℂ (simpler - no conjugation needed!)
+**AlgebraMap commutation for scalar proofs:**
+When proving inner product scalar properties like `⟨r•x, y⟩ = r*⟨x, y⟩`:
+1. Use `Algebra.smul_def` to convert `r • a` to `algebraMap r * a`
+2. Use `← mul_assoc` to group terms
+3. Use `← Algebra.commutes` to move algebraMap to the front
+4. The algebraMap of the base ring is in the center, so this always works
 
-**LinearMap lemmas via .toFun:**
-- MPositiveState doesn't expose map_add, map_sub directly
-- Use `φ.toFun.map_sub` etc to access LinearMap lemmas
-- Or use `φ.map_add` which is exposed
+See `docs/ArchimedeanClosure/LEARNINGS_proofs.md` for full pattern.
 
