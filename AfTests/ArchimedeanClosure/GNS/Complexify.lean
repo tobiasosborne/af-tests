@@ -80,6 +80,30 @@ theorem one_smul' (p : Complexification H) : (1 : ℂ) • p = p := by
 theorem zero_smul' (p : Complexification H) : (0 : ℂ) • p = 0 := by
   ext <;> simp [smul_def]
 
+/-- Scalar multiplication is associative: (c₁ * c₂) • p = c₁ • (c₂ • p). -/
+theorem mul_smul' (c₁ c₂ : ℂ) (p : Complexification H) :
+    (c₁ * c₂) • p = c₁ • (c₂ • p) := by
+  ext
+  · -- First component: (c₁*c₂).re•p.1 - (c₁*c₂).im•p.2 = c₁.re•(c₂•p).1 - c₁.im•(c₂•p).2
+    simp only [smul_fst, smul_snd, Complex.mul_re, Complex.mul_im]
+    module
+  · -- Second component
+    simp only [smul_fst, smul_snd, Complex.mul_re, Complex.mul_im]
+    module
+
+/-- Scalar addition distributes: (c₁ + c₂) • p = c₁ • p + c₂ • p. -/
+theorem add_smul' (c₁ c₂ : ℂ) (p : Complexification H) :
+    (c₁ + c₂) • p = c₁ • p + c₂ • p := by
+  ext
+  · simp only [smul_fst, Complex.add_re, Complex.add_im]
+    change (c₁.re + c₂.re) • p.1 - (c₁.im + c₂.im) • p.2 =
+           (c₁.re • p.1 - c₁.im • p.2) + (c₂.re • p.1 - c₂.im • p.2)
+    module
+  · simp only [smul_snd, Complex.add_re, Complex.add_im]
+    change (c₁.re + c₂.re) • p.2 + (c₁.im + c₂.im) • p.1 =
+           (c₁.re • p.2 + c₁.im • p.1) + (c₂.re • p.2 + c₂.im • p.1)
+    module
+
 /-! ### The Embedding -/
 
 /-- Embed the real space into the complexification: x ↦ (x, 0). -/

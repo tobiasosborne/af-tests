@@ -240,10 +240,17 @@ theorem embed_add (x y : H) : embed (x + y) = embed x + embed y := by
   simp only [Prod.mk_add_mk, add_zero]
 ```
 
-**Next steps for complexification:**
-1. Prove `Module ℂ (Complexification H)` - mul_smul, add_smul, smul_add, smul_zero
-2. Define complex inner product using real inner product
-3. Prove `InnerProductSpace ℂ (Complexification H)`
+**Progress (2026-01-25):**
+- `mul_smul'` proven: (c₁ * c₂) • p = c₁ • (c₂ • p)
+- `add_smul'` proven: (c₁ + c₂) • p = c₁ • p + c₂ • p
+
+**Remaining for Module ℂ:**
+1. `smul_add` - c • (p + q) = c • p + c • q
+2. `smul_zero` - c • 0 = 0
+3. Package into `Module ℂ` instance
+
+**Key technique discovered:** The `module` tactic solves goals involving module scalar
+multiplication that `ring` cannot handle. Use `module` after simplifying with `simp`.
 
 **Lesson:** When creating type aliases that inherit instances via `inferInstanceAs`,
 use `change` or explicit type annotations to help simp lemmas recognize the structure.

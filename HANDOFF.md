@@ -1,27 +1,19 @@
-# Handoff: 2026-01-25 (Session 8)
+# Handoff: 2026-01-25 (Session 9)
 
 ## Completed This Session
 
-### GNS-Complexify: Started (af-tests-v2ad)
+### GNS-Complexify Progress (af-tests-v2ad)
 
-Created `AfTests/ArchimedeanClosure/GNS/Complexify.lean` (106 LOC):
+Added Module ℂ axioms to `AfTests/ArchimedeanClosure/GNS/Complexify.lean` (130 LOC):
 
 ```lean
-def Complexification (H : Type*) := H × H
-
-instance : AddCommGroup (Complexification H)
-instance instSMulComplex : SMul ℂ (Complexification H)
-  -- c • (x, y) = (c.re • x - c.im • y, c.re • y + c.im • x)
-
-theorem one_smul' : (1 : ℂ) • p = p
-theorem zero_smul' : (0 : ℂ) • p = 0
-
-def embed (x : H) : Complexification H := (x, 0)
-theorem embed_add : embed (x + y) = embed x + embed y
-theorem embed_smul_real : embed (r • x) = (r : ℂ) • embed x
+-- New this session:
+theorem mul_smul' (c₁ c₂ : ℂ) (p) : (c₁ * c₂) • p = c₁ • (c₂ • p)
+theorem add_smul' (c₁ c₂ : ℂ) (p) : (c₁ + c₂) • p = c₁ • p + c₂ • p
 ```
 
-**Key learning:** Type aliases with `inferInstanceAs` require `change` tactic to help simp.
+**Key learning:** The `module` tactic handles module scalar multiplication goals that
+`ring` cannot. Use after simplifying with simp.
 
 ---
 
@@ -40,54 +32,54 @@ theorem embed_smul_real : embed (r • x) = (r : ℂ) • embed x
 | GNS/Quotient.lean | Done | 182 | 0 | |
 | GNS/PreRep.lean | Done | 65 | 0 | |
 | GNS/Completion.lean | Done | 113 | 0 | ‖Ω‖=1 proven |
-| **GNS/Complexify.lean** | **Started** | **106** | **0** | Complex SMul, embed |
+| **GNS/Complexify.lean** | **In Progress** | **130** | **0** | Module axioms partial |
 
 ---
 
 ## BLOCKING ISSUE: Real vs Complex Hilbert Space
 
-**Status:** Foundation laid with Complexify.lean.
+**Status:** Progress made on Module ℂ axioms.
 
-**Remaining work:**
-1. Prove `Module ℂ (Complexification H)` (mul_smul, add_smul, etc.)
-2. Define complex inner product
-3. Prove `InnerProductSpace ℂ (Complexification H)`
-4. Connect GNS completion to complexification
+**Proven:**
+- `mul_smul'` - associativity
+- `add_smul'` - scalar distributivity
 
-See `docs/GNS/learnings/completion-topology.md` for details.
+**Remaining for Module ℂ:**
+1. `smul_add` - c • (p + q) = c • p + c • q
+2. `smul_zero` - c • 0 = 0
+3. Package into `Module ℂ` instance
+
+**Then:**
+- Complex inner product definition
+- `InnerProductSpace ℂ (Complexification H)` instance
+- Connect to GNS construction
 
 ---
 
 ## Next Steps (Priority Order)
 
 ### 1. Continue Complexification (af-tests-v2ad)
+- Complete Module ℂ axioms (smul_add, smul_zero)
 - Module ℂ instance
 - Inner product definition
-- InnerProductSpace ℂ instance
 
 ### 2. GNS-6: Boundedness (af-tests-kvgb)
 Prove representation is bounded using Archimedean property.
-
-### Dependency Chain
-```
-GNS-4 ✓ → Complexify (partial) ──┐
-                                  │
-GNS-5 ✓ → GNS-6 ─────────────────┴── [BLOCKED: needs full complexification] → GNS-7+
-```
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/GNS/Complexify.lean` (NEW, 106 LOC)
-- `docs/GNS/learnings/completion-topology.md` (+27 LOC, "Complexification Implementation" section)
+- `AfTests/ArchimedeanClosure/GNS/Complexify.lean` (+24 LOC: mul_smul', add_smul')
+- `docs/GNS/learnings/completion-topology.md` (+7 LOC: progress update)
 - `HANDOFF.md` (this file)
 
 ---
 
 ## Known Issues
 
-- **Real vs Complex gap** - BLOCKING for gns_representation_exists (partial progress made)
+- **Real vs Complex gap** - BLOCKING for gns_representation_exists (partial progress)
+- **completion-topology.md exceeds 200 LOC** (256 LOC)
 - **LEARNINGS_misc.md exceeds 200 LOC** (316 LOC) - tracked by af-tests-2d6o
 - `gns_representation_exists` - needs full complexification + construction
 
@@ -95,7 +87,7 @@ GNS-5 ✓ → GNS-6 ─────────────────┴──
 
 ## Learnings (from this session)
 
-**Type alias + inferInstanceAs pattern:**
-When `Complexification H := H × H` gets `AddCommGroup` via `inferInstanceAs`,
-simp lemmas for `H × H` don't fire automatically on `Complexification H`.
-Use `change` to convert goals to the underlying type.
+**The `module` tactic:**
+When proving goals involving module scalar multiplication (like `(a + b) • x = a • x + b • x`),
+the `ring` tactic fails because it only handles commutative rings. Use `module` instead,
+which handles linear combinations over modules.
