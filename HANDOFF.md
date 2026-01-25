@@ -2,6 +2,14 @@
 
 ## Completed This Session
 
+### ComplexifyGNS: Define complexified GNS Hilbert space
+
+Created `GNS/ComplexifyGNS.lean` (72 LOC) with:
+- `gnsHilbertSpaceRealNormedAddCommGroup` - explicit instance for completion
+- `gnsHilbertSpaceRealInnerProductSpace` - explicit instance for completion
+- `gnsHilbertSpaceComplex` - the complexified GNS space
+- `gnsCyclicVectorComplex` - cyclic vector embedded in complex space
+
 ### GNS-Complexify: COMPLETE! (af-tests-v2ad)
 
 Full `InnerProductSpace ℂ (Complexification H)` instance now available:
@@ -38,7 +46,8 @@ noncomputable instance instInnerProductSpace : InnerProductSpace ℂ (Complexifi
 | GNS/PreRep.lean | Done | 65 | 0 | |
 | GNS/Completion.lean | Done | 113 | 0 | |
 | GNS/Complexify.lean | Done | 193 | 0 | Module + Inner |
-| **GNS/ComplexifyInner.lean** | **Done** | **139** | **0** | **Full InnerProductSpace!** |
+| GNS/ComplexifyInner.lean | Done | 139 | 0 | Full InnerProductSpace! |
+| **GNS/ComplexifyGNS.lean** | **Done** | **72** | **0** | **Complexified GNS space** |
 
 ---
 
@@ -67,6 +76,7 @@ mapping to a complex Hilbert space.
 ## Files Modified This Session
 
 - `AfTests/ArchimedeanClosure/GNS/ComplexifyInner.lean` (added full instances)
+- `AfTests/ArchimedeanClosure/GNS/ComplexifyGNS.lean` (NEW: complexified GNS space)
 - `docs/GNS/learnings/completion-topology.md` (updated progress)
 - `HANDOFF.md` (this file)
 
