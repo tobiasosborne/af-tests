@@ -1,32 +1,16 @@
-# Handoff: 2026-01-25 (Session 12)
+# Handoff: 2026-01-25 (Session 14)
 
 ## Completed This Session
 
-### ComplexifyGNS: Define complexified GNS Hilbert space
+### Complexification Norm Preservation
+Added infrastructure for embedding norm preservation:
 
-Created `GNS/ComplexifyGNS.lean` (72 LOC) with:
-- `gnsHilbertSpaceRealNormedAddCommGroup` - explicit instance for completion
-- `gnsHilbertSpaceRealInnerProductSpace` - explicit instance for completion
-- `gnsHilbertSpaceComplex` - the complexified GNS space
-- `gnsCyclicVectorComplex` - cyclic vector embedded in complex space
+- `Complexification.embed_inner` - ⟪embed x, embed y⟫_ℂ = (⟪x, y⟫_ℝ : ℂ)
+- `Complexification.embed_norm` - ‖embed x‖_ℂ = ‖x‖_ℝ
+- `MPositiveState.gnsCyclicVectorComplex_norm` - ‖Ω_ℂ‖ = 1
 
-### GNS-Complexify: COMPLETE! (af-tests-v2ad)
-
-Full `InnerProductSpace ℂ (Complexification H)` instance now available:
-
-```lean
--- From ComplexifyInner.lean
-noncomputable instance instInnerProductSpaceCore :
-    InnerProductSpace.Core ℂ (Complexification H) where ...
-
-noncomputable instance instNormedAddCommGroup : NormedAddCommGroup (Complexification H) :=
-  @InnerProductSpace.Core.toNormedAddCommGroup ℂ _ _ _ _ instInnerProductSpaceCore
-
-noncomputable instance instInnerProductSpace : InnerProductSpace ℂ (Complexification H) :=
-  @InnerProductSpace.ofCore ℂ _ _ _ _ instInnerProductSpaceCore.toCore
-```
-
-**The complexification of a real Hilbert space is now a complex Hilbert space!**
+This establishes that the complex cyclic vector has unit norm, which is one
+requirement for `gns_representation_exists`.
 
 ---
 
@@ -46,39 +30,31 @@ noncomputable instance instInnerProductSpace : InnerProductSpace ℂ (Complexifi
 | GNS/PreRep.lean | Done | 65 | 0 | |
 | GNS/Completion.lean | Done | 113 | 0 | |
 | GNS/Complexify.lean | Done | 193 | 0 | Module + Inner |
-| GNS/ComplexifyInner.lean | Done | 139 | 0 | Full InnerProductSpace! |
-| **GNS/ComplexifyGNS.lean** | **Done** | **72** | **0** | **Complexified GNS space** |
+| GNS/ComplexifyInner.lean | Done | 160 | 0 | Full InnerProductSpace + embed_norm |
+| GNS/ComplexifyGNS.lean | Done | 76 | 0 | Complexified GNS + Ω_ℂ norm |
+| GNS/Bounded.lean | Done | 148 | 0 | Archimedean boundedness |
 
 ---
 
-## Complexification: COMPLETE
+## What's Needed for `gns_representation_exists`
 
-All infrastructure for complexifying real Hilbert spaces:
-- `Module ℂ (Complexification H)`
-- `Inner ℂ (Complexification H)`
-- `InnerProductSpace.Core ℂ (Complexification H)`
-- `NormedAddCommGroup (Complexification H)`
-- `InnerProductSpace ℂ (Complexification H)`
+The sorry requires constructing a `ConstrainedStarRep` from an M-positive state.
 
----
+**What we have:**
+- ✅ Complex Hilbert space: `gnsHilbertSpaceComplex`
+- ✅ Cyclic vector with unit norm: `gnsCyclicVectorComplex_norm`
+- ✅ Pre-representation on quotient: `gnsLeftAction`
+- ✅ Boundedness: `gnsLeftAction_bounded`
 
-## Next Steps (Priority Order)
+**What's missing:**
+1. **Extension to completion**: Need to extend `gnsLeftAction` from quotient to
+   the completed Hilbert space as a `ContinuousLinearMap`
+2. **Extension to complexification**: Then extend to the complexified space
+3. **Star algebra homomorphism**: Package as `→⋆ₐ[ℝ]` preserving star/mult/identity
+4. **Generator positivity**: Prove `π(gⱼ).IsPositive` for each generator
+5. **Vector state formula**: Prove φ(a) = Re⟨Ω, π(a)Ω⟩
 
-### 1. GNS-6: Boundedness (af-tests-kvgb)
-Prove representation is bounded using Archimedean property.
-
-### 2. Fill `gns_representation_exists`
-Now that complexification is complete, can construct the GNS representation
-mapping to a complex Hilbert space.
-
----
-
-## Files Modified This Session
-
-- `AfTests/ArchimedeanClosure/GNS/ComplexifyInner.lean` (added full instances)
-- `AfTests/ArchimedeanClosure/GNS/ComplexifyGNS.lean` (NEW: complexified GNS space)
-- `docs/GNS/learnings/completion-topology.md` (updated progress)
-- `HANDOFF.md` (this file)
+This is substantial work - each step requires careful typeclass management.
 
 ---
 
@@ -86,16 +62,33 @@ mapping to a complex Hilbert space.
 
 - **completion-topology.md exceeds 200 LOC** (~271 LOC)
 - **LEARNINGS_misc.md exceeds 200 LOC** (316 LOC) - tracked by af-tests-2d6o
-- `gns_representation_exists` - needs GNS construction with complexified space
 
 ---
 
 ## Learnings (from this session)
 
-**Explicit @ for Core instances:**
-When using `InnerProductSpace.Core.toNormedAddCommGroup` or `InnerProductSpace.ofCore`,
-typeclass resolution can get stuck on metavariables. Use explicit `@` application:
+**Inner product lemmas require InnerProductSpace:**
+The lemmas `inner_zero_left` and `inner_zero_right` require `InnerProductSpace`,
+not just `Inner`. When working with complexification infrastructure split across
+files, place theorems requiring the full `InnerProductSpace` instance in files
+where it's already defined (e.g., ComplexifyInner.lean after instInnerProductSpace).
+
+**Norm preservation via squared norms:**
+To prove `‖embed x‖ = ‖x‖`, use:
 ```lean
-@InnerProductSpace.Core.toNormedAddCommGroup ℂ _ _ _ _ instInnerProductSpaceCore
-@InnerProductSpace.ofCore ℂ _ _ _ _ instInnerProductSpaceCore.toCore
+have hsq : ‖embed x‖^2 = ‖x‖^2 := by
+  rw [sq, sq, ← inner_self_eq_norm_mul_norm (𝕜 := ℂ), embed_inner]
+  have hre : RCLike.re ((⟪x, x⟫_ℝ : ℝ) : ℂ) = ⟪x, x⟫_ℝ := Complex.ofReal_re _
+  rw [hre, ← inner_self_eq_norm_mul_norm (𝕜 := ℝ), RCLike.re_to_real]
+exact sq_eq_sq₀ (norm_nonneg _) (norm_nonneg _) |>.mp hsq
 ```
+
+The key is using `inner_self_eq_norm_mul_norm` which says `Re⟪x, x⟫ = ‖x‖ * ‖x‖`.
+
+---
+
+## Files Modified This Session
+
+- `AfTests/ArchimedeanClosure/GNS/ComplexifyInner.lean` (+21 LOC: embed_inner, embed_norm)
+- `AfTests/ArchimedeanClosure/GNS/ComplexifyGNS.lean` (+4 LOC: gnsCyclicVectorComplex_norm)
+- `HANDOFF.md` (this file)

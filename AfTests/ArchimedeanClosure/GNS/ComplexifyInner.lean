@@ -110,6 +110,15 @@ theorem inner_definite' (p : Complexification H) (hp : ⟪p, p⟫_ℂ = 0) : p =
   have hp2 : p.2 = 0 := inner_self_eq_zero (𝕜 := ℝ).mp h2
   ext <;> assumption
 
+/-! ### Embedding preserves inner product -/
+
+/-- Inner product of embedded elements: ⟪embed x, embed y⟫_ℂ = (⟪x, y⟫_ℝ : ℂ). -/
+theorem embed_inner (x y : H) : ⟪embed x, embed y⟫_ℂ = ((⟪x, y⟫_ℝ) : ℂ) := by
+  apply Complex.ext
+  · simp only [embed_fst, embed_snd, inner_re, Complex.ofReal_re, inner_zero_right, add_zero]
+  · simp only [embed_fst, embed_snd, inner_im, Complex.ofReal_im, inner_zero_right,
+               inner_zero_left, sub_zero]
+
 /-! ### InnerProductSpace.Core Instance -/
 
 /-- The complexification forms an InnerProductSpace.Core.
@@ -133,6 +142,18 @@ noncomputable instance instNormedAddCommGroup : NormedAddCommGroup (Complexifica
 /-- Full InnerProductSpace instance for the complexification. -/
 noncomputable instance instInnerProductSpace : InnerProductSpace ℂ (Complexification H) :=
   @InnerProductSpace.ofCore ℂ _ _ _ _ instInnerProductSpaceCore.toCore
+
+/-! ### Embedding preserves norm -/
+
+/-- Embedding preserves norm: ‖embed x‖_ℂ = ‖x‖_ℝ. -/
+theorem embed_norm (x : H) : ‖embed x‖ = ‖x‖ := by
+  -- Use Re⟪p, p⟫ = ‖p‖² for both norms
+  have hsq : ‖embed x‖^2 = ‖x‖^2 := by
+    rw [sq, sq, ← inner_self_eq_norm_mul_norm (𝕜 := ℂ), embed_inner]
+    -- RCLike.re ((⟪x, x⟫_ℝ : ℂ)) = ⟪x, x⟫_ℝ for real coercion
+    have hre : RCLike.re ((⟪x, x⟫_ℝ : ℝ) : ℂ) = ⟪x, x⟫_ℝ := Complex.ofReal_re _
+    rw [hre, ← inner_self_eq_norm_mul_norm (𝕜 := ℝ), RCLike.re_to_real]
+  exact sq_eq_sq₀ (norm_nonneg _) (norm_nonneg _) |>.mp hsq
 
 end Complexification
 

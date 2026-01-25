@@ -67,6 +67,10 @@ noncomputable abbrev gnsHilbertSpaceComplex : Type :=
 noncomputable def gnsCyclicVectorComplex : φ.gnsHilbertSpaceComplex :=
   Complexification.embed φ.gnsCyclicVector
 
+/-- The complex cyclic vector has norm 1. -/
+theorem gnsCyclicVectorComplex_norm : ‖φ.gnsCyclicVectorComplex‖ = 1 := by
+  rw [gnsCyclicVectorComplex, Complexification.embed_norm, gnsCyclicVector_norm]
+
 end MPositiveState
 
 end FreeStarAlgebra
