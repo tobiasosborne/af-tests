@@ -5,6 +5,7 @@ Authors: AF-Tests Contributors
 -/
 import AfTests.ArchimedeanClosure.GNS.NullSpace
 import Mathlib.LinearAlgebra.Quotient.Basic
+import Mathlib.Analysis.InnerProductSpace.Defs
 
 /-! # GNS Quotient Space for M-Positive States
 
@@ -155,6 +156,26 @@ theorem gnsInner_self_eq_zero_iff (x : φ.gnsQuotient) :
   -- Now goal: φ(star a * a) = 0 ↔ a ∈ φ.gnsNullIdeal
   -- This is exactly mem_gnsNullIdeal_iff
   rfl
+
+/-! ### Pre-inner product space structure -/
+
+/-- The Inner instance for the GNS quotient over ℝ. -/
+instance gnsQuotientInner : Inner ℝ φ.gnsQuotient := ⟨φ.gnsInner⟩
+
+/-- The inner product equals gnsInner. -/
+theorem inner_eq_gnsInner (x y : φ.gnsQuotient) :
+    @inner ℝ φ.gnsQuotient φ.gnsQuotientInner x y = φ.gnsInner x y := rfl
+
+/-- The PreInnerProductSpace.Core instance for the GNS quotient over ℝ.
+
+For ℝ, the starRingEnd is the identity, so:
+- conj_inner_symm reduces to symmetry
+- smul_left reduces to ℝ-linearity -/
+noncomputable def gnsPreInnerProductCore : PreInnerProductSpace.Core ℝ φ.gnsQuotient where
+  conj_inner_symm x y := by simp only [RCLike.conj_to_real]; exact gnsInner_symm φ y x
+  re_inner_nonneg x := by simp only [RCLike.re_to_real]; exact gnsInner_nonneg φ x
+  add_left x y z := gnsInner_add_left φ x y z
+  smul_left x y r := by simp only [RCLike.conj_to_real]; exact gnsInner_smul_left φ r x y
 
 end MPositiveState
 

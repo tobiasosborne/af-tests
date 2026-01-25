@@ -2,17 +2,24 @@
 
 ## Completed This Session
 
-### GNS-3b progress: Positive definiteness (af-tests-7qgk - IN PROGRESS)
+### GNS-3b COMPLETE: PreInnerProductSpace.Core ℝ (af-tests-7qgk)
 
-Added positive definiteness to `AfTests/ArchimedeanClosure/GNS/Quotient.lean`:
+Built the full pre-inner product space structure for the GNS quotient:
 
 ```lean
-theorem gnsInner_self_eq_zero_iff (x : φ.gnsQuotient) :
-    φ.gnsInner x x = 0 ↔ x = 0
+instance gnsQuotientInner : Inner ℝ φ.gnsQuotient := ⟨φ.gnsInner⟩
+
+noncomputable def gnsPreInnerProductCore : PreInnerProductSpace.Core ℝ φ.gnsQuotient where
+  conj_inner_symm x y := by simp only [RCLike.conj_to_real]; exact gnsInner_symm φ y x
+  re_inner_nonneg x := by simp only [RCLike.re_to_real]; exact gnsInner_nonneg φ x
+  add_left x y z := gnsInner_add_left φ x y z
+  smul_left x y r := by simp only [RCLike.conj_to_real]; exact gnsInner_smul_left φ r x y
 ```
 
-**Proof technique:** Reduces to `Submodule.Quotient.mk_eq_zero` and definitional equality
-with `mem_gnsNullIdeal_iff`. Very clean - two rewrites and `rfl`.
+**Key insight:** For ℝ, `starRingEnd ℝ` and `RCLike.re` are both identity, so:
+- `conj_inner_symm` reduces to `gnsInner_symm`
+- `re_inner_nonneg` reduces to `gnsInner_nonneg`
+- `smul_left` reduces to `gnsInner_smul_left`
 
 ---
 
@@ -28,32 +35,30 @@ with `mem_gnsNullIdeal_iff`. Very clean - two rewrites and `rfl`.
 | Representation/VectorState.lean | Done | 143 | 0 | |
 | Representation/GNSConstrained.lean | In Progress | 126 | 1 | `gns_representation_exists` |
 | GNS/NullSpace.lean | Done | 142 | 0 | AddSubgroup + left ideal + Submodule |
-| GNS/Quotient.lean | **In Progress** | **161** | **0** | +Positive definiteness |
+| GNS/Quotient.lean | **Done** | **182** | **0** | Inner + Core complete |
 
 ---
 
 ## Next Steps (Priority Order)
 
-### GNS-3b Remaining Work
-1. Build `PreInnerProductSpace.Core ℝ φ.gnsQuotient` using the 5 lemmas (symm, nonneg, add_left, smul_left, self_eq_zero_iff)
+### GNS-4: SeminormedAddCommGroup and completion
+Use `InnerProductSpace.Core.toSeminormedAddCommGroup` to get the norm structure.
 
-### After GNS-3b
-1. **GNS-4**: Build SeminormedAddCommGroup instance and completion
-2. **GNS-5**: Define left multiplication action on quotient
-3. Continue chain toward `gns_representation_exists`
+### GNS-5: Left multiplication action
+Define the left multiplication on the quotient.
 
 ### Dependency Chain
 ```
-GNS-2a ✓ → GNS-2b ✓ → GNS-3a ✓ → GNS-3b (IN PROGRESS) → GNS-4 ──┐
-                        │                                        │
-                        └── GNS-5 → GNS-6 ────────┴── GNS-7a → GNS-7b → GNS-8 → GNS-9
+GNS-2a ✓ → GNS-2b ✓ → GNS-3a ✓ → GNS-3b ✓ → GNS-4 ──┐
+                        │                            │
+                        └── GNS-5 → GNS-6 ────┴── GNS-7a → GNS-7b → GNS-8 → GNS-9
 ```
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/GNS/Quotient.lean` (+16 LOC, now 161)
+- `AfTests/ArchimedeanClosure/GNS/Quotient.lean` (+21 LOC, now 182)
 - `HANDOFF.md` (this file)
 
 ---
@@ -62,18 +67,17 @@ GNS-2a ✓ → GNS-2b ✓ → GNS-3a ✓ → GNS-3b (IN PROGRESS) → GNS-4 ─�
 
 - **LEARNINGS_misc.md exceeds 200 LOC** (316 LOC) - tracked by af-tests-2d6o
 - `gns_representation_exists` - needs full GNS construction (several more files)
-- **GNS-3b partially complete** - inner lemmas + positive definiteness done, Core instance not yet built
 
 ---
 
 ## Learnings (from this session)
 
-**Quotient membership is definitional:**
-The proof of positive definiteness was very simple because:
-1. `Submodule.Quotient.mk_eq_zero` gives `[a] = 0 ↔ a ∈ p`
-2. `mem_gnsNullIdeal_iff` is definitionally `a ∈ gnsNullIdeal ↔ φ(star a * a) = 0`
-3. After the rewrite, the goal becomes definitionally equal (`rfl`)
+**PreInnerProductSpace.Core over ℝ is simple:**
+For `PreInnerProductSpace.Core ℝ F`:
+- `starRingEnd ℝ = id` (no conjugation)
+- `RCLike.re : ℝ → ℝ = id`
+- So `conj_inner_symm` is just symmetry, `smul_left` is just linearity
 
-**Pattern:** When quotient properties reduce to membership, check if the membership
-characterization is definitional. If so, `rw [...]; rfl` is cleaner than explicit `exact`.
+Use `simp only [RCLike.conj_to_real]` or `simp only [RCLike.re_to_real]` to
+simplify these away before applying the existing lemmas.
 
