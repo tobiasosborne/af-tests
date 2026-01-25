@@ -1,20 +1,21 @@
-# Handoff: 2026-01-25 (Session 6)
+# Handoff: 2026-01-25 (Session 7)
 
 ## Completed This Session
 
-### GNS-4 PARTIAL: Real Hilbert space completion (af-tests-dcph)
+### GNS-4 PROGRESS: Proved ‖[1]‖ = 1 in quotient (af-tests-dcph)
 
-Created `AfTests/ArchimedeanClosure/GNS/Completion.lean` (78 LOC):
+Extended `AfTests/ArchimedeanClosure/GNS/Completion.lean` (now 93 LOC):
 
 ```lean
-def gnsInnerProductCore : InnerProductSpace.Core ℝ φ.gnsQuotient
-def gnsQuotientNormedAddCommGroup : NormedAddCommGroup φ.gnsQuotient
-abbrev gnsHilbertSpaceReal := UniformSpace.Completion φ.gnsQuotient
-def gnsCyclicVector : φ.gnsHilbertSpaceReal := coe' (Submodule.Quotient.mk 1)
+-- NEW: Inner product and norm lemmas
+theorem gnsInner_one_one : φ.gnsInner [1] [1] = 1
+theorem gnsQuotient_one_norm : ‖[1]‖ = 1  (in quotient)
 ```
 
-**ARCHITECTURAL ISSUE DISCOVERED**: The GNS construction produces a REAL Hilbert space,
-but `ConstrainedStarRep` requires a COMPLEX Hilbert space. Complexification needed!
+**Key technique**: When norms come from parametric Core instances, use explicit `@` and
+connect inner products via `rfl`. See `learnings/completion-topology.md`.
+
+**Still TODO for GNS-4**: `gnsCyclicVector_norm : ‖Ω‖ = 1` in completion (needs `norm_coe`)
 
 ---
 
@@ -32,7 +33,7 @@ but `ConstrainedStarRep` requires a COMPLEX Hilbert space. Complexification need
 | GNS/NullSpace.lean | Done | 142 | 0 | |
 | GNS/Quotient.lean | Done | 182 | 0 | Inner + Core |
 | GNS/PreRep.lean | Done | 65 | 0 | Left action |
-| GNS/Completion.lean | **Partial** | **78** | **0** | Real completion only |
+| GNS/Completion.lean | **Partial** | **93** | **0** | ‖[1]‖=1 proven, need ‖Ω‖=1 |
 
 ---
 
@@ -59,8 +60,8 @@ See `docs/GNS/learnings/completion-topology.md` for full analysis.
 ### 1. Resolve Real vs Complex Gap (NEW)
 Need to decide architectural approach. Complexification is the mathematically natural choice.
 
-### 2. GNS-4 Completion: Prove ‖Ω‖ = 1
-The gnsCyclicVector_norm theorem. Needs careful typeclass handling.
+### 2. GNS-4 Completion: Prove ‖Ω‖ = 1 in completion
+Use `UniformSpace.Completion.norm_coe` to lift `gnsQuotient_one_norm` to completion.
 
 ### 3. GNS-6: Boundedness
 Prove representation is bounded using Archimedean property.
@@ -76,8 +77,8 @@ GNS-2a ✓ → GNS-2b ✓ → GNS-3a ✓ → GNS-3b ✓ → GNS-4 (partial) ─�
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/GNS/Completion.lean` (NEW, 78 LOC)
-- `docs/GNS/learnings/completion-topology.md` (+29 LOC, now 196)
+- `AfTests/ArchimedeanClosure/GNS/Completion.lean` (UPDATED, 93 LOC, +15 lines)
+- `docs/GNS/learnings/completion-topology.md` (+26 LOC, "Proving Norm from Core" section)
 - `HANDOFF.md` (this file)
 
 ---
@@ -92,15 +93,12 @@ GNS-2a ✓ → GNS-2b ✓ → GNS-3a ✓ → GNS-3b ✓ → GNS-4 (partial) ─�
 
 ## Learnings (from this session)
 
-**InnerProductSpace.Core for positive definiteness:**
-`PreInnerProductSpace.Core` is for seminorms (may have null vectors).
-`InnerProductSpace.Core` adds `definite : ∀ x, ⟪x, x⟫ = 0 → x = 0`.
-Our quotient has definiteness by construction, so use `InnerProductSpace.Core`.
-
-**Explicit @ syntax for parametric instances:**
-When Core depends on a parameter (like φ), use explicit `@` application:
+**Proving norm from InnerProductSpace.Core:**
+When norms come from parametric Core instances, use explicit `@` and `rfl` proofs:
 ```lean
-@InnerProductSpace.Core.toNormedAddCommGroup ℝ φ.gnsQuotient _ _ _ φ.gnsInnerProductCore
+have h := @InnerProductSpace.Core.norm_eq_sqrt_re_inner ℝ E _ _ _ myCore x
+have h_inner : @inner ℝ _ myCore.toInner x x = myCustomInner x x := rfl
+rw [h, h_inner, RCLike.re_to_real, ...]
 ```
-The typeclass system can't infer parametrized instances automatically.
+This connects the abstract Core norm to your concrete inner product definition.
 

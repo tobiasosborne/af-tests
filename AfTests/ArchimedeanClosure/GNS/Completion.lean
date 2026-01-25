@@ -66,12 +66,27 @@ noncomputable def gnsCyclicVector : φ.gnsHilbertSpaceReal :=
   @UniformSpace.Completion.coe' φ.gnsQuotient φ.gnsQuotientNormedAddCommGroup.toUniformSpace
     (Submodule.Quotient.mk 1)
 
-/-! ### Properties of the cyclic vector -/
+/-! ### Norm of [1] in the quotient -/
 
--- Note: The norm theorem requires careful handling of typeclass instances.
--- See GNS-4 task for the full statement: ‖Ω‖ = 1.
--- Proof idea: ‖Ω‖² = ⟨[1], [1]⟩ = φ(star 1 * 1) = φ(1) = 1.
--- The key is connecting the completion's norm to the quotient's inner product.
+/-- The inner product ⟨[1], [1]⟩ = 1 in the quotient. -/
+theorem gnsInner_one_one : φ.gnsInner (Submodule.Quotient.mk 1) (Submodule.Quotient.mk 1) = 1 := by
+  simp only [gnsInner_mk, star_one, one_mul, φ.apply_one]
+
+/-- The quotient element [1] has norm 1.
+
+**Proof:**
+Using the Core norm: ‖x‖ = sqrt(re⟨x,x⟩). For x = [1]:
+- ⟨[1], [1]⟩ = φ(star 1 * 1) = φ(1) = 1
+- So ‖[1]‖ = sqrt(1) = 1 -/
+theorem gnsQuotient_one_norm :
+    @Norm.norm _ φ.gnsQuotientNormedAddCommGroup.toNorm (Submodule.Quotient.mk 1) = 1 := by
+  -- The norm from InnerProductSpace.Core is sqrt(⟨x,x⟩)
+  have h := @InnerProductSpace.Core.norm_eq_sqrt_re_inner ℝ φ.gnsQuotient _ _ _
+      φ.gnsPreInnerProductCore (Submodule.Quotient.mk 1)
+  -- Need to show the inner product in h equals gnsInner
+  have h_inner : @inner ℝ _ φ.gnsPreInnerProductCore.toInner (Submodule.Quotient.mk 1)
+      (Submodule.Quotient.mk 1) = φ.gnsInner _ _ := rfl
+  rw [h, h_inner, RCLike.re_to_real, gnsInner_one_one, Real.sqrt_one]
 
 end MPositiveState
 

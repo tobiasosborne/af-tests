@@ -194,3 +194,29 @@ Mathlib doesn't have direct "complexify real Hilbert space" support. Manual cons
 **Lesson:** When designing algebraic structures for representation theory, decide early
 whether to work over ℝ or ℂ. The current architecture chose ℝ for MPositiveState
 (to ensure φ(c*c) ≥ 0 for scalars), but this creates friction with complex Hilbert spaces.
+
+---
+
+## Proving Norm from InnerProductSpace.Core
+
+**Discovery:** When you have a custom `InnerProductSpace.Core` (or `PreInnerProductSpace.Core`)
+and want to prove `‖x‖ = 1` for a specific element, you need to carefully match norm instances.
+
+**Problem:** The goal `‖x‖ = 1` may use a different norm instance than the one from your Core.
+Direct rewriting with `InnerProductSpace.Core.norm_eq_sqrt_re_inner` may not work.
+
+**Resolution:** Explicitly construct the chain:
+```lean
+-- Get the Core norm = sqrt(re⟨x,x⟩) equation
+have h := @InnerProductSpace.Core.norm_eq_sqrt_re_inner ℝ E _ _ _
+    myPreInnerProductCore x
+-- Show the Core inner equals your custom inner
+have h_inner : @inner ℝ _ myCore.toInner x x = myCustomInner x x := rfl
+-- Then rewrite
+rw [h, h_inner, RCLike.re_to_real, ...]
+```
+
+For ℝ, `RCLike.re_to_real` simplifies `re : ℝ → ℝ` to identity.
+
+**Lesson:** When norms come from parametric Core instances (like `φ.gnsInnerProductCore`),
+use explicit `@` application and connect inner products explicitly via `rfl` proofs.
