@@ -2,15 +2,14 @@
 
 ## Completed This Session
 
-### Added `gnsRepComplex_one` and `gnsRepComplex_mul` (Star.lean)
+### Added `gnsRepComplex_one`, `gnsRepComplex_mul`, `gnsRepComplex_add` (Star.lean)
 
-Proved unit and multiplication preservation for the complexified GNS representation:
+Proved unit, multiplication, and addition preservation for the complexified GNS representation:
 
 ```lean
 theorem gnsRepComplex_one : φ.gnsRepComplex 1 = ContinuousLinearMap.id ℂ _
-
-theorem gnsRepComplex_mul (a b : FreeStarAlgebra n) :
-    φ.gnsRepComplex (a * b) = (φ.gnsRepComplex a).comp (φ.gnsRepComplex b)
+theorem gnsRepComplex_mul (a b) : φ.gnsRepComplex (a * b) = (φ.gnsRepComplex a).comp (φ.gnsRepComplex b)
+theorem gnsRepComplex_add (a b) : φ.gnsRepComplex (a + b) = φ.gnsRepComplex a + φ.gnsRepComplex b
 ```
 
 Also added supporting lemmas to Complexify.lean:
@@ -18,6 +17,7 @@ Also added supporting lemmas to Complexify.lean:
 ```lean
 theorem mapComplex_id : mapComplex LinearMap.id = LinearMap.id
 theorem mapComplex_comp (T₁ T₂) : mapComplex (T₁.comp T₂) = (mapComplex T₁).comp (mapComplex T₂)
+theorem mapComplex_add (T₁ T₂) : mapComplex (T₁ + T₂) = mapComplex T₁ + mapComplex T₂
 ```
 
 ---
@@ -58,7 +58,7 @@ This requires building a `ConstrainedStarRep n` from the GNS construction. Still
 3. **StarAlgHom for gnsRepComplex** - needs:
    - ✅ `gnsRepComplex_one`: π_ℂ(1) = 1
    - ✅ `gnsRepComplex_mul`: π_ℂ(a*b) = π_ℂ(a) * π_ℂ(b)
-   - ❌ `gnsRepComplex_add`: additive
+   - ✅ `gnsRepComplex_add`: additive
    - ❌ `gnsRepComplex_smul_ℝ`: preserves ℝ scalars
    - ✅ `gnsRepComplex_star`
 4. ❌ **Cyclic vector identity**: φ(a) = Re⟨Ω, π(a)Ω⟩

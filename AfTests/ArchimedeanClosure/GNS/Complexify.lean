@@ -205,6 +205,11 @@ theorem mapComplex_comp (T₁ T₂ : H →ₗ[ℝ] H) :
   · simp only [mapComplex_fst, LinearMap.comp_apply]
   · simp only [mapComplex_snd, LinearMap.comp_apply]
 
+/-- Addition of maps complexifies to addition: (T₁ + T₂)_ℂ = T₁_ℂ + T₂_ℂ. -/
+theorem mapComplex_add (T₁ T₂ : H →ₗ[ℝ] H) :
+    mapComplex (T₁ + T₂) = mapComplex T₁ + mapComplex T₂ := by
+  ext p <;> rfl
+
 /-! ### Complex Inner Product -/
 
 variable [Inner ℝ H]

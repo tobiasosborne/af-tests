@@ -281,6 +281,21 @@ theorem gnsRepComplex_mul (a b : FreeStarAlgebra n) :
     rw [gnsRep_mul]
     rfl
 
+/-- The complexified representation preserves addition: π_ℂ(a+b) = π_ℂ(a) + π_ℂ(b). -/
+theorem gnsRepComplex_add (a b : FreeStarAlgebra n) :
+    φ.gnsRepComplex (a + b) = φ.gnsRepComplex a + φ.gnsRepComplex b := by
+  ext p
+  · simp only [ContinuousLinearMap.add_apply]
+    unfold gnsRepComplex
+    simp only [LinearMap.mkContinuous_apply, Complexification.mapComplex_fst]
+    rw [gnsRep_add]
+    rfl
+  · simp only [ContinuousLinearMap.add_apply]
+    unfold gnsRepComplex
+    simp only [LinearMap.mkContinuous_apply, Complexification.mapComplex_snd]
+    rw [gnsRep_add]
+    rfl
+
 end MPositiveState
 
 end FreeStarAlgebra
