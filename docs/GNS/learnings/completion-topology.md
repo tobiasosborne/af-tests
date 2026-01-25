@@ -220,3 +220,30 @@ For ℝ, `RCLike.re_to_real` simplifies `re : ℝ → ℝ` to identity.
 
 **Lesson:** When norms come from parametric Core instances (like `φ.gnsInnerProductCore`),
 use explicit `@` application and connect inner products explicitly via `rfl` proofs.
+
+---
+
+## Complexification Implementation (Started)
+
+**Discovery:** Building complexification requires careful handling of definitional equality
+between `Complexification H` (a type alias) and `H × H` (the underlying type).
+
+**Problem:** When defining `embed : H → Complexification H` as `x ↦ (x, 0)`, the addition
+`embed x + embed y` uses the `AddCommGroup (Complexification H)` instance which is
+`inferInstanceAs (AddCommGroup (H × H))`. Simp lemmas like `Prod.mk_add_mk` may not fire
+directly because the types don't match syntactically.
+
+**Resolution:** Use `change` to convert the goal to the underlying product type:
+```lean
+theorem embed_add (x y : H) : embed (x + y) = embed x + embed y := by
+  change (x + y, (0 : H)) = (x, 0) + (y, 0)
+  simp only [Prod.mk_add_mk, add_zero]
+```
+
+**Next steps for complexification:**
+1. Prove `Module ℂ (Complexification H)` - mul_smul, add_smul, smul_add, smul_zero
+2. Define complex inner product using real inner product
+3. Prove `InnerProductSpace ℂ (Complexification H)`
+
+**Lesson:** When creating type aliases that inherit instances via `inferInstanceAs`,
+use `change` or explicit type annotations to help simp lemmas recognize the structure.
