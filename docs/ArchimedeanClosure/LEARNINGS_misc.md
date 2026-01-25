@@ -176,3 +176,27 @@ have h : (⟪ξ, (c : ℂ) • (π.toStarAlgHom a ξ)⟫_ℂ : ℂ) = c • ⟪�
 ```
 
 The `(_ : ℂ)` annotation helps Lean resolve the coercion.
+
+---
+
+## ContinuousLinearMap.IsPositive Structure
+
+### Definition
+`IsPositive T` for `T : E →L[ℂ] E` requires TWO conditions:
+1. `(↑T).IsSymmetric` - the underlying LinearMap is symmetric
+2. `∀ v, 0 ≤ T.reApplyInnerSelf v` - nonnegative on all vectors
+
+### Key Lemmas
+```lean
+ContinuousLinearMap.isPositive_def : T.IsPositive ↔ (↑T).IsSymmetric ∧ ∀ x, 0 ≤ T.reApplyInnerSelf x
+ContinuousLinearMap.star_eq_adjoint : star A = ContinuousLinearMap.adjoint A
+ContinuousLinearMap.isSelfAdjoint_iff' : IsSelfAdjoint A ↔ adjoint A = A
+IsPositive.inner_nonneg_right : T.IsPositive → 0 ≤ ⟪v, T v⟫_ℂ
+```
+
+### Pattern: Proving IsPositive from Vector States
+To show π(A) is positive when φ(A) ≥ 0 for all M-positive states φ:
+1. Show π(A) is symmetric (from A being self-adjoint and π being a *-homomorphism)
+2. For any unit vector v, the vector state φ_v is M-positive
+3. φ_v(A) = Re⟨v, π(A)v⟩ ≥ 0 by hypothesis on states
+4. Since π(A) is symmetric, ⟨v, π(A)v⟩ is real, so ⟨v, π(A)v⟩ ≥ 0

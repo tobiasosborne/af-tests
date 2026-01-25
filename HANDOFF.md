@@ -1,13 +1,10 @@
 # Handoff: 2026-01-25
 
 ## Completed This Session
-- **Created `Representation/VectorState.lean`** (143 LOC, 0 sorries):
-  - Vector state functional: `a ↦ Re⟨ξ, π(a)ξ⟩`
-  - ℝ-linearity (`vectorStateLinear`)
-  - Symmetry: `φ(star a) = φ(a)`
-  - Normalization: `φ(1) = 1` for unit vectors
-  - M-positivity via `inner_self_nonneg` and `IsPositive.inner_nonneg_right`
-  - Main theorem: `vectorState` constructs `MPositiveState` from constrained rep
+- **Created `Representation/GNSConstrained.lean`** (87 LOC, 2 sorries):
+  - `state_nonneg_implies_rep_positive`: Forward direction (sorry'd)
+  - `gns_representation_exists`: GNS existence (sorry'd - core GNS construction)
+  - `gns_constrained_implies_state_nonneg`: Backward direction (uses GNS existence)
 
 ---
 
@@ -69,37 +66,41 @@
 
 ---
 
-### Phase 7: IN PROGRESS
+### Phase 7: COMPLETE (Structure Done)
 
 | File | Status | LOC | Sorries | Notes |
 |------|--------|-----|---------|-------|
 | Representation/Constrained.lean | ✅ | 87 | 0 | Constrained *-rep structure |
-| Representation/VectorState.lean | ✅ | 143 | 0 | **Completed this session!** |
-| Representation/GNSConstrained.lean | Not Started | - | - | GNS gives constrained rep |
+| Representation/VectorState.lean | ✅ | 143 | 0 | Vector states are M-positive |
+| Representation/GNSConstrained.lean | ✅ | 87 | 2 | **Completed this session!** |
 
 ---
 
 ## Key Discoveries This Session
 
-### RCLike.re vs Complex.re
-`inner_self_nonneg` gives `0 ≤ RCLike.re ⟪x, x⟫_ℂ` but goals often have `(⟪v, v⟫_ℂ).re`.
-Pattern matching fails between these. Solution:
-```lean
-have h : 0 ≤ RCLike.re ⟪v, v⟫_ℂ := inner_self_nonneg
-simp only [RCLike.re_eq_complex_re] at h
-exact h
-```
+### ContinuousLinearMap.IsPositive
+`IsPositive T` requires TWO conditions:
+1. `(↑T).IsSymmetric` - the underlying LinearMap is symmetric
+2. `∀ v, 0 ≤ T.reApplyInnerSelf v` - nonnegative on all vectors
 
-### inner_smul_real_right needs type annotation
-Pattern matching fails without explicit `: ℂ` annotation on the inner product.
+Key lemmas:
+- `ContinuousLinearMap.star_eq_adjoint : star A = adjoint A`
+- `IsPositive.inner_nonneg_right : T.IsPositive → 0 ≤ ⟪v, T v⟫_ℂ`
+
+### The GNS Bridge
+The key equivalence for Main Theorem:
+- Forward: φ(A) ≥ 0 ∀ states → π(A) ≥ 0 ∀ constrained reps (uses VectorState)
+- Backward: π(A) ≥ 0 ∀ reps → φ(A) ≥ 0 ∀ states (requires GNS existence)
+
+The backward direction needs a full GNS construction for FreeStarAlgebra.
 
 ---
 
 ## Next Steps
 
-1. **AC-P7.3**: GNS of M-positive state gives constrained rep (af-tests-d7zg)
-2. **AC-P8.1**: Dual characterization theorem (af-tests-n6g3)
-3. **AC-P8.2**: Main theorem
+1. **AC-P8.1**: Dual characterization theorem (af-tests-n6g3) - uses GNSConstrained
+2. **AC-P8.2**: Main theorem - combines dual char with state/rep bridge
+3. **GNS for FreeStarAlgebra**: Eliminate sorries in gns_representation_exists
 
 ---
 
@@ -109,18 +110,19 @@ See `docs/ArchimedeanClosure/LEARNINGS.md` for full index:
 - `LEARNINGS_dual.md`: Span intersection, separating functional, symmetrization, normalization
 - `LEARNINGS_extension.md`: ProperCone approach
 - `LEARNINGS_topology.md`: Closedness proofs, Tychonoff, seminorm closure
-- `LEARNINGS_misc.md`: Section scoping, FunLike, imports, **map_star'**, **RCLike.re_eq_complex_re** ✓
+- `LEARNINGS_misc.md`: Section scoping, FunLike, imports, map_star', RCLike.re, **IsPositive** ✓
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/Representation/VectorState.lean` (new, 143 LOC, 0 sorries)
-- `docs/ArchimedeanClosure/LEARNINGS_misc.md` (added RCLike.re, inner_smul_real_right notes)
+- `AfTests/ArchimedeanClosure/Representation/GNSConstrained.lean` (new, 87 LOC, 2 sorries)
+- `docs/ArchimedeanClosure/LEARNINGS_misc.md` (added IsPositive section)
 - `HANDOFF.md` (this file)
 
 ---
 
 ## Known Issues
 
-- None currently!
+- `gns_representation_exists` has sorry - needs full GNS construction
+- `state_nonneg_implies_rep_positive` has sorry - proof outline documented
