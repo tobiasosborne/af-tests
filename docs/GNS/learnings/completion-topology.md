@@ -245,9 +245,9 @@ theorem embed_add (x y : H) : embed (x + y) = embed x + embed y := by
 - ✅ `Inner ℂ (Complexification H)` instance COMPLETE (Complexify.lean)
 - ✅ `inner_conj_symm'` - Conjugate symmetry proven (ComplexifyInner.lean)
 - ✅ `inner_add_left'` - Additivity proven (ComplexifyInner.lean)
+- ✅ `inner_nonneg_re'` - Positivity proven (ComplexifyInner.lean)
 
 **Remaining for PreInnerProductSpace.Core:**
-- `inner_nonneg_re` - Positivity: 0 ≤ Re⟪p, p⟫
 - `inner_smul_left` - Scalar multiplication: ⟪c • p, q⟫ = conj(c) * ⟪p, q⟫
 
 **Remaining for InnerProductSpace.Core:**
@@ -256,6 +256,8 @@ theorem embed_add (x y : H) : embed (x + y) = embed x + embed y := by
 **Key techniques:**
 - The `module` tactic solves goals involving module scalar multiplication that `ring` cannot.
 - Use `Complex.ext` for equality of complex numbers (not generic `ext`).
+- Use `real_inner_self_nonneg` (not `inner_self_nonneg`) when the goal is `0 ≤ ⟪x, x⟫_ℝ`.
+  The generic `inner_self_nonneg` returns `0 ≤ RCLike.re ⟪x, x⟫_𝕜` which doesn't unify.
 - `real_inner_comm` is the mathlib lemma for real inner product symmetry.
 - `inner_add_left (𝕜 := ℝ)` explicitly selects the real inner product version.
 

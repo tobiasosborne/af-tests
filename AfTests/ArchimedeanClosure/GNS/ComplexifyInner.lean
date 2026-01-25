@@ -14,11 +14,11 @@ real inner product space.
 
 * `inner_conj_symm'` - Conjugate symmetry: conj⟪q, p⟫ = ⟪p, q⟫
 * `inner_add_left'` - Additivity: ⟪p + p', q⟫ = ⟪p, q⟫ + ⟪p', q⟫
+* `inner_nonneg_re'` - Positivity: 0 ≤ Re⟪p, p⟫
 
 ## TODO
 
-Remaining axioms for PreInnerProductSpace.Core:
-* `inner_nonneg_re` - Positivity: 0 ≤ Re⟪p, p⟫
+Remaining axiom for PreInnerProductSpace.Core:
 * `inner_smul_left` - Scalar multiplication: ⟪c • p, q⟫ = conj(c) * ⟪p, q⟫
 
 And for InnerProductSpace.Core:
@@ -61,6 +61,14 @@ theorem inner_add_left' (p p' q : Complexification H) :
     change @inner ℝ H _ (p.1 + p'.1) q.2 - @inner ℝ H _ (p.2 + p'.2) q.1 = _
     rw [inner_add_left (𝕜 := ℝ) p.1 p'.1 q.2, inner_add_left (𝕜 := ℝ) p.2 p'.2 q.1]
     ring
+
+/-- Positivity: 0 ≤ Re⟪p, p⟫_ℂ.
+
+For p = (x, y), Re⟪p, p⟫ = ⟪x, x⟫_ℝ + ⟪y, y⟫_ℝ ≥ 0. -/
+theorem inner_nonneg_re' (p : Complexification H) :
+    0 ≤ (⟪p, p⟫_ℂ).re := by
+  simp only [inner_re]
+  exact add_nonneg real_inner_self_nonneg real_inner_self_nonneg
 
 end Complexification
 
