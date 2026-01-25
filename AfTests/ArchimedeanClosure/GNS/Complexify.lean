@@ -191,6 +191,13 @@ theorem mapComplex_embed (T : H →ₗ[ℝ] H) (x : H) :
     mapComplex T (embed x) = embed (T x) := by
   ext <;> simp
 
+/-- The identity map complexifies to the identity. -/
+@[simp]
+theorem mapComplex_id : mapComplex (LinearMap.id (R := ℝ) (M := H)) = LinearMap.id := by
+  ext p
+  · simp only [mapComplex_fst, LinearMap.id_apply]
+  · simp only [mapComplex_snd, LinearMap.id_apply]
+
 /-! ### Complex Inner Product -/
 
 variable [Inner ℝ H]

@@ -1,27 +1,28 @@
-# Handoff: 2026-01-25 (Session 25)
+# Handoff: 2026-01-25 (Session 26)
 
 ## Completed This Session
 
-### Added Generator Positivity on Complexified Space (GNS/Constrained.lean)
+### Added `gnsRepComplex_one` (Star.lean)
 
-Proved that the complexified GNS representation maps generators to positive operators:
+Proved that the complexified GNS representation sends 1 to the identity:
 
 ```lean
-theorem gnsRepComplex_generator_inner_nonneg (j : Fin n) (p : φ.gnsHilbertSpaceComplex) :
-    0 ≤ (@inner ℂ _ Complexification.instInnerComplex p
-      (φ.gnsRepComplex (generator j) p)).re
-
-theorem gnsRepComplex_generator_isPositive (j : Fin n) :
-    (φ.gnsRepComplex (generator j)).IsPositive
+theorem gnsRepComplex_one : φ.gnsRepComplex 1 = ContinuousLinearMap.id ℂ _ := by
+  ext p
+  · simp only [ContinuousLinearMap.id_apply]
+    unfold gnsRepComplex
+    simp only [LinearMap.mkContinuous_apply, Complexification.mapComplex_fst]
+    rw [gnsRep_one]
+    simp only [ContinuousLinearMap.coe_id, LinearMap.id_apply]
+  · -- similar for second component
 ```
 
-**Proof Strategy:**
-1. Expand inner product using `Complexification.inner_re`
-2. For p = (x, y): Re⟨p, π(gⱼ)p⟩ = ⟨x, π(gⱼ)x⟩_ℝ + ⟨y, π(gⱼ)y⟩_ℝ
-3. Both terms nonneg by `gnsRep_generator_inner_nonneg`
-4. For `IsPositive`: use self-adjointness via `gnsRepComplex_star` + generator self-adjoint
+Also added supporting lemma to Complexify.lean:
 
-**Impact:** This unblocks GNS-9, the final sorry elimination.
+```lean
+@[simp]
+theorem mapComplex_id : mapComplex (LinearMap.id (R := ℝ) (M := H)) = LinearMap.id
+```
 
 ---
 
@@ -40,13 +41,13 @@ theorem gnsRepComplex_generator_isPositive (j : Fin n) :
 | GNS/Quotient.lean | Done | 182 | 0 | |
 | GNS/PreRep.lean | Done | 65 | 0 | |
 | GNS/Completion.lean | Done | 118 | 0 | |
-| GNS/Complexify.lean | Done | 226 | 0 | Exceeds 200 (tracked) |
+| GNS/Complexify.lean | Done | 232 | 0 | Exceeds 200 (tracked) |
 | GNS/ComplexifyInner.lean | Done | 160 | 0 | |
 | GNS/ComplexifyGNS.lean | Done | 76 | 0 | |
 | GNS/Bounded.lean | Done | 148 | 0 | |
 | GNS/Extension.lean | Done | 242 | 0 | Exceeds 200 (tracked) |
-| GNS/Star.lean | Done | ~260 | 0 | |
-| **GNS/Constrained.lean** | **Done** | **138** | **0** | ✅ Generator positivity PROVEN |
+| GNS/Star.lean | Done | ~272 | 0 | Exceeds 200 (tracked) |
+| GNS/Constrained.lean | Done | 138 | 0 | Generator positivity PROVEN |
 
 ---
 
@@ -58,27 +59,28 @@ This requires building a `ConstrainedStarRep n` from the GNS construction. Still
 
 1. ✅ CompleteSpace for `gnsHilbertSpaceComplex`
 2. ✅ Generator positivity: `gnsRepComplex_generator_isPositive`
-3. ❌ **StarAlgHom for gnsRepComplex** - needs:
-   - `gnsRepComplex_one`: π_ℂ(1) = 1
-   - `gnsRepComplex_mul`: π_ℂ(a*b) = π_ℂ(a) * π_ℂ(b)
-   - `gnsRepComplex_add`: additive
-   - `gnsRepComplex_smul_ℝ`: preserves ℝ scalars
-   - (Already have: `gnsRepComplex_star`)
+3. **StarAlgHom for gnsRepComplex** - needs:
+   - ✅ `gnsRepComplex_one`: π_ℂ(1) = 1
+   - ❌ `gnsRepComplex_mul`: π_ℂ(a*b) = π_ℂ(a) * π_ℂ(b)
+   - ❌ `gnsRepComplex_add`: additive
+   - ❌ `gnsRepComplex_smul_ℝ`: preserves ℝ scalars
+   - ✅ `gnsRepComplex_star`
 4. ❌ **Cyclic vector identity**: φ(a) = Re⟨Ω, π(a)Ω⟩
 
 ---
 
 ## Known Issues
 
+- **Star.lean exceeds 200 LOC** (~272 LOC) - needs tracking
 - **Extension.lean exceeds 200 LOC** (242 LOC) - tracked by af-tests-qlhz
 - **completion-topology.md exceeds 200 LOC** (~490 LOC) - tracked by af-tests-8oaj
 - **LEARNINGS_misc.md exceeds 200 LOC** (316 LOC) - tracked by af-tests-2d6o
-- **Complexify.lean exceeds 200 LOC** (226 LOC) - tracked by af-tests-muey
+- **Complexify.lean exceeds 200 LOC** (232 LOC) - tracked by af-tests-muey
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/GNS/Constrained.lean` (added gnsRepComplex_generator_isPositive)
-- `docs/ArchimedeanClosure/LEARNINGS.md` (added Complexified Positivity Pattern)
+- `AfTests/ArchimedeanClosure/GNS/Complexify.lean` (added mapComplex_id)
+- `AfTests/ArchimedeanClosure/GNS/Star.lean` (added gnsRepComplex_one)
 - `HANDOFF.md` (this file)

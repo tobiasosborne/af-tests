@@ -252,6 +252,20 @@ theorem gnsRepComplex_star [IsArchimedean n] (a : FreeStarAlgebra n) :
     rw [hL1, hL2, hR1, hR2]
     simp only [gnsRep_star, ContinuousLinearMap.adjoint_inner_left]
 
+/-- The complexified representation sends 1 to the identity. -/
+theorem gnsRepComplex_one : φ.gnsRepComplex 1 = ContinuousLinearMap.id ℂ _ := by
+  ext p
+  · simp only [ContinuousLinearMap.id_apply]
+    unfold gnsRepComplex
+    simp only [LinearMap.mkContinuous_apply, Complexification.mapComplex_fst]
+    rw [gnsRep_one]
+    simp only [ContinuousLinearMap.coe_id, LinearMap.id_apply]
+  · simp only [ContinuousLinearMap.id_apply]
+    unfold gnsRepComplex
+    simp only [LinearMap.mkContinuous_apply, Complexification.mapComplex_snd]
+    rw [gnsRep_one]
+    simp only [ContinuousLinearMap.coe_id, LinearMap.id_apply]
+
 end MPositiveState
 
 end FreeStarAlgebra
