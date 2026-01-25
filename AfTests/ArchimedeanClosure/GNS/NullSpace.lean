@@ -100,6 +100,43 @@ theorem mul_mem_gnsNullSpace_of_mem {a : FreeStarAlgebra n}
     b * a ∈ φ.gnsNullSpace :=
   gnsNullSpace_mul_mem_left φ ha b
 
+/-! ### Scalar closure -/
+
+/-- star (c • a) = c • star a for c : ℝ in FreeStarAlgebra. -/
+private lemma star_smul_real (c : ℝ) (a : FreeStarAlgebra n) :
+    star (c • a) = c • star a := by
+  rw [Algebra.smul_def, Algebra.smul_def, star_mul, FreeAlgebra.star_algebraMap]
+  rw [Algebra.commutes]
+
+/-- The GNS null space is closed under ℝ-scalar multiplication. -/
+theorem gnsNullSpace_smul_mem {a : FreeStarAlgebra n}
+    (ha : a ∈ φ.gnsNullSpace) (c : ℝ) : c • a ∈ φ.gnsNullSpace := by
+  simp only [mem_gnsNullSpace_iff] at ha ⊢
+  -- star(c • a) * (c • a) = (c • star a) * (c • a) = c² • (star a * a)
+  rw [star_smul_real, smul_mul_smul_comm]
+  -- φ(c² • (star a * a)) = c² * φ(star a * a) = c² * 0 = 0
+  rw [φ.map_smul, ha, mul_zero]
+
+/-! ### The GNS null space as a Submodule -/
+
+/-- The GNS null space as an ℝ-submodule of FreeStarAlgebra.
+    This is the correct structure for forming the quotient. -/
+def gnsNullIdeal : Submodule ℝ (FreeStarAlgebra n) where
+  carrier := {a : FreeStarAlgebra n | φ (star a * a) = 0}
+  add_mem' := fun {_ _} ha hb => φ.gnsNullSpace.add_mem ha hb
+  zero_mem' := φ.gnsNullSpace.zero_mem
+  smul_mem' := fun c {_} ha => gnsNullSpace_smul_mem φ ha c
+
+/-- Membership in gnsNullIdeal is equivalent to membership in gnsNullSpace. -/
+theorem mem_gnsNullIdeal_iff {a : FreeStarAlgebra n} :
+    a ∈ φ.gnsNullIdeal ↔ φ (star a * a) = 0 := Iff.rfl
+
+/-- The null ideal is a left ideal: if a ∈ N_φ then b * a ∈ N_φ. -/
+theorem gnsNullIdeal_mul_mem_left {a : FreeStarAlgebra n}
+    (ha : a ∈ φ.gnsNullIdeal) (b : FreeStarAlgebra n) :
+    b * a ∈ φ.gnsNullIdeal :=
+  gnsNullSpace_mul_mem_left φ ha b
+
 end MPositiveState
 
 end FreeStarAlgebra
