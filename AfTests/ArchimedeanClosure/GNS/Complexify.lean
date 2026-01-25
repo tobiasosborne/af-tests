@@ -32,6 +32,8 @@ Standard textbook construction. See e.g., Reed & Simon Vol I.
 
 namespace ArchimedeanClosure
 
+open scoped InnerProductSpace
+
 /-! ### The Complexification Type -/
 
 /-- Complexification of a real inner product space.
@@ -156,6 +158,35 @@ theorem embed_smul_real (r : ℝ) (x : H) : embed (r • x) = (r : ℂ) • embe
                smul_zero, sub_zero]
   · simp only [embed_snd, smul_snd, embed_fst, Complex.ofReal_re, Complex.ofReal_im,
                smul_zero, zero_add, zero_smul]
+
+/-! ### Complex Inner Product -/
+
+variable [Inner ℝ H]
+
+/-- Complex inner product on the complexification.
+
+For p = (x₁, y₁) and q = (x₂, y₂):
+⟪p, q⟫_ℂ = ⟪x₁,x₂⟫ + ⟪y₁,y₂⟫ + i(⟪x₁,y₂⟫ - ⟪y₁,x₂⟫) -/
+instance instInnerComplex : Inner ℂ (Complexification H) where
+  inner p q := {
+    re := @inner ℝ H _ p.1 q.1 + @inner ℝ H _ p.2 q.2
+    im := @inner ℝ H _ p.1 q.2 - @inner ℝ H _ p.2 q.1
+  }
+
+omit [AddCommGroup H] [Module ℝ H] in
+theorem inner_def (p q : Complexification H) :
+    ⟪p, q⟫_ℂ = { re := @inner ℝ H _ p.1 q.1 + @inner ℝ H _ p.2 q.2,
+                 im := @inner ℝ H _ p.1 q.2 - @inner ℝ H _ p.2 q.1 } := rfl
+
+omit [AddCommGroup H] [Module ℝ H] in
+@[simp]
+theorem inner_re (p q : Complexification H) :
+    (⟪p, q⟫_ℂ).re = @inner ℝ H _ p.1 q.1 + @inner ℝ H _ p.2 q.2 := rfl
+
+omit [AddCommGroup H] [Module ℝ H] in
+@[simp]
+theorem inner_im (p q : Complexification H) :
+    (⟪p, q⟫_ℂ).im = @inner ℝ H _ p.1 q.2 - @inner ℝ H _ p.2 q.1 := rfl
 
 end Complexification
 

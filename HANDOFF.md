@@ -2,20 +2,20 @@
 
 ## Completed This Session
 
-### GNS-Complexify: Module ℂ COMPLETE (af-tests-v2ad)
+### GNS-Complexify: Inner ℂ COMPLETE (af-tests-v2ad)
 
-Completed `Module ℂ (Complexification H)` instance in `Complexify.lean` (162 LOC):
+Added complex inner product to `Complexify.lean` (193 LOC):
 
 ```lean
--- All Module axioms proven:
-theorem one_smul', zero_smul', mul_smul', add_smul', smul_add', smul_zero'
-
--- The instance:
+-- Module ℂ: DONE
 instance instModuleComplex : Module ℂ (Complexification H)
+
+-- Inner ℂ: DONE
+instance instInnerComplex : Inner ℂ (Complexification H)
+-- ⟪p, q⟫_ℂ = ⟪p.1,q.1⟫ + ⟪p.2,q.2⟫ + i(⟪p.1,q.2⟫ - ⟪p.2,q.1⟫)
 ```
 
-**Key learning:** The `module` tactic handles module scalar multiplication goals that
-`ring` cannot. Use after simplifying with simp.
+**Key learning:** Use `open scoped InnerProductSpace` for `⟪ ⟫_ℂ` notation.
 
 ---
 
@@ -34,29 +34,29 @@ instance instModuleComplex : Module ℂ (Complexification H)
 | GNS/Quotient.lean | Done | 182 | 0 | |
 | GNS/PreRep.lean | Done | 65 | 0 | |
 | GNS/Completion.lean | Done | 113 | 0 | ‖Ω‖=1 proven |
-| **GNS/Complexify.lean** | **In Progress** | **162** | **0** | Module ℂ DONE |
+| **GNS/Complexify.lean** | **In Progress** | **193** | **0** | Module ℂ + Inner ℂ |
 
 ---
 
 ## BLOCKING ISSUE: Real vs Complex Hilbert Space
 
-**Status:** Module ℂ COMPLETE. Next: inner product.
+**Status:** Inner product defined. Next: InnerProductSpace instance.
 
 **Completed:**
 - ✅ `Module ℂ (Complexification H)` instance
+- ✅ `Inner ℂ (Complexification H)` instance
 
 **Remaining:**
-1. Define complex inner product: ⟪(x₁,y₁), (x₂,y₂)⟫_ℂ = ⟪x₁,x₂⟫ + ⟪y₁,y₂⟫ + i(⟪x₁,y₂⟫ - ⟪y₁,x₂⟫)
-2. `InnerProductSpace ℂ (Complexification H)` instance
-3. Connect to GNS construction
+1. `InnerProductSpace ℂ (Complexification H)` - conjugate symmetry, linearity, positivity
+2. Connect to GNS construction
 
 ---
 
 ## Next Steps (Priority Order)
 
 ### 1. Continue Complexification (af-tests-v2ad)
-- Define complex inner product
-- Prove InnerProductSpace ℂ instance
+- Prove InnerProductSpace ℂ axioms (conjugate_sym, linearity, pos_def)
+- Package into InnerProductSpace instance
 
 ### 2. GNS-6: Boundedness (af-tests-kvgb)
 Prove representation is bounded using Archimedean property.
