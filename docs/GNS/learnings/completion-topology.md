@@ -409,3 +409,38 @@ theorem gnsRep_star (a : FreeStarAlgebra n) :
 
 **Lesson:** The adjoint characterization `⟪Ax, y⟫ = ⟪x, By⟫` + density pattern
 works well for extending star properties from quotient to completion.
+
+---
+
+## Star Property on Complexified GNS Representation (2026-01-25)
+
+**Discovery:** The star property extends from real to complexified representation by
+exploiting the componentwise structure of complexification.
+
+**Key Insight:** `gnsRepComplex a` acts componentwise:
+```lean
+gnsRepComplex a (x, y) = (gnsRep a x, gnsRep a y)
+```
+
+The proof of `gnsRepComplex_star` uses:
+1. `ContinuousLinearMap.eq_adjoint_iff` to reduce to inner product identity
+2. `Complex.ext` to split into real and imaginary parts
+3. The complexification inner product decomposes into real inner products
+4. Apply `gnsRep_star` + `ContinuousLinearMap.adjoint_inner_left` on each component
+
+**Pattern:**
+```lean
+theorem gnsRepComplex_star (a : FreeStarAlgebra n) :
+    φ.gnsRepComplex (star a) = ContinuousLinearMap.adjoint (φ.gnsRepComplex a) := by
+  rw [ContinuousLinearMap.eq_adjoint_iff]
+  intro p q
+  apply Complex.ext
+  · simp only [Complexification.inner_re, gnsRep_star,
+               ContinuousLinearMap.adjoint_inner_left]
+  · simp only [Complexification.inner_im, gnsRep_star,
+               ContinuousLinearMap.adjoint_inner_left]
+```
+
+**Remaining Work:** The `CompleteSpace (Complexification H)` instance uses `sorry`.
+The proof should use that the complexification norm is equivalent to the product norm,
+and completeness transfers via equivalent norms.

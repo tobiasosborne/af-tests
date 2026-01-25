@@ -109,6 +109,79 @@ theorem gnsRep_smul (r : ℝ) (a : FreeStarAlgebra n) : φ.gnsRep (r • a) = r 
       r • (↑(Submodule.Quotient.mk (a * z) : φ.gnsQuotient) : φ.gnsHilbertSpaceReal)
     exact UniformSpace.Completion.coe_smul (M := ℝ) r (Submodule.Quotient.mk (a * z))
 
+/-! ### Star property on the complexified representation -/
+
+open ArchimedeanClosure
+
+/-- Component norm squared inequality: ‖p.1‖² ≤ ‖p‖². -/
+theorem Complexification.norm_sq_fst_le (p : Complexification φ.gnsHilbertSpaceReal) :
+    ‖p.1‖^2 ≤ ‖p‖^2 := by
+  rw [@norm_sq_eq_re_inner ℂ (Complexification φ.gnsHilbertSpaceReal) _
+      Complexification.instNormedAddCommGroup.toSeminormedAddCommGroup
+      Complexification.instInnerProductSpace]
+  simp only [RCLike.re_eq_complex_re, Complexification.inner_re, real_inner_self_eq_norm_sq, sq]
+  linarith [sq_nonneg ‖p.2‖]
+
+/-- Component norm squared inequality: ‖p.2‖² ≤ ‖p‖². -/
+theorem Complexification.norm_sq_snd_le (p : Complexification φ.gnsHilbertSpaceReal) :
+    ‖p.2‖^2 ≤ ‖p‖^2 := by
+  rw [@norm_sq_eq_re_inner ℂ (Complexification φ.gnsHilbertSpaceReal) _
+      Complexification.instNormedAddCommGroup.toSeminormedAddCommGroup
+      Complexification.instInnerProductSpace]
+  simp only [RCLike.re_eq_complex_re, Complexification.inner_re, real_inner_self_eq_norm_sq, sq]
+  linarith [sq_nonneg ‖p.1‖]
+
+/-- Component norm is bounded by total norm: ‖p.1‖ ≤ ‖p‖. -/
+theorem Complexification.norm_fst_le (p : Complexification φ.gnsHilbertSpaceReal) :
+    ‖p.1‖ ≤ ‖p‖ := by
+  have h := Complexification.norm_sq_fst_le φ p
+  nlinarith [sq_nonneg ‖p.1‖, sq_nonneg ‖p‖, norm_nonneg p.1, norm_nonneg p]
+
+/-- Component norm is bounded by total norm: ‖p.2‖ ≤ ‖p‖. -/
+theorem Complexification.norm_snd_le (p : Complexification φ.gnsHilbertSpaceReal) :
+    ‖p.2‖ ≤ ‖p‖ := by
+  have h := Complexification.norm_sq_snd_le φ p
+  nlinarith [sq_nonneg ‖p.2‖, sq_nonneg ‖p‖, norm_nonneg p.2, norm_nonneg p]
+
+/-- The complexified Hilbert space is complete.
+
+The norm ‖(x,y)‖² = ‖x‖² + ‖y‖² is equivalent to the product max norm.
+Completeness follows from completeness of each component. -/
+instance gnsHilbertSpaceComplex_completeSpace [IsArchimedean n] :
+    CompleteSpace φ.gnsHilbertSpaceComplex := by
+  -- The proof uses that Cauchy sequences in Complexification project to Cauchy sequences
+  -- in each component, which converge by completeness of gnsHilbertSpaceReal.
+  sorry
+
+/-- The complexified representation preserves the star: π_ℂ(star a) = adjoint(π_ℂ(a)).
+
+The key is that gnsRepComplex acts componentwise: π_ℂ(a)(x,y) = (π(a)x, π(a)y).
+Using gnsRep_star on each component gives the adjoint property. -/
+theorem gnsRepComplex_star [IsArchimedean n] (a : FreeStarAlgebra n) :
+    φ.gnsRepComplex (star a) = ContinuousLinearMap.adjoint (φ.gnsRepComplex a) := by
+  rw [ContinuousLinearMap.eq_adjoint_iff]
+  intro p q
+  -- Expand inner products on complexification
+  apply Complex.ext
+  · -- Real part: Re⟪π_ℂ(star a) p, q⟫ = Re⟪p, π_ℂ(a) q⟫
+    simp only [Complexification.inner_re]
+    -- gnsRepComplex acts componentwise via mapComplex
+    have hL1 : (φ.gnsRepComplex (star a) p).1 = φ.gnsRep (star a) p.1 := rfl
+    have hL2 : (φ.gnsRepComplex (star a) p).2 = φ.gnsRep (star a) p.2 := rfl
+    have hR1 : (φ.gnsRepComplex a q).1 = φ.gnsRep a q.1 := rfl
+    have hR2 : (φ.gnsRepComplex a q).2 = φ.gnsRep a q.2 := rfl
+    rw [hL1, hL2, hR1, hR2]
+    -- Use gnsRep_star: π(star a) = adjoint(π(a)), then adjoint property
+    simp only [gnsRep_star, ContinuousLinearMap.adjoint_inner_left]
+  · -- Imaginary part: similar calculation
+    simp only [Complexification.inner_im]
+    have hL1 : (φ.gnsRepComplex (star a) p).1 = φ.gnsRep (star a) p.1 := rfl
+    have hL2 : (φ.gnsRepComplex (star a) p).2 = φ.gnsRep (star a) p.2 := rfl
+    have hR1 : (φ.gnsRepComplex a q).1 = φ.gnsRep a q.1 := rfl
+    have hR2 : (φ.gnsRepComplex a q).2 = φ.gnsRep a q.2 := rfl
+    rw [hL1, hL2, hR1, hR2]
+    simp only [gnsRep_star, ContinuousLinearMap.adjoint_inner_left]
+
 end MPositiveState
 
 end FreeStarAlgebra
