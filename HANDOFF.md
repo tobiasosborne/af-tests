@@ -1,42 +1,26 @@
-# Handoff: 2026-01-25 (Session 29)
+# Handoff: 2026-01-25 (Session 30)
 
 ## Completed This Session
 
-### ARCHIMEDEAN CLOSURE FORMALIZATION COMPLETE - 0 SORRIES
+### LATEX P1 CHAPTERS COMPLETE ✅
 
-1. **Completed final 3 Lean files:**
-   - `Main/DualCharacterization.lean` (47 LOC) - A ∈ M̄ ⟺ φ(A) ≥ 0 for all states
-   - `Main/Theorem.lean` (55 LOC) - Main theorem proven
-   - `Topology/Continuity.lean` (46 LOC) - State Lipschitz continuity
+Converted 7 LaTeX chapters from Lean source using 8 parallel subagents:
 
-2. **Fixed import chain** in `GNS/Constrained.lean`:
-   - Added imports for `StarComplex.lean` and `CompleteSpace.lean`
+| Chapter | File | Lines | Source Lean Files |
+|---------|------|-------|-------------------|
+| 01 | introduction.tex | 247 | Overview, main theorem |
+| 02 | algebra.tex | 206 | FreeStarAlgebra, QuadraticModule, Archimedean |
+| 03 | states.tex | 226 | MPositiveState, Props, NonEmptiness |
+| 04 | boundedness.tex | 227 | CauchySchwarz, ArchimedeanBound |
+| 05 | topology.tex | 277 | StateTopology, Compactness |
+| 06 | seminorm.tex | 207 | StateSeminorm, Closure |
+| 07 | dual.tex | 451 | Forward, SpanIntersection, SeparatingFunctional, RieszApplication, ComplexExtension, Normalization |
 
-3. **Main Theorem Proven:**
-   ```lean
-   theorem main_theorem {A : FreeStarAlgebra n} (hA : IsSelfAdjoint A) :
-       A ∈ FreeStarAlgebra.quadraticModuleClosure ↔
-       ∀ π : ConstrainedStarRep.{0} n, (π A).IsPositive
-   ```
+**Total**: 1,841 lines of LaTeX (combined from 1,750 insertions)
 
-4. **Axioms Used:** Only standard mathlib axioms (propext, Classical.choice, Quot.sound)
-
-### LATEX GENERATION SETUP COMPLETE
-
-1. **Created LaTeX document structure:**
-   ```
-   latex/
-   ├── main.tex           (106 LOC)
-   ├── preamble.tex       (119 LOC)
-   ├── chapters/          (10 placeholder files)
-   └── appendix/          (1 placeholder file)
-   ```
-
-2. **Created planning documents:**
-   - `docs/LaTeXGeneration/PLAN.md` - Master plan with work units
-   - `docs/LaTeXGeneration/TEMPLATE.md` - Subagent conversion template
-
-3. **Created 15 beads issues** for LaTeX conversion (P0.1 closed, 8 ready)
+**Compilation**: Compiles successfully to 59-page PDF with minor warnings:
+- Multiply-defined labels (intro vs chapter definitions) - cosmetic
+- Undefined references to P2-P4 content - expected
 
 ---
 
@@ -51,13 +35,13 @@
 | Sorries | 0 |
 | Open issues | 0/207 (Lean) |
 
-### LaTeX Generation: IN PROGRESS
+### LaTeX Generation: P1 DONE, P2 READY
 
 | Phase | Issues | Status |
 |-------|--------|--------|
 | P0 (Setup) | 1 | ✅ Done |
-| P1 (Core chapters) | 8 | Ready (parallel) |
-| P2 (GNS chapter) | 3 | Blocked by P1.3 |
+| P1 (Core chapters) | 8 | ✅ Done |
+| P2 (GNS chapter) | 3 | Ready (1 unblocked: P2.1) |
 | P3 (Final chapters) | 2 | Blocked by P2 |
 | P4 (Appendix) | 1 | Blocked by P3 |
 
@@ -66,36 +50,42 @@
 ## Ready Issues (LaTeX)
 
 ```
-af-tests-otyo  LaTeX-P1.1: Introduction chapter
-af-tests-s0je  LaTeX-P1.2: Algebra chapter
-af-tests-xse8  LaTeX-P1.3: States chapter
-af-tests-kxmu  LaTeX-P1.4: Boundedness chapter
-af-tests-lrc2  LaTeX-P1.5: Topology chapter
-af-tests-7qfs  LaTeX-P1.6: Seminorm chapter
-af-tests-gomu  LaTeX-P1.7a: Dual Part 1
-af-tests-nnfr  LaTeX-P1.7b: Dual Part 2
+af-tests-6nyc  LaTeX-P2.1: GNS Core (NullSpace, Quotient, PreRep)
 ```
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/Main/DualCharacterization.lean` (new)
-- `AfTests/ArchimedeanClosure/Main/Theorem.lean` (new)
-- `AfTests/ArchimedeanClosure/Topology/Continuity.lean` (new)
-- `AfTests/ArchimedeanClosure/GNS/Constrained.lean` (import fix)
-- `latex/` (entire directory - new)
-- `docs/LaTeXGeneration/PLAN.md` (new)
-- `docs/LaTeXGeneration/TEMPLATE.md` (new)
+- `latex/chapters/01-introduction.tex` (rewritten)
+- `latex/chapters/02-algebra.tex` (rewritten)
+- `latex/chapters/03-states.tex` (rewritten)
+- `latex/chapters/04-boundedness.tex` (rewritten)
+- `latex/chapters/05-topology.tex` (rewritten)
+- `latex/chapters/06-seminorm.tex` (rewritten)
+- `latex/chapters/07-dual.tex` (rewritten from 2 parts)
 - `HANDOFF.md` (this file)
 
 ---
 
 ## Next Steps
 
-1. **LaTeX conversion:** Run 8 parallel subagents for P1.* chapters
-2. **Each subagent:**
-   - Read `docs/LaTeXGeneration/TEMPLATE.md`
-   - Read assigned Lean source files
-   - Write LaTeX to `latex/chapters/XX-name.tex`
-3. **After P1 complete:** P2 (GNS), then P3 (Main), then P4 (Appendix)
+1. **P2 GNS chapters**: Run 3 subagents for GNS content
+   - P2.1: GNS Core (NullSpace, Quotient, PreRep)
+   - P2.2: GNS Completion (StarComplex, CompleteSpace)
+   - P2.3: GNS Theorem (Theorem, Uniqueness)
+
+2. **P3 Final chapters**: Main theorem chapter
+
+3. **P4 Appendix**: Lean index, complete proofs
+
+4. **Fix warnings**: Resolve multiply-defined labels in intro chapter
+
+---
+
+## Known Issues
+
+1. **Label conflicts**: Introduction chapter defines `def:FreeStarAlgebra` etc. which duplicate chapter 2 labels. Consider renaming intro labels to `intro:FreeStarAlgebra`.
+
+2. **Undefined refs**: References to `app:nonemptiness`, `ch:compactness`, `thm:apply_abs_le` need P2-P4 content.
+
