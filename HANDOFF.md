@@ -1,34 +1,29 @@
-# Handoff: 2026-01-25 (Session 21)
+# Handoff: 2026-01-25 (Session 22)
 
 ## Completed This Session
 
-### Proved `gnsRepComplex_star` - Star Property on Complexified Rep
+### Created `GNS/Constrained.lean` - Generator Positivity Foundation
 
-Extended `AfTests/ArchimedeanClosure/GNS/Star.lean` (now 187 LOC):
+Created `AfTests/ArchimedeanClosure/GNS/Constrained.lean` (62 LOC, 0 sorries):
 
 ```lean
--- Main theorem (PROVEN)
-theorem gnsRepComplex_star (a : FreeStarAlgebra n) :
-    φ.gnsRepComplex (star a) = ContinuousLinearMap.adjoint (φ.gnsRepComplex a)
+-- Key identity: inner product with generator (PROVEN)
+theorem gnsPreRep_generator_inner (j : Fin n) (b : FreeStarAlgebra n) :
+    φ.gnsInner (Submodule.Quotient.mk b)
+      (φ.gnsPreRep (generator j) (Submodule.Quotient.mk b)) =
+    φ (star b * generator j * b)
 
--- Supporting lemmas (PROVEN)
-theorem Complexification.norm_sq_fst_le  -- ‖p.1‖² ≤ ‖p‖²
-theorem Complexification.norm_sq_snd_le  -- ‖p.2‖² ≤ ‖p‖²
-theorem Complexification.norm_fst_le     -- ‖p.1‖ ≤ ‖p‖
-theorem Complexification.norm_snd_le     -- ‖p.2‖ ≤ ‖p‖
-
--- Instance (1 sorry)
-instance gnsHilbertSpaceComplex_completeSpace : CompleteSpace gnsHilbertSpaceComplex
+-- Core nonnegativity (PROVEN)
+theorem gnsPreRep_generator_inner_nonneg (j : Fin n) (b : FreeStarAlgebra n) :
+    0 ≤ φ.gnsInner (Submodule.Quotient.mk b)
+      (φ.gnsPreRep (generator j) (Submodule.Quotient.mk b))
 ```
 
-**Key Insight:** The star property extends componentwise:
-- `gnsRepComplex a (x, y) = (gnsRep a x, gnsRep a y)`
-- Use `Complex.ext` to split real/imaginary parts
-- Apply `gnsRep_star` + `adjoint_inner_left` on each component
+**Key Insight:** `star b * gⱼ * b ∈ M` by `star_generator_mul_mem`, and φ is M-positive.
 
 ### Added Learning
 
-Added "Star Property on Complexified GNS Representation" to `docs/GNS/learnings/completion-topology.md`.
+Added "Generator Positivity: Key Insight" to `docs/GNS/learnings/completion-topology.md`.
 
 ---
 
@@ -52,51 +47,34 @@ Added "Star Property on Complexified GNS Representation" to `docs/GNS/learnings/
 | GNS/ComplexifyGNS.lean | Done | 76 | 0 | |
 | GNS/Bounded.lean | Done | 148 | 0 | |
 | GNS/Extension.lean | Done | **242** | 0 | Exceeds 200 (tracked) |
-| **GNS/Star.lean** | **UPDATED** | **187** | **1** | gnsRepComplex_star PROVEN |
+| GNS/Star.lean | Done | 187 | **1** | CompleteSpace sorry |
+| **GNS/Constrained.lean** | **NEW** | **62** | **0** | Generator positivity foundation |
 
 ---
 
-## What's Needed for `gns_representation_exists`
+## What's Next for GNS-8 (Generator Positivity)
 
-**What we have now:**
-- Complex Hilbert space: `gnsHilbertSpaceComplex` ✓
-- Cyclic vector with unit norm: `gnsCyclicVectorComplex_norm` ✓
-- Bounded pre-rep as CLM: `gnsBoundedPreRep` ✓
-- Extension to completion: `gnsRep` ✓
-- Additivity: `gnsRep_add` ✓
-- Unit: `gnsRep_one` ✓
-- Multiplicativity: `gnsRep_mul` ✓
-- Complexified rep: `gnsRepComplex` ✓
-- Star property on real rep: `gnsRep_star` ✓
-- **Star property on complex rep: `gnsRepComplex_star`** ✓ NEW
+**Quotient-level foundation done.** Next steps:
 
-**What's still needed:**
-1. Eliminate sorry in `gnsHilbertSpaceComplex_completeSpace`
-2. Build `gnsStarAlgHom : FreeStarAlgebra n →⋆ₐ[ℝ] (gnsHilbertSpaceComplex →L[ℂ] gnsHilbertSpaceComplex)`
-3. Prove generator positivity: `gnsRepComplex_generator_isPositive`
-4. Package into `ConstrainedStarRep` structure
-
----
-
-## Next Steps (Priority Order)
-
-1. **GNS-7b** (almost done): Build `gnsStarAlgHom` from `gnsRepComplex` + star properties
-2. **GNS-8**: Prove generator positivity (key insight: uses M-positivity)
-3. **GNS-9**: Bundle everything into `gns_representation_exists`
+1. **Extend to real Hilbert space**: Prove `gnsRep_generator_inner_nonneg` using density
+2. **Prove IsSelfAdjoint**: Use `isSelfAdjoint_generator` + star homomorphism property
+3. **Assemble IsPositive**: Combine IsSelfAdjoint + inner product nonnegativity
+4. **Complex version**: Extend to `gnsRepComplex_generator_isPositive`
 
 ---
 
 ## Known Issues
 
 - **Extension.lean exceeds 200 LOC** (242 LOC) - tracked by af-tests-qlhz
-- **completion-topology.md exceeds 200 LOC** (~446 LOC) - tracked by af-tests-8oaj
+- **completion-topology.md exceeds 200 LOC** (~490 LOC) - tracked by af-tests-8oaj
 - **LEARNINGS_misc.md exceeds 200 LOC** (316 LOC) - tracked by af-tests-2d6o
 - **Complexify.lean exceeds 200 LOC** (226 LOC) - tracked by af-tests-muey
+- **CompleteSpace sorry** in Star.lean - tracked by af-tests-5vwz
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/GNS/Star.lean` (added gnsRepComplex_star + supporting lemmas)
-- `docs/GNS/learnings/completion-topology.md` (added complexified star property learning)
+- `AfTests/ArchimedeanClosure/GNS/Constrained.lean` (NEW - generator positivity foundation)
+- `docs/GNS/learnings/completion-topology.md` (added generator positivity learning)
 - `HANDOFF.md` (this file)

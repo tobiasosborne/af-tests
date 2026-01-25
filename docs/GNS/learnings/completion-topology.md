@@ -444,3 +444,40 @@ theorem gnsRepComplex_star (a : FreeStarAlgebra n) :
 **Remaining Work:** The `CompleteSpace (Complexification H)` instance uses `sorry`.
 The proof should use that the complexification norm is equivalent to the product norm,
 and completeness transfers via equivalent norms.
+
+---
+
+## Generator Positivity: Key Insight (2026-01-25)
+
+**Discovery:** The GNS representation maps generators to positive operators because of
+M-positivity and the structure of the quadratic module.
+
+**Key Identity (Proven):**
+```lean
+theorem gnsPreRep_generator_inner (j : Fin n) (b : FreeStarAlgebra n) :
+    φ.gnsInner (Submodule.Quotient.mk b)
+      (φ.gnsPreRep (generator j) (Submodule.Quotient.mk b)) =
+    φ (star b * generator j * b)
+```
+
+**Why It's Nonnegative:**
+1. `star b * gⱼ * b ∈ M` by the `star_generator_mul_mem` constructor in QuadraticModule
+2. φ is M-positive: `φ(m) ≥ 0` for all `m ∈ M`
+3. Therefore `φ(star b * gⱼ * b) ≥ 0`
+
+**Proof Pattern:**
+```lean
+theorem gnsPreRep_generator_inner_nonneg (j : Fin n) (b : FreeStarAlgebra n) :
+    0 ≤ φ.gnsInner (Submodule.Quotient.mk b)
+      (φ.gnsPreRep (generator j) (Submodule.Quotient.mk b)) := by
+  rw [gnsPreRep_generator_inner]
+  exact φ.apply_m_nonneg (star_generator_mul_mem j b)
+```
+
+**Extension to Hilbert Space:** Use density + continuity pattern:
+- Suffice to check on quotient elements (by density)
+- The closed condition uses continuity of inner product
+
+**Lesson:** The quadratic module `M` was designed exactly to make generators map to
+positive operators. The `star_generator_mul_mem` constructor is the algebraic reason
+why constrained representations work.
