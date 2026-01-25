@@ -1,0 +1,78 @@
+/-
+Copyright (c) 2026 AF-Tests Contributors. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: AF-Tests Contributors
+-/
+import AfTests.ArchimedeanClosure.GNS.Quotient
+import Mathlib.Analysis.InnerProductSpace.Completion
+
+/-! # GNS Hilbert Space Completion
+
+This file completes the GNS quotient to a real Hilbert space.
+
+## Main definitions
+
+* `MPositiveState.gnsInnerProductCore` - The InnerProductSpace.Core instance
+* `MPositiveState.gnsHilbertSpaceReal` - The completion (a real Hilbert space)
+* `MPositiveState.gnsCyclicVector` - The cyclic vector [1]
+
+## Implementation Notes
+
+The GNS quotient has a REAL inner product structure because:
+- MPositiveState maps FreeStarAlgebra n →ₗ[ℝ] ℝ
+- The inner product ⟨[a], [b]⟩ = φ(star b * a) is ℝ-valued
+
+The completed space is therefore a real Hilbert space. To obtain a complex Hilbert
+space (as required by ConstrainedStarRep), complexification is needed - see
+LEARNINGS.md for discussion of this architectural gap.
+-/
+
+namespace FreeStarAlgebra
+
+namespace MPositiveState
+
+variable {n : ℕ} (φ : MPositiveState n)
+
+/-! ### InnerProductSpace.Core (with positive definiteness) -/
+
+/-- The InnerProductSpace.Core instance, adding positive definiteness to the
+PreInnerProductSpace.Core structure. -/
+noncomputable def gnsInnerProductCore : InnerProductSpace.Core ℝ φ.gnsQuotient where
+  __ := φ.gnsPreInnerProductCore
+  definite x h := (φ.gnsInner_self_eq_zero_iff x).mp h
+
+/-! ### Normed structures from Core -/
+
+/-- The NormedAddCommGroup structure on the quotient. -/
+noncomputable def gnsQuotientNormedAddCommGroup : NormedAddCommGroup φ.gnsQuotient :=
+  @InnerProductSpace.Core.toNormedAddCommGroup ℝ φ.gnsQuotient _ _ _ φ.gnsInnerProductCore
+
+/-! ### The completion (real Hilbert space) -/
+
+/-- The GNS Hilbert space is the completion of the quotient.
+
+**Note**: This is a REAL Hilbert space. For a complex Hilbert space,
+complexification is required. -/
+noncomputable abbrev gnsHilbertSpaceReal :=
+  @UniformSpace.Completion φ.gnsQuotient φ.gnsQuotientNormedAddCommGroup.toUniformSpace
+
+/-! ### The cyclic vector -/
+
+/-- The cyclic vector Ω = [1] embedded in the completion.
+
+This is the image of the identity element 1 ∈ A₀ under the composition
+A₀ → A₀/N_φ → Completion(A₀/N_φ). -/
+noncomputable def gnsCyclicVector : φ.gnsHilbertSpaceReal :=
+  @UniformSpace.Completion.coe' φ.gnsQuotient φ.gnsQuotientNormedAddCommGroup.toUniformSpace
+    (Submodule.Quotient.mk 1)
+
+/-! ### Properties of the cyclic vector -/
+
+-- Note: The norm theorem requires careful handling of typeclass instances.
+-- See GNS-4 task for the full statement: ‖Ω‖ = 1.
+-- Proof idea: ‖Ω‖² = ⟨[1], [1]⟩ = φ(star 1 * 1) = φ(1) = 1.
+-- The key is connecting the completion's norm to the quotient's inner product.
+
+end MPositiveState
+
+end FreeStarAlgebra

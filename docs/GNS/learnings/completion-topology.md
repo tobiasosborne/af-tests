@@ -165,3 +165,32 @@ theorem Isometry.surjective_of_completeSpace_denseRange
 
 **Lesson:** Isometry surjectivity follows from: complete source → complete range → closed range.
 Dense + closed = whole space. The key insight is that `IsUniformInducing` preserves completeness.
+
+---
+
+## Real vs Complex Hilbert Space Gap (Architectural Issue)
+
+**Discovery:** The GNS construction produces a REAL Hilbert space, but `ConstrainedStarRep`
+expects a COMPLEX Hilbert space.
+
+**Problem:** The chain of types:
+1. `MPositiveState n` has `toLinearMap : FreeStarAlgebra n →ₗ[ℝ] ℝ` (maps to ℝ)
+2. Inner product `⟨[a], [b]⟩ = φ(star b * a)` is ℝ-valued
+3. `InnerProductSpace.Core ℝ gnsQuotient` is over ℝ
+4. Completion gives `InnerProductSpace ℝ gnsHilbertSpaceReal`
+
+But `ConstrainedStarRep.instInnerProductSpace : InnerProductSpace ℂ H` requires complex!
+
+**Resolution Options:**
+1. **Complexify the Hilbert space**: H_ℂ = H_ℝ ⊗ ℂ with standard complexification structure
+2. **Change MPositiveState**: Make φ : A₀ → ℂ with Im = 0 (effectively still ℝ, but compatible)
+3. **Modify ConstrainedStarRep**: Allow real Hilbert spaces (changes the theorem statement)
+
+Mathlib doesn't have direct "complexify real Hilbert space" support. Manual construction:
+- H_ℂ = H_ℝ × H_ℝ as sets
+- (a + bi)·(x, y) = (ax - by, ay + bx)
+- ⟪(x₁, y₁), (x₂, y₂)⟫_ℂ = ⟪x₁, x₂⟫_ℝ + ⟪y₁, y₂⟫_ℝ + i(⟪x₁, y₂⟫_ℝ - ⟪y₁, x₂⟫_ℝ)
+
+**Lesson:** When designing algebraic structures for representation theory, decide early
+whether to work over ℝ or ℂ. The current architecture chose ℝ for MPositiveState
+(to ensure φ(c*c) ≥ 0 for scalars), but this creates friction with complex Hilbert spaces.
