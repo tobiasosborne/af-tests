@@ -241,14 +241,23 @@ theorem embed_add (x y : H) : embed (x + y) = embed x + embed y := by
 ```
 
 **Progress (2026-01-25):**
-- ✅ `Module ℂ (Complexification H)` instance COMPLETE
-- ✅ `Inner ℂ (Complexification H)` instance COMPLETE
+- ✅ `Module ℂ (Complexification H)` instance COMPLETE (Complexify.lean)
+- ✅ `Inner ℂ (Complexification H)` instance COMPLETE (Complexify.lean)
+- ✅ `inner_conj_symm'` - Conjugate symmetry proven (ComplexifyInner.lean)
+- ✅ `inner_add_left'` - Additivity proven (ComplexifyInner.lean)
 
-**Next steps:**
-1. Prove `InnerProductSpace ℂ (Complexification H)` - need conjugate symmetry, linearity, positivity
+**Remaining for PreInnerProductSpace.Core:**
+- `inner_nonneg_re` - Positivity: 0 ≤ Re⟪p, p⟫
+- `inner_smul_left` - Scalar multiplication: ⟪c • p, q⟫ = conj(c) * ⟪p, q⟫
 
-**Key technique discovered:** The `module` tactic solves goals involving module scalar
-multiplication that `ring` cannot handle. Use `module` after simplifying with `simp`.
+**Remaining for InnerProductSpace.Core:**
+- `inner_definite` - Definiteness: ⟪p, p⟫ = 0 → p = 0
+
+**Key techniques:**
+- The `module` tactic solves goals involving module scalar multiplication that `ring` cannot.
+- Use `Complex.ext` for equality of complex numbers (not generic `ext`).
+- `real_inner_comm` is the mathlib lemma for real inner product symmetry.
+- `inner_add_left (𝕜 := ℝ)` explicitly selects the real inner product version.
 
 **Lesson:** When creating type aliases that inherit instances via `inferInstanceAs`,
 use `change` or explicit type annotations to help simp lemmas recognize the structure.
