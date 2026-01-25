@@ -60,6 +60,26 @@ theorem gnsPreRep_mk (a b : FreeStarAlgebra n) :
     Function.comp_apply, gnsQuotientMk_apply]
   rfl
 
+/-- The pre-representation is additive in the algebra element. -/
+theorem gnsPreRep_add (a b : FreeStarAlgebra n) :
+    φ.gnsPreRep (a + b) = φ.gnsPreRep a + φ.gnsPreRep b := by
+  refine LinearMap.ext fun x => ?_
+  obtain ⟨y, rfl⟩ := φ.gnsQuotient_mk_surjective x
+  simp only [gnsPreRep_mk, add_mul, Submodule.Quotient.mk_add, LinearMap.add_apply]
+
+/-- The pre-representation preserves multiplication. -/
+theorem gnsPreRep_mul (a b : FreeStarAlgebra n) :
+    φ.gnsPreRep (a * b) = φ.gnsPreRep a ∘ₗ φ.gnsPreRep b := by
+  refine LinearMap.ext fun x => ?_
+  obtain ⟨y, rfl⟩ := φ.gnsQuotient_mk_surjective x
+  simp only [gnsPreRep_mk, mul_assoc, LinearMap.coe_comp, Function.comp_apply]
+
+/-- The pre-representation sends 1 to id. -/
+theorem gnsPreRep_one : φ.gnsPreRep 1 = LinearMap.id := by
+  refine LinearMap.ext fun x => ?_
+  obtain ⟨y, rfl⟩ := φ.gnsQuotient_mk_surjective x
+  simp only [gnsPreRep_mk, one_mul, LinearMap.id_coe, id_eq]
+
 end MPositiveState
 
 end FreeStarAlgebra

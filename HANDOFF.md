@@ -1,8 +1,22 @@
-# Handoff: 2026-01-25 (Session 18)
+# Handoff: 2026-01-25 (Session 18, Part 2)
 
 ## Completed This Session
 
-### Fixed Extension.lean Typeclass Resolution
+### Added gnsRep Algebraic Properties
+
+Added key theorems to PreRep.lean and Extension.lean:
+
+**PreRep.lean:**
+- `gnsPreRep_add` - Pre-representation is additive in algebra element
+- `gnsPreRep_mul` - Pre-representation preserves multiplication
+- `gnsPreRep_one` - Pre-representation sends 1 to id
+
+**Extension.lean:**
+- `gnsRep_coe` - gnsRep agrees with gnsBoundedPreRep on embedded quotient
+- `gnsRep_add` - Representation is additive (uses completion induction)
+- `gnsRep_one` - Representation sends 1 to identity
+
+### Fixed Extension.lean Typeclass Resolution (earlier)
 
 **Problem:** `gnsBoundedPreRep_uniformContinuous` and `gnsRep` failed to compile with errors:
 - "failed to synthesize UniformSpace φ.gnsQuotient"
@@ -61,10 +75,12 @@ The sorry requires constructing a `ConstrainedStarRep` from an M-positive state.
 - Boundedness: `gnsLeftAction_bounded`
 - **Bounded pre-rep as CLM: `gnsBoundedPreRep`** ✓ Fixed
 - **Extension to completion: `gnsRep`** ✓ Fixed
+- **Additivity: `gnsRep_add`** ✓ NEW
+- **Unit: `gnsRep_one`** ✓ NEW
 
 **What's still needed:**
-1. Extend `gnsRep` (real) to the complexified Hilbert space
-2. Prove star-algebra homomorphism properties (`gnsRep_mul`, `gnsRep_one`, etc.)
+1. Prove `gnsRep_mul` - multiplicativity (needs completion induction pattern)
+2. Extend `gnsRep` (real) to the complexified Hilbert space
 3. Prove generator positivity constraint
 4. Package into `ConstrainedStarRep` structure
 

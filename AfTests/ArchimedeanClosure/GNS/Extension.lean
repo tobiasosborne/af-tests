@@ -106,6 +106,59 @@ noncomputable def gnsRep (a : FreeStarAlgebra n) :
     cont := UniformSpace.Completion.continuous_map
   }
 
+/-! ### Properties of gnsRep -/
+
+/-- gnsRep agrees with gnsBoundedPreRep on quotient elements (embedded in completion). -/
+theorem gnsRep_coe (a : FreeStarAlgebra n) (x : φ.gnsQuotient) :
+    φ.gnsRep a x = φ.gnsBoundedPreRep a x := by
+  letI : SeminormedAddCommGroup φ.gnsQuotient :=
+    φ.gnsQuotientNormedAddCommGroup.toSeminormedAddCommGroup
+  have huc : UniformContinuous (φ.gnsBoundedPreRep a) :=
+    (φ.gnsBoundedPreRep a).uniformContinuous
+  exact UniformSpace.Completion.map_coe huc x
+
+/-- The representation is additive in the algebra element. -/
+theorem gnsRep_add (a b : FreeStarAlgebra n) :
+    φ.gnsRep (a + b) = φ.gnsRep a + φ.gnsRep b := by
+  letI : SeminormedAddCommGroup φ.gnsQuotient :=
+    φ.gnsQuotientNormedAddCommGroup.toSeminormedAddCommGroup
+  ext x
+  induction x using UniformSpace.Completion.induction_on with
+  | hp =>
+    refine isClosed_eq ?_ ?_
+    · exact (φ.gnsRep (a + b)).continuous
+    · exact (φ.gnsRep a + φ.gnsRep b).continuous
+  | ih y =>
+    simp only [gnsRep_coe, ContinuousLinearMap.add_apply]
+    -- Goal: ↑(gnsBoundedPreRep (a+b) y) = ↑(gnsBoundedPreRep a y) + ↑(gnsBoundedPreRep b y)
+    -- The underlying linear maps agree by gnsPreRep_add
+    have heq : φ.gnsBoundedPreRep (a + b) y = φ.gnsBoundedPreRep a y + φ.gnsBoundedPreRep b y := by
+      -- gnsBoundedPreRep is mkContinuous applied to gnsPreRep
+      -- So the function value is just the gnsPreRep value
+      change (φ.gnsPreRep (a + b)) y = (φ.gnsPreRep a) y + (φ.gnsPreRep b) y
+      rw [φ.gnsPreRep_add]
+      rfl
+    simp only [heq, UniformSpace.Completion.coe_add]
+
+/-- The representation sends 1 to the identity. -/
+theorem gnsRep_one : φ.gnsRep 1 = ContinuousLinearMap.id ℝ _ := by
+  letI : SeminormedAddCommGroup φ.gnsQuotient :=
+    φ.gnsQuotientNormedAddCommGroup.toSeminormedAddCommGroup
+  ext x
+  induction x using UniformSpace.Completion.induction_on with
+  | hp =>
+    refine isClosed_eq ?_ ?_
+    · exact (φ.gnsRep 1).continuous
+    · exact continuous_id
+  | ih y =>
+    simp only [gnsRep_coe, ContinuousLinearMap.id_apply]
+    -- Goal: ↑(gnsBoundedPreRep 1 y) = ↑y
+    have heq : φ.gnsBoundedPreRep 1 y = y := by
+      change (φ.gnsPreRep 1) y = y
+      rw [φ.gnsPreRep_one]
+      rfl
+    simp only [heq]
+
 end MPositiveState
 
 end FreeStarAlgebra
