@@ -10,6 +10,22 @@
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage[margin=1in]{geometry}
+\usepackage{listings}
+
+% Lean language definition for listings
+\lstdefinelanguage{lean}{
+  morekeywords={def,theorem,lemma,structure,where,instance,abbrev,noncomputable,fun,by,forall,exists},
+  sensitive=true,
+  morecomment=[l]{--},
+  morecomment=[s]{\{-}{-\}},
+  morestring=[b]",
+}
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  columns=flexible,
+}
 
 %% ============================================================
 %% Mathematics
@@ -35,6 +51,9 @@
 \theoremstyle{remark}
 \newtheorem{remark}[theorem]{Remark}
 \newtheorem{notation}[theorem]{Notation}
+
+% Unnumbered theorem environments
+\newtheorem*{theorem*}{Theorem}
 
 %% ============================================================
 %% Custom Commands - Algebra

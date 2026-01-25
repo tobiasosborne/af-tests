@@ -1,18 +1,265 @@
-% Chapter: Constrained Representations
-% Generated from: Constrained.lean, VectorState.lean, GNSConstrained.lean
-% Status: PLACEHOLDER - to be filled by LaTeX-P3.1
+% Auto-generated from Lean 4 source
+% Source files: Constrained.lean, VectorState.lean, GNSConstrained.lean
+% Do not edit manually
 
 \chapter{Constrained Representations}
 \label{ch:representations}
 
-% TODO: Fill in from LaTeX-P3.1 task
-\textbf{[PLACEHOLDER: To be generated from Lean source]}
+This chapter develops the theory of constrained $*$-representations, which are
+the representation-theoretic counterpart to $M$-positive states. The generators
+$g_j$ of the free $*$-algebra represent physical observables (such as position),
+which should be positive operators. A constrained representation respects this
+requirement: each $\pi(g_j)$ is a positive operator on the Hilbert space.
 
-\section{Definition of Constrained Representations}
+The main results establish the fundamental equivalence between states and
+representations:
+\begin{itemize}
+  \item \texttt{ConstrainedStarRep} (Definition~\ref{def:constrained-rep}): constrained $*$-representations
+  \item \texttt{vectorState} (Theorem~\ref{thm:vector-state-mpositive}): vector states from constrained reps are $M$-positive
+  \item \texttt{state\_nonneg\_implies\_rep\_positive} (Theorem~\ref{thm:states-to-reps}): forward direction
+  \item \texttt{gns\_constrained\_implies\_state\_nonneg} (Theorem~\ref{thm:reps-to-states}): backward direction
+\end{itemize}
+
+%% ============================================================
+\section{Constrained $*$-Representations}
 \label{sec:constrained-rep}
 
-\section{Vector States}
-\label{sec:vector-state}
+A constrained $*$-representation is a $*$-algebra homomorphism to bounded
+operators on a Hilbert space, where the generators map to positive operators.
 
+\begin{definition}[Constrained $*$-Representation]\label{def:constrained-rep}
+A \textbf{constrained $*$-representation} of the free $*$-algebra $\mathcal{A}_0$
+with $n$ generators consists of:
+\begin{enumerate}
+  \item A complex Hilbert space $H$;
+  \item A $*$-algebra homomorphism $\pi : \mathcal{A}_0 \to \mathcal{B}(H)$ to bounded operators on $H$;
+  \item The \emph{constraint}: for each generator $g_j$ ($j = 1, \ldots, n$), the operator $\pi(g_j)$ is positive, i.e., $\pi(g_j) \ge 0$.
+\end{enumerate}
+\end{definition}
+
+\begin{remark}
+The constraint $\pi(g_j) \ge 0$ means that $\langle \xi, \pi(g_j)\xi \rangle \ge 0$
+for all $\xi \in H$. This reflects the physical interpretation of generators as
+positive observables.
+\end{remark}
+
+\begin{lemma}[Representation Properties]\label{lem:rep-properties}
+Let $\pi : \mathcal{A}_0 \to \mathcal{B}(H)$ be a constrained $*$-representation.
+Then for all $a, b \in \mathcal{A}_0$:
+\begin{enumerate}
+  \item $\pi(1) = \mathrm{id}_H$ (preserves identity);
+  \item $\pi(ab) = \pi(a)\pi(b)$ (preserves multiplication);
+  \item $\pi(a^*) = \pi(a)^*$ (preserves adjoint).
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+These follow directly from the definition of a $*$-algebra homomorphism.
+\end{proof}
+
+%% ============================================================
+\section{Vector States}
+\label{sec:vector-states}
+
+Given a constrained representation $\pi$ and a unit vector $\xi \in H$, we
+construct the associated vector state and prove it is $M$-positive.
+
+\begin{definition}[Vector State Functional]\label{def:vector-state-fun}
+Let $\pi : \mathcal{A}_0 \to \mathcal{B}(H)$ be a constrained $*$-representation
+and $\xi \in H$ a unit vector ($\|\xi\| = 1$). The \textbf{vector state functional}
+is
+\[
+  \varphi_\xi : \mathcal{A}_0 \to \mathbb{R}, \quad \varphi_\xi(a) = \mathrm{Re}\langle \xi, \pi(a)\xi \rangle.
+\]
+\end{definition}
+
+\begin{lemma}[Linearity]\label{lem:vector-state-linear}
+The vector state functional $\varphi_\xi$ is $\mathbb{R}$-linear:
+\begin{enumerate}
+  \item $\varphi_\xi(a + b) = \varphi_\xi(a) + \varphi_\xi(b)$;
+  \item $\varphi_\xi(c \cdot a) = c \cdot \varphi_\xi(a)$ for $c \in \mathbb{R}$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Both properties follow from the linearity of the inner product in the second
+argument and the linearity of taking the real part.
+\end{proof}
+
+\begin{lemma}[Symmetry]\label{lem:vector-state-star}
+For any $a \in \mathcal{A}_0$,
+\[
+  \varphi_\xi(a^*) = \varphi_\xi(a).
+\]
+\end{lemma}
+
+\begin{proof}
+Using $\pi(a^*) = \pi(a)^*$:
+\begin{align*}
+  \varphi_\xi(a^*) &= \mathrm{Re}\langle \xi, \pi(a^*)\xi \rangle \\
+  &= \mathrm{Re}\langle \xi, \pi(a)^*\xi \rangle \\
+  &= \mathrm{Re}\langle \pi(a)\xi, \xi \rangle \\
+  &= \mathrm{Re}\overline{\langle \xi, \pi(a)\xi \rangle} \\
+  &= \mathrm{Re}\langle \xi, \pi(a)\xi \rangle = \varphi_\xi(a).
+\end{align*}
+\end{proof}
+
+\begin{lemma}[Normalization]\label{lem:vector-state-one}
+If $\|\xi\| = 1$, then $\varphi_\xi(1) = 1$.
+\end{lemma}
+
+\begin{proof}
+$\varphi_\xi(1) = \mathrm{Re}\langle \xi, \pi(1)\xi \rangle = \mathrm{Re}\langle \xi, \xi \rangle = \|\xi\|^2 = 1$.
+\end{proof}
+
+\begin{lemma}[Positivity on Sums of Squares]\label{lem:vector-state-sos}
+For any $a \in \mathcal{A}_0$,
+\[
+  \varphi_\xi(a^* a) \ge 0.
+\]
+\end{lemma}
+
+\begin{proof}
+Using $\pi(a^*) = \pi(a)^*$:
+\begin{align*}
+  \varphi_\xi(a^* a) &= \mathrm{Re}\langle \xi, \pi(a^* a)\xi \rangle \\
+  &= \mathrm{Re}\langle \xi, \pi(a)^*\pi(a)\xi \rangle \\
+  &= \mathrm{Re}\langle \pi(a)\xi, \pi(a)\xi \rangle \\
+  &= \|\pi(a)\xi\|^2 \ge 0.
+\end{align*}
+\end{proof}
+
+\begin{lemma}[Positivity on Generator Terms]\label{lem:vector-state-gen}
+For any generator $g_j$ and $b \in \mathcal{A}_0$,
+\[
+  \varphi_\xi(b^* g_j b) \ge 0.
+\]
+\end{lemma}
+
+\begin{proof}
+Let $v = \pi(b)\xi$. Since $\pi(g_j) \ge 0$ is a positive operator:
+\begin{align*}
+  \varphi_\xi(b^* g_j b) &= \mathrm{Re}\langle \xi, \pi(b^* g_j b)\xi \rangle \\
+  &= \mathrm{Re}\langle \xi, \pi(b)^*\pi(g_j)\pi(b)\xi \rangle \\
+  &= \mathrm{Re}\langle v, \pi(g_j)v \rangle \ge 0.
+\end{align*}
+The last inequality uses the positivity of $\pi(g_j)$.
+\end{proof}
+
+\begin{theorem}[Vector States are $M$-Positive]\label{thm:vector-state-mpositive}
+Let $\pi$ be a constrained $*$-representation and $\xi \in H$ a unit vector.
+Then the vector state $\varphi_\xi$ is an $M$-positive state, i.e., $\varphi_\xi \in S_M$.
+\end{theorem}
+
+\begin{proof}
+We verify the defining properties of an $M$-positive state:
+\begin{enumerate}
+  \item \emph{Linearity}: Lemma~\ref{lem:vector-state-linear}.
+  \item \emph{Symmetry}: Lemma~\ref{lem:vector-state-star}.
+  \item \emph{Normalization}: Lemma~\ref{lem:vector-state-one}.
+  \item \emph{$M$-positivity}: For $m \in M$, we need $\varphi_\xi(m) \ge 0$.
+    The quadratic module $M$ is generated by elements of the form $a^* a$ and
+    $b^* g_j b$, and is closed under sums and positive scalar multiplication.
+    By Lemmas~\ref{lem:vector-state-sos} and~\ref{lem:vector-state-gen},
+    $\varphi_\xi$ is nonnegative on generators. By linearity, $\varphi_\xi(m) \ge 0$
+    for all $m \in M$.
+\end{enumerate}
+\end{proof}
+
+%% ============================================================
 \section{GNS Representations are Constrained}
 \label{sec:gns-constrained}
+
+We now establish the key equivalence between positivity in states and positivity
+in constrained representations. This requires the GNS construction developed
+in Chapter~\ref{ch:gns}.
+
+\begin{theorem}[GNS Representation Exists]\label{thm:gns-exists}
+Let $\varphi$ be an $M$-positive state. Under the Archimedean assumption, there
+exists a constrained $*$-representation $\pi_\varphi$ and a cyclic unit vector
+$\Omega \in H_\varphi$ such that for all $a \in \mathcal{A}_0$:
+\[
+  \varphi(a) = \mathrm{Re}\langle \Omega, \pi_\varphi(a)\Omega \rangle.
+\]
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+The construction follows the standard GNS procedure:
+\begin{enumerate}
+  \item Form the null space $\mathcal{N}_\varphi = \{a : \varphi(a^* a) = 0\}$.
+  \item Quotient by $\mathcal{N}_\varphi$ and complete to obtain the Hilbert space $H_\varphi$.
+  \item The left multiplication action extends to a $*$-representation $\pi_\varphi$.
+  \item The image of $1 \in \mathcal{A}_0$ gives the cyclic vector $\Omega$.
+\end{enumerate}
+The representation is constrained because $\varphi(g_j) \ge 0$ (taking $b = 1$ in
+$b^* g_j b \in M$) implies $\pi_\varphi(g_j)$ is a positive operator. The inner
+product reconstruction follows from the cyclic vector identity.
+\end{proof}
+
+\begin{theorem}[Forward Direction: States to Representations]\label{thm:states-to-reps}
+Let $A \in \mathcal{A}_0$ be self-adjoint. If $\varphi(A) \ge 0$ for all $M$-positive
+states $\varphi \in S_M$, then $\pi(A) \ge 0$ for all constrained $*$-representations $\pi$.
+\end{theorem}
+
+\begin{proof}
+Let $\pi : \mathcal{A}_0 \to \mathcal{B}(H)$ be a constrained representation.
+To show $\pi(A) \ge 0$, we verify $\langle v, \pi(A)v \rangle \ge 0$ for all $v \in H$.
+
+For $v = 0$, this is trivial. For $v \ne 0$, let $u = \|v\|^{-1} v$ be the
+normalization. By Theorem~\ref{thm:vector-state-mpositive}, the vector state
+$\varphi_u$ is $M$-positive. By hypothesis:
+\[
+  \varphi_u(A) = \mathrm{Re}\langle u, \pi(A)u \rangle \ge 0.
+\]
+Since $A$ is self-adjoint, $\pi(A)$ is self-adjoint, so $\langle u, \pi(A)u \rangle$
+is real. Thus $\langle u, \pi(A)u \rangle \ge 0$.
+
+Finally, $v = \|v\| \cdot u$, so:
+\[
+  \langle v, \pi(A)v \rangle = \|v\|^2 \langle u, \pi(A)u \rangle \ge 0.
+\]
+\end{proof}
+
+\begin{theorem}[Backward Direction: Representations to States]\label{thm:reps-to-states}
+Under the Archimedean assumption, let $A \in \mathcal{A}_0$ be self-adjoint.
+If $\pi(A) \ge 0$ for all constrained $*$-representations $\pi$, then $\varphi(A) \ge 0$
+for all $M$-positive states $\varphi \in S_M$.
+\end{theorem}
+
+\begin{proof}
+Let $\varphi$ be an $M$-positive state. By Theorem~\ref{thm:gns-exists}, there
+exists a constrained representation $\pi_\varphi$ and cyclic vector $\Omega$ with
+$\|\Omega\| = 1$ such that:
+\[
+  \varphi(A) = \mathrm{Re}\langle \Omega, \pi_\varphi(A)\Omega \rangle.
+\]
+By hypothesis, $\pi_\varphi(A) \ge 0$. For a positive operator $T$ and any vector $\xi$:
+\[
+  \langle \xi, T\xi \rangle \ge 0.
+\]
+Therefore:
+\[
+  \varphi(A) = \mathrm{Re}\langle \Omega, \pi_\varphi(A)\Omega \rangle = \langle \Omega, \pi_\varphi(A)\Omega \rangle \ge 0.
+\]
+(The real part equals the full inner product since $\pi_\varphi(A)$ is self-adjoint.)
+\end{proof}
+
+\begin{corollary}[State-Representation Equivalence]\label{cor:state-rep-equiv}
+Under the Archimedean assumption, for self-adjoint $A \in (\mathcal{A}_0)_{\mathrm{sa}}$:
+\[
+  \bigl(\forall \varphi \in S_M,\, \varphi(A) \ge 0\bigr)
+  \iff
+  \bigl(\forall \pi \text{ constrained},\, \pi(A) \ge 0\bigr).
+\]
+\end{corollary}
+
+\begin{proof}
+Combine Theorems~\ref{thm:states-to-reps} and~\ref{thm:reps-to-states}.
+\end{proof}
+
+\begin{remark}
+Corollary~\ref{cor:state-rep-equiv} is the key bridge between the algebraic
+characterization of positivity (via states) and the representation-theoretic
+characterization (via constrained representations). This equivalence is
+essential for the main theorem in Chapter~\ref{ch:main-theorem}.
+\end{remark}

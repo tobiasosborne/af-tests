@@ -1,47 +1,583 @@
-% Chapter: The GNS Construction
-% Generated from: NullSpace.lean, Quotient.lean, PreRep.lean, Bounded.lean,
-%                  Completion.lean, Extension.lean, Star.lean, Complexify*.lean,
-%                  StarComplex.lean, CompleteSpace.lean, CyclicIdentity.lean, Constrained.lean
-% Status: PLACEHOLDER - to be filled by LaTeX-P2.1, P2.2, P2.3
+% Auto-generated from Lean 4 source
+% Source files: AfTests/GNS/NullSpace/*.lean, AfTests/GNS/Representation/*.lean,
+%               AfTests/GNS/PreHilbert/*.lean, AfTests/GNS/HilbertSpace/*.lean,
+%               AfTests/GNS/State/*.lean, AfTests/GNS/Main/*.lean
+% Do not edit manually
 
 \chapter{The GNS Construction}
 \label{ch:gns}
 
-% TODO: Fill in from LaTeX-P2.1, P2.2, P2.3 tasks
-\textbf{[PLACEHOLDER: To be generated from Lean source]}
+The Gelfand-Naimark-Segal (GNS) construction is one of the fundamental theorems in the theory of $C^*$-algebras. It shows that every state on a $C^*$-algebra can be realized as a vector state in some Hilbert space representation. This chapter presents the complete formalization of the GNS construction, including both the existence theorem and the uniqueness theorem up to unitary equivalence.
 
-%% Part 1: Core (P2.1)
+Given a state $\varphi$ on a $C^*$-algebra $A$, we construct:
+\begin{enumerate}
+    \item A Hilbert space $H_\varphi$ (the GNS Hilbert space)
+    \item A $*$-representation $\pi_\varphi : A \to B(H_\varphi)$
+    \item A cyclic unit vector $\Omega_\varphi \in H_\varphi$
+\end{enumerate}
+such that $\varphi(a) = \langle \Omega_\varphi, \pi_\varphi(a) \Omega_\varphi \rangle$ for all $a \in A$.
+
+%----------------------------------------------------------------------
+\section{States on $C^*$-Algebras}
+\label{sec:states}
+
+\begin{definition}[State]
+\label{def:state}
+A \emph{state} on a $C^*$-algebra $A$ is a continuous linear functional $\varphi : A \to \mathbb{C}$ satisfying:
+\begin{enumerate}
+    \item \emph{Positivity}: $\varphi(a^* a) \geq 0$ for all $a \in A$ (with $\varphi(a^* a) \in \mathbb{R}$)
+    \item \emph{Normalization}: $\varphi(1) = 1$
+\end{enumerate}
+\end{definition}
+
+The Lean formalization captures both components of positivity explicitly.
+
+\begin{lstlisting}[language=lean]
+structure State (A : Type*) [CStarAlgebra A] where
+  toContinuousLinearMap : A ->L[C] C
+  map_star_mul_self_nonneg : forall a : A, 0 <= (toContinuousLinearMap (star a * a)).re
+  map_star_mul_self_real : forall a : A, (toContinuousLinearMap (star a * a)).im = 0
+  map_one : toContinuousLinearMap 1 = 1
+\end{lstlisting}
+
+\begin{theorem}[Star Preservation]
+\label{thm:state-map-star}
+States preserve the star operation: $\varphi(a^*) = \overline{\varphi(a)}$ for all $a \in A$.
+\end{theorem}
+
+\begin{proof}
+The proof uses a polarization identity. Define the sesquilinear form $\langle a, b \rangle_\varphi = \varphi(b^* a)$. Since $\varphi(z^* z) \in \mathbb{R}$ for all $z$ (part of the state axioms), the polarization identity shows that this form satisfies conjugate symmetry: $\langle a, b \rangle_\varphi = \overline{\langle b, a \rangle_\varphi}$. Setting $b = 1$ gives $\varphi(a) = \overline{\varphi(a^*)}$, hence $\varphi(a^*) = \overline{\varphi(a)}$.
+
+The Lean proof uses \texttt{sesqForm\_conj\_symm} and analyzes real and imaginary parts separately.
+\end{proof}
+
+%----------------------------------------------------------------------
+\section{The Cauchy-Schwarz Inequality}
+\label{sec:cauchy-schwarz}
+
+The Cauchy-Schwarz inequality for states is crucial for proving that the null space is closed under addition.
+
+\begin{theorem}[Cauchy-Schwarz for States]
+\label{thm:cauchy-schwarz}
+For any state $\varphi$ on a $C^*$-algebra $A$ and any $a, b \in A$:
+\[
+|\varphi(b^* a)|^2 \leq \varphi(a^* a) \cdot \varphi(b^* b)
+\]
+\end{theorem}
+
+\begin{proof}
+The proof proceeds in two stages.
+
+\emph{Weak form}: First, we establish a version with an extra factor of 2. For $t \in \mathbb{R}$, the positivity of $\varphi((a + t \cdot b)^*(a + t \cdot b)) \geq 0$ gives a quadratic in $t$:
+\[
+\varphi(b^* b) \cdot t^2 + 2 \operatorname{Re}(\varphi(b^* a)) \cdot t + \varphi(a^* a) \geq 0
+\]
+By the discriminant lemma (\texttt{discrim\_le\_zero}), we get $\operatorname{Re}(\varphi(b^* a))^2 \leq \varphi(a^* a) \cdot \varphi(b^* b)$. Applying the same argument to $(a + it \cdot b)$ yields the same bound for the imaginary part, giving $|\varphi(b^* a)|^2 \leq 2 \cdot \varphi(a^* a) \cdot \varphi(b^* b)$.
+
+\emph{Tight form}: For the sharp bound, we optimize over complex $\mu$. If $\varphi(b^* b) = 0$, the weak form immediately gives $|\varphi(b^* a)|^2 = 0$. Otherwise, set $\mu = -\varphi(b^* a) / \varphi(b^* b)$. The positivity of $\varphi((a + \mu b)^*(a + \mu b)) \geq 0$ expands to:
+\[
+\varphi(a^* a) - \frac{|\varphi(b^* a)|^2}{\varphi(b^* b)} \geq 0
+\]
+which gives the tight bound. The algebraic manipulation uses \texttt{cross\_term\_opt\_identity}.
+\end{proof}
+
+\begin{corollary}
+\label{cor:null-consequence}
+If $\varphi(a^* a) = 0$, then $\varphi(b^* a) = 0$ for all $b \in A$.
+\end{corollary}
+
+%----------------------------------------------------------------------
 \section{The Null Space}
 \label{sec:null-space}
 
+\begin{definition}[GNS Null Space]
+\label{def:null-space}
+The \emph{GNS null space} $N_\varphi$ is defined as:
+\[
+N_\varphi = \{a \in A : \varphi(a^* a) = 0\}
+\]
+\end{definition}
+
+The Lean formalization defines this as an \texttt{AddSubgroup}:
+\begin{lstlisting}[language=lean]
+def gnsNullSpace : AddSubgroup A where
+  carrier := {a : A | phi (star a * a) = 0}
+  zero_mem' := by simp [star_zero, map_zero]
+  add_mem' := ...  -- uses Cauchy-Schwarz
+  neg_mem' := ...
+\end{lstlisting}
+
+\begin{theorem}[Null Space is an Additive Subgroup]
+\label{thm:null-subgroup}
+$N_\varphi$ is closed under $0$, addition, negation, and scalar multiplication.
+\end{theorem}
+
+\begin{proof}
+Closure under $0$ and negation is straightforward. For addition: if $a, b \in N_\varphi$, we expand
+\[
+\varphi((a+b)^*(a+b)) = \varphi(a^* a) + \varphi(a^* b) + \varphi(b^* a) + \varphi(b^* b)
+\]
+By Corollary~\ref{cor:null-consequence}, $\varphi(a^* a) = 0$ implies $\varphi(x^* a) = 0$ for all $x$, and similarly for $b$. Thus all four terms vanish.
+\end{proof}
+
+\begin{theorem}[Null Space is a Left Ideal]
+\label{thm:null-left-ideal}
+If $a \in N_\varphi$, then $ba \in N_\varphi$ for all $b \in A$.
+\end{theorem}
+
+\begin{proof}
+We need $\varphi((ba)^*(ba)) = 0$. Computing $(ba)^*(ba) = a^* b^* b a$, we have
+\[
+\varphi(a^* \cdot (b^* b a)) = 0
+\]
+by the ``swapped'' Cauchy-Schwarz: if $\varphi(a^* a) = 0$, then $\varphi(a^* \cdot x) = 0$ for all $x$. This is \texttt{apply\_mul\_star\_eq\_zero\_of\_apply\_star\_self\_eq\_zero}.
+\end{proof}
+
+%----------------------------------------------------------------------
 \section{Quotient Construction}
 \label{sec:quotient}
 
+The quotient $A / N_\varphi$ is the pre-Hilbert space on which we will define the inner product.
+
+\begin{definition}[GNS Quotient]
+\label{def:quotient}
+The \emph{GNS quotient space} is $A / N_\varphi$, where $N_\varphi$ is viewed as a $\mathbb{C}$-submodule of $A$.
+\end{definition}
+
+\begin{lstlisting}[language=lean]
+def gnsNullIdeal : Submodule C A where
+  carrier := {a : A | phi (star a * a) = 0}
+  add_mem' := fun {_ _} ha hb => phi.gnsNullSpace.add_mem ha hb
+  zero_mem' := phi.gnsNullSpace.zero_mem
+  smul_mem' := fun c {_} ha => gnsNullSpace_smul_mem phi ha c
+
+abbrev gnsQuotient := A / phi.gnsNullIdeal
+\end{lstlisting}
+
+%----------------------------------------------------------------------
 \section{Pre-Representation}
 \label{sec:pre-rep}
 
-%% Part 2: Completion (P2.2)
-\section{Boundedness}
-\label{sec:bounded}
+\begin{definition}[Pre-Representation]
+\label{def:pre-rep}
+The \emph{GNS pre-representation} $\pi_\varphi(a) : A/N_\varphi \to A/N_\varphi$ is defined by left multiplication:
+\[
+\pi_\varphi(a)[b] = [ab]
+\]
+\end{definition}
 
+\begin{theorem}
+\label{thm:pre-rep-well-defined}
+The pre-representation is well-defined (since $N_\varphi$ is a left ideal) and satisfies:
+\begin{enumerate}
+    \item $\pi_\varphi(ab) = \pi_\varphi(a) \circ \pi_\varphi(b)$ (multiplicative)
+    \item $\pi_\varphi(1) = \mathrm{id}$
+    \item $\pi_\varphi(a+b) = \pi_\varphi(a) + \pi_\varphi(b)$ (additive)
+    \item $\pi_\varphi(c \cdot a) = c \cdot \pi_\varphi(a)$ (respects scalars)
+\end{enumerate}
+\end{theorem}
+
+The Lean proofs use \texttt{Submodule.liftQ} for the well-definedness lift.
+
+%----------------------------------------------------------------------
+\section{Inner Product Structure}
+\label{sec:inner-product}
+
+\begin{definition}[GNS Inner Product]
+\label{def:gns-inner}
+The inner product on $A/N_\varphi$ is defined by:
+\[
+\langle [a], [b] \rangle = \varphi(b^* a)
+\]
+\end{definition}
+
+\begin{theorem}[Well-Definedness]
+\label{thm:inner-well-defined}
+The inner product is well-defined on the quotient.
+\end{theorem}
+
+\begin{proof}
+If $a_1 - a_2 \in N_\varphi$, then by Corollary~\ref{cor:null-consequence},
+\[
+\varphi(b^* a_1) - \varphi(b^* a_2) = \varphi(b^* (a_1 - a_2)) = 0
+\]
+Similarly for the second argument using conjugate symmetry.
+\end{proof}
+
+\begin{theorem}[Inner Product Properties]
+\label{thm:inner-properties}
+The inner product satisfies:
+\begin{enumerate}
+    \item Conjugate symmetry: $\langle x, y \rangle = \overline{\langle y, x \rangle}$
+    \item Linearity in first argument
+    \item Non-negativity: $\langle x, x \rangle \geq 0$ and $\langle x, x \rangle \in \mathbb{R}$
+    \item Positive definiteness: $\langle x, x \rangle = 0 \Leftrightarrow x = 0$
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Conjugate symmetry follows from \texttt{sesqForm\_conj\_symm}. Non-negativity is inherited from positivity of states. Positive definiteness: $\langle [a], [a] \rangle = \varphi(a^* a) = 0$ iff $a \in N_\varphi$ iff $[a] = 0$.
+\end{proof}
+
+The norm on the quotient is $\|[a]\| = \sqrt{\operatorname{Re}(\varphi(a^* a))}$.
+
+%----------------------------------------------------------------------
+\section{Boundedness}
+\label{sec:boundedness}
+
+\begin{theorem}[Boundedness of Pre-Representation]
+\label{thm:pre-rep-bounded}
+For any $a \in A$ and $x \in A/N_\varphi$:
+\[
+\|\pi_\varphi(a) x\| \leq \|a\| \cdot \|x\|
+\]
+\end{theorem}
+
+\begin{proof}
+The key inequality from $C^*$-algebra theory is $a^* a \leq \|a\|^2 \cdot 1$ (spectral ordering). Since states are monotone on positive elements, we get
+\[
+\varphi(b^* (a^* a) b) \leq \|a\|^2 \cdot \varphi(b^* b)
+\]
+for any $b \in A$. This is the inequality \texttt{key\_inequality}. For $x = [b]$:
+\[
+\|\pi_\varphi(a)[b]\|^2 = \varphi((ab)^*(ab)) = \varphi(b^* a^* a b) \leq \|a\|^2 \cdot \varphi(b^* b) = \|a\|^2 \|[b]\|^2
+\]
+Taking square roots gives the result. The Lean proof uses \texttt{sq\_le\_sq\ensuremath{_0}} to convert from squared to non-squared norms.
+\end{proof}
+
+%----------------------------------------------------------------------
 \section{Completion to Hilbert Space}
 \label{sec:completion}
 
+\begin{definition}[GNS Hilbert Space]
+\label{def:gns-hilbert}
+The \emph{GNS Hilbert space} $H_\varphi$ is the completion of $A/N_\varphi$ with respect to the norm induced by the inner product.
+\end{definition}
+
+\begin{lstlisting}[language=lean]
+abbrev gnsHilbertSpace := UniformSpace.Completion phi.gnsQuotient
+
+instance gnsHilbertSpaceCompleteSpace : CompleteSpace phi.gnsHilbertSpace :=
+  UniformSpace.Completion.completeSpace phi.gnsQuotient
+\end{lstlisting}
+
+The inner product space structure on the quotient induces an inner product space structure on the completion via mathlib's \texttt{InnerProductSpace.Completion}.
+
+%----------------------------------------------------------------------
 \section{Extension of Operators}
 \label{sec:extension}
 
+\begin{theorem}[Extension to Hilbert Space]
+\label{thm:extension}
+The pre-representation $\pi_\varphi(a)$ extends uniquely to a bounded linear operator on $H_\varphi$.
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:pre-rep-bounded}, $\pi_\varphi(a)$ is bounded on $A/N_\varphi$. Bounded linear maps on a dense subspace of a complete space extend uniquely by uniform continuity. The extension uses \texttt{UniformSpace.Completion.map}.
+\end{proof}
+
+\begin{definition}[GNS Representation]
+\label{def:gns-rep}
+The \emph{GNS representation} $\pi_\varphi : A \to B(H_\varphi)$ is defined by extending each $\pi_\varphi(a)$ to the completion.
+\end{definition}
+
+\begin{lstlisting}[language=lean]
+noncomputable def gnsRep (a : A) : phi.gnsHilbertSpace ->L[C] phi.gnsHilbertSpace where
+  toLinearMap := {
+    toFun := UniformSpace.Completion.map (phi.gnsPreRepContinuous a)
+    map_add' := ...
+    map_smul' := ...
+  }
+  cont := UniformSpace.Completion.continuous_map
+\end{lstlisting}
+
+\begin{theorem}[Algebraic Properties]
+\label{thm:gns-rep-algebra}
+The GNS representation satisfies:
+\begin{enumerate}
+    \item $\pi_\varphi(ab) = \pi_\varphi(a) \circ \pi_\varphi(b)$
+    \item $\pi_\varphi(1) = \mathrm{id}$
+    \item $\pi_\varphi(a+b) = \pi_\varphi(a) + \pi_\varphi(b)$
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Each property is proven by density: both sides are continuous and agree on the dense quotient.
+\end{proof}
+
+%----------------------------------------------------------------------
 \section{Star Structure}
-\label{sec:star}
+\label{sec:star-structure}
 
-%% Part 3: Complexification (P2.3)
-\section{Complexification}
-\label{sec:complexify}
+\begin{theorem}[Star Preservation]
+\label{thm:gns-rep-star}
+The GNS representation preserves the star: $\pi_\varphi(a^*) = \pi_\varphi(a)^\dagger$.
+\end{theorem}
 
-\section{Complete Space}
-\label{sec:complete-space}
+\begin{proof}
+We show $\langle \pi_\varphi(a^*) x, y \rangle = \langle x, \pi_\varphi(a) y \rangle$ for all $x, y$. By density, it suffices to check on quotient elements $x = [b]$, $y = [c]$:
+\begin{align*}
+\langle \pi_\varphi(a^*)[b], [c] \rangle &= \langle [a^* b], [c] \rangle = \varphi(c^* a^* b) \\
+\langle [b], \pi_\varphi(a)[c] \rangle &= \langle [b], [ac] \rangle = \varphi((ac)^* b) = \varphi(c^* a^* b)
+\end{align*}
+The key calculation is \texttt{gnsPreRep\_inner\_star}.
+\end{proof}
 
-\section{Cyclic Vector Identity}
-\label{sec:cyclic-identity}
+\begin{definition}[Star Algebra Homomorphism]
+\label{def:star-alg-hom}
+The GNS representation is a $*$-algebra homomorphism $A \to_{\ast\mathrm{alg}} B(H_\varphi)$.
+\end{definition}
 
-\section{Generator Positivity}
-\label{sec:constrained}
+\begin{lstlisting}[language=lean]
+noncomputable def gnsStarAlgHom : A ->*a[C] (phi.gnsHilbertSpace ->L[C] phi.gnsHilbertSpace) where
+  toFun := phi.gnsRep
+  map_one' := gnsRep_one phi
+  map_mul' := fun a b => by rw [gnsRep_mul, ContinuousLinearMap.mul_def]
+  map_star' := fun a => (gnsRep_star' phi a).symm
+  ...
+\end{lstlisting}
+
+%----------------------------------------------------------------------
+\section{The Cyclic Vector}
+\label{sec:cyclic-vector}
+
+\begin{definition}[Cyclic Vector]
+\label{def:cyclic-vector}
+The \emph{GNS cyclic vector} $\Omega_\varphi \in H_\varphi$ is the image of $[1]$ under the embedding of the quotient into the completion.
+\end{definition}
+
+\begin{lstlisting}[language=lean]
+noncomputable def gnsCyclicVector : phi.gnsHilbertSpace :=
+  (Submodule.Quotient.mk (p := phi.gnsNullIdeal) 1 : phi.gnsQuotient)
+\end{lstlisting}
+
+\begin{theorem}[Unit Norm]
+\label{thm:cyclic-norm}
+$\|\Omega_\varphi\| = 1$.
+\end{theorem}
+
+\begin{proof}
+$\|\Omega_\varphi\|^2 = \langle [1], [1] \rangle = \varphi(1^* \cdot 1) = \varphi(1) = 1$.
+\end{proof}
+
+\begin{theorem}[Vector State Property]
+\label{thm:vector-state}
+For all $a \in A$:
+\[
+\varphi(a) = \langle \Omega_\varphi, \pi_\varphi(a) \Omega_\varphi \rangle
+\]
+\end{theorem}
+
+\begin{proof}
+We compute:
+\begin{align*}
+\langle \Omega_\varphi, \pi_\varphi(a) \Omega_\varphi \rangle &= \langle [1], \pi_\varphi(a)[1] \rangle \\
+&= \langle [1], [a] \rangle \\
+&= \varphi(1^* \cdot a) = \varphi(a)
+\end{align*}
+The proof uses \texttt{gnsRep\_cyclicVector} to show $\pi_\varphi(a)\Omega_\varphi = [a]$.
+\end{proof}
+
+\begin{theorem}[Cyclicity]
+\label{thm:cyclicity}
+The orbit $\{\pi_\varphi(a)\Omega_\varphi : a \in A\}$ is dense in $H_\varphi$.
+\end{theorem}
+
+\begin{proof}
+Since $\pi_\varphi(a)\Omega_\varphi = [a]$ and the quotient map $A \to A/N_\varphi$ is surjective, the orbit equals the embedded image of $A/N_\varphi$, which is dense in the completion by construction.
+\end{proof}
+
+%----------------------------------------------------------------------
+\section{The GNS Theorem}
+\label{sec:gns-theorem}
+
+\begin{theorem}[GNS Construction]
+\label{thm:gns}
+Let $\varphi$ be a state on a $C^*$-algebra $A$. There exists:
+\begin{enumerate}
+    \item A Hilbert space $H_\varphi$
+    \item A $*$-representation $\pi_\varphi : A \to B(H_\varphi)$
+    \item A unit vector $\Omega_\varphi \in H_\varphi$ with $\|\Omega_\varphi\| = 1$
+\end{enumerate}
+such that:
+\begin{enumerate}
+    \item[(a)] $\varphi(a) = \langle \Omega_\varphi, \pi_\varphi(a) \Omega_\varphi \rangle$ for all $a \in A$
+    \item[(b)] $\{\pi_\varphi(a)\Omega_\varphi : a \in A\}$ is dense in $H_\varphi$
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+The construction has been carried out in the preceding sections. The Lean statement is:
+\begin{lstlisting}[language=lean]
+theorem gns_theorem :
+    ||phi.gnsCyclicVector|| = 1 /\
+    (forall a : A, phi a = @inner C phi.gnsHilbertSpace _ phi.gnsCyclicVector
+                      (phi.gnsRep a phi.gnsCyclicVector)) /\
+    DenseRange (fun a : A => phi.gnsRep a phi.gnsCyclicVector) :=
+  <gnsCyclicVector_norm phi, gns_vector_state phi, gnsCyclicVector_denseRange phi>
+\end{lstlisting}
+\end{proof}
+
+%----------------------------------------------------------------------
+\section{Uniqueness}
+\label{sec:uniqueness}
+
+The GNS representation is unique up to unitary equivalence.
+
+\begin{theorem}[GNS Uniqueness]
+\label{thm:gns-uniqueness}
+Let $(H, \pi, \xi)$ be a cyclic $*$-representation with:
+\begin{itemize}
+    \item $\pi : A \to B(H)$ is a $*$-representation
+    \item $\|\xi\| = 1$
+    \item $\varphi(a) = \langle \xi, \pi(a)\xi \rangle$ for all $a \in A$
+    \item $\{\pi(a)\xi : a \in A\}$ is dense in $H$
+\end{itemize}
+Then there exists a unitary $U : H_\varphi \to H$ such that:
+\begin{enumerate}
+    \item $U(\Omega_\varphi) = \xi$
+    \item $U \circ \pi_\varphi(a) = \pi(a) \circ U$ for all $a \in A$
+\end{enumerate}
+\end{theorem}
+
+The proof constructs the intertwiner $U$ in several stages.
+
+\subsection{Construction of the Intertwiner}
+
+\begin{definition}[Intertwiner on Quotient]
+\label{def:intertwiner-quotient}
+Define $U_0 : A/N_\varphi \to H$ by $U_0([a]) = \pi(a)\xi$.
+\end{definition}
+
+\begin{lemma}[Well-Definedness]
+\label{lem:intertwiner-well-defined}
+$U_0$ is well-defined: if $a - b \in N_\varphi$, then $\pi(a)\xi = \pi(b)\xi$.
+\end{lemma}
+
+\begin{proof}
+If $\varphi((a-b)^*(a-b)) = 0$, then using the state condition:
+\[
+\|\pi(a-b)\xi\|^2 = \langle \xi, \pi((a-b)^*(a-b))\xi \rangle = \varphi((a-b)^*(a-b)) = 0
+\]
+so $\pi(a-b)\xi = 0$, giving $\pi(a)\xi = \pi(b)\xi$.
+\end{proof}
+
+\begin{lemma}[Isometry]
+\label{lem:intertwiner-isometry}
+$U_0$ is an isometry: $\|U_0([a])\| = \|[a]\|$.
+\end{lemma}
+
+\begin{proof}
+\begin{align*}
+\|U_0([a])\|^2 = \|\pi(a)\xi\|^2 &= \langle \xi, \pi(a)^\dagger \pi(a)\xi \rangle \\
+&= \langle \xi, \pi(a^*)\pi(a)\xi \rangle \\
+&= \langle \xi, \pi(a^* a)\xi \rangle \\
+&= \varphi(a^* a) = \|[a]\|^2
+\end{align*}
+\end{proof}
+
+\begin{lemma}[Linearity]
+\label{lem:intertwiner-linear}
+$U_0$ is linear: $U_0(x + y) = U_0(x) + U_0(y)$ and $U_0(c \cdot x) = c \cdot U_0(x)$.
+\end{lemma}
+
+\subsection{Extension to Hilbert Space}
+
+\begin{lemma}[Extension]
+\label{lem:intertwiner-extension}
+$U_0$ extends uniquely to an isometry $U : H_\varphi \to H$.
+\end{lemma}
+
+\begin{proof}
+As an isometry, $U_0$ is uniformly continuous. By the universal property of completions (\texttt{UniformSpace.Completion.extension}), it extends uniquely to the completion. The extension preserves the isometry property by \texttt{Isometry.completion\_extension}.
+\end{proof}
+
+\subsection{Surjectivity}
+
+\begin{lemma}[Dense Range]
+\label{lem:intertwiner-dense-range}
+The range of $U$ contains the orbit $\{\pi(a)\xi : a \in A\}$, hence is dense.
+\end{lemma}
+
+\begin{proof}
+For any $a \in A$, we have $U([a]) = \pi(a)\xi$, so $\pi(a)\xi \in \mathrm{range}(U)$.
+\end{proof}
+
+\begin{lemma}[Surjectivity]
+\label{lem:intertwiner-surjective}
+$U$ is surjective.
+\end{lemma}
+
+\begin{proof}
+An isometry from a complete space into a complete space with dense range is surjective. The range is complete (image of complete space under uniform inducing map), hence closed. Dense and closed implies the whole space.
+\end{proof}
+
+\subsection{Intertwining Property}
+
+\begin{lemma}[Intertwining]
+\label{lem:intertwining}
+$U \circ \pi_\varphi(a) = \pi(a) \circ U$ for all $a \in A$.
+\end{lemma}
+
+\begin{proof}
+On quotient elements:
+\[
+U(\pi_\varphi(a)[b]) = U([ab]) = \pi(ab)\xi = \pi(a)\pi(b)\xi = \pi(a)(U([b]))
+\]
+Both sides are continuous, so by density the identity extends to all of $H_\varphi$.
+\end{proof}
+
+\subsection{Cyclic Vector Mapping}
+
+\begin{lemma}[Cyclic Vector]
+\label{lem:cyclic-mapping}
+$U(\Omega_\varphi) = \xi$.
+\end{lemma}
+
+\begin{proof}
+$U(\Omega_\varphi) = U([1]) = \pi(1)\xi = \xi$.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:gns-uniqueness}]
+Combining the above lemmas, $U$ is a linear isometry equivalence (bijective isometry) that maps $\Omega_\varphi$ to $\xi$ and intertwines the representations. The Lean statement:
+\begin{lstlisting}[language=lean]
+theorem gns_uniqueness
+    (_h_xi_norm : ||xi|| = 1)
+    (h_xi_cyclic : DenseRange (fun a => pi a xi))
+    (h_xi_state : forall a : A, @inner C H _ xi (pi a xi) = phi a) :
+    exists U : phi.gnsHilbertSpace =~li[C] H,
+      U phi.gnsCyclicVector = xi /\
+      forall a : A, forall x : phi.gnsHilbertSpace, U (phi.gnsRep a x) = pi a (U x) :=
+  <gnsIntertwinerEquiv phi pi xi h_xi_state h_xi_cyclic,
+   gnsIntertwinerEquiv_cyclic phi pi xi h_xi_state h_xi_cyclic,
+   gnsIntertwiner_intertwines phi pi xi h_xi_state h_xi_cyclic>
+\end{lstlisting}
+\end{proof}
+
+%----------------------------------------------------------------------
+\section{Summary of Key Definitions}
+\label{sec:gns-summary}
+
+For reference, the main Lean definitions in the GNS construction:
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+\textbf{Definition} & \textbf{Lean Name} \\
+\hline
+State & \texttt{State} \\
+Null space & \texttt{State.gnsNullSpace} \\
+Null ideal (submodule) & \texttt{State.gnsNullIdeal} \\
+Quotient space & \texttt{State.gnsQuotient} \\
+Inner product & \texttt{State.gnsInner} \\
+Pre-representation & \texttt{State.gnsPreRep} \\
+Hilbert space & \texttt{State.gnsHilbertSpace} \\
+GNS representation & \texttt{State.gnsRep} \\
+Star algebra homomorphism & \texttt{State.gnsStarAlgHom} \\
+Cyclic vector & \texttt{State.gnsCyclicVector} \\
+Intertwiner equivalence & \texttt{State.gnsIntertwinerEquiv} \\
+\hline
+\end{tabular}
+\end{center}
+
+The complete GNS formalization comprises approximately 2,455 lines of Lean code with zero sorries, providing a fully machine-checked proof of both the existence and uniqueness theorems.
