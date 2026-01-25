@@ -375,3 +375,37 @@ Key: `RCLike.re_eq_complex_re` bridges `RCLike.re (inner ℂ p p)` to `(⟪p, p�
 **Lesson:** When dealing with norms from InnerProductSpace.Core:
 1. Use `norm_sq_eq_re_inner` with explicit instances
 2. Convert between `RCLike.re` and field accessor `.re` using `RCLike.re_eq_complex_re`
+
+---
+
+## Star Property on Real GNS Representation (2026-01-25)
+
+**Discovery:** The star property `gnsRep (star a) = adjoint (gnsRep a)` can be proven
+on the real Hilbert space using `ContinuousLinearMap.eq_adjoint_iff` and density.
+
+**Key Identity:**
+```lean
+theorem gnsPreRep_inner_star (a b c : FreeStarAlgebra n) :
+    φ.gnsInner (φ.gnsPreRep (star a) (Submodule.Quotient.mk b)) (Submodule.Quotient.mk c) =
+    φ.gnsInner (Submodule.Quotient.mk b) (φ.gnsPreRep a (Submodule.Quotient.mk c))
+```
+
+The proof is just: `simp only [gnsPreRep_mk, gnsInner_mk, star_mul, mul_assoc]`
+
+This works because:
+- LHS = φ(star(c) * star(a) * b) (star anti-homomorphism)
+- RHS = φ(star(a*c) * b) = φ(star(c) * star(a) * b) (same by star anti-hom)
+
+**Pattern for Extension:**
+```lean
+theorem gnsRep_star (a : FreeStarAlgebra n) :
+    φ.gnsRep (star a) = ContinuousLinearMap.adjoint (φ.gnsRep a) := by
+  rw [ContinuousLinearMap.eq_adjoint_iff]
+  intro x y
+  induction x, y using UniformSpace.Completion.induction_on₂ with
+  | hp => -- closedness via continuous_inner.comp
+  | ih qb qc => -- use gnsPreRep_inner_star after extracting representatives
+```
+
+**Lesson:** The adjoint characterization `⟪Ax, y⟫ = ⟪x, By⟫` + density pattern
+works well for extending star properties from quotient to completion.

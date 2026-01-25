@@ -1,27 +1,32 @@
-# Handoff: 2026-01-25 (Session 19)
+# Handoff: 2026-01-25 (Session 20)
 
 ## Completed This Session
 
-### Added gnsRepComplex - Complexified GNS Representation
+### Created Star.lean - GNS Star Property
 
-Added to Extension.lean:
+Created new file `AfTests/ArchimedeanClosure/GNS/Star.lean` (114 LOC):
+
 ```lean
-noncomputable def gnsRepComplex (a : FreeStarAlgebra n) :
-    φ.gnsHilbertSpaceComplex →L[ℂ] φ.gnsHilbertSpaceComplex
+-- Key theorem
+theorem gnsRep_star (a : FreeStarAlgebra n) :
+    φ.gnsRep (star a) = ContinuousLinearMap.adjoint (φ.gnsRep a)
+
+-- Supporting theorems
+theorem gnsPreRep_inner_star -- Key identity on quotient elements
+theorem gnsBoundedPreRep_eq_gnsPreRep -- gnsBoundedPreRep = gnsPreRep
+theorem gnsRep_star' -- star (π a) = π (star a)
+theorem gnsRep_zero -- π 0 = 0
+theorem gnsRep_smul -- π (r • a) = r • π a
 ```
 
-This extends the real GNS representation to the complexified Hilbert space:
-- `gnsRepComplex a (x, y) = (gnsRep a x, gnsRep a y)`
-- Proved continuity via norm inequality: `‖gnsRepComplex a p‖ ≤ ‖gnsRep a‖ * ‖p‖`
+**Key Insight:** The star property proof uses:
+1. `ContinuousLinearMap.eq_adjoint_iff` to reduce to inner product identity
+2. Density via `UniformSpace.Completion.induction_on₂`
+3. The algebraic identity `φ(star(c)*star(a)*b) = φ(star(c)*star(a)*b)` via `star_mul` + `mul_assoc`
 
-Also added helper theorem:
-- `complexification_norm_sq` - `‖p‖² = ‖p.1‖² + ‖p.2‖²` for complexification
+### Added Learning
 
-**Key Insight:** When using `norm_sq_eq_re_inner` with explicit instances, need `RCLike.re_eq_complex_re` to convert `RCLike.re (inner ℂ p p)` to the form that `Complexification.inner_re` expects.
-
-### Extension.lean now exceeds 200 LOC (242 LOC)
-
-Issue to be created for refactoring.
+Added "Star Property on Real GNS Representation" to `docs/GNS/learnings/completion-topology.md`.
 
 ---
 
@@ -44,39 +49,44 @@ Issue to be created for refactoring.
 | GNS/ComplexifyInner.lean | Done | 160 | 0 | Full InnerProductSpace |
 | GNS/ComplexifyGNS.lean | Done | 76 | 0 | Complexified GNS + norm |
 | GNS/Bounded.lean | Done | 148 | 0 | Archimedean boundedness |
-| GNS/Extension.lean | Done | **242** | 0 | gnsRepComplex NEW (exceeds 200!) |
+| GNS/Extension.lean | Done | **242** | 0 | gnsRep, gnsRepComplex (exceeds 200!) |
+| **GNS/Star.lean** | **NEW** | **114** | 0 | gnsRep_star, star properties |
 
 ---
 
 ## What's Needed for `gns_representation_exists`
 
 **What we have now:**
-- Complex Hilbert space: `gnsHilbertSpaceComplex`
-- Cyclic vector with unit norm: `gnsCyclicVectorComplex_norm`
-- Pre-representation on quotient: `gnsLeftAction`
-- Boundedness: `gnsLeftAction_bounded`
+- Complex Hilbert space: `gnsHilbertSpaceComplex` ✓
+- Cyclic vector with unit norm: `gnsCyclicVectorComplex_norm` ✓
 - Bounded pre-rep as CLM: `gnsBoundedPreRep` ✓
 - Extension to completion: `gnsRep` ✓
 - Additivity: `gnsRep_add` ✓
 - Unit: `gnsRep_one` ✓
 - Multiplicativity: `gnsRep_mul` ✓
-- **Complexified rep: `gnsRepComplex`** ✓ NEW
+- Complexified rep: `gnsRepComplex` ✓
+- **Star property on real rep: `gnsRep_star`** ✓ NEW
 
 **What's still needed:**
-1. Prove star-algebra homomorphism properties for `gnsRepComplex`:
-   - `gnsRepComplex_add` - additivity in algebra element
-   - `gnsRepComplex_mul` - multiplicativity
-   - `gnsRepComplex_star` - star preservation
-   - `gnsRepComplex_one` - unit
-2. Prove generator positivity constraint
+1. Build `gnsStarAlgHom : FreeStarAlgebra n →⋆ₐ[ℝ] (gnsHilbertSpaceComplex →L[ℂ] gnsHilbertSpaceComplex)`
+   - Need star property for `gnsRepComplex` (extends from `gnsRep_star`)
+2. Prove generator positivity: `gnsRepComplex_generator_isPositive`
 3. Package into `ConstrainedStarRep` structure
+
+---
+
+## Next Steps (Priority Order)
+
+1. **GNS-7b** (partial): Build `gnsStarAlgHom` using `gnsRepComplex` + star properties
+2. **GNS-8**: Prove generator positivity (key insight: uses M-positivity)
+3. **GNS-9**: Bundle everything into `gns_representation_exists`
 
 ---
 
 ## Known Issues
 
-- **Extension.lean exceeds 200 LOC** (242 LOC) - needs tracking
-- **completion-topology.md exceeds 200 LOC** (~378 LOC) - tracked by af-tests-8oaj
+- **Extension.lean exceeds 200 LOC** (242 LOC) - tracked by af-tests-qlhz
+- **completion-topology.md exceeds 200 LOC** (~411 LOC) - tracked by af-tests-8oaj
 - **LEARNINGS_misc.md exceeds 200 LOC** (316 LOC) - tracked by af-tests-2d6o
 - **Complexify.lean exceeds 200 LOC** (226 LOC) - tracked by af-tests-muey
 
@@ -84,6 +94,6 @@ Issue to be created for refactoring.
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/GNS/Extension.lean` (added gnsRepComplex)
-- `docs/GNS/learnings/completion-topology.md` (added complexification norm learning)
+- `AfTests/ArchimedeanClosure/GNS/Star.lean` (NEW - star property)
+- `docs/GNS/learnings/completion-topology.md` (added star property learning)
 - `HANDOFF.md` (this file)
