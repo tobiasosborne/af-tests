@@ -90,4 +90,38 @@ theorem QuadraticModule.smul_mem {c : ℝ} (hc : 0 ≤ c) {m : FreeStarAlgebra n
     c • m ∈ QuadraticModule n :=
   QuadraticModuleSet.smul_mem c m hc hm
 
+/-- QuadraticModule is closed under conjugation: star b * m * b ∈ M for m ∈ M.
+
+This is a key property used in the Archimedean boundedness argument. -/
+theorem QuadraticModule.star_mul_mem_star_mul {m : FreeStarAlgebra n}
+    (hm : m ∈ QuadraticModule n) (b : FreeStarAlgebra n) :
+    star b * m * b ∈ QuadraticModule n := by
+  induction hm with
+  | generator_mem m hgen =>
+    rcases hgen with ⟨a, rfl⟩ | ⟨j, c, rfl⟩
+    · -- Case: m = star a * a
+      -- star b * (star a * a) * b = star(a*b) * (a*b)
+      have h : star b * (star a * a) * b = star (a * b) * (a * b) := by
+        simp only [star_mul, mul_assoc]
+      rw [h]
+      exact star_mul_self_mem (a * b)
+    · -- Case: m = star c * g_j * c
+      -- star b * (star c * g_j * c) * b = star(c*b) * g_j * (c*b)
+      have h : star b * (star c * generator j * c) * b = star (c * b) * generator j * (c * b) := by
+        simp only [star_mul, mul_assoc]
+      rw [h]
+      exact star_generator_mul_mem j (c * b)
+  | add_mem m₁ m₂ _ _ ih₁ ih₂ =>
+    -- star b * (m₁ + m₂) * b = star b * m₁ * b + star b * m₂ * b
+    have h : star b * (m₁ + m₂) * b = star b * m₁ * b + star b * m₂ * b := by
+      simp only [mul_add, add_mul]
+    rw [h]
+    exact QuadraticModule.add_mem ih₁ ih₂
+  | smul_mem r m hr _ ih =>
+    -- star b * (r • m) * b = r • (star b * m * b)
+    have h : star b * (r • m) * b = r • (star b * m * b) := by
+      simp only [Algebra.smul_def, mul_assoc, Algebra.commutes]
+    rw [h]
+    exact QuadraticModule.smul_mem hr ih
+
 end FreeStarAlgebra

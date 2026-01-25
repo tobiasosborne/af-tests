@@ -47,8 +47,11 @@ noncomputable def gnsInnerProductCore : InnerProductSpace.Core ℝ φ.gnsQuotien
 noncomputable def gnsQuotientNormedAddCommGroup : NormedAddCommGroup φ.gnsQuotient :=
   @InnerProductSpace.Core.toNormedAddCommGroup ℝ φ.gnsQuotient _ _ _ φ.gnsInnerProductCore
 
-/-- The NormedSpace structure on the quotient. -/
-noncomputable def gnsQuotientNormedSpace : NormedSpace ℝ φ.gnsQuotient :=
+/-- The NormedSpace structure on the quotient.
+
+Uses explicit @ to match the SeminormedAddCommGroup from gnsQuotientNormedAddCommGroup. -/
+noncomputable def gnsQuotientNormedSpace :
+    @NormedSpace ℝ φ.gnsQuotient _ φ.gnsQuotientNormedAddCommGroup.toSeminormedAddCommGroup :=
   @InnerProductSpace.Core.toNormedSpace ℝ φ.gnsQuotient _ _ _ φ.gnsPreInnerProductCore
 
 /-! ### The completion (real Hilbert space) -/
