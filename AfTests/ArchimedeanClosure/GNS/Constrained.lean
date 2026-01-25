@@ -82,6 +82,57 @@ theorem gnsRep_generator_inner_nonneg (j : Fin n) (x : φ.gnsHilbertSpaceReal) :
       inner_eq_gnsInner, gnsBoundedPreRep_eq_gnsPreRep]
     exact gnsPreRep_generator_inner_nonneg φ j b
 
+/-! ### Generator positivity on the complexified Hilbert space -/
+
+open ArchimedeanClosure
+
+/-- The complexified inner product Re⟨p, π(gⱼ)p⟩_ℂ is nonnegative for generators.
+
+For p = (x, y) ∈ H_ℂ:
+  Re⟨p, π_ℂ(gⱼ)p⟩ = ⟨x, π(gⱼ)x⟩_ℝ + ⟨y, π(gⱼ)y⟩_ℝ ≥ 0
+
+by gnsRep_generator_inner_nonneg applied to x and y. -/
+theorem gnsRepComplex_generator_inner_nonneg (j : Fin n)
+    (p : φ.gnsHilbertSpaceComplex) :
+    0 ≤ (@inner ℂ _ Complexification.instInnerComplex p
+      (φ.gnsRepComplex (generator j) p)).re := by
+  -- Expand inner product using Complexification.inner_re
+  simp only [Complexification.inner_re]
+  -- gnsRepComplex acts componentwise
+  have h1 : (φ.gnsRepComplex (generator j) p).1 = φ.gnsRep (generator j) p.1 := rfl
+  have h2 : (φ.gnsRepComplex (generator j) p).2 = φ.gnsRep (generator j) p.2 := rfl
+  rw [h1, h2]
+  exact add_nonneg (gnsRep_generator_inner_nonneg φ j p.1)
+    (gnsRep_generator_inner_nonneg φ j p.2)
+
+/-- The complexified GNS representation maps generators to positive operators.
+
+Uses isPositive_def': need self-adjoint and nonneg reApplyInnerSelf. -/
+theorem gnsRepComplex_generator_isPositive (j : Fin n) :
+    (φ.gnsRepComplex (generator j)).IsPositive := by
+  rw [ContinuousLinearMap.isPositive_def']
+  constructor
+  · -- Self-adjoint: adjoint (π_ℂ(gⱼ)) = π_ℂ(gⱼ)
+    rw [ContinuousLinearMap.isSelfAdjoint_iff']
+    rw [← gnsRepComplex_star]
+    congr 1
+    exact (isSelfAdjoint_generator j).star_eq
+  · -- Nonneg reApplyInnerSelf
+    intro p
+    rw [ContinuousLinearMap.reApplyInnerSelf_apply]
+    simp only [RCLike.re_eq_complex_re]
+    -- Re⟨π_ℂ(gⱼ)p, p⟩ = Re⟨p, π_ℂ(gⱼ)p⟩ by conjugate symmetry
+    have hsym : (@inner ℂ _ Complexification.instInnerComplex
+        (φ.gnsRepComplex (generator j) p) p).re =
+        (@inner ℂ _ Complexification.instInnerComplex p
+        (φ.gnsRepComplex (generator j) p)).re := by
+      have h := @inner_conj_symm ℂ φ.gnsHilbertSpaceComplex _ _ _
+        p (φ.gnsRepComplex (generator j) p)
+      -- h : conj ⟨π(gⱼ)p, p⟩ = ⟨p, π(gⱼ)p⟩, so RHS.re = (conj LHS).re = LHS.re
+      rw [← h, starRingEnd_apply, Complex.star_def, Complex.conj_re]
+    rw [hsym]
+    exact gnsRepComplex_generator_inner_nonneg φ j p
+
 end MPositiveState
 
 end FreeStarAlgebra

@@ -1,24 +1,27 @@
-# Handoff: 2026-01-25 (Session 24)
+# Handoff: 2026-01-25 (Session 25)
 
 ## Completed This Session
 
-### Eliminated CompleteSpace Sorry in GNS/Star.lean
+### Added Generator Positivity on Complexified Space (GNS/Constrained.lean)
 
-**The critical blocker has been resolved!** Proved `gnsHilbertSpaceComplex_completeSpace`:
+Proved that the complexified GNS representation maps generators to positive operators:
 
 ```lean
--- Complexification of a complete space is complete (PROVEN)
-instance gnsHilbertSpaceComplex_completeSpace [IsArchimedean n] :
-    CompleteSpace φ.gnsHilbertSpaceComplex
+theorem gnsRepComplex_generator_inner_nonneg (j : Fin n) (p : φ.gnsHilbertSpaceComplex) :
+    0 ≤ (@inner ℂ _ Complexification.instInnerComplex p
+      (φ.gnsRepComplex (generator j) p)).re
+
+theorem gnsRepComplex_generator_isPositive (j : Fin n) :
+    (φ.gnsRepComplex (generator j)).IsPositive
 ```
 
 **Proof Strategy:**
-1. Cauchy sequences in `Complexification H` project to Cauchy sequences in each component
-2. Use `norm_fst_le` and `norm_snd_le` to show Cauchy property transfers
-3. By completeness of `gnsHilbertSpaceReal`, get limits `(x, y)`
-4. Show convergence using `‖p‖² = ‖p.1‖² + ‖p.2‖²`
+1. Expand inner product using `Complexification.inner_re`
+2. For p = (x, y): Re⟨p, π(gⱼ)p⟩ = ⟨x, π(gⱼ)x⟩_ℝ + ⟨y, π(gⱼ)y⟩_ℝ
+3. Both terms nonneg by `gnsRep_generator_inner_nonneg`
+4. For `IsPositive`: use self-adjointness via `gnsRepComplex_star` + generator self-adjoint
 
-**Impact:** This was the ONLY sorry in the GNS construction. Star.lean now has 0 sorries!
+**Impact:** This unblocks GNS-9, the final sorry elimination.
 
 ---
 
@@ -26,7 +29,7 @@ instance gnsHilbertSpaceComplex_completeSpace [IsArchimedean n] :
 
 ### Phase 1-6: COMPLETE (0 sorries)
 
-### Phase 7-8: **1 sorry remaining** (down from 2)
+### Phase 7-8: **1 sorry remaining**
 
 | File | Status | LOC | Sorries | Notes |
 |------|--------|-----|---------|-------|
@@ -42,8 +45,8 @@ instance gnsHilbertSpaceComplex_completeSpace [IsArchimedean n] :
 | GNS/ComplexifyGNS.lean | Done | 76 | 0 | |
 | GNS/Bounded.lean | Done | 148 | 0 | |
 | GNS/Extension.lean | Done | 242 | 0 | Exceeds 200 (tracked) |
-| **GNS/Star.lean** | **Done** | **~260** | **0** | ✅ CompleteSpace PROVEN |
-| GNS/Constrained.lean | Done | 87 | 0 | Generator positivity |
+| GNS/Star.lean | Done | ~260 | 0 | |
+| **GNS/Constrained.lean** | **Done** | **138** | **0** | ✅ Generator positivity PROVEN |
 
 ---
 
@@ -51,11 +54,17 @@ instance gnsHilbertSpaceComplex_completeSpace [IsArchimedean n] :
 
 **Only 1 sorry remains:** `gns_representation_exists` in `GNSConstrained.lean:107`
 
-This requires assembling the full GNS representation into a `ConstrainedStarRep`:
-1. ✅ GNS Hilbert space is complete
-2. ✅ GNS representation preserves star (`gnsRep_star`, `gnsRepComplex_star`)
-3. ✅ Generator positivity on quotient and Hilbert space
-4. ❌ Package into `ConstrainedStarRep` structure
+This requires building a `ConstrainedStarRep n` from the GNS construction. Still needed:
+
+1. ✅ CompleteSpace for `gnsHilbertSpaceComplex`
+2. ✅ Generator positivity: `gnsRepComplex_generator_isPositive`
+3. ❌ **StarAlgHom for gnsRepComplex** - needs:
+   - `gnsRepComplex_one`: π_ℂ(1) = 1
+   - `gnsRepComplex_mul`: π_ℂ(a*b) = π_ℂ(a) * π_ℂ(b)
+   - `gnsRepComplex_add`: additive
+   - `gnsRepComplex_smul_ℝ`: preserves ℝ scalars
+   - (Already have: `gnsRepComplex_star`)
+4. ❌ **Cyclic vector identity**: φ(a) = Re⟨Ω, π(a)Ω⟩
 
 ---
 
@@ -65,11 +74,11 @@ This requires assembling the full GNS representation into a `ConstrainedStarRep`
 - **completion-topology.md exceeds 200 LOC** (~490 LOC) - tracked by af-tests-8oaj
 - **LEARNINGS_misc.md exceeds 200 LOC** (316 LOC) - tracked by af-tests-2d6o
 - **Complexify.lean exceeds 200 LOC** (226 LOC) - tracked by af-tests-muey
-- ~~**CompleteSpace sorry** in Star.lean - tracked by af-tests-5vwz~~ ✅ RESOLVED
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/GNS/Star.lean` (eliminated CompleteSpace sorry)
+- `AfTests/ArchimedeanClosure/GNS/Constrained.lean` (added gnsRepComplex_generator_isPositive)
+- `docs/ArchimedeanClosure/LEARNINGS.md` (added Complexified Positivity Pattern)
 - `HANDOFF.md` (this file)

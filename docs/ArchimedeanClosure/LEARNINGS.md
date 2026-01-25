@@ -44,6 +44,15 @@ have hcomm : Commute a b := by
 rw [hcomm.mul_self_sub_mul_self_eq]
 ```
 
+### Complexified Positivity Pattern
+For a self-adjoint operator T on real Hilbert space H_ℝ with ⟨x, Tx⟩_ℝ ≥ 0:
+```lean
+-- On complexification H_ℂ = H_ℝ ⊕ iH_ℝ:
+-- Re⟨p, T_ℂ p⟩_ℂ = ⟨p.1, T p.1⟩_ℝ + ⟨p.2, T p.2⟩_ℝ ≥ 0
+-- Uses: Complexification.inner_re, add_nonneg
+```
+Key: `Complexification.inner_re` gives `Re⟨p,q⟩_ℂ = ⟨p.1,q.1⟩_ℝ + ⟨p.2,q.2⟩_ℝ`.
+
 ## Critical Decision: FreeStarAlgebra Uses ℝ
 
 The algebra is `FreeAlgebra ℝ (Fin n)`, NOT `FreeAlgebra ℂ`.
