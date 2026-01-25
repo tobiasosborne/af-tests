@@ -240,20 +240,19 @@ theorem embed_add (x y : H) : embed (x + y) = embed x + embed y := by
   simp only [Prod.mk_add_mk, add_zero]
 ```
 
-**Progress (2026-01-25): ALL AXIOMS COMPLETE!**
+**Progress (2026-01-25): ALL AXIOMS + CORE INSTANCE COMPLETE!**
 - ✅ `Module ℂ (Complexification H)` instance COMPLETE (Complexify.lean)
 - ✅ `Inner ℂ (Complexification H)` instance COMPLETE (Complexify.lean)
-- ✅ `inner_conj_symm'` - Conjugate symmetry proven (ComplexifyInner.lean)
-- ✅ `inner_add_left'` - Additivity proven (ComplexifyInner.lean)
-- ✅ `inner_nonneg_re'` - Positivity proven (ComplexifyInner.lean)
-- ✅ `inner_smul_left'` - Scalar multiplication proven (ComplexifyInner.lean)
-- ✅ `inner_definite'` - Definiteness proven (ComplexifyInner.lean)
+- ✅ All 5 axioms proven (ComplexifyInner.lean)
+- ✅ `InnerProductSpace.Core ℂ (Complexification H)` instance COMPLETE
 
-**Next step:** Package axioms into `InnerProductSpace.Core` instance.
+**Next step:** Add `NormedAddCommGroup` + full `InnerProductSpace` instance.
 
 **Key techniques:**
 - The `module` tactic solves goals involving module scalar multiplication that `ring` cannot.
 - Use `Complex.ext` for equality of complex numbers (not generic `ext`).
+- `InnerProductSpace.Core.smul_left` expects `(x y : F) (r : 𝕜)` order - use lambda wrapper
+  if your theorem has `(r : 𝕜) (x y : F)` order: `smul_left := fun p q c => inner_smul_left' c p q`
 - Use `real_inner_self_nonneg` (not `inner_self_nonneg`) when the goal is `0 ≤ ⟪x, x⟫_ℝ`.
   The generic `inner_self_nonneg` returns `0 ≤ RCLike.re ⟪x, x⟫_𝕜` which doesn't unify.
 - `real_inner_comm` is the mathlib lemma for real inner product symmetry.

@@ -1,25 +1,24 @@
-# Handoff: 2026-01-25 (Session 11)
+# Handoff: 2026-01-25 (Session 12)
 
 ## Completed This Session
 
-### GNS-Complexify: ALL 5 InnerProductSpace axioms COMPLETE! (af-tests-v2ad)
+### GNS-Complexify: InnerProductSpace.Core instance added (af-tests-v2ad)
 
-Proved all remaining axioms:
+Packaged all 5 proven axioms into a proper Mathlib structure:
 
 ```lean
--- Positivity: 0 ≤ Re⟪p, p⟫_ℂ
-theorem inner_nonneg_re' (p : Complexification H) :
-    0 ≤ (⟪p, p⟫_ℂ).re
-
--- Scalar multiplication: ⟪c • p, q⟫_ℂ = conj(c) * ⟪p, q⟫_ℂ
-theorem inner_smul_left' (c : ℂ) (p q : Complexification H) :
-    ⟪c • p, q⟫_ℂ = starRingEnd ℂ c * ⟪p, q⟫_ℂ
-
--- Definiteness: ⟪p, p⟫_ℂ = 0 → p = 0
-theorem inner_definite' (p : Complexification H) (hp : ⟪p, p⟫_ℂ = 0) : p = 0
+noncomputable instance instInnerProductSpaceCore :
+    InnerProductSpace.Core ℂ (Complexification H) where
+  inner := fun p q => ⟪p, q⟫_ℂ
+  conj_inner_symm := inner_conj_symm'
+  re_inner_nonneg := inner_nonneg_re'
+  add_left := inner_add_left'
+  smul_left := fun p q c => inner_smul_left' c p q
+  definite := inner_definite'
 ```
 
-**All 5 InnerProductSpace.Core axioms proven!**
+**Learning:** Mathlib's `smul_left` field expects `(x y : F) (r : 𝕜)` argument order.
+Use lambda wrapper if your theorem has different order.
 
 ---
 
@@ -39,32 +38,30 @@ theorem inner_definite' (p : Complexification H) (hp : ⟪p, p⟫_ℂ = 0) : p =
 | GNS/PreRep.lean | Done | 65 | 0 | |
 | GNS/Completion.lean | Done | 113 | 0 | |
 | GNS/Complexify.lean | Done | 193 | 0 | Module + Inner |
-| **GNS/ComplexifyInner.lean** | **Done** | **117** | **0** | **All 5 axioms!** |
+| **GNS/ComplexifyInner.lean** | **Done** | **129** | **0** | **All 5 axioms + Core** |
 
 ---
 
-## Complexification: ALL AXIOMS COMPLETE
+## Complexification Progress
 
-**Status:** All 5 InnerProductSpace.Core axioms proven!
+**Status:** `InnerProductSpace.Core` instance complete!
 
 **Completed:**
-- Module ℂ (Complexification H) instance (Complexify.lean)
-- Inner ℂ (Complexification H) instance (Complexify.lean)
-- `inner_conj_symm'` - Conjugate symmetry (ComplexifyInner.lean)
-- `inner_add_left'` - Additivity (ComplexifyInner.lean)
-- `inner_nonneg_re'` - Positivity (ComplexifyInner.lean)
-- `inner_smul_left'` - Scalar multiplication (ComplexifyInner.lean)
-- `inner_definite'` - Definiteness (ComplexifyInner.lean)
+- `Module ℂ (Complexification H)` instance (Complexify.lean)
+- `Inner ℂ (Complexification H)` instance (Complexify.lean)
+- All 5 axioms proven (ComplexifyInner.lean)
+- `InnerProductSpace.Core ℂ (Complexification H)` instance (ComplexifyInner.lean)
 
-**Next:** Package into `InnerProductSpace.Core` instance, then complete norm structure.
+**Next:** Add `NormedAddCommGroup` and full `InnerProductSpace` instance.
 
 ---
 
 ## Next Steps (Priority Order)
 
-### 1. Package Complexification Instance (af-tests-v2ad)
-- Create `InnerProductSpace.Core ℂ (Complexification H)` instance
-- Add norm structure for full `InnerProductSpace ℂ (Complexification H)`
+### 1. Complete Complexification Instance (af-tests-v2ad)
+- Add `NormedAddCommGroup (Complexification H)` from the Core
+- Use `InnerProductSpace.Core.toNormedAddCommGroup` or similar
+- Then get full `InnerProductSpace ℂ (Complexification H)`
 
 ### 2. GNS-6: Boundedness (af-tests-kvgb)
 Prove representation is bounded using Archimedean property.
@@ -73,16 +70,15 @@ Prove representation is bounded using Archimedean property.
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/GNS/ComplexifyInner.lean` (added inner_nonneg_re')
-- `docs/GNS/learnings/completion-topology.md` (progress update)
+- `AfTests/ArchimedeanClosure/GNS/ComplexifyInner.lean` (added Core instance)
+- `docs/GNS/learnings/completion-topology.md` (updated progress)
 - `HANDOFF.md` (this file)
 
 ---
 
 ## Known Issues
 
-- **Real vs Complex gap** - All axioms proven, need to package into instance
-- **completion-topology.md exceeds 200 LOC** (264 LOC)
+- **completion-topology.md exceeds 200 LOC** (~269 LOC)
 - **LEARNINGS_misc.md exceeds 200 LOC** (316 LOC) - tracked by af-tests-2d6o
 - `gns_representation_exists` - needs full complexification + construction
 
@@ -90,7 +86,9 @@ Prove representation is bounded using Archimedean property.
 
 ## Learnings (from this session)
 
-**real_inner_self_nonneg vs inner_self_nonneg:**
-When the goal is `0 ≤ ⟪x, x⟫_ℝ` (real inner product), use `real_inner_self_nonneg`.
-The generic `inner_self_nonneg` has type `0 ≤ RCLike.re ⟪x, x⟫_𝕜` which doesn't
-unify directly with real inner product goals.
+**InnerProductSpace.Core.smul_left argument order:**
+Mathlib's `smul_left` expects `∀ (x y : F) (r : 𝕜), inner (r • x) y = conj r * inner x y`
+but you may have proven `∀ (r : 𝕜) (x y : F), ...`. Use a lambda wrapper:
+```lean
+smul_left := fun p q c => inner_smul_left' c p q
+```

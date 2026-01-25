@@ -110,6 +110,20 @@ theorem inner_definite' (p : Complexification H) (hp : ⟪p, p⟫_ℂ = 0) : p =
   have hp2 : p.2 = 0 := inner_self_eq_zero (𝕜 := ℝ).mp h2
   ext <;> assumption
 
+/-! ### InnerProductSpace.Core Instance -/
+
+/-- The complexification forms an InnerProductSpace.Core.
+
+This packages all 5 axioms into the standard Mathlib structure. -/
+noncomputable instance instInnerProductSpaceCore :
+    InnerProductSpace.Core ℂ (Complexification H) where
+  inner := fun p q => ⟪p, q⟫_ℂ
+  conj_inner_symm := inner_conj_symm'
+  re_inner_nonneg := inner_nonneg_re'
+  add_left := inner_add_left'
+  smul_left := fun p q c => inner_smul_left' c p q
+  definite := inner_definite'
+
 end Complexification
 
 end ArchimedeanClosure
