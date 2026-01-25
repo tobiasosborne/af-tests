@@ -104,6 +104,34 @@ theorem add_smul' (c₁ c₂ : ℂ) (p : Complexification H) :
            (c₁.re • p.2 + c₁.im • p.1) + (c₂.re • p.2 + c₂.im • p.1)
     module
 
+/-- Scalar distributes over vector addition: c • (p + q) = c • p + c • q. -/
+theorem smul_add' (c : ℂ) (p q : Complexification H) :
+    c • (p + q) = c • p + c • q := by
+  ext
+  · simp only [smul_fst]
+    change c.re • (p.1 + q.1) - c.im • (p.2 + q.2) =
+           (c.re • p.1 - c.im • p.2) + (c.re • q.1 - c.im • q.2)
+    module
+  · simp only [smul_snd]
+    change c.re • (p.2 + q.2) + c.im • (p.1 + q.1) =
+           (c.re • p.2 + c.im • p.1) + (c.re • q.2 + c.im • q.1)
+    module
+
+/-- Scalar times zero is zero: c • 0 = 0. -/
+theorem smul_zero' (c : ℂ) : c • (0 : Complexification H) = 0 := by
+  ext <;> simp [smul_def]
+
+/-! ### Module Instance -/
+
+/-- The complexification is a complex module. -/
+instance instModuleComplex : Module ℂ (Complexification H) where
+  one_smul := one_smul'
+  mul_smul := mul_smul'
+  smul_zero := smul_zero'
+  smul_add := smul_add'
+  add_smul := add_smul'
+  zero_smul := zero_smul'
+
 /-! ### The Embedding -/
 
 /-- Embed the real space into the complexification: x ↦ (x, 0). -/
@@ -123,7 +151,11 @@ theorem embed_add (x y : H) : embed (x + y) = embed x + embed y := by
   simp only [Prod.mk_add_mk, add_zero]
 
 theorem embed_smul_real (r : ℝ) (x : H) : embed (r • x) = (r : ℂ) • embed x := by
-  ext <;> simp [embed, smul_def]
+  ext
+  · simp only [embed_fst, smul_fst, embed_snd, Complex.ofReal_re, Complex.ofReal_im,
+               smul_zero, sub_zero]
+  · simp only [embed_snd, smul_snd, embed_fst, Complex.ofReal_re, Complex.ofReal_im,
+               smul_zero, zero_add, zero_smul]
 
 end Complexification
 

@@ -241,13 +241,12 @@ theorem embed_add (x y : H) : embed (x + y) = embed x + embed y := by
 ```
 
 **Progress (2026-01-25):**
-- `mul_smul'` proven: (c₁ * c₂) • p = c₁ • (c₂ • p)
-- `add_smul'` proven: (c₁ + c₂) • p = c₁ • p + c₂ • p
+- ✅ `Module ℂ (Complexification H)` instance COMPLETE
+- All axioms proven: one_smul', mul_smul', add_smul', smul_add', smul_zero', zero_smul'
 
-**Remaining for Module ℂ:**
-1. `smul_add` - c • (p + q) = c • p + c • q
-2. `smul_zero` - c • 0 = 0
-3. Package into `Module ℂ` instance
+**Next steps:**
+1. Define complex inner product using real inner product
+2. Prove `InnerProductSpace ℂ (Complexification H)`
 
 **Key technique discovered:** The `module` tactic solves goals involving module scalar
 multiplication that `ring` cannot handle. Use `module` after simplifying with `simp`.

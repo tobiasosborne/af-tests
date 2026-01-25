@@ -2,14 +2,16 @@
 
 ## Completed This Session
 
-### GNS-Complexify Progress (af-tests-v2ad)
+### GNS-Complexify: Module ℂ COMPLETE (af-tests-v2ad)
 
-Added Module ℂ axioms to `AfTests/ArchimedeanClosure/GNS/Complexify.lean` (130 LOC):
+Completed `Module ℂ (Complexification H)` instance in `Complexify.lean` (162 LOC):
 
 ```lean
--- New this session:
-theorem mul_smul' (c₁ c₂ : ℂ) (p) : (c₁ * c₂) • p = c₁ • (c₂ • p)
-theorem add_smul' (c₁ c₂ : ℂ) (p) : (c₁ + c₂) • p = c₁ • p + c₂ • p
+-- All Module axioms proven:
+theorem one_smul', zero_smul', mul_smul', add_smul', smul_add', smul_zero'
+
+-- The instance:
+instance instModuleComplex : Module ℂ (Complexification H)
 ```
 
 **Key learning:** The `module` tactic handles module scalar multiplication goals that
@@ -32,36 +34,29 @@ theorem add_smul' (c₁ c₂ : ℂ) (p) : (c₁ + c₂) • p = c₁ • p + c�
 | GNS/Quotient.lean | Done | 182 | 0 | |
 | GNS/PreRep.lean | Done | 65 | 0 | |
 | GNS/Completion.lean | Done | 113 | 0 | ‖Ω‖=1 proven |
-| **GNS/Complexify.lean** | **In Progress** | **130** | **0** | Module axioms partial |
+| **GNS/Complexify.lean** | **In Progress** | **162** | **0** | Module ℂ DONE |
 
 ---
 
 ## BLOCKING ISSUE: Real vs Complex Hilbert Space
 
-**Status:** Progress made on Module ℂ axioms.
+**Status:** Module ℂ COMPLETE. Next: inner product.
 
-**Proven:**
-- `mul_smul'` - associativity
-- `add_smul'` - scalar distributivity
+**Completed:**
+- ✅ `Module ℂ (Complexification H)` instance
 
-**Remaining for Module ℂ:**
-1. `smul_add` - c • (p + q) = c • p + c • q
-2. `smul_zero` - c • 0 = 0
-3. Package into `Module ℂ` instance
-
-**Then:**
-- Complex inner product definition
-- `InnerProductSpace ℂ (Complexification H)` instance
-- Connect to GNS construction
+**Remaining:**
+1. Define complex inner product: ⟪(x₁,y₁), (x₂,y₂)⟫_ℂ = ⟪x₁,x₂⟫ + ⟪y₁,y₂⟫ + i(⟪x₁,y₂⟫ - ⟪y₁,x₂⟫)
+2. `InnerProductSpace ℂ (Complexification H)` instance
+3. Connect to GNS construction
 
 ---
 
 ## Next Steps (Priority Order)
 
 ### 1. Continue Complexification (af-tests-v2ad)
-- Complete Module ℂ axioms (smul_add, smul_zero)
-- Module ℂ instance
-- Inner product definition
+- Define complex inner product
+- Prove InnerProductSpace ℂ instance
 
 ### 2. GNS-6: Boundedness (af-tests-kvgb)
 Prove representation is bounded using Archimedean property.
@@ -70,8 +65,8 @@ Prove representation is bounded using Archimedean property.
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/GNS/Complexify.lean` (+24 LOC: mul_smul', add_smul')
-- `docs/GNS/learnings/completion-topology.md` (+7 LOC: progress update)
+- `AfTests/ArchimedeanClosure/GNS/Complexify.lean` (+32 LOC: Module ℂ complete)
+- `docs/GNS/learnings/completion-topology.md` (progress update)
 - `HANDOFF.md` (this file)
 
 ---
