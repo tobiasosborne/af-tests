@@ -1,16 +1,16 @@
-# Handoff: 2026-01-25 (Session 14)
+# Handoff: 2026-01-25 (Session 15)
 
 ## Completed This Session
 
-### Complexification Norm Preservation
-Added infrastructure for embedding norm preservation:
+### Documented ContinuousLinearMap Instance Diamond Issue
+Investigated creating `gnsBoundedPreRep` as a `ContinuousLinearMap` for the GNS extension.
+Discovered a significant topology diamond issue that requires explicit `@` syntax.
 
-- `Complexification.embed_inner` - ⟪embed x, embed y⟫_ℂ = (⟪x, y⟫_ℝ : ℂ)
-- `Complexification.embed_norm` - ‖embed x‖_ℂ = ‖x‖_ℝ
-- `MPositiveState.gnsCyclicVectorComplex_norm` - ‖Ω_ℂ‖ = 1
+**Key Finding:** The GNS quotient has two incompatible TopologicalSpace instances:
+1. Quotient module topology (from `Submodule.Quotient`)
+2. Seminormed topology (from `InnerProductSpace.Core.toNormedAddCommGroup`)
 
-This establishes that the complex cyclic vector has unit norm, which is one
-requirement for `gns_representation_exists`.
+This is documented in detail in `docs/GNS/learnings/completion-topology.md`.
 
 ---
 
@@ -47,48 +47,38 @@ The sorry requires constructing a `ConstrainedStarRep` from an M-positive state.
 - ✅ Boundedness: `gnsLeftAction_bounded`
 
 **What's missing:**
-1. **Extension to completion**: Need to extend `gnsLeftAction` from quotient to
-   the completed Hilbert space as a `ContinuousLinearMap`
-2. **Extension to complexification**: Then extend to the complexified space
-3. **Star algebra homomorphism**: Package as `→⋆ₐ[ℝ]` preserving star/mult/identity
-4. **Generator positivity**: Prove `π(gⱼ).IsPositive` for each generator
-5. **Vector state formula**: Prove φ(a) = Re⟨Ω, π(a)Ω⟩
+1. **gnsBoundedPreRep**: Wrap `gnsLeftAction` as `ContinuousLinearMap` (blocked by topology diamond)
+2. **Extension to completion**: Extend to `gnsHilbertSpaceReal` using `Completion.map`
+3. **Extension to complexification**: Extend to `gnsHilbertSpaceComplex`
+4. **Star algebra homomorphism**: Package as `→⋆ₐ[ℝ]` preserving star/mult/identity
+5. **Generator positivity**: Prove `π(gⱼ).IsPositive` for each generator
+6. **Vector state formula**: Prove φ(a) = Re⟨Ω, π(a)Ω⟩
 
-This is substantial work - each step requires careful typeclass management.
+**Blocker:** Step 1 requires explicit `@` syntax to resolve the topology diamond.
+See `docs/GNS/learnings/completion-topology.md` for the pattern from original GNS.
 
 ---
 
 ## Known Issues
 
-- **completion-topology.md exceeds 200 LOC** (~271 LOC)
+- **completion-topology.md exceeds 200 LOC** (~312 LOC) - needs refactoring
 - **LEARNINGS_misc.md exceeds 200 LOC** (316 LOC) - tracked by af-tests-2d6o
 
 ---
 
 ## Learnings (from this session)
 
-**Inner product lemmas require InnerProductSpace:**
-The lemmas `inner_zero_left` and `inner_zero_right` require `InnerProductSpace`,
-not just `Inner`. When working with complexification infrastructure split across
-files, place theorems requiring the full `InnerProductSpace` instance in files
-where it's already defined (e.g., ComplexifyInner.lean after instInnerProductSpace).
+**Topology diamond blocks simple ContinuousLinearMap definition:**
+When the GNS quotient has both quotient module topology and seminormed topology,
+you cannot use `φ.gnsQuotient →L[ℝ] φ.gnsQuotient` directly. Must use explicit `@`
+syntax specifying ALL instances (TopologicalSpace, AddCommMonoid, Module) derived
+from the same root (gnsQuotientNormedAddCommGroup).
 
-**Norm preservation via squared norms:**
-To prove `‖embed x‖ = ‖x‖`, use:
-```lean
-have hsq : ‖embed x‖^2 = ‖x‖^2 := by
-  rw [sq, sq, ← inner_self_eq_norm_mul_norm (𝕜 := ℂ), embed_inner]
-  have hre : RCLike.re ((⟪x, x⟫_ℝ : ℝ) : ℂ) = ⟪x, x⟫_ℝ := Complex.ofReal_re _
-  rw [hre, ← inner_self_eq_norm_mul_norm (𝕜 := ℝ), RCLike.re_to_real]
-exact sq_eq_sq₀ (norm_nonneg _) (norm_nonneg _) |>.mp hsq
-```
-
-The key is using `inner_self_eq_norm_mul_norm` which says `Re⟪x, x⟫ = ‖x‖ * ‖x‖`.
+The original GNS Extension.lean (lines 42-52) shows the correct pattern.
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/GNS/ComplexifyInner.lean` (+21 LOC: embed_inner, embed_norm)
-- `AfTests/ArchimedeanClosure/GNS/ComplexifyGNS.lean` (+4 LOC: gnsCyclicVectorComplex_norm)
+- `docs/GNS/learnings/completion-topology.md` (+42 LOC: ContinuousLinearMap instance diamond)
 - `HANDOFF.md` (this file)

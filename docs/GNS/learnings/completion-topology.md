@@ -267,3 +267,46 @@ theorem embed_add (x y : H) : embed (x + y) = embed x + embed y := by
 
 **Lesson:** When creating type aliases that inherit instances via `inferInstanceAs`,
 use `change` or explicit type annotations to help simp lemmas recognize the structure.
+
+---
+
+## ContinuousLinearMap Requires Explicit Instance Selection (2026-01-25)
+
+**Discovery:** When wrapping a LinearMap in `LinearMap.mkContinuous` to create a
+`ContinuousLinearMap`, Lean cannot synthesize the required `TopologicalSpace` instance
+because multiple incompatible sources exist.
+
+**Problem:** The GNS quotient `A₀/N_φ` has:
+1. A quotient module topology (from `Submodule.Quotient`)
+2. A seminormed topology (from `InnerProductSpace.Core.toNormedAddCommGroup`)
+
+When you write `φ.gnsQuotient →L[ℝ] φ.gnsQuotient`, Lean needs `TopologicalSpace φ.gnsQuotient`
+but finds conflicting instances. Error: "failed to synthesize TopologicalSpace φ.gnsQuotient"
+
+**Attempted Resolution:** Use explicit `@` syntax like the original GNS code:
+```lean
+noncomputable def gnsBoundedPreRep (a : FreeStarAlgebra n) :
+    @ContinuousLinearMap ℝ ℝ _ _ (RingHom.id ℝ) φ.gnsQuotient
+      φ.gnsQuotientNormedAddCommGroup.toUniformSpace.toTopologicalSpace
+      ... -- many more explicit instances
+```
+
+This requires explicitly specifying:
+- The TopologicalSpace (from the normed structure)
+- The AddCommMonoid (from the normed structure's AddCommGroup)
+- The Module instance (from NormedSpace.toModule)
+
+All instances must derive from the same root (gnsQuotientNormedAddCommGroup) for consistency.
+
+**Additional Complication:** `InnerProductSpace` expects `SeminormedAddCommGroup`, but we have
+`NormedAddCommGroup`. Need to use `.toSeminormedAddCommGroup` conversions throughout.
+
+**Current Status:** The original C*-algebra GNS (AfTests/GNS/Representation/Extension.lean)
+handles this with ~20 lines of explicit @ syntax. Adapting this for the real-valued
+ArchimedeanClosure GNS requires similar careful instance management.
+
+**Lesson:** When building ContinuousLinearMaps on quotient spaces with induced norms:
+1. Identify ALL instances that ContinuousLinearMap requires (TopologicalSpace, AddCommMonoid, Module)
+2. Derive them ALL from the same root instance (e.g., gnsQuotientNormedAddCommGroup)
+3. Use explicit `@` application with full instance specification
+4. The pattern from the original GNS Extension.lean is the correct template
