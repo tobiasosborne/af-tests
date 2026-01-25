@@ -2,14 +2,16 @@
 
 ## Completed This Session
 
-### Added `gnsRepComplex_one`, `gnsRepComplex_mul`, `gnsRepComplex_add` (Star.lean)
+### Added StarAlgHom properties for gnsRepComplex (Star.lean)
 
-Proved unit, multiplication, and addition preservation for the complexified GNS representation:
+Proved all algebraic properties for the complexified GNS representation:
 
 ```lean
 theorem gnsRepComplex_one : φ.gnsRepComplex 1 = ContinuousLinearMap.id ℂ _
 theorem gnsRepComplex_mul (a b) : φ.gnsRepComplex (a * b) = (φ.gnsRepComplex a).comp (φ.gnsRepComplex b)
 theorem gnsRepComplex_add (a b) : φ.gnsRepComplex (a + b) = φ.gnsRepComplex a + φ.gnsRepComplex b
+theorem gnsRepComplex_smul (r a) : φ.gnsRepComplex (r • a) = r • φ.gnsRepComplex a
+-- Already had: gnsRepComplex_star
 ```
 
 Also added supporting lemmas to Complexify.lean:
@@ -18,6 +20,7 @@ Also added supporting lemmas to Complexify.lean:
 theorem mapComplex_id : mapComplex LinearMap.id = LinearMap.id
 theorem mapComplex_comp (T₁ T₂) : mapComplex (T₁.comp T₂) = (mapComplex T₁).comp (mapComplex T₂)
 theorem mapComplex_add (T₁ T₂) : mapComplex (T₁ + T₂) = mapComplex T₁ + mapComplex T₂
+theorem mapComplex_smul (r T) : mapComplex (r • T) = (r : ℂ) • mapComplex T
 ```
 
 ---
@@ -55,11 +58,11 @@ This requires building a `ConstrainedStarRep n` from the GNS construction. Still
 
 1. ✅ CompleteSpace for `gnsHilbertSpaceComplex`
 2. ✅ Generator positivity: `gnsRepComplex_generator_isPositive`
-3. **StarAlgHom for gnsRepComplex** - needs:
+3. ✅ **StarAlgHom for gnsRepComplex** - ALL DONE:
    - ✅ `gnsRepComplex_one`: π_ℂ(1) = 1
    - ✅ `gnsRepComplex_mul`: π_ℂ(a*b) = π_ℂ(a) * π_ℂ(b)
    - ✅ `gnsRepComplex_add`: additive
-   - ❌ `gnsRepComplex_smul_ℝ`: preserves ℝ scalars
+   - ✅ `gnsRepComplex_smul`: preserves ℝ scalars
    - ✅ `gnsRepComplex_star`
 4. ❌ **Cyclic vector identity**: φ(a) = Re⟨Ω, π(a)Ω⟩
 

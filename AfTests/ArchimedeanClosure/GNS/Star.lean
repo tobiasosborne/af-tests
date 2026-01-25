@@ -296,6 +296,31 @@ theorem gnsRepComplex_add (a b : FreeStarAlgebra n) :
     rw [gnsRep_add]
     rfl
 
+/-- The complexified representation preserves ℝ-scalar multiplication: π_ℂ(r•a) = r • π_ℂ(a). -/
+theorem gnsRepComplex_smul (r : ℝ) (a : FreeStarAlgebra n) :
+    φ.gnsRepComplex (r • a) = r • φ.gnsRepComplex a := by
+  ext p
+  · unfold gnsRepComplex
+    simp only [LinearMap.mkContinuous_apply, Complexification.mapComplex_fst]
+    rw [gnsRep_smul, ContinuousLinearMap.smul_apply]
+    change r • φ.gnsRep a p.1 = (r • Complexification.mapComplex (φ.gnsRep a).toLinearMap p).1
+    rw [show (r • Complexification.mapComplex (φ.gnsRep a).toLinearMap p).1 =
+            ((r : ℂ) • Complexification.mapComplex (φ.gnsRep a).toLinearMap p).1 from rfl,
+        Complexification.smul_fst]
+    simp only [Complex.ofReal_re, Complex.ofReal_im, Complexification.mapComplex_snd,
+               zero_smul, sub_zero, Complexification.mapComplex_fst]
+    rfl
+  · unfold gnsRepComplex
+    simp only [LinearMap.mkContinuous_apply, Complexification.mapComplex_snd]
+    rw [gnsRep_smul, ContinuousLinearMap.smul_apply]
+    change r • φ.gnsRep a p.2 = (r • Complexification.mapComplex (φ.gnsRep a).toLinearMap p).2
+    rw [show (r • Complexification.mapComplex (φ.gnsRep a).toLinearMap p).2 =
+            ((r : ℂ) • Complexification.mapComplex (φ.gnsRep a).toLinearMap p).2 from rfl,
+        Complexification.smul_snd]
+    simp only [Complex.ofReal_re, Complex.ofReal_im, Complexification.mapComplex_fst,
+               zero_smul, add_zero, Complexification.mapComplex_snd]
+    rfl
+
 end MPositiveState
 
 end FreeStarAlgebra

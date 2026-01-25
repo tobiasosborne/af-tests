@@ -210,6 +210,15 @@ theorem mapComplex_add (T₁ T₂ : H →ₗ[ℝ] H) :
     mapComplex (T₁ + T₂) = mapComplex T₁ + mapComplex T₂ := by
   ext p <;> rfl
 
+/-- Scalar multiplication complexifies: (r • T)_ℂ = (r : ℂ) • T_ℂ. -/
+theorem mapComplex_smul (r : ℝ) (T : H →ₗ[ℝ] H) :
+    mapComplex (r • T) = (r : ℂ) • mapComplex T := by
+  ext p
+  · simp only [mapComplex_fst, LinearMap.smul_apply, smul_fst,
+               Complex.ofReal_re, Complex.ofReal_im, zero_smul, sub_zero]
+  · simp only [mapComplex_snd, LinearMap.smul_apply, smul_snd,
+               Complex.ofReal_re, Complex.ofReal_im, zero_smul, add_zero]
+
 /-! ### Complex Inner Product -/
 
 variable [Inner ℝ H]
