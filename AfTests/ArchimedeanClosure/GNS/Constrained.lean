@@ -57,6 +57,31 @@ theorem gnsPreRep_generator_inner_nonneg (j : Fin n) (b : FreeStarAlgebra n) :
   rw [gnsPreRep_generator_inner]
   exact φ.apply_m_nonneg (star_generator_mul_mem j b)
 
+/-! ### Generator positivity on the Hilbert space -/
+
+/-- The inner product ⟨x, π(gⱼ)x⟩ is nonnegative on the Hilbert space.
+
+Extended from the quotient by density and continuity.
+The set {x | 0 ≤ ⟪x, π(gⱼ)x⟫} is closed (continuous preimage of [0,∞)),
+and contains the dense subset of quotient elements by gnsPreRep_generator_inner_nonneg. -/
+theorem gnsRep_generator_inner_nonneg (j : Fin n) (x : φ.gnsHilbertSpaceReal) :
+    0 ≤ @inner ℝ _ _ x (φ.gnsRep (generator j) x) := by
+  letI seminorm : SeminormedAddCommGroup φ.gnsQuotient :=
+    φ.gnsQuotientNormedAddCommGroup.toSeminormedAddCommGroup
+  letI ips : InnerProductSpace ℝ φ.gnsQuotient :=
+    @InnerProductSpace.ofCore ℝ _ _ _ _ φ.gnsInnerProductCore.toCore
+  induction x using UniformSpace.Completion.induction_on with
+  | hp =>
+    -- The set {x | 0 ≤ ⟪x, π(gⱼ)x⟫} is closed
+    apply isClosed_le continuous_const
+    exact Continuous.inner continuous_id (φ.gnsRep (generator j)).continuous
+  | ih y =>
+    -- y is in the quotient, extract representative
+    obtain ⟨b, rfl⟩ := φ.gnsQuotient_mk_surjective y
+    rw [gnsRep_coe, @UniformSpace.Completion.inner_coe ℝ φ.gnsQuotient _ seminorm ips,
+      inner_eq_gnsInner, gnsBoundedPreRep_eq_gnsPreRep]
+    exact gnsPreRep_generator_inner_nonneg φ j b
+
 end MPositiveState
 
 end FreeStarAlgebra

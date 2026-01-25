@@ -474,9 +474,31 @@ theorem gnsPreRep_generator_inner_nonneg (j : Fin n) (b : FreeStarAlgebra n) :
   exact φ.apply_m_nonneg (star_generator_mul_mem j b)
 ```
 
-**Extension to Hilbert Space:** Use density + continuity pattern:
-- Suffice to check on quotient elements (by density)
-- The closed condition uses continuity of inner product
+**Extension to Hilbert Space (2026-01-25): COMPLETED**
+
+Proved `gnsRep_generator_inner_nonneg` extending to the full Hilbert space:
+```lean
+theorem gnsRep_generator_inner_nonneg (j : Fin n) (x : φ.gnsHilbertSpaceReal) :
+    0 ≤ @inner ℝ _ _ x (φ.gnsRep (generator j) x) := by
+  letI seminorm : SeminormedAddCommGroup φ.gnsQuotient := ...
+  letI ips : InnerProductSpace ℝ φ.gnsQuotient :=
+    @InnerProductSpace.ofCore ℝ _ _ _ _ φ.gnsInnerProductCore.toCore
+  induction x using UniformSpace.Completion.induction_on with
+  | hp => apply isClosed_le continuous_const (Continuous.inner ...)
+  | ih y => rw [gnsRep_coe, inner_coe, inner_eq_gnsInner, ...]; exact ...
+```
+
+**Critical Pattern: InnerProductSpace.ofCore for inner_coe**
+
+To use `UniformSpace.Completion.inner_coe`, you need `InnerProductSpace 𝕜 E` on the
+pre-completion space. If you only have `InnerProductSpace.Core`, convert it:
+
+```lean
+letI ips : InnerProductSpace ℝ φ.gnsQuotient :=
+  @InnerProductSpace.ofCore ℝ _ _ _ _ φ.gnsInnerProductCore.toCore
+```
+
+Without this, `inner_coe` fails to match because the inner product instance isn't found.
 
 **Lesson:** The quadratic module `M` was designed exactly to make generators map to
 positive operators. The `star_generator_mul_mem` constructor is the algebraic reason

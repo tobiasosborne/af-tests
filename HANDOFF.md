@@ -1,8 +1,25 @@
-# Handoff: 2026-01-25 (Session 22)
+# Handoff: 2026-01-25 (Session 23)
 
 ## Completed This Session
 
-### Created `GNS/Constrained.lean` - Generator Positivity Foundation
+### Extended Generator Positivity to Hilbert Space
+
+Added `gnsRep_generator_inner_nonneg` to `GNS/Constrained.lean` (now 87 LOC, 0 sorries):
+
+```lean
+-- Generator positivity on the full Hilbert space (PROVEN)
+theorem gnsRep_generator_inner_nonneg (j : Fin n) (x : φ.gnsHilbertSpaceReal) :
+    0 ≤ @inner ℝ _ _ x (φ.gnsRep (generator j) x)
+```
+
+**Key Pattern Discovered:** To use `UniformSpace.Completion.inner_coe`, need explicit
+`InnerProductSpace` instance (not just Core):
+```lean
+letI ips : InnerProductSpace ℝ φ.gnsQuotient :=
+  @InnerProductSpace.ofCore ℝ _ _ _ _ φ.gnsInnerProductCore.toCore
+```
+
+### Previous Session: Created `GNS/Constrained.lean` - Generator Positivity Foundation
 
 Created `AfTests/ArchimedeanClosure/GNS/Constrained.lean` (62 LOC, 0 sorries):
 
@@ -48,15 +65,15 @@ Added "Generator Positivity: Key Insight" to `docs/GNS/learnings/completion-topo
 | GNS/Bounded.lean | Done | 148 | 0 | |
 | GNS/Extension.lean | Done | **242** | 0 | Exceeds 200 (tracked) |
 | GNS/Star.lean | Done | 187 | **1** | CompleteSpace sorry |
-| **GNS/Constrained.lean** | **NEW** | **62** | **0** | Generator positivity foundation |
+| **GNS/Constrained.lean** | Done | **87** | **0** | Generator positivity (quotient + Hilbert) |
 
 ---
 
 ## What's Next for GNS-8 (Generator Positivity)
 
-**Quotient-level foundation done.** Next steps:
+**Hilbert space positivity done.** Next steps:
 
-1. **Extend to real Hilbert space**: Prove `gnsRep_generator_inner_nonneg` using density
+1. ~~**Extend to real Hilbert space**: Prove `gnsRep_generator_inner_nonneg` using density~~ ✅ DONE
 2. **Prove IsSelfAdjoint**: Use `isSelfAdjoint_generator` + star homomorphism property
 3. **Assemble IsPositive**: Combine IsSelfAdjoint + inner product nonnegativity
 4. **Complex version**: Extend to `gnsRepComplex_generator_isPositive`
@@ -75,6 +92,6 @@ Added "Generator Positivity: Key Insight" to `docs/GNS/learnings/completion-topo
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/GNS/Constrained.lean` (NEW - generator positivity foundation)
-- `docs/GNS/learnings/completion-topology.md` (added generator positivity learning)
+- `AfTests/ArchimedeanClosure/GNS/Constrained.lean` (added `gnsRep_generator_inner_nonneg`)
+- `docs/GNS/learnings/completion-topology.md` (added InnerProductSpace.ofCore pattern)
 - `HANDOFF.md` (this file)
