@@ -1,21 +1,18 @@
-# Handoff: 2026-01-25 (Session 4)
+# Handoff: 2026-01-25 (Session 5)
 
 ## Completed This Session
 
-### GNS-3b partial: Inner product properties (af-tests-7qgk - IN PROGRESS)
+### GNS-3b progress: Positive definiteness (af-tests-7qgk - IN PROGRESS)
 
-Added 4 inner product lemmas to `AfTests/ArchimedeanClosure/GNS/Quotient.lean`:
+Added positive definiteness to `AfTests/ArchimedeanClosure/GNS/Quotient.lean`:
 
 ```lean
-theorem gnsInner_symm (x y : φ.gnsQuotient) : φ.gnsInner x y = φ.gnsInner y x
-theorem gnsInner_nonneg (x : φ.gnsQuotient) : 0 ≤ φ.gnsInner x x
-theorem gnsInner_add_left (x y z : φ.gnsQuotient) :
-    φ.gnsInner (x + y) z = φ.gnsInner x z + φ.gnsInner y z
-theorem gnsInner_smul_left (r : ℝ) (x y : φ.gnsQuotient) :
-    φ.gnsInner (r • x) y = r * φ.gnsInner x y
+theorem gnsInner_self_eq_zero_iff (x : φ.gnsQuotient) :
+    φ.gnsInner x x = 0 ↔ x = 0
 ```
 
-These are exactly the properties needed for `PreInnerProductSpace.Core ℝ`.
+**Proof technique:** Reduces to `Submodule.Quotient.mk_eq_zero` and definitional equality
+with `mem_gnsNullIdeal_iff`. Very clean - two rewrites and `rfl`.
 
 ---
 
@@ -31,15 +28,14 @@ These are exactly the properties needed for `PreInnerProductSpace.Core ℝ`.
 | Representation/VectorState.lean | Done | 143 | 0 | |
 | Representation/GNSConstrained.lean | In Progress | 126 | 1 | `gns_representation_exists` |
 | GNS/NullSpace.lean | Done | 142 | 0 | AddSubgroup + left ideal + Submodule |
-| GNS/Quotient.lean | **In Progress** | **145** | **0** | Inner properties added |
+| GNS/Quotient.lean | **In Progress** | **161** | **0** | +Positive definiteness |
 
 ---
 
 ## Next Steps (Priority Order)
 
 ### GNS-3b Remaining Work
-1. Build `PreInnerProductSpace.Core ℝ φ.gnsQuotient` using the 4 lemmas
-2. Prove positive definiteness: `gnsInner x x = 0 ↔ x = 0`
+1. Build `PreInnerProductSpace.Core ℝ φ.gnsQuotient` using the 5 lemmas (symm, nonneg, add_left, smul_left, self_eq_zero_iff)
 
 ### After GNS-3b
 1. **GNS-4**: Build SeminormedAddCommGroup instance and completion
@@ -57,8 +53,7 @@ GNS-2a ✓ → GNS-2b ✓ → GNS-3a ✓ → GNS-3b (IN PROGRESS) → GNS-4 ─�
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/GNS/Quotient.lean` (+37 LOC, now 145)
-- `docs/ArchimedeanClosure/LEARNINGS_proofs.md` (+20 LOC, Pattern 5: AlgebraMap Commutation)
+- `AfTests/ArchimedeanClosure/GNS/Quotient.lean` (+16 LOC, now 161)
 - `HANDOFF.md` (this file)
 
 ---
@@ -67,18 +62,18 @@ GNS-2a ✓ → GNS-2b ✓ → GNS-3a ✓ → GNS-3b (IN PROGRESS) → GNS-4 ─�
 
 - **LEARNINGS_misc.md exceeds 200 LOC** (316 LOC) - tracked by af-tests-2d6o
 - `gns_representation_exists` - needs full GNS construction (several more files)
-- **GNS-3b partially complete** - inner lemmas done, Core instance not yet built
+- **GNS-3b partially complete** - inner lemmas + positive definiteness done, Core instance not yet built
 
 ---
 
-## Learnings
+## Learnings (from this session)
 
-**AlgebraMap commutation for scalar proofs:**
-When proving inner product scalar properties like `⟨r•x, y⟩ = r*⟨x, y⟩`:
-1. Use `Algebra.smul_def` to convert `r • a` to `algebraMap r * a`
-2. Use `← mul_assoc` to group terms
-3. Use `← Algebra.commutes` to move algebraMap to the front
-4. The algebraMap of the base ring is in the center, so this always works
+**Quotient membership is definitional:**
+The proof of positive definiteness was very simple because:
+1. `Submodule.Quotient.mk_eq_zero` gives `[a] = 0 ↔ a ∈ p`
+2. `mem_gnsNullIdeal_iff` is definitionally `a ∈ gnsNullIdeal ↔ φ(star a * a) = 0`
+3. After the rewrite, the goal becomes definitionally equal (`rfl`)
 
-See `docs/ArchimedeanClosure/LEARNINGS_proofs.md` for full pattern.
+**Pattern:** When quotient properties reduce to membership, check if the membership
+characterization is definitional. If so, `rw [...]; rfl` is cleaner than explicit `exact`.
 

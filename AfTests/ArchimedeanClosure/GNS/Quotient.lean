@@ -140,6 +140,22 @@ theorem gnsInner_smul_left (r : ℝ) (x y : φ.gnsQuotient) :
   rw [Algebra.smul_def, ← mul_assoc]
   rw [← Algebra.commutes r (star b), mul_assoc, ← Algebra.smul_def, φ.map_smul]
 
+/-! ### Positive definiteness -/
+
+/-- Positive definiteness: ⟨x, x⟩ = 0 ↔ x = 0.
+
+**Proof:**
+- (→): If φ(star a * a) = 0, then a ∈ N_φ by definition, so [a] = 0 in the quotient.
+- (←): If x = 0, then ⟨0, 0⟩ = φ(star 0 * 0) = φ(0) = 0. -/
+theorem gnsInner_self_eq_zero_iff (x : φ.gnsQuotient) :
+    φ.gnsInner x x = 0 ↔ x = 0 := by
+  obtain ⟨a, rfl⟩ := φ.gnsQuotient_mk_surjective x
+  simp only [gnsInner_mk]
+  rw [Submodule.Quotient.mk_eq_zero]
+  -- Now goal: φ(star a * a) = 0 ↔ a ∈ φ.gnsNullIdeal
+  -- This is exactly mem_gnsNullIdeal_iff
+  rfl
+
 end MPositiveState
 
 end FreeStarAlgebra
