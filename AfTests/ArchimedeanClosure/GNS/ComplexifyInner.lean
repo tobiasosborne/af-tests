@@ -16,11 +16,9 @@ real inner product space.
 * `inner_add_left'` - Additivity: ⟪p + p', q⟫ = ⟪p, q⟫ + ⟪p', q⟫
 * `inner_nonneg_re'` - Positivity: 0 ≤ Re⟪p, p⟫
 * `inner_smul_left'` - Scalar multiplication: ⟪c • p, q⟫ = conj(c) * ⟪p, q⟫
+* `inner_definite'` - Definiteness: ⟪p, p⟫ = 0 → p = 0
 
-## TODO
-
-Remaining axiom for InnerProductSpace.Core:
-* `inner_definite` - Definiteness: ⟪p, p⟫ = 0 → p = 0
+All 5 InnerProductSpace.Core axioms are now proven!
 -/
 
 namespace ArchimedeanClosure
@@ -93,6 +91,24 @@ theorem inner_smul_left' (c : ℂ) (p q : Complexification H) :
         inner_smul_left (𝕜 := ℝ), inner_smul_left (𝕜 := ℝ)]
     simp only [RCLike.conj_to_real]
     ring
+
+/-- Definiteness: ⟪p, p⟫_ℂ = 0 → p = 0.
+
+For p = (x, y), ⟪p, p⟫ = 0 implies ⟪x, x⟫_ℝ + ⟪y, y⟫_ℝ = 0.
+Since both terms are nonnegative, each is 0, so x = y = 0. -/
+theorem inner_definite' (p : Complexification H) (hp : ⟪p, p⟫_ℂ = 0) : p = 0 := by
+  -- Extract that real part is 0
+  have hre : (⟪p, p⟫_ℂ).re = 0 := by rw [hp]; rfl
+  simp only [inner_re] at hre
+  -- Both ⟪p.1, p.1⟫ and ⟪p.2, p.2⟫ are nonneg, sum = 0 implies each = 0
+  have h1 : @inner ℝ H _ p.1 p.1 = 0 :=
+    (add_eq_zero_iff_of_nonneg real_inner_self_nonneg real_inner_self_nonneg).mp hre |>.1
+  have h2 : @inner ℝ H _ p.2 p.2 = 0 :=
+    (add_eq_zero_iff_of_nonneg real_inner_self_nonneg real_inner_self_nonneg).mp hre |>.2
+  -- By definiteness of real inner product
+  have hp1 : p.1 = 0 := inner_self_eq_zero (𝕜 := ℝ).mp h1
+  have hp2 : p.2 = 0 := inner_self_eq_zero (𝕜 := ℝ).mp h2
+  ext <;> assumption
 
 end Complexification
 

@@ -240,16 +240,16 @@ theorem embed_add (x y : H) : embed (x + y) = embed x + embed y := by
   simp only [Prod.mk_add_mk, add_zero]
 ```
 
-**Progress (2026-01-25):**
+**Progress (2026-01-25): ALL AXIOMS COMPLETE!**
 - ✅ `Module ℂ (Complexification H)` instance COMPLETE (Complexify.lean)
 - ✅ `Inner ℂ (Complexification H)` instance COMPLETE (Complexify.lean)
 - ✅ `inner_conj_symm'` - Conjugate symmetry proven (ComplexifyInner.lean)
 - ✅ `inner_add_left'` - Additivity proven (ComplexifyInner.lean)
 - ✅ `inner_nonneg_re'` - Positivity proven (ComplexifyInner.lean)
 - ✅ `inner_smul_left'` - Scalar multiplication proven (ComplexifyInner.lean)
+- ✅ `inner_definite'` - Definiteness proven (ComplexifyInner.lean)
 
-**Remaining for InnerProductSpace.Core:**
-- `inner_definite` - Definiteness: ⟪p, p⟫ = 0 → p = 0
+**Next step:** Package axioms into `InnerProductSpace.Core` instance.
 
 **Key techniques:**
 - The `module` tactic solves goals involving module scalar multiplication that `ring` cannot.
@@ -258,6 +258,8 @@ theorem embed_add (x y : H) : embed (x + y) = embed x + embed y := by
   The generic `inner_self_nonneg` returns `0 ≤ RCLike.re ⟪x, x⟫_𝕜` which doesn't unify.
 - `real_inner_comm` is the mathlib lemma for real inner product symmetry.
 - `inner_add_left (𝕜 := ℝ)` explicitly selects the real inner product version.
+- `add_eq_zero_iff_of_nonneg` is useful for "sum of nonneg = 0 implies each = 0".
+- `inner_self_eq_zero (𝕜 := ℝ)` gives the iff for real inner product definiteness.
 
 **Lesson:** When creating type aliases that inherit instances via `inferInstanceAs`,
 use `change` or explicit type annotations to help simp lemmas recognize the structure.
