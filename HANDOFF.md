@@ -1,16 +1,17 @@
-# Handoff: 2026-01-25 (Session 15)
+# Handoff: 2026-01-25 (Session 16)
 
 ## Completed This Session
 
-### Documented ContinuousLinearMap Instance Diamond Issue
-Investigated creating `gnsBoundedPreRep` as a `ContinuousLinearMap` for the GNS extension.
-Discovered a significant topology diamond issue that requires explicit `@` syntax.
+### Created gnsBoundedPreRep Definition
+Successfully applied the topology diamond resolution pattern from previous session.
 
-**Key Finding:** The GNS quotient has two incompatible TopologicalSpace instances:
-1. Quotient module topology (from `Submodule.Quotient`)
-2. Seminormed topology (from `InnerProductSpace.Core.toNormedAddCommGroup`)
+Created `AfTests/ArchimedeanClosure/GNS/Extension.lean` with:
+- `gnsBoundedPreRep` - pre-representation as `ContinuousLinearMap` using explicit `@` syntax
+- All instances derived from `gnsQuotientNormedAddCommGroup` for consistency
+- Bound: `Real.sqrt (archimedeanBound a)` from `gnsLeftAction_bounded`
 
-This is documented in detail in `docs/GNS/learnings/completion-topology.md`.
+**This resolves the blocker** documented in Session 15 by successfully applying
+the explicit @ syntax pattern from `docs/GNS/learnings/completion-topology.md`.
 
 ---
 
@@ -33,6 +34,7 @@ This is documented in detail in `docs/GNS/learnings/completion-topology.md`.
 | GNS/ComplexifyInner.lean | Done | 160 | 0 | Full InnerProductSpace + embed_norm |
 | GNS/ComplexifyGNS.lean | Done | 76 | 0 | Complexified GNS + Ω_ℂ norm |
 | GNS/Bounded.lean | Done | 148 | 0 | Archimedean boundedness |
+| GNS/Extension.lean | In Progress | 53 | 0 | gnsBoundedPreRep done |
 
 ---
 
@@ -47,15 +49,14 @@ The sorry requires constructing a `ConstrainedStarRep` from an M-positive state.
 - ✅ Boundedness: `gnsLeftAction_bounded`
 
 **What's missing:**
-1. **gnsBoundedPreRep**: Wrap `gnsLeftAction` as `ContinuousLinearMap` (blocked by topology diamond)
+1. ✅ **gnsBoundedPreRep**: Wrap `gnsLeftAction` as `ContinuousLinearMap` (DONE - Session 16)
 2. **Extension to completion**: Extend to `gnsHilbertSpaceReal` using `Completion.map`
 3. **Extension to complexification**: Extend to `gnsHilbertSpaceComplex`
 4. **Star algebra homomorphism**: Package as `→⋆ₐ[ℝ]` preserving star/mult/identity
 5. **Generator positivity**: Prove `π(gⱼ).IsPositive` for each generator
 6. **Vector state formula**: Prove φ(a) = Re⟨Ω, π(a)Ω⟩
 
-**Blocker:** Step 1 requires explicit `@` syntax to resolve the topology diamond.
-See `docs/GNS/learnings/completion-topology.md` for the pattern from original GNS.
+**Next step:** Add `gnsRep` using `Completion.map` (step 2).
 
 ---
 
@@ -68,17 +69,16 @@ See `docs/GNS/learnings/completion-topology.md` for the pattern from original GN
 
 ## Learnings (from this session)
 
-**Topology diamond blocks simple ContinuousLinearMap definition:**
-When the GNS quotient has both quotient module topology and seminormed topology,
-you cannot use `φ.gnsQuotient →L[ℝ] φ.gnsQuotient` directly. Must use explicit `@`
-syntax specifying ALL instances (TopologicalSpace, AddCommMonoid, Module) derived
-from the same root (gnsQuotientNormedAddCommGroup).
-
-The original GNS Extension.lean (lines 42-52) shows the correct pattern.
+**Pattern for topology diamond resolution:**
+The explicit @ syntax from the original GNS Extension.lean works for the ArchimedeanClosure
+GNS as well. Key is deriving ALL instances from `gnsQuotientNormedAddCommGroup`:
+- TopologicalSpace from `.toUniformSpace.toTopologicalSpace`
+- AddCommMonoid from `.toAddCommMonoid`
+- Module from `NormedSpace.toModule`
 
 ---
 
 ## Files Modified This Session
 
-- `docs/GNS/learnings/completion-topology.md` (+42 LOC: ContinuousLinearMap instance diamond)
+- `AfTests/ArchimedeanClosure/GNS/Extension.lean` (NEW - 53 LOC: gnsBoundedPreRep)
 - `HANDOFF.md` (this file)
