@@ -1,21 +1,315 @@
 % Appendix: Lean Declaration Index
 % Generated from: All .lean files in AfTests/ArchimedeanClosure/
-% Status: PLACEHOLDER - to be filled by LaTeX-P4.1
+% Total: 44 files, 4,943 lines
 
 \chapter{Lean Declaration Index}
 \label{ch:lean-index}
 
-% TODO: Fill in from LaTeX-P4.1 task
-\textbf{[PLACEHOLDER: To be generated from Lean source]}
+This appendix provides an index of the key Lean declarations in the formalization,
+organized by module. The complete source code is available in \texttt{AfTests/ArchimedeanClosure/}.
 
-This appendix provides a complete index of all Lean declarations
-in the formalization, organized by module.
+%% ============================================================
+\section{Algebra Module}
+\label{sec:index-algebra}
 
-\section{Definitions}
-\label{sec:index-definitions}
+\subsection{FreeStarAlgebra.lean}
 
-\section{Theorems and Lemmas}
-\label{sec:index-theorems}
+\begin{description}
+\item[\texttt{FreeStarAlgebra}] \hfill \texttt{: $\mathbb{N} \to$ Type}
 
-\section{Instances}
-\label{sec:index-instances}
+  The free $*$-algebra on $n$ self-adjoint generators.
+
+\item[\texttt{generator}] \hfill \texttt{: Fin n $\to$ FreeStarAlgebra n}
+
+  The $j$-th generator $g_j$.
+
+\item[\texttt{isSelfAdjoint\_generator}] \hfill \texttt{$\forall$ j, IsSelfAdjoint (generator j)}
+
+  Each generator is self-adjoint: $g_j^* = g_j$.
+\end{description}
+
+\subsection{QuadraticModule.lean}
+
+\begin{description}
+\item[\texttt{squareSet}] \hfill \texttt{: Set (FreeStarAlgebra n)}
+
+  The set $\{a^*a : a \in A_0\}$.
+
+\item[\texttt{generatorWeightedSet}] \hfill \texttt{: Set (FreeStarAlgebra n)}
+
+  The set $\{b^* g_j b : j \in [n], b \in A_0\}$.
+
+\item[\texttt{QuadraticModule}] \hfill \texttt{: Set (FreeStarAlgebra n)}
+
+  The quadratic module $M = \operatorname{AddSubmonoid.closure}(\text{squares} \cup \text{weighted})$.
+
+\item[\texttt{star\_mul\_self\_mem}] \hfill \texttt{$\forall$ a, star a * a $\in$ QuadraticModule n}
+
+  Squares are in $M$.
+
+\item[\texttt{star\_generator\_mul\_mem}] \hfill \texttt{$\forall$ j b, star b * generator j * b $\in$ M}
+
+  Generator-weighted terms are in $M$.
+
+\item[\texttt{QuadraticModule.add\_mem}] \hfill ---
+
+  Closure under addition.
+
+\item[\texttt{QuadraticModule.star\_mul\_mem\_star\_mul}] \hfill \texttt{m $\in$ M $\to$ star b * m * b $\in$ M}
+
+  Closure under $*$-conjugation.
+\end{description}
+
+\subsection{Archimedean.lean}
+
+\begin{description}
+\item[\texttt{IsArchimedean}] \hfill \texttt{: $\mathbb{N} \to$ Prop}
+
+  The Archimedean property: $\forall a, \exists N, N \cdot 1 - a^*a \in M$.
+
+\item[\texttt{archimedeanBound}] \hfill \texttt{: FreeStarAlgebra n $\to \mathbb{N}$}
+
+  The witness $N$ for the Archimedean property.
+
+\item[\texttt{archimedeanBound\_spec}] \hfill ---
+
+  \texttt{(archimedeanBound a) $\cdot$ 1 - star a * a $\in$ QuadraticModule n}
+\end{description}
+
+%% ============================================================
+\section{State Module}
+\label{sec:index-state}
+
+\subsection{MPositiveState.lean}
+
+\begin{description}
+\item[\texttt{MPositiveState}] \hfill \texttt{: $\mathbb{N} \to$ Type}
+
+  An $M$-positive state: a linear functional $\varphi : A_0 \to \mathbb{R}$ with
+  $\varphi(1) = 1$ and $\varphi(m) \geq 0$ for $m \in M$.
+
+\item[\texttt{apply\_one}] \hfill \texttt{: $\varphi$ 1 = 1}
+
+  Normalization.
+
+\item[\texttt{apply\_m\_nonneg}] \hfill \texttt{m $\in$ M $\to$ 0 $\leq \varphi$ m}
+
+  $M$-positivity.
+
+\item[\texttt{apply\_star\_mul\_self\_nonneg}] \hfill \texttt{$\forall$ a, 0 $\leq \varphi$ (star a * a)}
+
+  Positivity on squares.
+
+\item[\texttt{map\_add}, \texttt{map\_smul}] \hfill ---
+
+  Linearity.
+\end{description}
+
+\subsection{NonEmptiness.lean}
+
+\begin{description}
+\item[\texttt{scalarExtraction}] \hfill \texttt{: FreeStarAlgebra n $\to \mathbb{R}$}
+
+  The vacuum state $\varphi_0(a) = c_\emptyset$.
+
+\item[\texttt{scalarExtraction\_mPositive}] \hfill \texttt{MPositiveState scalarExtraction}
+
+  The scalar extraction is $M$-positive.
+\end{description}
+
+%% ============================================================
+\section{Boundedness Module}
+\label{sec:index-boundedness}
+
+\subsection{CauchySchwarzM.lean}
+
+\begin{description}
+\item[\texttt{cauchy\_schwarz}] \hfill ---
+
+  \texttt{$\varphi$(star b * a)$^2$ $\leq$ $\varphi$(star a * a) * $\varphi$(star b * b)}
+
+  The Cauchy--Schwarz inequality for $M$-positive states.
+
+\item[\texttt{apply\_sq\_le}] \hfill \texttt{$\varphi$ a$^2$ $\leq$ $\varphi$(star a * a)}
+
+  Bound on values.
+
+\item[\texttt{sesqForm\_symm}] \hfill \texttt{$\varphi$(star a * b) = $\varphi$(star b * a)}
+
+  Symmetry of the sesquilinear form.
+\end{description}
+
+\subsection{ArchimedeanBound.lean}
+
+\begin{description}
+\item[\texttt{apply\_star\_self\_le}] \hfill \texttt{$\varphi$(star a * a) $\leq$ archimedeanBound a}
+
+  Uniform bound from Archimedean property.
+\end{description}
+
+%% ============================================================
+\section{Topology Module}
+\label{sec:index-topology}
+
+\subsection{Compactness.lean}
+
+\begin{description}
+\item[\texttt{toProductFun}] \hfill \texttt{: MPositiveState n $\to$ (FreeStarAlgebra n $\to \mathbb{R}$)}
+
+  Embedding into product space.
+
+\item[\texttt{toProductFun\_injective}] \hfill ---
+
+  The embedding is injective.
+
+\item[\texttt{stateSet\_isCompact}] \hfill \texttt{IsCompact (Set.range toProductFun)}
+
+  $S_M$ is compact (Tychonoff).
+
+\item[\texttt{stateSet\_isClosed}] \hfill \texttt{IsClosed (Set.range toProductFun)}
+
+  $S_M$ is closed.
+\end{description}
+
+%% ============================================================
+\section{Seminorm Module}
+\label{sec:index-seminorm}
+
+\subsection{StateSeminorm.lean}
+
+\begin{description}
+\item[\texttt{stateSeminorm}] \hfill \texttt{: FreeStarAlgebra n $\to \mathbb{R}$}
+
+  The state seminorm $\|a\|_M = \sup_{\varphi \in S_M} |\varphi(a)|$.
+
+\item[\texttt{stateSeminorm\_nonneg}] \hfill \texttt{0 $\leq$ stateSeminorm a}
+
+  Non-negativity.
+
+\item[\texttt{stateSeminorm\_add}] \hfill ---
+
+  \texttt{stateSeminorm (a + b) $\leq$ stateSeminorm a + stateSeminorm b}
+
+  Triangle inequality.
+
+\item[\texttt{stateSeminorm\_le}] \hfill \texttt{stateSeminorm a $\leq$ $\sqrt{\text{archimedeanBound } a}$}
+
+  Uniform bound.
+
+\item[\texttt{MPositiveState.apply\_abs\_le\_seminorm}] \hfill \texttt{|$\varphi$ a| $\leq$ stateSeminorm a}
+
+  State values bounded by seminorm.
+\end{description}
+
+\subsection{Closure.lean}
+
+\begin{description}
+\item[\texttt{quadraticModuleClosure}] \hfill \texttt{: Set (FreeStarAlgebra n)}
+
+  The closure $\overline{M}$ in the seminorm topology.
+\end{description}
+
+%% ============================================================
+\section{Dual Module}
+\label{sec:index-dual}
+
+\subsection{RieszApplication.lean}
+
+\begin{description}
+\item[\texttt{quadraticModuleClosureProperCone}] \hfill \texttt{: ProperCone $\mathbb{R}$ (FreeStarAlgebra n)}
+
+  $\overline{M}$ as a proper cone.
+
+\item[\texttt{riesz\_extension\_exists}] \hfill ---
+
+  \texttt{IsSelfAdjoint A $\to$ A $\notin \overline{M}$ $\to$
+  $\exists \psi$, ($\forall$ m $\in$ M, 0 $\leq \psi$ m) $\land$ $\psi$ A $<$ 0}
+
+  Riesz extension theorem application.
+\end{description}
+
+\subsection{DualCharacterization.lean}
+
+\begin{description}
+\item[\texttt{dual\_characterization}] \hfill ---
+
+  \texttt{IsSelfAdjoint A $\to$
+  (A $\in \overline{M}$ $\iff$ $\forall \varphi$ : MPositiveState n, 0 $\leq \varphi$ A)}
+
+  Dual characterization of closure membership.
+\end{description}
+
+%% ============================================================
+\section{Representation Module}
+\label{sec:index-representation}
+
+\subsection{Constrained.lean}
+
+\begin{description}
+\item[\texttt{ConstrainedStarRep}] \hfill \texttt{: $\mathbb{N} \to$ Type}
+
+  A constrained $*$-representation: a $*$-homomorphism $\pi : A_0 \to B(H)$
+  with $\pi(g_j) \geq 0$ for all generators.
+
+\item[\texttt{apply\_generator\_isPositive}] \hfill \texttt{$\forall$ j, ($\pi$ (generator j)).IsPositive}
+
+  Generator positivity constraint.
+
+\item[\texttt{apply\_one}, \texttt{apply\_mul}, \texttt{apply\_star}] \hfill ---
+
+  $*$-homomorphism properties.
+\end{description}
+
+\subsection{VectorState.lean}
+
+\begin{description}
+\item[\texttt{vectorState}] \hfill \texttt{: $\pi$ $\to$ H $\to$ MPositiveState n}
+
+  The vector state $\varphi_\xi(a) = \langle \xi, \pi(a)\xi \rangle$.
+
+\item[\texttt{vectorState\_mPositive}] \hfill ---
+
+  Vector states from constrained reps are $M$-positive.
+\end{description}
+
+%% ============================================================
+\section{Main Module}
+\label{sec:index-main}
+
+\subsection{Theorem.lean}
+
+\begin{description}
+\item[\texttt{main\_theorem}] \hfill ---
+
+  \texttt{IsSelfAdjoint A $\to$
+  (A $\in \overline{M}$ $\iff$ $\forall \pi$ : ConstrainedStarRep n, ($\pi$ A).IsPositive)}
+
+  \textbf{Main Theorem}: $A \in \overline{M}$ if and only if $\pi(A) \geq 0$ for all
+  constrained $*$-representations $\pi$.
+\end{description}
+
+%% ============================================================
+\section{File Statistics}
+\label{sec:index-stats}
+
+\begin{center}
+\begin{tabular}{lrr}
+\toprule
+\textbf{Module} & \textbf{Files} & \textbf{LOC} \\
+\midrule
+Algebra & 3 & 228 \\
+State & 3 & 249 \\
+Boundedness & 3 & 340 \\
+Topology & 5 & 521 \\
+Seminorm & 3 & 263 \\
+Dual & 6 & 745 \\
+GNS & 16 & 1,892 \\
+Representation & 3 & 412 \\
+Main & 2 & 293 \\
+\midrule
+\textbf{Total} & \textbf{44} & \textbf{4,943} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+All proofs are complete with zero \texttt{sorry} declarations.

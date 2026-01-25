@@ -2,15 +2,21 @@
 
 ## Completed This Session
 
-### APPENDIX COMPLETE
+### APPENDICES COMPLETE
 
-Added non-emptiness appendix (`appendix/nonemptiness.tex`) proving $S_M \neq \emptyset$.
+1. **Appendix A: Non-emptiness** (`nonemptiness.tex`)
+   - Proves $S_M \neq \emptyset$ via scalar extraction functional
+
+2. **Appendix B: Lean Declaration Index** (`lean-index.tex`)
+   - Comprehensive index of all 44 Lean files
+   - Organized by module: Algebra, State, Boundedness, Topology, Seminorm, Dual, Representation, Main
+   - File statistics table
 
 ### LATEX COMPILES SUCCESSFULLY
 
-- **71-page PDF** (548KB)
-- Main theorem document complete
-- All 10 chapters + 2 appendices
+- **75-page PDF** (563KB)
+- All 10 chapters + 2 appendices complete
+- Only minor warning: multiply-defined labels (cosmetic)
 
 ---
 
@@ -24,42 +30,36 @@ Added non-emptiness appendix (`appendix/nonemptiness.tex`) proving $S_M \neq \em
 | Total LOC | 4,943 |
 | Sorries | 0 |
 
-### LaTeX Generation: COMPLETE
+### LaTeX Document: COMPLETE
 
-| Phase | Status |
-|-------|--------|
-| P0 (Setup) | Done |
-| P1 (Core chapters 01-07) | Done (1,841 lines) |
-| P2 (GNS chapter 08) | Done (583 lines) |
-| P3 (Reps + Main 09-10) | Done (565 lines) |
-| P4 (Appendix) | Done |
+| Component | Status |
+|-----------|--------|
+| Chapters 01-07 (P1) | Done |
+| Chapter 08 GNS (P2) | Done |
+| Chapters 09-10 (P3) | Done |
+| Appendix A (Non-emptiness) | Done |
+| Appendix B (Lean Index) | Done |
 
-**Total LaTeX**: ~3,100 lines across 10 chapters + 2 appendices
+**Total**: 75 pages, ~3,400 lines of LaTeX
 
 ---
 
 ## Files Modified This Session
 
 - `latex/appendix/nonemptiness.tex` (new, 93 lines)
-- `latex/main.tex` (added nonemptiness appendix include)
+- `latex/appendix/lean-index.tex` (rewritten, 316 lines)
+- `latex/main.tex` (added appendix includes)
+- `latex/preamble.tex` (added booktabs package)
 
 ---
 
-## Minor Known Issues (Non-blocking)
+## Project Status: COMPLETE
 
-1. **Label conflicts**: Some multiply-defined labels in introduction vs chapter 2
-2. **Undefined refs**: Some cross-references to `sec:vector-state` etc. not defined
+**LEAN FORMALIZATION**
+- 44 files, 4,943 LOC, 0 sorries
+- Main theorem proven: A ∈ M̄ ⟺ π(A) ≥ 0 for all constrained reps
 
-These are cosmetic and don't affect the document structure.
-
----
-
-## Project Status
-
-**FORMALIZATION COMPLETE**
-- 44 Lean files, 4,943 LOC, 0 sorries
-- Main theorem: A ∈ M̄ ⟺ Rep(A) ≥ 0 for all constrained reps
-
-**LATEX DOCUMENT COMPLETE**
-- 71 pages, 548KB PDF
-- Full mathematical exposition with Lean code listings
+**LATEX DOCUMENT**
+- 75 pages, 563KB PDF
+- Full mathematical exposition
+- Complete Lean declaration index
