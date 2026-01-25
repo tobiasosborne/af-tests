@@ -1,30 +1,27 @@
-# Handoff: 2026-01-25
+# Handoff: 2026-01-25 (Session 2)
 
 ## Completed This Session
 
-### Proved state_nonneg_implies_rep_positive (GNS-1)
-**Issue:** af-tests-zcbe (now CLOSED)
+### GNS-2a: Define gnsNullSpace as AddSubgroup (af-tests-ft2f - CLOSED)
 
-Eliminated the sorry at line 45-54 of `AfTests/ArchimedeanClosure/Representation/GNSConstrained.lean`.
+Created `AfTests/ArchimedeanClosure/GNS/NullSpace.lean` (82 LOC).
 
-**Theorem:**
+**Key Implementation:**
 ```lean
-theorem state_nonneg_implies_rep_positive (A : FreeStarAlgebra n)
-    (hA : IsSelfAdjoint A)
-    (hA_states : ∀ φ : FreeStarAlgebra.MPositiveState n, 0 ≤ φ A) :
-    ∀ π : ConstrainedStarRep n, (π A).IsPositive
+def gnsNullSpace : AddSubgroup (FreeStarAlgebra n) where
+  carrier := {a : FreeStarAlgebra n | φ (star a * a) = 0}
+  zero_mem' := by simp only [Set.mem_setOf_eq, star_zero, zero_mul]; exact φ.toFun.map_zero
+  add_mem' := ...  -- Uses Cauchy-Schwarz corollary
+  neg_mem' := by simp only [Set.mem_setOf_eq]; simp [star_neg, ha]
 ```
 
-**Proof Strategy:**
-1. Use `isPositive_def'`: need `IsSelfAdjoint (π A)` and `∀ x, 0 ≤ reApplyInnerSelf x`
-2. Self-adjointness: `hA.map π.toStarAlgHom` (star homs preserve self-adjoint)
-3. For reApplyInnerSelf: handle zero case, then normalize nonzero x to unit vector u
-4. Use vector state on u (from VectorState.lean), scale back by ‖x‖²
+**Also added** to `CauchySchwarzM.lean` (now 112 LOC):
+```lean
+theorem apply_star_mul_eq_zero_of_apply_star_self_eq_zero {a : FreeStarAlgebra n}
+    (ha : φ (star a * a) = 0) (b : FreeStarAlgebra n) : φ (star b * a) = 0
+```
 
-**Key Techniques Documented:**
-- Vector normalization: `norm_smul_inv_norm`
-- Complex scaling: `norm_cast` for `(↑r)^2 = r^2`
-- Self-adjoint mapping: `IsSelfAdjoint.map`
+This is the ℝ-valued analog of the C*-algebra lemma. Proof is simpler since we work with real squares.
 
 ---
 
@@ -36,53 +33,38 @@ theorem state_nonneg_implies_rep_positive (A : FreeStarAlgebra n)
 
 | File | Status | LOC | Sorries | Notes |
 |------|--------|-----|---------|-------|
-| Representation/Constrained.lean | ✅ | 87 | 0 | |
-| Representation/VectorState.lean | ✅ | 143 | 0 | |
-| Representation/GNSConstrained.lean | 🔶 | 125 | 1 | `gns_representation_exists` |
-
-**Note:** `gns_constrained_implies_state_nonneg` is proven but depends on `gns_representation_exists`.
+| Representation/Constrained.lean | Done | 87 | 0 | |
+| Representation/VectorState.lean | Done | 143 | 0 | |
+| Representation/GNSConstrained.lean | In Progress | 126 | 1 | `gns_representation_exists` |
+| **GNS/NullSpace.lean** | **NEW** | **82** | **0** | AddSubgroup definition |
 
 ---
 
 ## Next Steps (Priority Order)
 
-### Ready Now (No Blockers)
-1. **af-tests-ft2f** (GNS-2a): Define `gnsNullSpace` (~30 LOC)
-   - Start of full GNS pipeline
-   - Pattern: AfTests/GNS/NullSpace/Basic.lean
+### Unblocked by GNS-2a
+1. **af-tests-aim5** (GNS-2b): Prove `gnsNullSpace` is a left ideal (~30 LOC)
+   - Pattern: AfTests/GNS/NullSpace/LeftIdeal.lean
+   - Key: `∀ b a, a ∈ N_φ → b * a ∈ N_φ`
 
 ### Dependency Chain for gns_representation_exists
 ```
-GNS-2a → GNS-2b → GNS-3a → GNS-3b → GNS-4 ──┐
-                     │                       │
-                     └── GNS-5 → GNS-6 ──────┴── GNS-7a → GNS-7b → GNS-8 → GNS-9
+GNS-2a ✓ → GNS-2b → GNS-3a → GNS-3b → GNS-4 ──┐
+                     │                          │
+                     └── GNS-5 → GNS-6 ─────────┴── GNS-7a → GNS-7b → GNS-8 → GNS-9
 ```
-
----
-
-## Key Learnings Reference
-
-- `docs/ArchimedeanClosure/LEARNINGS_misc.md`:
-  - **Vector Normalization for IsPositive Proofs** (NEW!)
-  - **IsSelfAdjoint.map for StarAlgHom** (NEW!)
-  - ContinuousLinearMap.IsPositive structure
-  - GNS Construction overview
-
-- `docs/GNS/LEARNINGS.md`:
-  - Inner product convention (SWAP for mathlib)
-  - Quotient/completion induction patterns
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/Representation/GNSConstrained.lean` (proof added, 125 LOC)
-- `docs/ArchimedeanClosure/LEARNINGS_misc.md` (added 2 sections, now 316 LOC - needs refactor)
+- `AfTests/ArchimedeanClosure/Boundedness/CauchySchwarzM.lean` (+8 LOC, now 112)
+- `AfTests/ArchimedeanClosure/GNS/NullSpace.lean` (NEW, 82 LOC)
 - `HANDOFF.md` (this file)
 
 ---
 
 ## Known Issues
 
-- **LEARNINGS_misc.md exceeds 200 LOC** - tracked by new issue
-- `gns_representation_exists` - needs full GNS construction (7 files, ~320 LOC)
+- **LEARNINGS_misc.md exceeds 200 LOC** (316 LOC) - tracked by af-tests-2d6o
+- `gns_representation_exists` - needs full GNS construction (6 more files)

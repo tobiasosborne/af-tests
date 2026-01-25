@@ -99,6 +99,14 @@ theorem apply_sq_le (a : FreeStarAlgebra n) :
   simp only [star_one, one_mul, mul_one] at h
   rwa [φ.apply_one, mul_one] at h
 
+/-- If φ(star a * a) = 0, then φ(star b * a) = 0 for all b.
+    This is a direct consequence of Cauchy-Schwarz. -/
+theorem apply_star_mul_eq_zero_of_apply_star_self_eq_zero {a : FreeStarAlgebra n}
+    (ha : φ (star a * a) = 0) (b : FreeStarAlgebra n) : φ (star b * a) = 0 := by
+  have hcs := cauchy_schwarz φ a b
+  rw [ha, zero_mul] at hcs
+  exact sq_eq_zero_iff.mp (le_antisymm hcs (sq_nonneg _))
+
 end MPositiveState
 
 end FreeStarAlgebra

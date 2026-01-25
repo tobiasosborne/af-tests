@@ -1,0 +1,82 @@
+/-
+Copyright (c) 2026 AF-Tests Contributors. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: AF-Tests Contributors
+-/
+import AfTests.ArchimedeanClosure.Boundedness.CauchySchwarzM
+
+/-! # GNS Null Space for M-Positive States
+
+This file defines the GNS null space N_φ = {a : φ(star a * a) = 0} for M-positive states
+and proves it is an additive subgroup.
+
+## Main definitions
+
+* `MPositiveState.gnsNullSpace` - The GNS null space as an `AddSubgroup`
+
+## Main results
+
+* `MPositiveState.mem_gnsNullSpace_iff` - Membership characterization
+* `MPositiveState.gnsNullSpace_zero_mem` - 0 ∈ N_φ
+* `MPositiveState.gnsNullSpace_add_mem` - Closure under addition (uses Cauchy-Schwarz)
+* `MPositiveState.gnsNullSpace_neg_mem` - Closure under negation
+
+## Mathematical Background
+
+The null space is the set of elements with zero "length" under the state.
+For a ∈ N_φ, we have φ(star a * a) = 0, which by Cauchy-Schwarz implies
+φ(star b * a) = 0 for all b. This is key for proving closure under addition.
+-/
+
+namespace FreeStarAlgebra
+
+namespace MPositiveState
+
+variable {n : ℕ} (φ : MPositiveState n)
+
+/-! ### The GNS null space -/
+
+/-- The GNS null space N_φ = {a : φ(star a * a) = 0}.
+    This is the set of elements with zero "norm squared" under the state. -/
+def gnsNullSpace : AddSubgroup (FreeStarAlgebra n) where
+  carrier := {a : FreeStarAlgebra n | φ (star a * a) = 0}
+  zero_mem' := by
+    simp only [Set.mem_setOf_eq, star_zero, zero_mul]
+    exact φ.toFun.map_zero
+  add_mem' := fun {a b} ha hb => by
+    -- Need: φ(star(a+b) * (a+b)) = 0
+    simp only [Set.mem_setOf_eq] at ha hb ⊢
+    rw [star_add, add_mul, mul_add, mul_add]
+    -- φ(star a * a + star a * b + (star b * a + star b * b))
+    rw [φ.map_add, φ.map_add, φ.map_add]
+    -- By Cauchy-Schwarz: φ(star a * a) = 0 implies φ(star x * a) = 0 for all x
+    have h1 : φ (star a * a) = 0 := ha
+    have h2 : φ (star b * b) = 0 := hb
+    have h3 : φ (star a * b) = 0 := apply_star_mul_eq_zero_of_apply_star_self_eq_zero φ hb a
+    have h4 : φ (star b * a) = 0 := apply_star_mul_eq_zero_of_apply_star_self_eq_zero φ ha b
+    simp [h1, h2, h3, h4]
+  neg_mem' := fun {a} ha => by
+    simp only [Set.mem_setOf_eq] at ha ⊢
+    simp [star_neg, ha]
+
+/-- Membership in the GNS null space. -/
+theorem mem_gnsNullSpace_iff {a : FreeStarAlgebra n} :
+    a ∈ φ.gnsNullSpace ↔ φ (star a * a) = 0 := Iff.rfl
+
+/-- 0 is in the GNS null space. -/
+theorem gnsNullSpace_zero_mem : (0 : FreeStarAlgebra n) ∈ φ.gnsNullSpace :=
+  φ.gnsNullSpace.zero_mem
+
+/-- The GNS null space is closed under addition. -/
+theorem gnsNullSpace_add_mem {a b : FreeStarAlgebra n}
+    (ha : a ∈ φ.gnsNullSpace) (hb : b ∈ φ.gnsNullSpace) : a + b ∈ φ.gnsNullSpace :=
+  φ.gnsNullSpace.add_mem ha hb
+
+/-- The GNS null space is closed under negation. -/
+theorem gnsNullSpace_neg_mem {a : FreeStarAlgebra n}
+    (ha : a ∈ φ.gnsNullSpace) : -a ∈ φ.gnsNullSpace :=
+  φ.gnsNullSpace.neg_mem ha
+
+end MPositiveState
+
+end FreeStarAlgebra
