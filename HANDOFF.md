@@ -1,68 +1,49 @@
-# Handoff: 2026-01-25 (Session 27)
+# Handoff: 2026-01-25 (Session 28)
 
 ## Completed This Session
 
-### Added Cyclic Vector Identity (CyclicIdentity.lean)
+### GNS CONSTRUCTION COMPLETE - 0 SORRIES
 
-Created new file with the key GNS identity:
+Filled the final sorry in `gns_representation_exists` by:
 
-```lean
-theorem gnsRep_cyclicVector (a : FreeStarAlgebra n) :
-    φ.gnsRep a φ.gnsCyclicVector = coe'(Submodule.Quotient.mk a)
+1. **Added complex cyclic vector identity** (CyclicIdentity.lean):
+   - `gnsRepComplex_embed`: Shows `π_ℂ(a)(embed x) = embed(π(a)x)`
+   - `gnsRepComplex_inner_cyclicVectorComplex`: Proves `Re⟨Ω_ℂ, π_ℂ(a)Ω_ℂ⟩ = φ(a)`
 
-theorem gnsRep_inner_cyclicVector (a : FreeStarAlgebra n) :
-    ⟨Ω, π(a)Ω⟩_ℝ = φ a
-```
+2. **Built StarAlgHom for GNS** (GNSConstrained.lean):
+   - Constructed RingHom from `gnsRepComplex_one`, `gnsRepComplex_mul`, etc.
+   - Extended to AlgHom with `commutes'` via `gnsRepComplex_smul`
+   - Extended to StarAlgHom with `map_star'` via `gnsRepComplex_star`
 
-This proves **Step 4** of what was needed for `gns_representation_exists`:
-- `φ(a) = ⟨Ω, π(a)Ω⟩_ℝ` in the real Hilbert space
+3. **Fixed universe polymorphism**:
+   - `ConstrainedStarRep.{0} n` required due to `gnsHilbertSpaceComplex` being `Type`
 
-Key insight: `gnsInner [1] [a] = φ(star a * 1)`, so need `sesqForm_symm` to get `φ(a)`.
+4. **Added `[FreeStarAlgebra.IsArchimedean n]` hypothesis**:
+   - Required by GNS construction for boundedness properties
 
 ---
 
 ## Current State
 
-### Phase 1-6: COMPLETE (0 sorries)
+### GNS Construction: COMPLETE (0 sorries)
 
-### Phase 7-8: **1 sorry remaining**
-
-| File | Status | LOC | Sorries | Notes |
-|------|--------|-----|---------|-------|
-| Representation/Constrained.lean | Done | 87 | 0 | |
-| Representation/VectorState.lean | Done | 143 | 0 | |
-| Representation/GNSConstrained.lean | In Progress | 126 | **1** | `gns_representation_exists` |
-| GNS/NullSpace.lean | Done | 142 | 0 | |
-| GNS/Quotient.lean | Done | 182 | 0 | |
-| GNS/PreRep.lean | Done | 65 | 0 | |
-| GNS/Completion.lean | Done | 118 | 0 | |
-| GNS/Complexify.lean | Done | 232 | 0 | Exceeds 200 (tracked) |
-| GNS/ComplexifyInner.lean | Done | 160 | 0 | |
-| GNS/ComplexifyGNS.lean | Done | 76 | 0 | |
-| GNS/Bounded.lean | Done | 148 | 0 | |
-| GNS/Extension.lean | Done | 242 | 0 | Exceeds 200 (tracked) |
-| GNS/Star.lean | Done | ~326 | 0 | Exceeds 200 (tracked) |
-| GNS/Constrained.lean | Done | 138 | 0 | Generator positivity PROVEN |
-| GNS/CyclicIdentity.lean | **NEW** | 76 | 0 | Cyclic vector identity |
-
----
-
-## What's Next
-
-**Only 1 sorry remains:** `gns_representation_exists` in `GNSConstrained.lean:107`
-
-This requires building a `ConstrainedStarRep n` from the GNS construction. Checklist:
-
-1. ✅ CompleteSpace for `gnsHilbertSpaceComplex`
-2. ✅ Generator positivity: `gnsRepComplex_generator_isPositive`
-3. ✅ **StarAlgHom for gnsRepComplex** - ALL DONE
-4. ✅ **Cyclic vector identity (real)**: ⟨Ω, π(a)Ω⟩_ℝ = φ(a) - DONE in CyclicIdentity.lean
-5. ❌ **Cyclic vector identity (complex)**: Re⟨Ω_ℂ, π_ℂ(a)Ω_ℂ⟩ = φ(a)
-
-For Step 5, need to show:
-- `π_ℂ(a)(Ω, 0) = (π(a)Ω, 0)` (componentwise action on embedded vector)
-- `Re⟨(Ω, 0), (π(a)Ω, 0)⟩_ℂ = ⟨Ω, π(a)Ω⟩_ℝ` (by Complexification.inner_re)
-- Then use `gnsRep_inner_cyclicVector`
+| File | Status | LOC | Notes |
+|------|--------|-----|-------|
+| GNS/NullSpace.lean | Done | 142 | |
+| GNS/Quotient.lean | Done | 182 | |
+| GNS/PreRep.lean | Done | 65 | |
+| GNS/Completion.lean | Done | 118 | |
+| GNS/Complexify.lean | Done | 232 | Exceeds 200 (tracked) |
+| GNS/ComplexifyInner.lean | Done | 160 | |
+| GNS/ComplexifyGNS.lean | Done | 76 | |
+| GNS/Bounded.lean | Done | 148 | |
+| GNS/Extension.lean | Done | 242 | Exceeds 200 (tracked) |
+| GNS/Star.lean | Done | ~326 | Exceeds 200 (tracked) |
+| GNS/Constrained.lean | Done | 138 | Generator positivity |
+| GNS/CyclicIdentity.lean | Done | 110 | Real + complex identity |
+| Representation/Constrained.lean | Done | 87 | |
+| Representation/VectorState.lean | Done | 143 | |
+| Representation/GNSConstrained.lean | **DONE** | 187 | gns_representation_exists PROVEN |
 
 ---
 
@@ -78,6 +59,15 @@ For Step 5, need to show:
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/GNS/CyclicIdentity.lean` (NEW - cyclic vector identity)
-- `docs/ArchimedeanClosure/LEARNINGS_states.md` (added cyclic vector identity docs)
+- `AfTests/ArchimedeanClosure/GNS/CyclicIdentity.lean` (added complex identity)
+- `AfTests/ArchimedeanClosure/Representation/GNSConstrained.lean` (filled sorry)
+- `docs/ArchimedeanClosure/LEARNINGS_states.md` (documented learnings)
 - `HANDOFF.md` (this file)
+
+---
+
+## Next Steps
+
+1. The GNS construction for Archimedean Closure is now complete
+2. Potential cleanup: refactor oversized files (Star.lean, Extension.lean, etc.)
+3. Connect to main theorem if needed

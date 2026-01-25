@@ -164,3 +164,52 @@ We need `sesqForm_symm : φ(star a * b) = φ(star b * a)` to swap the order.
 `AfTests/ArchimedeanClosure/GNS/CyclicIdentity.lean`:
 - `gnsRep_cyclicVector` - π(a)(Ω) = coe'([a])
 - `gnsRep_inner_cyclicVector` - ⟨Ω, π(a)Ω⟩_ℝ = φ(a)
+- `gnsRepComplex_embed` - π_ℂ(a)(embed x) = embed(π(a)x)
+- `gnsRepComplex_inner_cyclicVectorComplex` - Re⟨Ω_ℂ, π_ℂ(a)Ω_ℂ⟩ = φ(a)
+
+---
+
+## Complex Cyclic Vector Identity
+
+### The Key Identity
+`Re⟨Ω_ℂ, π_ℂ(a)Ω_ℂ⟩ = φ(a)`
+
+Where:
+- `Ω_ℂ = embed(Ω) = (Ω, 0)` is the cyclic vector embedded in H_ℂ
+- `π_ℂ(a)` is the complexified GNS representation
+
+### Proof Outline
+1. `π_ℂ(a)(Ω, 0) = (π(a)Ω, π(a)0) = (π(a)Ω, 0)` by componentwise action
+2. The key is that `π(a)0 = 0` by linearity
+3. `Re⟨(Ω, 0), (π(a)Ω, 0)⟩ = ⟨Ω, π(a)Ω⟩_ℝ + ⟨0, 0⟩_ℝ = ⟨Ω, π(a)Ω⟩_ℝ`
+4. Use real cyclic identity: `⟨Ω, π(a)Ω⟩_ℝ = φ(a)`
+
+### Why This Matters
+This identity is essential for `gns_representation_exists`:
+- The GNS representation lives in the complexified space H_ℂ
+- But the state φ takes real values
+- This identity bridges the two
+
+---
+
+## Building StarAlgHom for GNS
+
+### Challenge
+To construct `ConstrainedStarRep`, need a `StarAlgHom ℝ (FreeStarAlgebra n) (H →L[ℂ] H)`.
+
+### Solution: Bottom-Up Construction
+1. **RingHom**: Need `map_one`, `map_mul`, `map_zero`, `map_add`
+   - All provided by `gnsRepComplex_one`, `gnsRepComplex_mul`, etc.
+2. **AlgHom**: Add `commutes'`: `f(algebraMap r) = algebraMap r`
+   - `algebraMap ℝ (FreeStarAlgebra n) r = r • 1`
+   - Use `gnsRepComplex_smul` and `gnsRepComplex_one`
+3. **StarAlgHom**: Add `map_star'`: `f(star a) = star(f a)`
+   - Use `gnsRepComplex_star` and `star = adjoint` for operators
+
+### Universe Polymorphism Gotcha
+The `ConstrainedStarRep` structure has `H : Type*` (universe polymorphic).
+When constructing from GNS:
+- `gnsHilbertSpaceComplex` is `Type` (universe 0)
+- Must fix universe in theorem statement: `ConstrainedStarRep.{0} n`
+
+Otherwise get: "Type mismatch: ConstrainedStarRep.{0} vs ConstrainedStarRep.{u_1}"

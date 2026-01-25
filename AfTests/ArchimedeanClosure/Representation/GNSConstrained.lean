@@ -5,6 +5,8 @@ Authors: AF-Tests Contributors
 -/
 import AfTests.ArchimedeanClosure.Representation.VectorState
 import AfTests.ArchimedeanClosure.Algebra.Archimedean
+import AfTests.ArchimedeanClosure.GNS.CyclicIdentity
+import AfTests.ArchimedeanClosure.GNS.Constrained
 
 /-! # GNS and Constrained Representations
 
@@ -101,17 +103,77 @@ complete to a Hilbert space, and extend the left multiplication action.
 
 The representation is constrained because φ(gⱼ) ≥ 0 (set b=1 in star b * gⱼ * b ∈ M)
 implies π_φ(gⱼ) is a positive operator. -/
-theorem gns_representation_exists (φ : FreeStarAlgebra.MPositiveState n) :
-    ∃ (π : ConstrainedStarRep n) (Ω : π.H),
+theorem gns_representation_exists [FreeStarAlgebra.IsArchimedean n]
+    (φ : FreeStarAlgebra.MPositiveState n) :
+    ∃ (π : ConstrainedStarRep.{0} n) (Ω : π.H),
       ‖Ω‖ = 1 ∧ ∀ a, φ a = (⟪Ω, π a Ω⟫_ℂ).re := by
-  sorry
+  -- The Hilbert space is the complexified GNS space
+  let H := φ.gnsHilbertSpaceComplex
+  -- Build the ring homomorphism from the representation properties
+  let f : FreeStarAlgebra n →+* (H →L[ℂ] H) := {
+    toFun := φ.gnsRepComplex
+    map_one' := by rw [φ.gnsRepComplex_one]; rfl
+    map_mul' := fun a b => by
+      rw [φ.gnsRepComplex_mul]
+      rfl
+    map_zero' := by
+      ext p
+      · change (φ.gnsRepComplex 0 p).1 = 0
+        change φ.gnsRep 0 p.1 = 0
+        rw [φ.gnsRep_zero]
+        rfl
+      · change (φ.gnsRepComplex 0 p).2 = 0
+        change φ.gnsRep 0 p.2 = 0
+        rw [φ.gnsRep_zero]
+        rfl
+    map_add' := fun a b => φ.gnsRepComplex_add a b
+  }
+  -- Build the algebra homomorphism (need commutes with algebraMap)
+  let g : FreeStarAlgebra n →ₐ[ℝ] (H →L[ℂ] H) := {
+    toRingHom := f
+    commutes' := fun r => by
+      -- algebraMap ℝ (FreeStarAlgebra n) r = r • 1
+      -- algebraMap ℝ (H →L[ℂ] H) r = r • 1
+      -- Need: f (r • 1) = r • 1
+      change f (algebraMap ℝ (FreeStarAlgebra n) r) = algebraMap ℝ (H →L[ℂ] H) r
+      simp only [Algebra.algebraMap_eq_smul_one]
+      change φ.gnsRepComplex (r • 1) = r • (1 : H →L[ℂ] H)
+      rw [φ.gnsRepComplex_smul, φ.gnsRepComplex_one]
+      rfl
+  }
+  -- Build the star algebra homomorphism
+  let h : FreeStarAlgebra n →⋆ₐ[ℝ] (H →L[ℂ] H) := {
+    toAlgHom := g
+    map_star' := fun a => by
+      -- Need: f (star a) = star (f a)
+      change φ.gnsRepComplex (star a) = star (φ.gnsRepComplex a)
+      rw [φ.gnsRepComplex_star, ContinuousLinearMap.star_eq_adjoint]
+  }
+  -- Build the ConstrainedStarRep
+  let π : ConstrainedStarRep n := {
+    H := H
+    instNormedAddCommGroup := Complexification.instNormedAddCommGroup
+    instInnerProductSpace := Complexification.instInnerProductSpace
+    instCompleteSpace := φ.gnsHilbertSpaceComplex_completeSpace
+    toStarAlgHom := h
+    generator_positive := φ.gnsRepComplex_generator_isPositive
+  }
+  -- The cyclic vector
+  refine ⟨π, φ.gnsCyclicVectorComplex, φ.gnsCyclicVectorComplex_norm, ?_⟩
+  intro a
+  -- Need to show φ a = (⟪Ω, π(a)Ω⟫).re
+  -- π.apply a = h a = gnsRepComplex a by construction
+  have heq : π.apply a = φ.gnsRepComplex a := rfl
+  rw [heq]
+  exact (φ.gnsRepComplex_inner_cyclicVectorComplex a).symm
 
 /-- Backward: If π(A) ≥ 0 for all constrained reps, then φ(A) ≥ 0 for all M-positive states.
 
 Uses GNS: φ = ⟨Ω, π_φ(-)Ω⟩ for some constrained π_φ, so φ(A) = ⟨Ω, π_φ(A)Ω⟩ ≥ 0. -/
-theorem gns_constrained_implies_state_nonneg (φ : FreeStarAlgebra.MPositiveState n)
+theorem gns_constrained_implies_state_nonneg [FreeStarAlgebra.IsArchimedean n]
+    (φ : FreeStarAlgebra.MPositiveState n)
     (A : FreeStarAlgebra n) (_hA : IsSelfAdjoint A)
-    (hA_reps : ∀ π : ConstrainedStarRep n, (π A).IsPositive) :
+    (hA_reps : ∀ π : ConstrainedStarRep.{0} n, (π A).IsPositive) :
     0 ≤ φ A := by
   -- Get GNS representation
   obtain ⟨π, Ω, hΩ_norm, hφ_eq⟩ := gns_representation_exists φ
