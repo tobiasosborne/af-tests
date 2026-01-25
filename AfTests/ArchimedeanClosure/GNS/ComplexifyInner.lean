@@ -3,7 +3,7 @@ Copyright (c) 2026 AF-Tests Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: AF-Tests Contributors
 -/
-import AfTests.ArchimedeanClosure.GNS.Complexify
+import AfTests.ArchimedeanClosure.GNS.ComplexifyMap
 
 /-! # InnerProductSpace Axioms for Complexification
 
