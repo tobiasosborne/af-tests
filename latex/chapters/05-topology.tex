@@ -1,24 +1,277 @@
-% Chapter: Topological Structure
-% Generated from: StateTopology.lean, SeminormTopology.lean, Closedness.lean, Compactness.lean, Continuity.lean
-% Status: PLACEHOLDER - to be filled by LaTeX-P1.5
+% Auto-generated from Lean 4 source
+% Source files: StateTopology.lean, SeminormTopology.lean, Closedness.lean, Compactness.lean, Continuity.lean
+% Do not edit manually
 
 \chapter{Topological Structure}
 \label{ch:topology}
 
-% TODO: Fill in from LaTeX-P1.5 task
-\textbf{[PLACEHOLDER: To be generated from Lean source]}
+This chapter develops the topological framework for analyzing $M$-positive states. We equip
+the state space $S_M$ with the weak-$*$ topology (pointwise convergence), prove that
+the defining conditions are closed, and establish compactness of $S_M$ via Tychonoff's
+theorem. We also introduce the seminorm topology on $\mathcal{A}_0$ and show that
+$M$-positive states are continuous with respect to it.
 
-\section{Topology on States}
+%% ============================================================
+\section{Topology on State Space}
 \label{sec:state-topology}
 
+The topology on $S_M$ is the subspace topology inherited from the weak-$*$ topology
+on the dual space. Concretely, a net $\varphi_i \to \varphi$ if and only if
+$\varphi_i(a) \to \varphi(a)$ for all $a \in \mathcal{A}_0$.
+
+\begin{definition}[Pointwise Convergence Topology]\label{def:instTopologicalSpace}
+The \textbf{pointwise convergence topology} on $S_M$ is the coarsest topology making
+all evaluation maps continuous. Equivalently, it is the topology induced by the embedding
+\[
+  S_M \hookrightarrow \prod_{a \in \mathcal{A}_0} \mathbb{R}, \qquad
+  \varphi \mapsto (a \mapsto \varphi(a)).
+\]
+\end{definition}
+
+\begin{theorem}[Evaluation Continuity]\label{thm:eval_continuous}
+For any fixed $a \in \mathcal{A}_0$, the evaluation map
+$\mathrm{ev}_a : S_M \to \mathbb{R}$ defined by $\mathrm{ev}_a(\varphi) = \varphi(a)$
+is continuous.
+\end{theorem}
+
+\begin{proof}
+By definition, the topology on $S_M$ is induced from the product topology.
+The evaluation map factors as $S_M \to \prod_{a} \mathbb{R} \xrightarrow{\pi_a} \mathbb{R}$,
+where the projection $\pi_a$ is continuous in the product topology.
+\end{proof}
+
+%% ============================================================
+\section{Closedness of State Conditions}
+\label{sec:closedness}
+
+Each condition defining $M$-positive states is closed in the product topology.
+This is essential for proving that $S_M$ is compact.
+
+\begin{lemma}[Continuous Evaluation]\label{lem:continuous_eval}
+For any $a \in \mathcal{A}_0$, the evaluation functional
+$f \mapsto f(a)$ is continuous on $(\mathcal{A}_0 \to \mathbb{R})$ with the product topology.
+\end{lemma}
+
+\begin{theorem}[Additivity is Closed]\label{thm:isClosed_additivity}
+The set $\{f : \mathcal{A}_0 \to \mathbb{R} \mid \forall a, b,\, f(a+b) = f(a) + f(b)\}$
+is closed.
+\end{theorem}
+
+\begin{proof}
+For fixed $a, b$, the set $\{f \mid f(a+b) = f(a) + f(b)\}$ equals
+$(f \mapsto f(a+b) - f(a) - f(b))^{-1}(\{0\})$. Since evaluation is continuous,
+this is a preimage of the closed set $\{0\}$ under a continuous map.
+The full set is an intersection over all pairs $(a,b)$, hence closed.
+\end{proof}
+
+\begin{theorem}[Homogeneity is Closed]\label{thm:isClosed_homogeneity}
+The set $\{f : \mathcal{A}_0 \to \mathbb{R} \mid \forall c \in \mathbb{R}, a,\, f(ca) = c \cdot f(a)\}$
+is closed.
+\end{theorem}
+
+\begin{proof}
+Similar to additivity: express as intersection of preimages of $\{0\}$.
+\end{proof}
+
+\begin{theorem}[Star Symmetry is Closed]\label{thm:isClosed_star_symmetry}
+The set $\{f : \mathcal{A}_0 \to \mathbb{R} \mid \forall a,\, f(a^*) = f(a)\}$ is closed.
+\end{theorem}
+
+\begin{proof}
+The condition $f(a^*) = f(a)$ is equivalent to $(f \mapsto f(a^*) - f(a))^{-1}(\{0\})$.
+Take intersection over all $a$.
+\end{proof}
+
+\begin{theorem}[$M$-Positivity is Closed]\label{thm:isClosed_m_nonneg}
+The set $\{f : \mathcal{A}_0 \to \mathbb{R} \mid \forall m \in M,\, f(m) \ge 0\}$ is closed.
+\end{theorem}
+
+\begin{proof}
+For fixed $m$, the set $\{f \mid f(m) \ge 0\} = \mathrm{ev}_m^{-1}([0, \infty))$
+is the preimage of the closed set $[0, \infty)$ under continuous evaluation.
+The full set is an intersection over $m \in M$.
+\end{proof}
+
+\begin{theorem}[Normalization is Closed]\label{thm:isClosed_normalized}
+The set $\{f : \mathcal{A}_0 \to \mathbb{R} \mid f(1) = 1\}$ is closed.
+\end{theorem}
+
+\begin{proof}
+This equals $\mathrm{ev}_1^{-1}(\{1\})$, a preimage of a singleton.
+\end{proof}
+
+%% ============================================================
 \section{Seminorm Topology}
 \label{sec:seminorm-topology}
 
-\section{Closedness Properties}
-\label{sec:closedness}
+The state seminorm $\|\cdot\|_M$ induces a locally convex topology on $\mathcal{A}_0$.
 
-\section{Compactness}
+\begin{definition}[Seminorm Family]\label{def:stateSeminormFamily}
+The \textbf{state seminorm family} is the family indexed by $\mathrm{Unit}$
+consisting of the single seminorm $\|\cdot\|_M$.
+\end{definition}
+
+\begin{definition}[Seminorm Topology]\label{def:seminormTopology}
+The \textbf{seminorm topology} on $\mathcal{A}_0$ is the topology induced by the
+state seminorm family, i.e., the coarsest topology making $\|\cdot\|_M$ continuous.
+\end{definition}
+
+\begin{theorem}[Locally Convex]\label{thm:locallyConvexSpace_seminormTopology}
+Equipped with the seminorm topology, $\mathcal{A}_0$ is a locally convex topological
+vector space.
+\end{theorem}
+
+\begin{proof}
+This follows from the general theory: any topology induced by a family of seminorms
+is locally convex (Theorem~\texttt{WithSeminorms.toLocallyConvexSpace}).
+\end{proof}
+
+\begin{theorem}[Closure Equivalence]\label{thm:quadraticModuleClosure_eq_closure}
+The $\varepsilon$-$\delta$ closure $\bar{M}$ (Definition~\ref{def:quadraticModuleClosure})
+equals the topological closure of $M$ in the seminorm topology:
+\[
+  \bar{M} = \overline{M}^{\|\cdot\|_M}.
+\]
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+($\subseteq$) Given $a \in \bar{M}$ and a seminorm ball $B_\varepsilon(a)$,
+by definition of $\bar{M}$ there exists $m \in M$ with $\|a - m\|_M < \varepsilon$.
+Thus every neighborhood of $a$ meets $M$.
+
+($\supseteq$) Given $a$ in the topological closure and $\varepsilon > 0$,
+the ball $B_\varepsilon(a)$ is a neighborhood of $a$, so it contains some $m \in M$,
+giving $\|a - m\|_M < \varepsilon$.
+\end{proof}
+
+\begin{corollary}[Closure is Closed]\label{cor:isClosed_quadraticModuleClosure}
+The set $\bar{M}$ is closed in the seminorm topology.
+\end{corollary}
+
+\begin{proof}
+By Theorem~\ref{thm:quadraticModuleClosure_eq_closure}, $\bar{M}$ is a topological
+closure, which is always closed.
+\end{proof}
+
+%% ============================================================
+\section{Compactness of $S_M$}
 \label{sec:compactness}
 
+The main result of this chapter is that $S_M$ is compact.
+
+\begin{definition}[Embedding into Product]\label{def:toProductFun}
+Define the embedding $\iota : S_M \hookrightarrow (\mathcal{A}_0 \to \mathbb{R})$ by
+$\iota(\varphi)(a) = \varphi(a)$.
+\end{definition}
+
+\begin{lemma}[Embedding is Injective]\label{lem:toProductFun_injective}
+The map $\iota$ is injective.
+\end{lemma}
+
+\begin{definition}[Archimedean Bound Function]\label{def:bound}
+For $a \in \mathcal{A}_0$, define $B(a) = \sqrt{N_a}$ where $N_a$ is the Archimedean
+constant satisfying $N_a \cdot 1 - a^* a \in M$.
+\end{definition}
+
+\begin{theorem}[States are Bounded]\label{thm:apply_mem_closedBall}
+For any $\varphi \in S_M$ and $a \in \mathcal{A}_0$,
+\[
+  |\varphi(a)| \le B(a) = \sqrt{N_a}.
+\]
+Thus $\varphi(a) \in \overline{B}(0, B(a))$.
+\end{theorem}
+
+\begin{proof}
+This follows from Theorem~\ref{thm:apply_abs_le} (Archimedean bound on states).
+\end{proof}
+
+\begin{theorem}[Image is Bounded]\label{thm:stateSet_subset_product}
+The image $\iota(S_M)$ is contained in the product
+\[
+  \prod_{a \in \mathcal{A}_0} \overline{B}(0, B(a)).
+\]
+\end{theorem}
+
+\begin{theorem}[Product is Compact]\label{thm:product_compact}
+The product $\prod_{a \in \mathcal{A}_0} \overline{B}(0, B(a))$ is compact.
+\end{theorem}
+
+\begin{proof}
+Each closed ball $\overline{B}(0, B(a)) \subseteq \mathbb{R}$ is compact
+(closed and bounded in $\mathbb{R}$). By Tychonoff's theorem, arbitrary products
+of compact spaces are compact.
+\end{proof}
+
+\begin{definition}[State Conditions]\label{def:stateConditions}
+Let $\mathcal{C} \subseteq (\mathcal{A}_0 \to \mathbb{R})$ be the set of functions satisfying:
+\begin{enumerate}
+  \item (Additivity) $f(a+b) = f(a) + f(b)$ for all $a, b$
+  \item (Homogeneity) $f(ca) = c \cdot f(a)$ for all $c \in \mathbb{R}$, $a$
+  \item (Star symmetry) $f(a^*) = f(a)$ for all $a$
+  \item ($M$-positivity) $f(m) \ge 0$ for all $m \in M$
+  \item (Normalization) $f(1) = 1$
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}[State Conditions are Closed]\label{thm:stateConditions_isClosed}
+The set $\mathcal{C}$ is closed in the product topology.
+\end{theorem}
+
+\begin{proof}
+By Theorems~\ref{thm:isClosed_additivity}--\ref{thm:isClosed_normalized},
+each condition defines a closed set. The intersection is closed.
+\end{proof}
+
+\begin{theorem}[Range Characterization]\label{thm:range_eq_stateConditions}
+The image $\iota(S_M)$ equals $\mathcal{C}$.
+\end{theorem}
+
+\begin{proof}
+($\subseteq$) Every $M$-positive state satisfies the five conditions by definition.
+($\supseteq$) Any function satisfying the conditions can be lifted to an $M$-positive
+state via the constructor \texttt{ofFunction}.
+\end{proof}
+
+\begin{corollary}[State Set is Closed]\label{cor:stateSet_isClosed}
+The set $\iota(S_M)$ is closed in the product topology.
+\end{corollary}
+
+\begin{theorem}[Compactness of $S_M$]\label{thm:stateSet_isCompact}
+The set $\iota(S_M) \cong S_M$ is compact.
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:stateSet_subset_product}, $\iota(S_M)$ is contained in the
+compact set $\prod_a \overline{B}(0, B(a))$ (Theorem~\ref{thm:product_compact}).
+By Corollary~\ref{cor:stateSet_isClosed}, $\iota(S_M)$ is closed.
+A closed subset of a compact space is compact.
+\end{proof}
+
+%% ============================================================
 \section{Continuity of States}
 \label{sec:continuity}
+
+$M$-positive states are continuous (in fact, Lipschitz) with respect to the
+state seminorm.
+
+\begin{theorem}[Lipschitz Bound]\label{thm:lipschitz_dist}
+For any $\varphi \in S_M$ and $a, b \in \mathcal{A}_0$,
+\[
+  |\varphi(a) - \varphi(b)| \le \|a - b\|_M.
+\]
+In particular, $\varphi$ is $1$-Lipschitz.
+\end{theorem}
+
+\begin{proof}
+By linearity, $\varphi(a) - \varphi(b) = \varphi(a - b)$.
+By Theorem~\ref{thm:apply_abs_le_seminorm}, $|\varphi(a - b)| \le \|a - b\|_M$.
+\end{proof}
+
+\begin{corollary}[Continuity]\label{cor:continuous}
+Every $M$-positive state $\varphi : \mathcal{A}_0 \to \mathbb{R}$ is continuous
+with respect to the seminorm topology on $\mathcal{A}_0$.
+\end{corollary}
+
+\begin{proof}
+Lipschitz maps are uniformly continuous, hence continuous.
+\end{proof}

@@ -1,18 +1,206 @@
-% Chapter: Algebraic Setup
-% Generated from: FreeStarAlgebra.lean, QuadraticModule.lean, Archimedean.lean
-% Status: PLACEHOLDER - to be filled by LaTeX-P1.2
+% Auto-generated from Lean 4 source
+% Source files: FreeStarAlgebra.lean, QuadraticModule.lean, Archimedean.lean
+% Do not edit manually
 
 \chapter{Algebraic Setup}
 \label{ch:algebra}
 
-% TODO: Fill in from LaTeX-P1.2 task
-\textbf{[PLACEHOLDER: To be generated from Lean source]}
+This chapter establishes the algebraic foundations for the characterization of positivity
+in constrained $C^*$-algebra representations. We define the free $*$-algebra on self-adjoint
+generators, the quadratic module capturing the constraint structure, and the Archimedean
+property that ensures bounded behavior.
 
+%% ============================================================
 \section{The Free $*$-Algebra}
 \label{sec:free-star-algebra}
 
+We begin by constructing the free $*$-algebra on $n$ self-adjoint generators over the
+real numbers. The choice of $\mathbb{R}$ as the base field is crucial: it ensures that
+for any scalar $c$, we have $c^* \cdot c = c^2 \geq 0$, which is essential for obtaining
+$M$-positive states via scalar extraction.
+
+\begin{definition}[Free $*$-Algebra]\label{def:FreeStarAlgebra}
+The \textbf{free $*$-algebra} $\mathcal{A}_0$ on $n$ self-adjoint generators is defined as
+\[
+  \mathcal{A}_0 = \mathbb{R}\langle g_1, \ldots, g_n \rangle
+\]
+the free algebra over $\mathbb{R}$ on generators indexed by $\mathrm{Fin}(n)$, equipped
+with the canonical $*$-structure from mathlib's \texttt{Mathlib.Algebra.Star.Free}.
+\end{definition}
+
+\begin{definition}[Generator]\label{def:generator}
+For $j \in \mathrm{Fin}(n)$, the \textbf{$j$-th generator} $g_j \in \mathcal{A}_0$ is the
+canonical embedding of the index $j$ into the free algebra:
+\[
+  g_j = \iota(j)
+\]
+where $\iota : \mathrm{Fin}(n) \to \mathcal{A}_0$ is the universal map.
+\end{definition}
+
+\begin{theorem}[Generators are Self-Adjoint]\label{thm:isSelfAdjoint_generator}
+For each $j \in \mathrm{Fin}(n)$, the generator $g_j$ is self-adjoint:
+\[
+  g_j^* = g_j.
+\]
+\end{theorem}
+
+\begin{proof}
+This follows directly from the star structure on free algebras defined in
+\texttt{Mathlib.Algebra.Star.Free}, which specifies that generators are fixed by
+the involution.
+\end{proof}
+
+\begin{lemma}[Unit is Self-Adjoint]\label{lem:one_isSelfAdjoint}
+The unit element $1 \in \mathcal{A}_0$ is self-adjoint: $1^* = 1$.
+\end{lemma}
+
+\begin{proof}
+Standard property of $*$-algebras.
+\end{proof}
+
+%% ============================================================
 \section{Quadratic Modules}
 \label{sec:quadratic-module}
 
+The quadratic module $M$ captures the positivity constraints imposed by the generators.
+It consists of sums of squares and generator-weighted squares, closed under addition
+and nonnegative real scaling.
+
+\begin{definition}[Square Set]\label{def:squareSet}
+The \textbf{square set} is defined as
+\[
+  S = \{ a^* a : a \in \mathcal{A}_0 \}.
+\]
+\end{definition}
+
+\begin{definition}[Generator-Weighted Set]\label{def:generatorWeightedSet}
+The \textbf{generator-weighted set} is defined as
+\[
+  W = \{ b^* g_j b : j \in \mathrm{Fin}(n),\ b \in \mathcal{A}_0 \}.
+\]
+\end{definition}
+
+\begin{definition}[Quadratic Module Generators]\label{def:QuadraticModuleGenerators}
+The \textbf{generating set} for the quadratic module is
+\[
+  G = S \cup W = \{ a^* a : a \in \mathcal{A}_0 \} \cup \{ b^* g_j b : j \in \mathrm{Fin}(n),\ b \in \mathcal{A}_0 \}.
+\]
+\end{definition}
+
+\begin{definition}[Quadratic Module]\label{def:QuadraticModule}
+The \textbf{quadratic module} $M \subseteq \mathcal{A}_0$ is the smallest set containing $G$
+and closed under:
+\begin{enumerate}
+  \item Addition: if $m_1, m_2 \in M$, then $m_1 + m_2 \in M$
+  \item Nonnegative scaling: if $c \geq 0$ and $m \in M$, then $c \cdot m \in M$
+\end{enumerate}
+Equivalently,
+\[
+  M = \left\{ \sum_{i=1}^k c_i a_i^* a_i + \sum_{j,\ell} d_{j\ell} b_{j\ell}^* g_j b_{j\ell}
+      : c_i, d_{j\ell} \geq 0,\ a_i, b_{j\ell} \in \mathcal{A}_0 \right\}.
+\]
+\end{definition}
+
+\begin{lemma}[Squares in $M$]\label{lem:star_mul_self_mem}
+For any $a \in \mathcal{A}_0$, we have $a^* a \in M$.
+\end{lemma}
+
+\begin{proof}
+By definition, $a^* a \in S \subseteq G \subseteq M$.
+\end{proof}
+
+\begin{lemma}[Generator-Weighted Elements in $M$]\label{lem:star_generator_mul_mem}
+For any $j \in \mathrm{Fin}(n)$ and $b \in \mathcal{A}_0$, we have $b^* g_j b \in M$.
+\end{lemma}
+
+\begin{proof}
+By definition, $b^* g_j b \in W \subseteq G \subseteq M$.
+\end{proof}
+
+\begin{theorem}[Conjugation Closure]\label{thm:star_mul_mem_star_mul}
+If $m \in M$ and $b \in \mathcal{A}_0$, then $b^* m b \in M$.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+We proceed by structural induction on the definition of $M$:
+\begin{itemize}
+  \item \textbf{Generator case ($m = a^* a$):}
+    $b^* (a^* a) b = (ab)^* (ab) \in M$ by Lemma~\ref{lem:star_mul_self_mem}.
+  \item \textbf{Generator case ($m = c^* g_j c$):}
+    $b^* (c^* g_j c) b = (cb)^* g_j (cb) \in M$ by Lemma~\ref{lem:star_generator_mul_mem}.
+  \item \textbf{Addition case ($m = m_1 + m_2$):}
+    $b^* (m_1 + m_2) b = b^* m_1 b + b^* m_2 b \in M$ by the induction hypothesis and closure.
+  \item \textbf{Scaling case ($m = r \cdot m'$):}
+    $b^* (r \cdot m') b = r \cdot (b^* m' b) \in M$ by the induction hypothesis and closure.
+\end{itemize}
+\end{proof}
+
+%% ============================================================
 \section{The Archimedean Property}
 \label{sec:archimedean}
+
+The Archimedean property ensures that every element of the algebra is ``bounded''
+relative to the quadratic module. This is essential for proving that $M$-positive
+states yield finite values.
+
+\begin{definition}[Archimedean Property]\label{def:IsArchimedean}
+The quadratic module $M$ is \textbf{Archimedean} if for every $a \in \mathcal{A}_0$,
+there exists $N \in \mathbb{N}$ such that
+\[
+  N \cdot 1 - a^* a \in M.
+\]
+\end{definition}
+
+This condition says that $a^* a$ is ``dominated'' by $N \cdot 1$ in the sense of the
+quadratic module: the difference belongs to $M$ and hence will be evaluated nonnegatively
+by any $M$-positive state.
+
+\begin{definition}[Archimedean Bound]\label{def:archimedeanBound}
+For an Archimedean quadratic module and $a \in \mathcal{A}_0$, the \textbf{Archimedean bound}
+$N(a)$ is (a choice of) a natural number such that
+\[
+  N(a) \cdot 1 - a^* a \in M.
+\]
+\end{definition}
+
+\begin{theorem}[Archimedean Bound Specification]\label{thm:archimedeanBound_spec}
+If $M$ is Archimedean, then for any $a \in \mathcal{A}_0$, the Archimedean bound $N(a)$
+satisfies
+\[
+  N(a) \cdot 1 - a^* a \in M.
+\]
+\end{theorem}
+
+\begin{proof}
+By definition of the Archimedean property and the axiom of choice.
+\end{proof}
+
+\begin{remark}
+The Archimedean property has the following important consequence: for any $M$-positive
+state $\varphi$ and any $a \in \mathcal{A}_0$,
+\[
+  \varphi(a^* a) \leq N(a) \cdot \varphi(1) = N(a).
+\]
+Combined with the Cauchy--Schwarz inequality (see Chapter~\ref{ch:boundedness}), this
+implies that $|\varphi(a)|^2 \leq N(a)$, so $M$-positive states are uniformly bounded
+on each element.
+\end{remark}
+
+%% ============================================================
+\section{Summary}
+\label{sec:algebra-summary}
+
+We have established:
+\begin{itemize}
+  \item The free $*$-algebra $\mathcal{A}_0 = \mathbb{R}\langle g_1, \ldots, g_n \rangle$
+        with self-adjoint generators (Definition~\ref{def:FreeStarAlgebra})
+  \item The quadratic module $M$ generated by squares and generator-weighted squares
+        (Definition~\ref{def:QuadraticModule})
+  \item The conjugation closure property $m \in M \Rightarrow b^* m b \in M$
+        (Theorem~\ref{thm:star_mul_mem_star_mul})
+  \item The Archimedean property ensuring bounded behavior
+        (Definition~\ref{def:IsArchimedean})
+\end{itemize}
+
+These structures form the algebraic foundation for the state space and seminorm
+constructions in subsequent chapters.

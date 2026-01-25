@@ -1,18 +1,207 @@
-% Chapter: The State Seminorm
-% Generated from: StateSeminorm.lean, SeminormProps.lean, Closure.lean
-% Status: PLACEHOLDER - to be filled by LaTeX-P1.6
+% Auto-generated from Lean 4 source
+% Source files: StateSeminorm.lean, SeminormProps.lean, Closure.lean
+% Do not edit manually
 
 \chapter{The State Seminorm}
 \label{ch:seminorm}
 
-% TODO: Fill in from LaTeX-P1.6 task
-\textbf{[PLACEHOLDER: To be generated from Lean source]}
+This chapter develops the state seminorm $\|{\cdot}\|_M$ on the free $*$-algebra $\mathcal{A}_0$.
+The Archimedean property ensures that for any element $a \in \mathcal{A}_0$, the supremum
+$\sup\{|\varphi(a)| : \varphi \in S_M\}$ is finite, yielding a well-defined seminorm. We then
+define the closure $\bar{M}$ of the quadratic module in this seminorm topology.
 
-\section{Definition of $\seminorm{\cdot}$}
+The main results are:
+\begin{itemize}
+  \item \texttt{stateSeminorm} (Definition~\ref{def:stateSeminorm}): the state seminorm $\|a\|_M$
+  \item \texttt{stateSeminormSeminorm} (Definition~\ref{def:stateSeminormSeminorm}): the seminorm instance
+  \item \texttt{quadraticModuleClosure} (Definition~\ref{def:quadraticModuleClosure}): the closure $\bar{M}$
+\end{itemize}
+
+%% ============================================================
+\section{Definition of the State Seminorm}
 \label{sec:seminorm-def}
 
-\section{Seminorm Properties}
-\label{sec:seminorm-properties}
+The Archimedean property ensures that for any $a \in \mathcal{A}_0$, there exists $N_a \in \mathbb{R}$
+such that $N_a \cdot 1 - a^*a \in M$. This bound is used to show that the set of state values
+$\{|\varphi(a)| : \varphi \in S_M\}$ is bounded above.
 
-\section{Closure Characterization}
+\begin{lemma}[Bounded above]\label{lem:bddAbove_abs_range}
+For any $a \in \mathcal{A}_0$, the set $\{|\varphi(a)| : \varphi \in S_M\}$ is bounded above by $\sqrt{N_a}$.
+\end{lemma}
+
+\begin{proof}
+By the Archimedean bound (Lemma~\ref{lem:ArchimedeanBound}), for each $\varphi \in S_M$ we have
+$|\varphi(a)| \le \sqrt{N_a}$. Hence $\sqrt{N_a}$ is an upper bound.
+\end{proof}
+
+\begin{definition}[State Seminorm]\label{def:stateSeminorm}
+The \textbf{state seminorm} $\|{\cdot}\|_M : \mathcal{A}_0 \to \mathbb{R}$ is defined by
+\[
+  \|a\|_M = \sup\{|\varphi(a)| : \varphi \in S_M\}.
+\]
+\end{definition}
+
+The nonemptiness of $S_M$ (guaranteed by the scalar state $\varphi_0$) ensures this supremum is
+well-defined, and Lemma~\ref{lem:bddAbove_abs_range} ensures it is finite.
+
+\begin{theorem}[Seminorm Upper Bound]\label{thm:stateSeminorm_le}
+For any $a \in \mathcal{A}_0$,
+\[
+  \|a\|_M \le \sqrt{N_a}.
+\]
+\end{theorem}
+
+\begin{proof}
+Apply the supremum bound: since $|\varphi(a)| \le \sqrt{N_a}$ for all $\varphi \in S_M$,
+the supremum is at most $\sqrt{N_a}$.
+\end{proof}
+
+\begin{lemma}[Nonnegativity]\label{lem:stateSeminorm_nonneg}
+For any $a \in \mathcal{A}_0$, $\|a\|_M \ge 0$.
+\end{lemma}
+
+\begin{proof}
+The scalar state $\varphi_0 \in S_M$ satisfies $|\varphi_0(a)| \ge 0$.
+Since $\|a\|_M$ is the supremum over a set containing $|\varphi_0(a)|$, we have $\|a\|_M \ge 0$.
+\end{proof}
+
+\begin{lemma}[State Bound]\label{lem:apply_abs_le_seminorm}
+For any $\varphi \in S_M$ and $a \in \mathcal{A}_0$,
+\[
+  |\varphi(a)| \le \|a\|_M.
+\]
+\end{lemma}
+
+\begin{proof}
+By definition, $\|a\|_M$ is the supremum of the set containing $|\varphi(a)|$.
+\end{proof}
+
+\begin{theorem}[Triangle Inequality]\label{thm:stateSeminorm_add}
+For any $a, b \in \mathcal{A}_0$,
+\[
+  \|a + b\|_M \le \|a\|_M + \|b\|_M.
+\]
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+For each $\varphi \in S_M$, linearity gives $\varphi(a+b) = \varphi(a) + \varphi(b)$, so
+\[
+  |\varphi(a+b)| \le |\varphi(a)| + |\varphi(b)|.
+\]
+Taking the supremum over $\varphi$ on both sides and using the additivity of suprema yields the result.
+\end{proof}
+
+%% ============================================================
+\section{Seminorm Properties}
+\label{sec:seminorm-props}
+
+We verify that $\|{\cdot}\|_M$ satisfies all the axioms of a seminorm over $\mathbb{R}$.
+
+\begin{lemma}[Zero]\label{lem:stateSeminorm_zero}
+$\|0\|_M = 0$.
+\end{lemma}
+
+\begin{proof}
+For any $\varphi \in S_M$, linearity gives $\varphi(0) = 0$, so $|\varphi(0)| = 0$.
+The supremum of a constant function is that constant.
+\end{proof}
+
+\begin{lemma}[Negation]\label{lem:stateSeminorm_neg}
+For any $a \in \mathcal{A}_0$, $\|-a\|_M = \|a\|_M$.
+\end{lemma}
+
+\begin{proof}
+Linearity gives $\varphi(-a) = -\varphi(a)$, so $|\varphi(-a)| = |\varphi(a)|$.
+The sets over which we take suprema are identical.
+\end{proof}
+
+\begin{theorem}[Homogeneity]\label{thm:stateSeminorm_smul}
+For any $c \in \mathbb{R}$ and $a \in \mathcal{A}_0$,
+\[
+  \|c \cdot a\|_M = |c| \cdot \|a\|_M.
+\]
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+If $c = 0$, both sides are zero by Lemma~\ref{lem:stateSeminorm_zero}.
+Otherwise, linearity gives $|\varphi(c \cdot a)| = |c| \cdot |\varphi(a)|$.
+The supremum factors out the constant $|c| \ge 0$.
+\end{proof}
+
+\begin{definition}[Seminorm Instance]\label{def:stateSeminormSeminorm}
+The state seminorm $\|{\cdot}\|_M$ forms a \textbf{seminorm} over $\mathbb{R}$ on $\mathcal{A}_0$,
+constructed via the triangle inequality (Theorem~\ref{thm:stateSeminorm_add}) and
+homogeneity (Theorem~\ref{thm:stateSeminorm_smul}).
+\end{definition}
+
+\begin{remark}
+The seminorm $\|{\cdot}\|_M$ is not necessarily a norm: we may have $\|a\|_M = 0$ for nonzero $a$.
+However, the kernel $\{a : \|a\|_M = 0\}$ is precisely the intersection of all GNS null spaces.
+\end{remark}
+
+%% ============================================================
+\section{Closure of the Quadratic Module}
 \label{sec:closure}
+
+We now define the closure of $M$ in the topology induced by $\|{\cdot}\|_M$.
+
+\begin{definition}[Quadratic Module Closure]\label{def:quadraticModuleClosure}
+The \textbf{closure} of $M$, denoted $\bar{M}$, is defined as
+\[
+  \bar{M} = \{a \in \mathcal{A}_0 : \forall \varepsilon > 0,\, \exists m \in M,\, \|a - m\|_M < \varepsilon\}.
+\]
+\end{definition}
+
+\begin{theorem}[Module Subset]\label{thm:quadraticModule_subset_closure}
+$M \subseteq \bar{M}$.
+\end{theorem}
+
+\begin{proof}
+Let $m \in M$. For any $\varepsilon > 0$, take $m' = m$. Then $\|m - m'\|_M = \|0\|_M = 0 < \varepsilon$.
+\end{proof}
+
+\begin{lemma}[Zero in Closure]\label{lem:zero_mem_closure}
+$0 \in \bar{M}$.
+\end{lemma}
+
+\begin{proof}
+Since $0 = 0^* \cdot 0 \in M$, this follows from Theorem~\ref{thm:quadraticModule_subset_closure}.
+\end{proof}
+
+\begin{theorem}[Closure Closed under Addition]\label{thm:closure_add_mem}
+If $a, b \in \bar{M}$, then $a + b \in \bar{M}$.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+Let $\varepsilon > 0$. By definition, there exist $m_a, m_b \in M$ with
+$\|a - m_a\|_M < \varepsilon/2$ and $\|b - m_b\|_M < \varepsilon/2$.
+Since $M$ is closed under addition, $m_a + m_b \in M$. Then
+\begin{align*}
+  \|a + b - (m_a + m_b)\|_M &= \|(a - m_a) + (b - m_b)\|_M \\
+  &\le \|a - m_a\|_M + \|b - m_b\|_M \\
+  &< \varepsilon/2 + \varepsilon/2 = \varepsilon.
+\end{align*}
+\end{proof}
+
+\begin{theorem}[Closure Closed under Scalar Multiplication]\label{thm:closure_smul_mem}
+If $c \ge 0$ and $a \in \bar{M}$, then $c \cdot a \in \bar{M}$.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+If $c = 0$, then $c \cdot a = 0 \in \bar{M}$ by Lemma~\ref{lem:zero_mem_closure}.
+
+Otherwise $c > 0$. Let $\varepsilon > 0$. Choose $m \in M$ with $\|a - m\|_M < \varepsilon/c$.
+Since $M$ is closed under nonnegative scalar multiplication, $c \cdot m \in M$. Then
+\begin{align*}
+  \|c \cdot a - c \cdot m\|_M &= \|c \cdot (a - m)\|_M \\
+  &= |c| \cdot \|a - m\|_M \\
+  &= c \cdot \|a - m\|_M \\
+  &< c \cdot (\varepsilon/c) = \varepsilon.
+\end{align*}
+\end{proof}
+
+\begin{remark}
+The closure $\bar{M}$ forms a cone: it is closed under addition and nonnegative scalar
+multiplication. This structure is essential for the dual characterization via the Riesz
+extension theorem in Chapter~\ref{ch:dual}.
+\end{remark}

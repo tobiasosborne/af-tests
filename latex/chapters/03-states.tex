@@ -1,18 +1,226 @@
-% Chapter: M-Positive States
-% Generated from: MPositiveState.lean, MPositiveStateProps.lean, NonEmptiness.lean
-% Status: PLACEHOLDER - to be filled by LaTeX-P1.3
+% Auto-generated from Lean 4 source
+% Source files: MPositiveState.lean, MPositiveStateProps.lean, NonEmptiness.lean
+% Do not edit manually
 
 \chapter{$M$-Positive States}
 \label{ch:states}
 
-% TODO: Fill in from LaTeX-P1.3 task
-\textbf{[PLACEHOLDER: To be generated from Lean source]}
+This chapter defines $M$-positive states on the free $*$-algebra and establishes
+that the state space $\SM$ is nonempty. An $M$-positive state is an $\R$-linear
+functional satisfying symmetry, normalization, and positivity conditions with
+respect to the quadratic module $M$.
 
+The main results are:
+\begin{itemize}
+  \item \texttt{MPositiveState} (Definition~\ref{def:MPositiveState}): the structure
+        of an $M$-positive state
+  \item \texttt{scalarState} (Definition~\ref{def:scalarState}): a canonical example
+  \item \texttt{MPositiveStateSet\_nonempty} (Theorem~\ref{thm:nonempty}): $\SM \neq \emptyset$
+\end{itemize}
+
+%% ============================================================
 \section{Definition of $M$-Positive States}
 \label{sec:mpositive-state}
 
-\section{Properties of States}
+We work with $\R$-linear functionals rather than $\C$-linear ones. This choice
+simplifies the theory: positivity conditions require no separate ``real part''
+checks, and symmetry $\varphi(a^*) = \varphi(a)$ is well-defined without
+complex conjugation.
+
+\begin{definition}[$M$-Positive State]\label{def:MPositiveState}
+An \textbf{$M$-positive state} is an $\R$-linear functional
+$\varphi : \mathcal{A}_0 \to \R$ satisfying:
+\begin{enumerate}
+  \item (Symmetry) $\varphi(a^*) = \varphi(a)$ for all $a \in \mathcal{A}_0$
+  \item (Normalization) $\varphi(1) = 1$
+  \item ($M$-positivity) $\varphi(m) \ge 0$ for all $m \in M$
+\end{enumerate}
+\end{definition}
+
+The symmetry condition determines values on all elements from their values on
+self-adjoint elements, since any $a$ can be written as $a = \frac{1}{2}(a + a^*)
++ \frac{1}{2}(a - a^*)$ where $(a + a^*)$ is self-adjoint and $(a - a^*)$ is
+skew-adjoint.
+
+\begin{definition}[State Space]\label{def:MPositiveStateSet}
+The \textbf{state space} $\SM$ is the set of all $M$-positive states:
+\[
+  \SM = \{ \varphi : \mathcal{A}_0 \to \R \mid
+    \varphi \text{ is an } M\text{-positive state} \}
+\]
+\end{definition}
+
+%% ============================================================
+\section{Basic Properties}
 \label{sec:state-properties}
 
+The following properties follow directly from the definition of $M$-positive states.
+
+\begin{lemma}[Positivity on Squares]\label{lem:star-mul-self-nonneg}
+For any $M$-positive state $\varphi$ and $a \in \mathcal{A}_0$,
+\[
+  \varphi(a^* a) \ge 0.
+\]
+\end{lemma}
+
+\begin{proof}
+Since $a^* a \in M$ (as an element of the square set generating $M$), this
+follows directly from the $M$-positivity condition.
+\end{proof}
+
+\begin{lemma}[Self-Adjoint Addition]\label{lem:self-adjoint-add}
+For any $M$-positive state $\varphi$ and $a \in \mathcal{A}_0$,
+\[
+  \varphi(a + a^*) = 2\varphi(a).
+\]
+\end{lemma}
+
+\begin{proof}
+By linearity and symmetry:
+$\varphi(a + a^*) = \varphi(a) + \varphi(a^*) = \varphi(a) + \varphi(a) = 2\varphi(a)$.
+\end{proof}
+
+\begin{lemma}[Skew-Adjoint Vanishing]\label{lem:self-adjoint-sub}
+For any $M$-positive state $\varphi$ and $a \in \mathcal{A}_0$,
+\[
+  \varphi(a - a^*) = 0.
+\]
+\end{lemma}
+
+\begin{proof}
+By linearity and symmetry:
+$\varphi(a - a^*) = \varphi(a) - \varphi(a^*) = \varphi(a) - \varphi(a) = 0$.
+\end{proof}
+
+\begin{lemma}[Decomposition]\label{lem:decomposition}
+For any $M$-positive state $\varphi$ and $a \in \mathcal{A}_0$,
+\[
+  \varphi(a) = \frac{1}{2}\varphi(a + a^*).
+\]
+\end{lemma}
+
+\begin{proof}
+Immediate from Lemma~\ref{lem:self-adjoint-add}: dividing both sides by 2 gives
+$\varphi(a) = \frac{1}{2}\varphi(a + a^*)$.
+\end{proof}
+
+%% ============================================================
 \section{Non-Emptiness of $\SM$}
 \label{sec:nonemptiness}
+
+A crucial requirement for our theory is that $\SM$ is nonempty. We construct
+an explicit $M$-positive state using scalar extraction.
+
+\begin{definition}[Scalar Extraction]\label{def:scalarExtraction}
+The \textbf{scalar extraction} functional $\varepsilon : \mathcal{A}_0 \to \R$
+extracts the coefficient of the identity element. Formally, it is the algebra
+homomorphism satisfying:
+\begin{itemize}
+  \item $\varepsilon(1) = 1$
+  \item $\varepsilon(g_j) = 0$ for all generators $g_j$
+\end{itemize}
+This is the left inverse of the algebra map $\R \hookrightarrow \mathcal{A}_0$.
+\end{definition}
+
+\begin{lemma}[Scalar Extraction Commutes with Star]\label{lem:scalar-star}
+For all $a \in \mathcal{A}_0$,
+\[
+  \varepsilon(a^*) = \varepsilon(a).
+\]
+\end{lemma}
+
+\begin{proof}
+By induction on the structure of $\mathcal{A}_0$:
+\begin{itemize}
+  \item For scalars: $\varepsilon(c^*) = \varepsilon(c) = c$ since $c \in \R$.
+  \item For generators: $\varepsilon(g_j^*) = \varepsilon(g_j) = 0$ since
+        generators are self-adjoint.
+  \item For sums: follows from linearity.
+  \item For products: $\varepsilon((ab)^*) = \varepsilon(b^* a^*)
+        = \varepsilon(b^*)\varepsilon(a^*) = \varepsilon(b)\varepsilon(a)
+        = \varepsilon(a)\varepsilon(b) = \varepsilon(ab)$ using the induction
+        hypothesis and commutativity of $\R$.
+\end{itemize}
+\end{proof}
+
+\begin{lemma}[Scalar Extraction on Squares]\label{lem:scalar-square}
+For all $a \in \mathcal{A}_0$,
+\[
+  \varepsilon(a^* a) = \varepsilon(a)^2 \ge 0.
+\]
+\end{lemma}
+
+\begin{proof}
+Since $\varepsilon$ is an algebra homomorphism:
+$\varepsilon(a^* a) = \varepsilon(a^*)\varepsilon(a) = \varepsilon(a)\varepsilon(a)
+= \varepsilon(a)^2 \ge 0$.
+\end{proof}
+
+\begin{lemma}[Scalar Extraction on Generator-Weighted Squares]\label{lem:scalar-gen-square}
+For all $a \in \mathcal{A}_0$ and generators $g_j$,
+\[
+  \varepsilon(a^* g_j a) = 0.
+\]
+\end{lemma}
+
+\begin{proof}
+Since $\varepsilon$ is an algebra homomorphism and $\varepsilon(g_j) = 0$:
+$\varepsilon(a^* g_j a) = \varepsilon(a^*)\varepsilon(g_j)\varepsilon(a)
+= \varepsilon(a^*) \cdot 0 \cdot \varepsilon(a) = 0$.
+\end{proof}
+
+\begin{lemma}[Scalar Extraction is $M$-Positive]\label{lem:scalar-m-nonneg}
+For all $m \in M$,
+\[
+  \varepsilon(m) \ge 0.
+\]
+\end{lemma}
+
+\begin{proof}
+By induction on the construction of $m \in M$:
+\begin{itemize}
+  \item If $m = a^* a$: $\varepsilon(m) = \varepsilon(a)^2 \ge 0$ by
+        Lemma~\ref{lem:scalar-square}.
+  \item If $m = a^* g_j a$: $\varepsilon(m) = 0 \ge 0$ by
+        Lemma~\ref{lem:scalar-gen-square}.
+  \item If $m = m_1 + m_2$: $\varepsilon(m) = \varepsilon(m_1) + \varepsilon(m_2)
+        \ge 0$ by the induction hypothesis and closure of $\R_{\ge 0}$ under
+        addition.
+  \item If $m = c \cdot m'$ with $c \ge 0$: $\varepsilon(m) = c \cdot \varepsilon(m')
+        \ge 0$ by the induction hypothesis.
+\end{itemize}
+\end{proof}
+
+\begin{definition}[Scalar State]\label{def:scalarState}
+The \textbf{scalar state} $\varphi_0 : \mathcal{A}_0 \to \R$ is the $M$-positive
+state defined by scalar extraction:
+\[
+  \varphi_0(a) = \varepsilon(a).
+\]
+\end{definition}
+
+The scalar state satisfies all axioms of an $M$-positive state:
+\begin{itemize}
+  \item Symmetry: $\varphi_0(a^*) = \varepsilon(a^*) = \varepsilon(a) = \varphi_0(a)$
+        by Lemma~\ref{lem:scalar-star}.
+  \item Normalization: $\varphi_0(1) = \varepsilon(1) = 1$.
+  \item $M$-positivity: $\varphi_0(m) = \varepsilon(m) \ge 0$ for $m \in M$ by
+        Lemma~\ref{lem:scalar-m-nonneg}.
+\end{itemize}
+
+\begin{theorem}[Non-Emptiness of $\SM$]\label{thm:nonempty}
+The state space $\SM$ is nonempty.
+\end{theorem}
+
+\begin{proof}
+The scalar state $\varphi_0$ (Definition~\ref{def:scalarState}) is an
+$M$-positive state, hence $\varphi_0 \in \SM$.
+\end{proof}
+
+\begin{remark}
+The non-emptiness proof crucially relies on working over $\R$ rather than $\C$.
+Over $\C$, scalar extraction would fail the positivity condition: for the
+imaginary unit $i \in \C$, we would have $\varepsilon((i \cdot 1)^*(i \cdot 1))
+= \varepsilon(-1) = -1 < 0$, violating $M$-positivity. This is one reason the
+formalization uses $\R$-linear functionals.
+\end{remark}

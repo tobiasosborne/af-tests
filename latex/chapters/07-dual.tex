@@ -1,30 +1,450 @@
-% Chapter: Dual Characterization
-% Generated from: Forward.lean, SpanIntersection.lean, SeparatingFunctional.lean,
-%                  RieszApplication.lean, ComplexExtension.lean, Normalization.lean
-% Status: PLACEHOLDER - to be filled by LaTeX-P1.7a and LaTeX-P1.7b
+% Auto-generated from Lean 4 source
+% Source files: Forward.lean, SpanIntersection.lean, SeparatingFunctional.lean,
+%               RieszApplication.lean, ComplexExtension.lean, Normalization.lean
 
 \chapter{Dual Characterization}
 \label{ch:dual}
 
-% TODO: Fill in from LaTeX-P1.7a and LaTeX-P1.7b tasks
-\textbf{[PLACEHOLDER: To be generated from Lean source]}
+This chapter establishes the dual characterization of the Archimedean closure
+$\bar{M}$. The main result shows that membership in the closure can be detected
+by evaluation against $M$-positive states: an element $A$ belongs to $\bar{M}$
+if and only if $\varphi(A) \ge 0$ for all $M$-positive states $\varphi$.
 
-%% Part 1 (P1.7a)
+%% ============================================================
 \section{Forward Direction}
 \label{sec:forward}
 
-\section{Span and Intersection}
+This section proves the forward direction of the dual characterization:
+if $A$ is in the closure of the quadratic module $M$ (in the $\|\cdot\|_M$
+topology), then $\varphi(A) \ge 0$ for all $M$-positive states $\varphi$.
+
+The main result is:
+\begin{itemize}
+  \item \texttt{closure\_implies\_nonneg} (Theorem~\ref{thm:closure_implies_nonneg}):
+        $A \in \bar{M}$ implies $\varphi(A) \ge 0$ for all $\varphi \in S_M$
+\end{itemize}
+
+\begin{lemma}[Linearity of States]\label{lem:apply_sub}
+For any $M$-positive state $\varphi$ and elements $a, m \in \mathcal{A}_0$,
+\[
+  \varphi(a - m) = \varphi(a) - \varphi(m).
+\]
+\end{lemma}
+
+\begin{proof}
+Immediate from the linearity of $\varphi$.
+\end{proof}
+
+\begin{theorem}[Closure Implies Nonnegativity]\label{thm:closure_implies_nonneg}
+If $A \in \bar{M}$, then $\varphi(A) \ge 0$ for all $M$-positive states $\varphi$.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+Suppose, for contradiction, that $\varphi(A) < 0$. Set $\varepsilon = -\varphi(A) > 0$.
+By definition of closure, there exists $m \in M$ with $\|A - m\|_M < \varepsilon$.
+
+Since $|\varphi(A - m)| \le \|A - m\|_M$ (by the seminorm bound on states) and
+$\varphi(m) \ge 0$ (by $M$-positivity), we have:
+\begin{align*}
+  |\varphi(A - m)| &< -\varphi(A) = \varepsilon \\
+  \Rightarrow\quad \varphi(A) &< \varphi(A) - \varphi(m) + \varepsilon
+\end{align*}
+This yields $\varphi(m) < \varepsilon = -\varphi(A)$. Combined with
+$\varphi(A) - \varphi(m) < -\varphi(A)$ from the absolute value bound,
+we obtain a contradiction via linear arithmetic.
+\end{proof}
+
+%% ============================================================
+\section{Span Intersection Lemma}
 \label{sec:span-intersection}
 
-\section{Separating Functionals}
-\label{sec:separating}
+This section proves that if $A \notin \bar{M}$, then positive scalar multiples
+of $A$ cannot belong to $M$. This is the key result needed for constructing
+the separating functional in the Riesz extension argument.
 
-%% Part 2 (P1.7b)
-\section{Riesz Extension}
-\label{sec:riesz}
+The main results are:
+\begin{itemize}
+  \item \texttt{positive\_smul\_not\_in\_M} (Lemma~\ref{lem:positive_smul_not_in_M}):
+        If $A \notin \bar{M}$ and $c > 0$, then $c \cdot A \notin M$
+  \item \texttt{separating\_nonneg\_on\_span\_cap\_M}
+        (Theorem~\ref{thm:separating_nonneg_on_span_cap_M}):
+        A separating functional $\psi_0(\lambda A) = -\lambda\varepsilon$
+        is automatically nonnegative on $M \cap \mathrm{span}\{A\}$
+\end{itemize}
 
-\section{Complex Extension}
+\begin{lemma}[Positive Scalar Multiples]\label{lem:positive_smul_not_in_M}
+If $A \notin \bar{M}$ and $c > 0$, then $c \cdot A \notin M$.
+\end{lemma}
+
+\begin{proof}[Proof sketch]
+Suppose $c \cdot A \in M$. Since $M$ is a cone and $c^{-1} > 0$, we have
+\[
+  A = c^{-1} \cdot (c \cdot A) \in M.
+\]
+But $M \subseteq \bar{M}$, so $A \in \bar{M}$, contradicting $A \notin \bar{M}$.
+\end{proof}
+
+\begin{corollary}\label{cor:self_not_in_M}
+If $A \notin \bar{M}$, then $A \notin M$.
+\end{corollary}
+
+\begin{proof}
+Apply Lemma~\ref{lem:positive_smul_not_in_M} with $c = 1$.
+\end{proof}
+
+\begin{theorem}[Separating Functional Nonnegativity]\label{thm:separating_nonneg_on_span_cap_M}
+For $A \notin \bar{M}$ and $\varepsilon > 0$, the functional
+$\psi_0(\lambda A) = -\lambda \varepsilon$ is nonnegative on $M \cap \mathrm{span}\{A\}$.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+Elements of $M \cap \mathrm{span}\{A\}$ have the form $\lambda A$ for some
+$\lambda \in \mathbb{R}$ with $\lambda A \in M$. We consider two cases:
+\begin{itemize}
+  \item If $\lambda > 0$: By Lemma~\ref{lem:positive_smul_not_in_M},
+        $\lambda A \notin M$, so this case is impossible.
+  \item If $\lambda \le 0$: Then $\psi_0(\lambda A) = -\lambda \varepsilon \ge 0$.
+\end{itemize}
+Thus $\psi_0$ is nonnegative on the intersection.
+\end{proof}
+
+\begin{lemma}[Coefficient Sign]\label{lem:span_cap_M_nonpos_coeff}
+If $A \notin \bar{M}$ and $c \cdot A \in M$ for some $c \in \mathbb{R}$,
+then $c \le 0$.
+\end{lemma}
+
+\begin{proof}
+If $c > 0$, then by Lemma~\ref{lem:positive_smul_not_in_M}, $c \cdot A \notin M$,
+a contradiction.
+\end{proof}
+
+%% ============================================================
+\section{Constructing the Separating Functional}
+\label{sec:separating-functional}
+
+This section constructs a linear functional $\psi_0$ on $\mathrm{span}\{A\}$
+that separates $A$ from $M$. When $A \notin \bar{M}$, we define
+$\psi_0(\lambda A) = -\lambda$, achieving $\psi_0(A) = -1 < 0$ while
+$\psi_0 \ge 0$ on $M \cap \mathrm{span}\{A\}$.
+
+The main results are:
+\begin{itemize}
+  \item \texttt{not\_in\_closure\_ne\_zero} (Lemma~\ref{lem:not_in_closure_ne_zero}):
+        $A \notin \bar{M}$ implies $A \ne 0$
+  \item \texttt{separatingOnSpan} (Definition~\ref{def:separatingOnSpan}):
+        The linear map $\psi_0 : \mathrm{span}\{A\} \to \mathbb{R}$ with
+        $\psi_0(A) = -1$
+  \item \texttt{separatingOnSpan\_nonneg\_on\_M\_cap\_span}
+        (Theorem~\ref{thm:separatingOnSpan_nonneg}):
+        $\psi_0 \ge 0$ on $M \cap \mathrm{span}\{A\}$
+\end{itemize}
+
+\begin{lemma}[Non-Zero Outside Closure]\label{lem:not_in_closure_ne_zero}
+If $A \notin \bar{M}$, then $A \ne 0$.
+\end{lemma}
+
+\begin{proof}
+We have $0 = 0^* \cdot 0 \in M \subseteq \bar{M}$. Thus if $A \notin \bar{M}$,
+then $A \ne 0$.
+\end{proof}
+
+\begin{definition}[Separating Functional on Span]\label{def:separatingOnSpan}
+For $A \notin \bar{M}$, the \textbf{separating functional}
+$\psi_0 : \mathrm{span}\{A\} \to \mathbb{R}$ is defined by
+\[
+  \psi_0(\lambda A) = -\lambda.
+\]
+This is well-defined since $A \ne 0$ by Lemma~\ref{lem:not_in_closure_ne_zero}.
+\end{definition}
+
+\begin{remark}
+The construction uses \texttt{LinearPMap.mkSpanSingleton}, which defines
+a linear map on the span of a single non-zero vector by specifying its
+value on that vector.
+\end{remark}
+
+\begin{lemma}[Value at $A$]\label{lem:separatingOnSpan_apply_A}
+For $A \notin \bar{M}$, $\psi_0(A) = -1$.
+\end{lemma}
+
+\begin{proof}
+By definition of $\psi_0$, taking $\lambda = 1$.
+\end{proof}
+
+\begin{corollary}\label{cor:separatingOnSpan_apply_A_neg}
+For $A \notin \bar{M}$, $\psi_0(A) < 0$.
+\end{corollary}
+
+\begin{proof}
+Immediate from $\psi_0(A) = -1 < 0$.
+\end{proof}
+
+\begin{lemma}[Value at Scalar Multiples]\label{lem:separatingOnSpan_apply_smul}
+For $A \notin \bar{M}$ and $c \in \mathbb{R}$, $\psi_0(c \cdot A) = -c$.
+\end{lemma}
+
+\begin{proof}
+By linearity of $\psi_0$ and the fact that $\psi_0(A) = -1$:
+\[
+  \psi_0(c \cdot A) = c \cdot \psi_0(A) = c \cdot (-1) = -c.
+\]
+\end{proof}
+
+\begin{theorem}[Nonnegativity on Intersection]\label{thm:separatingOnSpan_nonneg}
+For $A \notin \bar{M}$, the functional $\psi_0$ is nonnegative on
+$M \cap \mathrm{span}\{A\}$.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+Let $x \in M \cap \mathrm{span}\{A\}$. Then $x = c \cdot A$ for some
+$c \in \mathbb{R}$, and $\psi_0(x) = -c$.
+
+By Lemma~\ref{lem:span_cap_M_nonpos_coeff}, since $x = c \cdot A \in M$
+and $A \notin \bar{M}$, we have $c \le 0$.
+
+Therefore $\psi_0(x) = -c \ge 0$.
+\end{proof}
+
+%% ============================================================
+\section{Separating Functional via Geometric Hahn--Banach}
+\label{sec:riesz-application}
+
+This section constructs a separating functional for the dual characterization theorem
+using geometric separation in locally convex spaces.
+
+The key insight is to use \texttt{ProperCone.hyperplane\_separation\_point} from mathlib,
+which provides the geometric Hahn--Banach separation theorem for locally convex spaces.
+This approach avoids the ``generating condition'' difficulties of the classical Riesz
+extension theorem.
+
+\subsection{Setup}
+
+The construction proceeds in four steps:
+\begin{enumerate}
+  \item \textbf{Topology}: $\mathcal{A}_0$ is equipped with the topology from the state
+        seminorm $\|\cdot\|_M$
+  \item \textbf{Locally Convex Space}: Seminorm topologies are always locally convex
+  \item \textbf{Proper Cone}: The closure $\bar{M}$ forms a proper cone:
+        \begin{itemize}
+          \item Nonempty ($0 \in \bar{M}$)
+          \item Closed (by definition of closure)
+          \item Cone (closed under addition and $\mathbb{R}_{\ge 0}$ scaling)
+        \end{itemize}
+  \item \textbf{Separation}: For $A \notin \bar{M}$, there exists a continuous $f$
+        with $f \ge 0$ on $\bar{M}$ and $f(A) < 0$
+\end{enumerate}
+
+\begin{definition}[Quadratic Module Closure as Proper Cone]\label{def:quadraticModuleClosureProperCone}
+The closure $\bar{M}$ forms a \textbf{proper cone} in $\mathcal{A}_0$, i.e., a nonempty
+closed convex cone. The cone structure is inherited from the quadratic module:
+\begin{itemize}
+  \item $0 \in \bar{M}$ (from closure of $M$ containing $0$)
+  \item $a, b \in \bar{M} \Rightarrow a + b \in \bar{M}$ (closure preserves addition)
+  \item $c \ge 0, a \in \bar{M} \Rightarrow c \cdot a \in \bar{M}$ (closure preserves
+        nonnegative scaling)
+\end{itemize}
+\end{definition}
+
+\begin{lemma}\label{lem:mem_quadraticModuleClosureProperCone}
+Membership in the proper cone is equivalent to membership in $\bar{M}$:
+\[
+  a \in \mathsf{quadraticModuleClosureProperCone} \iff a \in \bar{M}.
+\]
+\end{lemma}
+
+\begin{theorem}[Existence of Separating Functional]\label{thm:riesz_extension_exists}
+Let $A \in \mathcal{A}_0$ be self-adjoint with $A \notin \bar{M}$. Then there exists
+a linear functional $\psi : \mathcal{A}_0 \to \mathbb{R}$ such that:
+\begin{enumerate}
+  \item $\psi(m) \ge 0$ for all $m \in M$
+  \item $\psi(A) < 0$
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+Apply \texttt{ProperCone.hyperplane\_separation\_point} to the proper cone $\bar{M}$
+and the point $A \notin \bar{M}$. This yields a continuous linear functional $f$
+with $f \ge 0$ on $\bar{M}$ and $f(A) < 0$. Since $M \subseteq \bar{M}$, we have
+$f \ge 0$ on $M$. The underlying linear map gives the desired $\psi$.
+\end{proof}
+
+%% ============================================================
+\section{Symmetrization of Real Functional}
 \label{sec:complex-extension}
 
-\section{Normalization}
+The separation theorem yields $\psi : \mathcal{A}_0 \to \mathbb{R}$ with $\psi \ge 0$
+on $M$ and $\psi(A) < 0$. However, an $M$-positive state requires symmetry:
+$\varphi(a^*) = \varphi(a)$. This section constructs the symmetrization.
+
+\begin{definition}[Star as Linear Map]\label{def:starAsLinearMap}
+The star operation $a \mapsto a^*$ defines an $\mathbb{R}$-linear map
+$\mathsf{star} : \mathcal{A}_0 \to \mathcal{A}_0$. This uses that for $r \in \mathbb{R}$,
+we have $(\mathsf{algebraMap}(r))^* = \mathsf{algebraMap}(r)$.
+\end{definition}
+
+\begin{definition}[Symmetrization]\label{def:symmetrize}
+Given $\psi : \mathcal{A}_0 \to \mathbb{R}$ linear, the \textbf{symmetrization} is
+\[
+  \varphi(a) = \frac{\psi(a) + \psi(a^*)}{2}.
+\]
+\end{definition}
+
+\begin{lemma}[Symmetrization is Symmetric]\label{lem:symmetrize_map_star}
+For any linear $\psi$ and all $a \in \mathcal{A}_0$:
+\[
+  \varphi(a^*) = \varphi(a).
+\]
+\end{lemma}
+
+\begin{proof}
+Direct computation:
+$\varphi(a^*) = \frac{\psi(a^*) + \psi((a^*)^*)}{2} = \frac{\psi(a^*) + \psi(a)}{2} = \varphi(a)$.
+\end{proof}
+
+\begin{lemma}[Symmetrization on Self-Adjoint Elements]\label{lem:symmetrize_eq_of_selfAdjoint}
+If $a = a^*$, then $\varphi(a) = \psi(a)$.
+\end{lemma}
+
+\begin{proof}
+When $a^* = a$: $\varphi(a) = \frac{\psi(a) + \psi(a)}{2} = \psi(a)$.
+\end{proof}
+
+\begin{lemma}[Elements of $M$ are Self-Adjoint]\label{lem:isSelfAdjoint_of_mem_quadraticModule}
+Every element $m \in M$ satisfies $m^* = m$.
+\end{lemma}
+
+\begin{proof}[Proof sketch]
+By induction on the structure of $M$:
+\begin{itemize}
+  \item Squares $a^* a$ are self-adjoint: $(a^* a)^* = a^* (a^*)^* = a^* a$
+  \item Generator-weighted squares $b^* g_j b$ are self-adjoint (since $g_j^* = g_j$)
+  \item Self-adjointness is preserved by addition and nonnegative scaling
+\end{itemize}
+\end{proof}
+
+\begin{lemma}[Symmetrization Preserves $M$-Nonnegativity]\label{lem:symmetrize_nonneg_on_M}
+If $\psi(m) \ge 0$ for all $m \in M$, then $\varphi(m) \ge 0$ for all $m \in M$.
+\end{lemma}
+
+\begin{proof}
+For $m \in M$, we have $m^* = m$ by Lemma~\ref{lem:isSelfAdjoint_of_mem_quadraticModule}.
+Thus $\varphi(m) = \psi(m) \ge 0$ by Lemma~\ref{lem:symmetrize_eq_of_selfAdjoint}.
+\end{proof}
+
+\begin{lemma}[Symmetrization Preserves Negativity]\label{lem:symmetrize_neg_of_selfAdjoint}
+If $A^* = A$ and $\psi(A) < 0$, then $\varphi(A) < 0$.
+\end{lemma}
+
+\begin{proof}
+By Lemma~\ref{lem:symmetrize_eq_of_selfAdjoint}, $\varphi(A) = \psi(A) < 0$.
+\end{proof}
+
+\begin{theorem}[Symmetric Separating Functional]\label{thm:symmetrize_separation}
+Let $A \in \mathcal{A}_0$ be self-adjoint with $A \notin \bar{M}$. Then there exists
+a linear functional $\varphi : \mathcal{A}_0 \to \mathbb{R}$ such that:
+\begin{enumerate}
+  \item $\varphi(a^*) = \varphi(a)$ for all $a$
+  \item $\varphi(m) \ge 0$ for all $m \in M$
+  \item $\varphi(A) < 0$
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+Apply Theorem~\ref{thm:riesz_extension_exists} to obtain $\psi$, then symmetrize.
+\end{proof}
+
+%% ============================================================
+\section{Normalization to $M$-Positive State}
 \label{sec:normalization}
+
+This section normalizes the symmetric separating functional to obtain a true
+$M$-positive state with $\varphi(1) = 1$.
+
+\subsection{Cauchy--Schwarz for Symmetric Functionals}
+
+\begin{theorem}[Cauchy--Schwarz for Symmetric Functionals]\label{thm:cauchy_schwarz_general}
+Let $\varphi : \mathcal{A}_0 \to \mathbb{R}$ be linear with $\varphi(a^*) = \varphi(a)$
+and $\varphi(m) \ge 0$ for $m \in M$. Then for all $a \in \mathcal{A}_0$:
+\[
+  \varphi(a)^2 \le \varphi(a^* a) \cdot \varphi(1).
+\]
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+Consider the quadratic $q(t) = \varphi((a + t \cdot 1)^*(a + t \cdot 1)) \ge 0$ for
+$t \in \mathbb{R}$. Expanding yields
+\[
+  q(t) = \varphi(a^* a) + 2t \cdot \varphi(a) + t^2 \cdot \varphi(1).
+\]
+If $\varphi(1) = 0$, the quadratic reduces to a linear function, and nonnegativity
+for all $t$ forces $\varphi(a) = 0$. If $\varphi(1) \ne 0$, the discriminant condition
+$4\varphi(a)^2 - 4\varphi(a^* a)\varphi(1) \le 0$ gives the result.
+\end{proof}
+
+\subsection{Positivity of $\varphi(1)$}
+
+\begin{theorem}[$\varphi(1) > 0$]\label{thm:phi_one_pos}
+Let $\varphi : \mathcal{A}_0 \to \mathbb{R}$ be symmetric with $\varphi \ge 0$ on $M$.
+If $A^* = A$ and $\varphi(A) < 0$, then $\varphi(1) > 0$.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+We rule out the cases $\varphi(1) = 0$ and $\varphi(1) < 0$:
+
+\textbf{Case $\varphi(1) = 0$:} By Cauchy--Schwarz, $\varphi(a)^2 \le \varphi(a^* a) \cdot 0 = 0$
+for all $a$. Thus $\varphi \equiv 0$, contradicting $\varphi(A) < 0$.
+
+\textbf{Case $\varphi(1) < 0$:} By the Archimedean property, there exists $N \in \mathbb{N}$
+with $N \cdot 1 - A^* A \in M$. Then $N \cdot \varphi(1) \ge \varphi(A^* A) \ge 0$.
+Since $\varphi(1) < 0$ and $N \ge 0$, this forces $\varphi(A^* A) = 0$.
+By Cauchy--Schwarz, $\varphi(A)^2 \le 0$, so $\varphi(A) = 0$. Contradiction.
+\end{proof}
+
+\subsection{Normalized State}
+
+\begin{definition}[Normalized $M$-Positive State]\label{def:normalizedMPositiveState}
+Given $\varphi$ symmetric with $\varphi \ge 0$ on $M$ and $\varphi(1) > 0$, define
+\[
+  \tilde{\varphi}(a) = \frac{\varphi(a)}{\varphi(1)}.
+\]
+Then $\tilde{\varphi}$ is an $M$-positive state: $\tilde{\varphi}(a^*) = \tilde{\varphi}(a)$,
+$\tilde{\varphi}(1) = 1$, and $\tilde{\varphi}(m) \ge 0$ for $m \in M$.
+\end{definition}
+
+\begin{lemma}[Normalization Preserves Sign]\label{lem:normalizedMPositiveState_negative}
+If $\varphi(A) < 0$ and $\varphi(1) > 0$, then $\tilde{\varphi}(A) < 0$.
+\end{lemma}
+
+\begin{proof}
+$\tilde{\varphi}(A) = \varphi(A) / \varphi(1) < 0$ since the numerator is negative
+and the denominator is positive.
+\end{proof}
+
+\subsection{Main Theorem}
+
+\begin{theorem}[Existence of Negative $M$-Positive State]\label{thm:exists_MPositiveState_negative}
+Let $A \in \mathcal{A}_0$ be self-adjoint with $A \notin \bar{M}$. Then there exists
+an $M$-positive state $\varphi \in S_M$ with $\varphi(A) < 0$.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+Combine the previous results:
+\begin{enumerate}
+  \item By Theorem~\ref{thm:symmetrize_separation}, obtain symmetric $\psi$ with
+        $\psi \ge 0$ on $M$ and $\psi(A) < 0$
+  \item By Theorem~\ref{thm:phi_one_pos}, $\psi(1) > 0$
+  \item By Definition~\ref{def:normalizedMPositiveState}, normalize to get
+        $\varphi \in S_M$ with $\varphi(A) < 0$
+\end{enumerate}
+\end{proof}
+
+\begin{remark}
+This theorem is the key ingredient for the backward direction of the main dual
+characterization: if $A \notin \bar{M}$, there exists a state witnessing this via
+$\varphi(A) < 0$. Combined with the forward direction (states are nonnegative on
+$\bar{M}$), this yields the equivalence
+\[
+  A \in \bar{M} \iff \varphi(A) \ge 0 \text{ for all } \varphi \in S_M.
+\]
+\end{remark}
+

@@ -1,18 +1,227 @@
-% Chapter: Boundedness Results
-% Generated from: ArchimedeanBound.lean, CauchySchwarzM.lean, GeneratingCone.lean
-% Status: PLACEHOLDER - to be filled by LaTeX-P1.4
+% Auto-generated from Lean 4 source
+% Source files: ArchimedeanBound.lean, CauchySchwarzM.lean, GeneratingCone.lean
+% Do not edit manually
 
-\chapter{Boundedness Results}
+% Chapter: Boundedness of M-Positive States
+% Generated from: AfTests/ArchimedeanClosure/Boundedness/
+
+\chapter{Boundedness of M-Positive States}
 \label{ch:boundedness}
 
-% TODO: Fill in from LaTeX-P1.4 task
-\textbf{[PLACEHOLDER: To be generated from Lean source]}
+This chapter establishes fundamental boundedness properties of $M$-positive states.
+The key results are the Cauchy--Schwarz inequality for the sesquilinear form
+induced by states, and the uniform bound on state values derived from the
+Archimedean property. We also prove that $M \cap (\mathcal{A}_0)_{\mathrm{sa}}$
+generates the self-adjoint part as differences.
 
-\section{The Archimedean Bound}
-\label{sec:archimedean-bound}
+The main results are:
+\begin{itemize}
+  \item \texttt{cauchy\_schwarz} (Theorem~\ref{thm:cauchy-schwarz}): the Cauchy--Schwarz inequality
+  \item \texttt{apply\_abs\_le} (Theorem~\ref{thm:apply-abs-le}): uniform bound $|\varphi(a)| \le \sqrt{N_a}$
+  \item \texttt{quadraticModule\_selfAdjoint\_generating} (Theorem~\ref{thm:generating}): generating property
+\end{itemize}
 
+%% ============================================================
 \section{Cauchy--Schwarz Inequality}
 \label{sec:cauchy-schwarz}
 
-\section{The Generating Cone}
+We prove the Cauchy--Schwarz inequality for $M$-positive states using the
+classical discriminant argument for real quadratics.
+
+\begin{lemma}[Symmetry of Sesquilinear Form]\label{lem:sesqForm-symm}
+For any $M$-positive state $\varphi$ and $a, b \in \mathcal{A}_0$,
+\[
+  \varphi(a^* b) = \varphi(b^* a).
+\]
+\end{lemma}
+
+\begin{proof}
+Apply the symmetry property $\varphi(x^*) = \varphi(x)$ to $x = a^* b$.
+Since $(a^* b)^* = b^* a$, we have $\varphi(a^* b) = \varphi((a^* b)^*) = \varphi(b^* a)$.
+\end{proof}
+
+\begin{theorem}[Cauchy--Schwarz]\label{thm:cauchy-schwarz}
+For any $M$-positive state $\varphi$ and $a, b \in \mathcal{A}_0$,
+\[
+  \varphi(b^* a)^2 \le \varphi(a^* a) \cdot \varphi(b^* b).
+\]
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+For $t \in \mathbb{R}$, consider the element $(a + tb)^*(a + tb) \in M$.
+By $M$-positivity,
+\[
+  q(t) := \varphi((a + tb)^*(a + tb)) \ge 0.
+\]
+Expanding using linearity and Lemma~\ref{lem:sesqForm-symm}:
+\[
+  q(t) = \varphi(a^* a) + 2t\,\varphi(b^* a) + t^2\,\varphi(b^* b).
+\]
+This is a nonnegative quadratic in $t$, so its discriminant satisfies
+\[
+  (2\varphi(b^* a))^2 - 4\,\varphi(a^* a)\,\varphi(b^* b) \le 0,
+\]
+which yields the result.
+\end{proof}
+
+\begin{corollary}\label{cor:apply-sq-le}
+For any $M$-positive state $\varphi$ and $a \in \mathcal{A}_0$,
+\[
+  \varphi(a)^2 \le \varphi(a^* a).
+\]
+\end{corollary}
+
+\begin{proof}
+Apply Theorem~\ref{thm:cauchy-schwarz} with $b = 1$ and use $\varphi(1) = 1$.
+\end{proof}
+
+\begin{lemma}[Null Space Property]\label{lem:null-space}
+If $\varphi(a^* a) = 0$, then $\varphi(b^* a) = 0$ for all $b \in \mathcal{A}_0$.
+\end{lemma}
+
+\begin{proof}
+By Theorem~\ref{thm:cauchy-schwarz}, $\varphi(b^* a)^2 \le \varphi(a^* a) \cdot \varphi(b^* b) = 0$.
+\end{proof}
+
+%% ============================================================
+\section{Archimedean Bound}
+\label{sec:archimedean-bound}
+
+Using the Archimedean property of the quadratic module $M$, we derive uniform
+bounds on state values. Recall that the Archimedean property states: for each
+$a \in \mathcal{A}_0$, there exists $N_a \in \mathbb{N}$ such that
+$N_a \cdot 1 - a^* a \in M$.
+
+\begin{theorem}[Bound on $\varphi(a^* a)$]\label{thm:star-mul-self-bound}
+Let $\varphi$ be an $M$-positive state and $a \in \mathcal{A}_0$. Then
+\[
+  \varphi(a^* a) \le N_a,
+\]
+where $N_a$ is the Archimedean bound for $a$.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+By the Archimedean property, $N_a \cdot 1 - a^* a \in M$.
+By $M$-positivity:
+\[
+  \varphi(N_a \cdot 1 - a^* a) \ge 0.
+\]
+Using linearity and $\varphi(1) = 1$:
+\[
+  N_a - \varphi(a^* a) \ge 0,
+\]
+which gives $\varphi(a^* a) \le N_a$.
+\end{proof}
+
+\begin{theorem}[Combined Bound]\label{thm:apply-bound}
+For any $M$-positive state $\varphi$ and $a \in \mathcal{A}_0$,
+\[
+  \varphi(a)^2 \le N_a.
+\]
+\end{theorem}
+
+\begin{proof}
+By Corollary~\ref{cor:apply-sq-le}, $\varphi(a)^2 \le \varphi(a^* a)$.
+By Theorem~\ref{thm:star-mul-self-bound}, $\varphi(a^* a) \le N_a$.
+\end{proof}
+
+\begin{theorem}[Uniform Absolute Bound]\label{thm:apply-abs-le}
+For any $M$-positive state $\varphi$ and $a \in \mathcal{A}_0$,
+\[
+  |\varphi(a)| \le \sqrt{N_a}.
+\]
+\end{theorem}
+
+\begin{proof}
+From Theorem~\ref{thm:apply-bound}, $\varphi(a)^2 \le N_a$.
+Taking square roots (noting $N_a \ge 0$) gives the result.
+\end{proof}
+
+\begin{remark}
+Theorem~\ref{thm:apply-abs-le} is the key estimate needed for compactness
+of the state space $S_M$ (Chapter~\ref{ch:compactness}). It shows that for
+each $a$, the set $\{\varphi(a) : \varphi \in S_M\}$ is bounded.
+\end{remark}
+
+%% ============================================================
+\section{Generating Cone Property}
 \label{sec:generating-cone}
+
+We prove that $M \cap (\mathcal{A}_0)_{\mathrm{sa}}$ generates the self-adjoint
+part as differences. This uses the algebraic identity expressing any self-adjoint
+element as a difference of two squares.
+
+\begin{definition}[Self-Adjoint Part]\label{def:selfAdjointPart}
+The \textbf{self-adjoint part} of $\mathcal{A}_0$ is
+\[
+  (\mathcal{A}_0)_{\mathrm{sa}} = \{a \in \mathcal{A}_0 : a^* = a\}.
+\]
+\end{definition}
+
+\begin{lemma}\label{lem:one-pm-sa}
+If $x \in (\mathcal{A}_0)_{\mathrm{sa}}$, then $1 + x$ and $1 - x$ are self-adjoint.
+\end{lemma}
+
+\begin{proof}
+$(1 + x)^* = 1^* + x^* = 1 + x$, and similarly for $1 - x$.
+\end{proof}
+
+\begin{lemma}\label{lem:sq-sa}
+If $a \in (\mathcal{A}_0)_{\mathrm{sa}}$, then $a^2 \in (\mathcal{A}_0)_{\mathrm{sa}}$.
+\end{lemma}
+
+\begin{proof}
+$(a^2)^* = (a \cdot a)^* = a^* \cdot a^* = a \cdot a = a^2$.
+\end{proof}
+
+\begin{theorem}[Algebraic Decomposition]\label{thm:selfAdjoint-decomp}
+For any self-adjoint $x \in (\mathcal{A}_0)_{\mathrm{sa}}$,
+\[
+  x = \frac{1}{4}(1+x)^*(1+x) - \frac{1}{4}(1-x)^*(1-x).
+\]
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+By Lemma~\ref{lem:one-pm-sa}, $(1+x)^* = 1+x$ and $(1-x)^* = 1-x$. Thus:
+\begin{align*}
+  (1+x)^2 &= 1 + 2x + x^2, \\
+  (1-x)^2 &= 1 - 2x + x^2.
+\end{align*}
+Subtracting: $(1+x)^2 - (1-x)^2 = 4x$, so $x = \tfrac{1}{4}(1+x)^2 - \tfrac{1}{4}(1-x)^2$.
+\end{proof}
+
+\begin{lemma}[Decomposition Terms in $M$]\label{lem:decomp-in-M}
+For any $x \in \mathcal{A}_0$, both $(1+x)^*(1+x)$ and $(1-x)^*(1-x)$ lie in $M$.
+\end{lemma}
+
+\begin{proof}
+These are sums of squares $a^* a$ with $a = 1 + x$ and $a = 1 - x$ respectively,
+which belong to $M$ by definition of the quadratic module.
+\end{proof}
+
+\begin{theorem}[Generating Property]\label{thm:generating}
+The cone $M \cap (\mathcal{A}_0)_{\mathrm{sa}}$ generates $(\mathcal{A}_0)_{\mathrm{sa}}$
+as differences. That is, for every $x \in (\mathcal{A}_0)_{\mathrm{sa}}$, there exist
+$m_1, m_2 \in M \cap (\mathcal{A}_0)_{\mathrm{sa}}$ such that
+\[
+  x = \tfrac{1}{4} m_1 - \tfrac{1}{4} m_2.
+\]
+\end{theorem}
+
+\begin{proof}
+Let $x \in (\mathcal{A}_0)_{\mathrm{sa}}$. Define:
+\begin{align*}
+  m_1 &= (1+x)^*(1+x), \\
+  m_2 &= (1-x)^*(1-x).
+\end{align*}
+By Lemma~\ref{lem:decomp-in-M}, $m_1, m_2 \in M$.
+By Lemmas~\ref{lem:one-pm-sa} and~\ref{lem:sq-sa}, $m_1, m_2 \in (\mathcal{A}_0)_{\mathrm{sa}}$.
+By Theorem~\ref{thm:selfAdjoint-decomp}, $x = \tfrac{1}{4}m_1 - \tfrac{1}{4}m_2$.
+\end{proof}
+
+\begin{remark}
+Theorem~\ref{thm:generating} shows that $M \cap (\mathcal{A}_0)_{\mathrm{sa}}$ is a
+\emph{generating cone} for the real vector space $(\mathcal{A}_0)_{\mathrm{sa}}$.
+This property is essential for applying the Riesz extension theorem in
+Chapter~\ref{ch:dual}.
+\end{remark}
