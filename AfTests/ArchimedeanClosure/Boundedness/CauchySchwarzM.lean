@@ -107,6 +107,14 @@ theorem apply_star_mul_eq_zero_of_apply_star_self_eq_zero {a : FreeStarAlgebra n
   rw [ha, zero_mul] at hcs
   exact sq_eq_zero_iff.mp (le_antisymm hcs (sq_nonneg _))
 
+/-- If φ(star a * a) = 0, then φ(star a * x) = 0 for all x.
+    This is the "swapped" version, also from Cauchy-Schwarz with reversed arguments. -/
+theorem apply_mul_star_eq_zero_of_apply_star_self_eq_zero {a : FreeStarAlgebra n}
+    (ha : φ (star a * a) = 0) (x : FreeStarAlgebra n) : φ (star a * x) = 0 := by
+  have hcs := cauchy_schwarz φ x a
+  rw [ha, mul_zero] at hcs
+  exact sq_eq_zero_iff.mp (le_antisymm hcs (sq_nonneg _))
+
 end MPositiveState
 
 end FreeStarAlgebra

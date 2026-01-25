@@ -77,6 +77,29 @@ theorem gnsNullSpace_neg_mem {a : FreeStarAlgebra n}
     (ha : a ∈ φ.gnsNullSpace) : -a ∈ φ.gnsNullSpace :=
   φ.gnsNullSpace.neg_mem ha
 
+/-! ### Left ideal property -/
+
+/-- The GNS null space is closed under left multiplication: if a ∈ N_φ then b * a ∈ N_φ.
+
+This makes N_φ a left ideal. The proof uses the "swapped" Cauchy-Schwarz:
+- Need: φ(star(b*a) * (b*a)) = 0 when a ∈ N_φ
+- Compute: star(b*a) * (b*a) = star a * star b * b * a = star a * (star b * b * a)
+- Apply: φ(star a * x) = 0 for all x when φ(star a * a) = 0 -/
+theorem gnsNullSpace_mul_mem_left {a : FreeStarAlgebra n}
+    (ha : a ∈ φ.gnsNullSpace) (b : FreeStarAlgebra n) :
+    b * a ∈ φ.gnsNullSpace := by
+  simp only [mem_gnsNullSpace_iff] at ha ⊢
+  -- star(b*a) * (b*a) = star a * star b * b * a = star a * (star b * b * a)
+  rw [star_mul, mul_assoc]
+  -- φ(star a * (star b * b * a)) = 0 by the swapped Cauchy-Schwarz
+  exact apply_mul_star_eq_zero_of_apply_star_self_eq_zero φ ha (star b * (b * a))
+
+/-- Alternative form: left multiplication preserves null space membership. -/
+theorem mul_mem_gnsNullSpace_of_mem {a : FreeStarAlgebra n}
+    (ha : a ∈ φ.gnsNullSpace) (b : FreeStarAlgebra n) :
+    b * a ∈ φ.gnsNullSpace :=
+  gnsNullSpace_mul_mem_left φ ha b
+
 end MPositiveState
 
 end FreeStarAlgebra

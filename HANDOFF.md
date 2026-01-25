@@ -1,27 +1,28 @@
-# Handoff: 2026-01-25 (Session 2)
+# Handoff: 2026-01-25 (Session 3)
 
 ## Completed This Session
 
-### GNS-2a: Define gnsNullSpace as AddSubgroup (af-tests-ft2f - CLOSED)
+### GNS-2b: Prove gnsNullSpace is a left ideal (af-tests-aim5 - CLOSED)
 
-Created `AfTests/ArchimedeanClosure/GNS/NullSpace.lean` (82 LOC).
+Added left ideal property to `AfTests/ArchimedeanClosure/GNS/NullSpace.lean` (now 105 LOC).
 
 **Key Implementation:**
 ```lean
-def gnsNullSpace : AddSubgroup (FreeStarAlgebra n) where
-  carrier := {a : FreeStarAlgebra n | φ (star a * a) = 0}
-  zero_mem' := by simp only [Set.mem_setOf_eq, star_zero, zero_mul]; exact φ.toFun.map_zero
-  add_mem' := ...  -- Uses Cauchy-Schwarz corollary
-  neg_mem' := by simp only [Set.mem_setOf_eq]; simp [star_neg, ha]
+theorem gnsNullSpace_mul_mem_left {a : FreeStarAlgebra n}
+    (ha : a ∈ φ.gnsNullSpace) (b : FreeStarAlgebra n) :
+    b * a ∈ φ.gnsNullSpace := by
+  simp only [mem_gnsNullSpace_iff] at ha ⊢
+  rw [star_mul, mul_assoc]
+  exact apply_mul_star_eq_zero_of_apply_star_self_eq_zero φ ha (star b * (b * a))
 ```
 
-**Also added** to `CauchySchwarzM.lean` (now 112 LOC):
+**Also added** to `CauchySchwarzM.lean` (now 120 LOC):
 ```lean
-theorem apply_star_mul_eq_zero_of_apply_star_self_eq_zero {a : FreeStarAlgebra n}
-    (ha : φ (star a * a) = 0) (b : FreeStarAlgebra n) : φ (star b * a) = 0
+theorem apply_mul_star_eq_zero_of_apply_star_self_eq_zero {a : FreeStarAlgebra n}
+    (ha : φ (star a * a) = 0) (x : FreeStarAlgebra n) : φ (star a * x) = 0
 ```
 
-This is the ℝ-valued analog of the C*-algebra lemma. Proof is simpler since we work with real squares.
+This is the "swapped" Cauchy-Schwarz: φ(star a * x) = 0 when φ(star a * a) = 0.
 
 ---
 
@@ -36,30 +37,30 @@ This is the ℝ-valued analog of the C*-algebra lemma. Proof is simpler since we
 | Representation/Constrained.lean | Done | 87 | 0 | |
 | Representation/VectorState.lean | Done | 143 | 0 | |
 | Representation/GNSConstrained.lean | In Progress | 126 | 1 | `gns_representation_exists` |
-| **GNS/NullSpace.lean** | **NEW** | **82** | **0** | AddSubgroup definition |
+| GNS/NullSpace.lean | **Done** | **105** | **0** | AddSubgroup + left ideal |
 
 ---
 
 ## Next Steps (Priority Order)
 
-### Unblocked by GNS-2a
-1. **af-tests-aim5** (GNS-2b): Prove `gnsNullSpace` is a left ideal (~30 LOC)
-   - Pattern: AfTests/GNS/NullSpace/LeftIdeal.lean
-   - Key: `∀ b a, a ∈ N_φ → b * a ∈ N_φ`
+### GNS Construction Chain (unblocked)
+1. **GNS-3a**: Define pre-inner product on quotient A₀/N_φ
+2. **GNS-3b**: Prove quotient inner product is well-defined
+3. **GNS-4**: Build quotient space with inner product structure
 
 ### Dependency Chain for gns_representation_exists
 ```
-GNS-2a ✓ → GNS-2b → GNS-3a → GNS-3b → GNS-4 ──┐
-                     │                          │
-                     └── GNS-5 → GNS-6 ─────────┴── GNS-7a → GNS-7b → GNS-8 → GNS-9
+GNS-2a ✓ → GNS-2b ✓ → GNS-3a → GNS-3b → GNS-4 ──┐
+                        │                         │
+                        └── GNS-5 → GNS-6 ────────┴── GNS-7a → GNS-7b → GNS-8 → GNS-9
 ```
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/Boundedness/CauchySchwarzM.lean` (+8 LOC, now 112)
-- `AfTests/ArchimedeanClosure/GNS/NullSpace.lean` (NEW, 82 LOC)
+- `AfTests/ArchimedeanClosure/Boundedness/CauchySchwarzM.lean` (+8 LOC, now 120)
+- `AfTests/ArchimedeanClosure/GNS/NullSpace.lean` (+23 LOC, now 105)
 - `HANDOFF.md` (this file)
 
 ---
@@ -67,4 +68,5 @@ GNS-2a ✓ → GNS-2b → GNS-3a → GNS-3b → GNS-4 ──┐
 ## Known Issues
 
 - **LEARNINGS_misc.md exceeds 200 LOC** (316 LOC) - tracked by af-tests-2d6o
-- `gns_representation_exists` - needs full GNS construction (6 more files)
+- `gns_representation_exists` - needs full GNS construction (5 more files)
+
