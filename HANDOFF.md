@@ -1,46 +1,24 @@
-# Handoff: 2026-01-25 (Session 23)
+# Handoff: 2026-01-25 (Session 24)
 
 ## Completed This Session
 
-### Extended Generator Positivity to Hilbert Space
+### Eliminated CompleteSpace Sorry in GNS/Star.lean
 
-Added `gnsRep_generator_inner_nonneg` to `GNS/Constrained.lean` (now 87 LOC, 0 sorries):
-
-```lean
--- Generator positivity on the full Hilbert space (PROVEN)
-theorem gnsRep_generator_inner_nonneg (j : Fin n) (x : φ.gnsHilbertSpaceReal) :
-    0 ≤ @inner ℝ _ _ x (φ.gnsRep (generator j) x)
-```
-
-**Key Pattern Discovered:** To use `UniformSpace.Completion.inner_coe`, need explicit
-`InnerProductSpace` instance (not just Core):
-```lean
-letI ips : InnerProductSpace ℝ φ.gnsQuotient :=
-  @InnerProductSpace.ofCore ℝ _ _ _ _ φ.gnsInnerProductCore.toCore
-```
-
-### Previous Session: Created `GNS/Constrained.lean` - Generator Positivity Foundation
-
-Created `AfTests/ArchimedeanClosure/GNS/Constrained.lean` (62 LOC, 0 sorries):
+**The critical blocker has been resolved!** Proved `gnsHilbertSpaceComplex_completeSpace`:
 
 ```lean
--- Key identity: inner product with generator (PROVEN)
-theorem gnsPreRep_generator_inner (j : Fin n) (b : FreeStarAlgebra n) :
-    φ.gnsInner (Submodule.Quotient.mk b)
-      (φ.gnsPreRep (generator j) (Submodule.Quotient.mk b)) =
-    φ (star b * generator j * b)
-
--- Core nonnegativity (PROVEN)
-theorem gnsPreRep_generator_inner_nonneg (j : Fin n) (b : FreeStarAlgebra n) :
-    0 ≤ φ.gnsInner (Submodule.Quotient.mk b)
-      (φ.gnsPreRep (generator j) (Submodule.Quotient.mk b))
+-- Complexification of a complete space is complete (PROVEN)
+instance gnsHilbertSpaceComplex_completeSpace [IsArchimedean n] :
+    CompleteSpace φ.gnsHilbertSpaceComplex
 ```
 
-**Key Insight:** `star b * gⱼ * b ∈ M` by `star_generator_mul_mem`, and φ is M-positive.
+**Proof Strategy:**
+1. Cauchy sequences in `Complexification H` project to Cauchy sequences in each component
+2. Use `norm_fst_le` and `norm_snd_le` to show Cauchy property transfers
+3. By completeness of `gnsHilbertSpaceReal`, get limits `(x, y)`
+4. Show convergence using `‖p‖² = ‖p.1‖² + ‖p.2‖²`
 
-### Added Learning
-
-Added "Generator Positivity: Key Insight" to `docs/GNS/learnings/completion-topology.md`.
+**Impact:** This was the ONLY sorry in the GNS construction. Star.lean now has 0 sorries!
 
 ---
 
@@ -48,13 +26,13 @@ Added "Generator Positivity: Key Insight" to `docs/GNS/learnings/completion-topo
 
 ### Phase 1-6: COMPLETE (0 sorries)
 
-### Phase 7: IN PROGRESS (2 sorries remaining)
+### Phase 7-8: **1 sorry remaining** (down from 2)
 
 | File | Status | LOC | Sorries | Notes |
 |------|--------|-----|---------|-------|
 | Representation/Constrained.lean | Done | 87 | 0 | |
 | Representation/VectorState.lean | Done | 143 | 0 | |
-| Representation/GNSConstrained.lean | In Progress | 126 | 1 | `gns_representation_exists` |
+| Representation/GNSConstrained.lean | In Progress | 126 | **1** | `gns_representation_exists` |
 | GNS/NullSpace.lean | Done | 142 | 0 | |
 | GNS/Quotient.lean | Done | 182 | 0 | |
 | GNS/PreRep.lean | Done | 65 | 0 | |
@@ -63,20 +41,21 @@ Added "Generator Positivity: Key Insight" to `docs/GNS/learnings/completion-topo
 | GNS/ComplexifyInner.lean | Done | 160 | 0 | |
 | GNS/ComplexifyGNS.lean | Done | 76 | 0 | |
 | GNS/Bounded.lean | Done | 148 | 0 | |
-| GNS/Extension.lean | Done | **242** | 0 | Exceeds 200 (tracked) |
-| GNS/Star.lean | Done | 187 | **1** | CompleteSpace sorry |
-| **GNS/Constrained.lean** | Done | **87** | **0** | Generator positivity (quotient + Hilbert) |
+| GNS/Extension.lean | Done | 242 | 0 | Exceeds 200 (tracked) |
+| **GNS/Star.lean** | **Done** | **~260** | **0** | ✅ CompleteSpace PROVEN |
+| GNS/Constrained.lean | Done | 87 | 0 | Generator positivity |
 
 ---
 
-## What's Next for GNS-8 (Generator Positivity)
+## What's Next
 
-**Hilbert space positivity done.** Next steps:
+**Only 1 sorry remains:** `gns_representation_exists` in `GNSConstrained.lean:107`
 
-1. ~~**Extend to real Hilbert space**: Prove `gnsRep_generator_inner_nonneg` using density~~ ✅ DONE
-2. **Prove IsSelfAdjoint**: Use `isSelfAdjoint_generator` + star homomorphism property
-3. **Assemble IsPositive**: Combine IsSelfAdjoint + inner product nonnegativity
-4. **Complex version**: Extend to `gnsRepComplex_generator_isPositive`
+This requires assembling the full GNS representation into a `ConstrainedStarRep`:
+1. ✅ GNS Hilbert space is complete
+2. ✅ GNS representation preserves star (`gnsRep_star`, `gnsRepComplex_star`)
+3. ✅ Generator positivity on quotient and Hilbert space
+4. ❌ Package into `ConstrainedStarRep` structure
 
 ---
 
@@ -86,12 +65,11 @@ Added "Generator Positivity: Key Insight" to `docs/GNS/learnings/completion-topo
 - **completion-topology.md exceeds 200 LOC** (~490 LOC) - tracked by af-tests-8oaj
 - **LEARNINGS_misc.md exceeds 200 LOC** (316 LOC) - tracked by af-tests-2d6o
 - **Complexify.lean exceeds 200 LOC** (226 LOC) - tracked by af-tests-muey
-- **CompleteSpace sorry** in Star.lean - tracked by af-tests-5vwz
+- ~~**CompleteSpace sorry** in Star.lean - tracked by af-tests-5vwz~~ ✅ RESOLVED
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/ArchimedeanClosure/GNS/Constrained.lean` (added `gnsRep_generator_inner_nonneg`)
-- `docs/GNS/learnings/completion-topology.md` (added InnerProductSpace.ofCore pattern)
+- `AfTests/ArchimedeanClosure/GNS/Star.lean` (eliminated CompleteSpace sorry)
 - `HANDOFF.md` (this file)

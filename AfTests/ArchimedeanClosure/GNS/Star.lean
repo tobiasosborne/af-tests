@@ -149,9 +149,79 @@ The norm ‖(x,y)‖² = ‖x‖² + ‖y‖² is equivalent to the product max 
 Completeness follows from completeness of each component. -/
 instance gnsHilbertSpaceComplex_completeSpace [IsArchimedean n] :
     CompleteSpace φ.gnsHilbertSpaceComplex := by
-  -- The proof uses that Cauchy sequences in Complexification project to Cauchy sequences
-  -- in each component, which converge by completeness of gnsHilbertSpaceReal.
-  sorry
+  letI := Complexification.instNormedAddCommGroup (H := φ.gnsHilbertSpaceReal)
+  refine Metric.complete_of_cauchySeq_tendsto ?_
+  intro u hu
+  -- Project to components - they are Cauchy because ‖p.1‖ ≤ ‖p‖
+  have h1 : CauchySeq (fun n => (u n).1) := by
+    rw [Metric.cauchySeq_iff] at hu ⊢
+    intro ε hε
+    obtain ⟨N, hN⟩ := hu ε hε
+    use N
+    intro m hm n' hn'
+    calc dist (u m).1 (u n').1
+        = ‖(u m).1 - (u n').1‖ := dist_eq_norm _ _
+      _ = ‖(u m - u n').1‖ := rfl
+      _ ≤ ‖u m - u n'‖ := Complexification.norm_fst_le φ (u m - u n')
+      _ = dist (u m) (u n') := (dist_eq_norm (u m) (u n')).symm
+      _ < ε := hN m hm n' hn'
+  have h2 : CauchySeq (fun n => (u n).2) := by
+    rw [Metric.cauchySeq_iff] at hu ⊢
+    intro ε hε
+    obtain ⟨N, hN⟩ := hu ε hε
+    use N
+    intro m hm n' hn'
+    calc dist (u m).2 (u n').2
+        = ‖(u m).2 - (u n').2‖ := dist_eq_norm _ _
+      _ = ‖(u m - u n').2‖ := rfl
+      _ ≤ ‖u m - u n'‖ := Complexification.norm_snd_le φ (u m - u n')
+      _ = dist (u m) (u n') := (dist_eq_norm (u m) (u n')).symm
+      _ < ε := hN m hm n' hn'
+  -- Get limits by completeness of gnsHilbertSpaceReal
+  obtain ⟨x, hx⟩ := cauchySeq_tendsto_of_complete h1
+  obtain ⟨y, hy⟩ := cauchySeq_tendsto_of_complete h2
+  -- The pair converges
+  let lim : Complexification φ.gnsHilbertSpaceReal := (x, y)
+  refine ⟨lim, ?_⟩
+  rw [Metric.tendsto_atTop] at hx hy ⊢
+  intro ε hε
+  obtain ⟨N1, hN1⟩ := hx (ε / 2) (half_pos hε)
+  obtain ⟨N2, hN2⟩ := hy (ε / 2) (half_pos hε)
+  use max N1 N2
+  intro n hn
+  have hn1 : N1 ≤ n := le_of_max_le_left hn
+  have hn2 : N2 ≤ n := le_of_max_le_right hn
+  have hnorm1 : ‖(u n).1 - x‖ < ε / 2 := by rw [← dist_eq_norm]; exact hN1 n hn1
+  have hnorm2 : ‖(u n).2 - y‖ < ε / 2 := by rw [← dist_eq_norm]; exact hN2 n hn2
+  have hdiff1 : (u n - lim).1 = (u n).1 - x := rfl
+  have hdiff2 : (u n - lim).2 = (u n).2 - y := rfl
+  rw [dist_eq_norm]
+  have hbd : ‖(u n - lim).1‖^2 + ‖(u n - lim).2‖^2 < ε^2 := by
+    rw [hdiff1, hdiff2]
+    have hsq1 : ‖(u n).1 - x‖^2 < (ε/2)^2 :=
+      (sq_lt_sq₀ (norm_nonneg _) (by linarith : 0 ≤ ε/2)).mpr hnorm1
+    have hsq2 : ‖(u n).2 - y‖^2 < (ε/2)^2 :=
+      (sq_lt_sq₀ (norm_nonneg _) (by linarith : 0 ≤ ε/2)).mpr hnorm2
+    calc ‖(u n).1 - x‖^2 + ‖(u n).2 - y‖^2
+        < (ε/2)^2 + (ε/2)^2 := add_lt_add hsq1 hsq2
+      _ = ε^2/2 := by ring
+      _ < ε^2 := by linarith [sq_pos_of_pos hε]
+  have hnorm_sq : ‖u n - lim‖^2 = ‖(u n - lim).1‖^2 + ‖(u n - lim).2‖^2 := by
+    rw [@norm_sq_eq_re_inner ℂ _ _ Complexification.instNormedAddCommGroup.toSeminormedAddCommGroup
+        Complexification.instInnerProductSpace (u n - lim)]
+    have hinner : @inner ℂ _ Complexification.instInnerComplex (u n - lim) (u n - lim)
+        = { re := @inner ℝ _ _ (u n - lim).1 (u n - lim).1 +
+                  @inner ℝ _ _ (u n - lim).2 (u n - lim).2,
+            im := @inner ℝ _ _ (u n - lim).1 (u n - lim).2 -
+                  @inner ℝ _ _ (u n - lim).2 (u n - lim).1 } :=
+      Complexification.inner_def _ _
+    simp only [hinner, real_inner_self_eq_norm_sq, sq]
+    rfl
+  calc ‖u n - lim‖
+      = Real.sqrt (‖u n - lim‖^2) := (Real.sqrt_sq (norm_nonneg _)).symm
+    _ = Real.sqrt (‖(u n - lim).1‖^2 + ‖(u n - lim).2‖^2) := by rw [hnorm_sq]
+    _ < Real.sqrt (ε^2) := Real.sqrt_lt_sqrt (add_nonneg (sq_nonneg _) (sq_nonneg _)) hbd
+    _ = ε := Real.sqrt_sq (le_of_lt hε)
 
 /-- The complexified representation preserves the star: π_ℂ(star a) = adjoint(π_ℂ(a)).
 
