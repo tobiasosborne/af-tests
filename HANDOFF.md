@@ -1,91 +1,89 @@
-# Handoff: 2026-01-30 (Session 45)
+# Handoff: 2026-01-30 (Session 46)
 
 ## Completed This Session
 
-### Peirce Decomposition - Structure Added
+### U Operator & Commutator Identities (Parallel Work)
 
-Expanded `AfTests/Jordan/Peirce.lean` (98 → 175 LOC) with:
-- `peirce_polynomial_identity` (sorry)
-- 6 Peirce multiplication rules (sorry)
+Created two new files in parallel:
 
-### Decomposed Peirce Sorries into 7 Tasks (~50 LOC each)
+| File | LOC | Sorries | Issue |
+|------|-----|---------|-------|
+| `Jordan/Quadratic.lean` | 102 | **0** | af-pjz9 |
+| `Jordan/OperatorIdentities.lean` | 94 | 3 | af-2lqt |
 
-```
-af-pjz9: U operator definition
-    ↓
-af-7vob: U operator properties
-    ↓
-af-2lqt: Operator commutator identities ←─┐
-    ↓                                      │
-af-5qj3: Fundamental formula ─────────────┘
-    ↓
-af-s7tl: Peirce polynomial identity
-    ↓
-af-dxb5: P₀/P₁ multiplication rules
-    ↓
-af-qvqz: P₁/₂ multiplication rules
-    ↓
-af-bqjd: [COMPLETES] Peirce decomposition theorem
-```
+**Quadratic.lean (fully proven):**
+- `U : J → J → J` - The quadratic U operator
+- `U_one`, `U_zero_left`, `U_zero_right` - Identity behavior
+- `U_smul` - Quadratic scaling: `U (c • a) x = c² • U a x`
+- `U_linear` - U_a as linear map in second argument
 
-**Total estimated LOC:** ~350 (7 × 50)
+**OperatorIdentities.lean (structure done):**
+- `opComm` with notation `[[ f, g ]]` - Commutator bracket
+- `opComm_skew`, `opComm_self` - Basic properties (proven)
+- `linearized_jordan_operator` (sorry) - Key identity
+- `L_e_L_a_L_e` (sorry) - Idempotent composition identity
 
 ---
 
 ## Current State
 
 ### Jordan Algebra Project
-- **20 files, ~2400 LOC total**
-- **12 sorries remaining** (5 FormallyReal/Primitive, 7 Peirce)
-- Peirce: structure done, sorry elimination decomposed
+- **22 files, ~2600 LOC total**
+- **15 sorries remaining** (5 FormallyReal/Primitive, 7 Peirce, 3 OperatorIdentities)
 
-### Ready to Start
+### Peirce Chain Progress
 
-| Issue | Title | Dependencies |
-|-------|-------|--------------|
-| af-pjz9 | U operator definition | None |
-| af-2lqt | Operator commutator identities | None |
-
-### Blocked Issues (Peirce Chain)
-
-| Issue | Title | Blocked By |
-|-------|-------|------------|
-| af-7vob | U operator properties | af-pjz9 |
-| af-5qj3 | Fundamental formula | af-pjz9, af-7vob, af-2lqt |
-| af-s7tl | Peirce polynomial | af-5qj3 |
-| af-dxb5 | P₀/P₁ rules | af-s7tl |
-| af-qvqz | P₁/₂ rules | af-dxb5 |
-| af-bqjd | Peirce decomposition | af-qvqz |
-| af-nnvl | Eigenspace definition | af-bqjd |
+```
+✓ af-pjz9: U operator definition (CLOSED)
+    ↓
+○ af-7vob: U operator properties (READY)
+    ↓
+✓ af-2lqt: Operator commutator identities (CLOSED - 3 sorries)
+    ↓
+○ af-5qj3: Fundamental formula (blocked by af-7vob)
+    ↓
+○ af-s7tl: Peirce polynomial identity
+    ↓
+○ af-dxb5: P₀/P₁ multiplication rules
+    ↓
+○ af-qvqz: P₁/₂ multiplication rules
+    ↓
+○ af-bqjd: Peirce decomposition theorem
+```
 
 ---
 
 ## Next Steps
 
-### Recommended Start
-1. **af-pjz9**: Create `Jordan/Quadratic.lean` with U operator
-2. **af-2lqt**: Create `Jordan/OperatorIdentities.lean` (can run parallel)
+### Recommended: af-7vob (U Operator Properties)
+
+Now unblocked. Append to `Jordan/Quadratic.lean`:
+- `U_self`: `U a a = jmul a (jsq a)`
+- `U_idempotent_self`: `U e e = e` for idempotent e
+- `U_idempotent_comp`: `U e ∘ U e = U e`
+- `U_L_comm`: Commutation with L operator
 
 ### Alternative Path
-Skip fundamental formula entirely - verify Peirce rules for Hermitian matrices
-directly using matrix arithmetic (Option C from previous session).
+Skip abstract fundamental formula - verify Peirce rules directly for Hermitian matrices.
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/Peirce.lean` (175 LOC)
-- `docs/Jordan/LEARNINGS.md` (194 LOC)
-- `docs/Jordan/LEARNINGS_peirce.md` (NEW, 87 LOC)
+- `AfTests/Jordan/Quadratic.lean` (NEW, 102 LOC)
+- `AfTests/Jordan/OperatorIdentities.lean` (NEW, 94 LOC)
 - `HANDOFF.md` (updated)
 
 ---
 
 ## Previous Sessions
 
+### Session 45 (2026-01-30)
+- Expanded Peirce.lean (98 → 175 LOC)
+- Decomposed Peirce sorries into 7 tasks
+
 ### Session 44 (2026-01-30)
 - Completed 4 spectral infrastructure files (503 LOC)
-- FiniteDimensional, Trace, Primitive, Peirce basics
 
 ### Session 43 (2026-01-30)
 - Created 10 spectral theorem issues with dependencies
