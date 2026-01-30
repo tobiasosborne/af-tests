@@ -1,42 +1,67 @@
-# Handoff: 2026-01-30 (Session 40)
+# Handoff: 2026-01-30 (Session 41)
 
 ## Completed This Session
 
-### Real Symmetric Matrices (RealHermitian.lean)
+### Quaternionic Hermitian Matrices (Hermitian.lean)
 
-**Created** `AfTests/Jordan/Matrix/RealHermitian.lean` (136 LOC, 0 sorries).
+**Created** `AfTests/Jordan/Quaternion/Hermitian.lean` (169 LOC, 0 sorries).
 
 **Main Definitions:**
-- `RealSymmetricMatrix` - Type alias for `HermitianMatrix n ℝ`
-- `Matrix.isHermitian_iff_isSymm` - Over ℝ, `IsHermitian A ↔ IsSymm A`
+- `QuaternionHermitianMatrix` - Type alias for `HermitianMatrix n (Quaternion ℝ)`
+- `CharZero (Quaternion ℝ)` - Quaternions have characteristic zero
+- `StarModule ℝ (Quaternion ℝ)` - Real scalars commute with star
 
-**Key Insight:** Over ℝ, `TrivialStar` holds (`star x = x`), so `conjTranspose = transpose`.
+**Main Results:**
+- `conjTranspose_eq` - Quaternionic Hermitian matrices satisfy `Aᴴ = A`
+- `diag_self_conj` - Diagonal entries are self-conjugate (real)
+- `conjTranspose_smul_real` - Real scalar multiplication distributes over transpose
+- `conjTranspose_mul_hermitian` - For Hermitian A, B: `(A * B)ᴴ = B * A`
 
 ---
 
-### Complex Hermitian Matrices (ComplexHermitian.lean)
+### Quaternionic Jordan Product (JordanProduct.lean)
 
-**Created** `AfTests/Jordan/Matrix/ComplexHermitian.lean` (161 LOC, 0 sorries).
+**Created** `AfTests/Jordan/Quaternion/JordanProduct.lean` (126 LOC, 0 sorries).
 
 **Main Definitions:**
-- `ComplexHermitianMatrix` - Type alias for `HermitianMatrix n ℂ`
-- `realDiagonal` - Diagonal matrices from real entries
-- `diagonal` - Diagonal matrices from self-conjugate entries
+- `jordanMul` - Jordan product on quaternionic matrices: `A ∘ B = (2)⁻¹ • (AB + BA)`
+- `jmul` - Jordan product on `QuaternionHermitianMatrix`
 
 **Main Results:**
-- `diag_re_eq_self` - Diagonal entries are real
-- `apply_conj` - Off-diagonal: `star(A j i) = A i j`
-- `JordanAlgebra` and `FormallyRealJordan` instances (inherited)
+- `jordanMul_comm` - Jordan product is commutative
+- `jordanMul_one` - Jordan product with identity
+- `jordanMul_self` - Jordan square equals matrix square
+- `hermitian_jordanMul` - Hermitian matrices closed under Jordan product
+- `jmul_comm`, `jmul_one`, `one_jmul` - Properties on QuaternionHermitianMatrix
+
+---
+
+## Known Issues
+
+### JordanAlgebra Instance Timeout
+
+The `JordanAlgebra (QuaternionHermitianMatrix n)` instance cannot be defined directly
+because Lean's instance search explores the generic `jordanAlgebraHermitianMatrix`
+which requires `[Field R]`. Quaternions are only `DivisionRing` (non-commutative),
+causing the search to timeout.
+
+**Potential Solutions:**
+1. Refactor `jordanAlgebraHermitianMatrix` to use `DivisionRing` instead of `Field`
+2. Use `@[local instance]` or priority annotations to control instance search
+3. Define a separate instance path for non-commutative scalars
+
+Task `af-475a` remains open for this work.
 
 ---
 
 ## Current State
 
 ### Jordan Algebra Project
-- 13 files, ~1350 LOC total
+- 15 files, ~1600 LOC total
 - **1 sorry remaining:**
   - `FormallyReal/Def.lean` - `of_sq_eq_zero` (abstract case, requires spectral theory)
-- Matrix Jordan algebra: JordanAlgebra, FormallyRealJordan, Trace, RealSymmetric, ComplexHermitian
+- Matrix types: Real, Complex, Quaternionic Hermitian
+- Quaternionic: type + Jordan product done, JordanAlgebra instance blocked
 
 ### Archimedean Closure Project: COMPLETE
 - 44 files, 4,943 LOC, 0 sorries
@@ -48,17 +73,18 @@
 ### Immediate (unblocked tasks)
 1. `af-j4dq`: Jordan/FormallyReal/Spectrum.lean - Spectral properties
 2. `af-noad`: Jordan/FormallyReal/Square.lean - Square roots
-3. `af-390a`: Jordan/Quaternion/Hermitian.lean - Quaternionic Hermitian
 
-### Deferred
-- `af-0xrg`: of_sq_eq_zero - needs spectral theory for abstract case
+### Blocked
+- `af-475a`: JordanAlgebra instance for quaternions (needs Field→DivisionRing refactor)
+- `af-qdzs`: FormallyRealJordan for quaternions (depends on af-475a)
+- `af-0xrg`: of_sq_eq_zero (needs spectral theory)
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/Matrix/RealHermitian.lean` (NEW - 136 LOC)
-- `AfTests/Jordan/Matrix/ComplexHermitian.lean` (NEW - 161 LOC)
+- `AfTests/Jordan/Quaternion/Hermitian.lean` (NEW - 169 LOC)
+- `AfTests/Jordan/Quaternion/JordanProduct.lean` (NEW - 126 LOC)
 - `HANDOFF.md` (updated)
 
 ---
@@ -74,12 +100,16 @@
 
 ## Beads Summary
 
-- 2 tasks closed this session (af-dc2h, af-5gib)
+- 2 tasks closed this session (af-390a, af-ve4q)
+- af-475a blocked (JordanAlgebra instance timeout)
 - af-0xrg remains open (blocked on spectral theory)
 
 ---
 
 ## Previous Sessions
+
+### Session 40 (2026-01-30)
+- Real and Complex Hermitian matrix types (297 LOC)
 
 ### Session 39 (2026-01-30)
 - Trace inner product for Hermitian matrices (188 LOC)
