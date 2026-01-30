@@ -1,47 +1,34 @@
-# Handoff: 2026-01-30 (Session 37)
+# Handoff: 2026-01-30 (Session 38)
 
 ## Completed This Session
 
-### Sorry Elimination: Matrix/JordanProduct.lean
+### FormallyRealJordan Instance for Hermitian Matrices
 
-**Eliminated** the sorry at `IsHermitian.jordanMul` (line 72).
+**Created** `AfTests/Jordan/Matrix/FormallyReal.lean` (123 LOC, 0 sorries).
 
-**Problem:** Conflicting `Star R` instances between section variables and theorem-local `[StarRing R]`.
+**Main Result:** `FormallyRealJordan (HermitianMatrix n 𝕜)` for RCLike scalar types.
 
-**Solution:**
-1. Restructured file into two sections: `Basic` (no Star) and `Hermitian` (only StarRing)
-2. Proof uses `star_mul'`, `star_inv₀`, `star_ofNat`, and `hA.apply`/`hB.apply`
-3. Final step: `simp only [eq1, eq2, add_comm]` where eq1/eq2 rewrite matrix entries
+**Proof Strategy:**
+1. For Hermitian A, `jsq A = A * A = Aᴴ * A` (using `sq_eq_conjTranspose_mul`)
+2. `Aᴴ * A` is positive semidefinite (using `posSemidef_conjTranspose_mul_self`)
+3. Sum of PSD matrices = 0 implies each = 0 (using matrix order from `ComplexOrder` + `MatrixOrder`)
+4. `Aᴴ * A = 0 ↔ A = 0` (using `conjTranspose_mul_self_eq_zero`)
 
-**Key insight:** The `[Star R]` in the original variable declaration conflicted with `[StarRing R]` which provides its own `Star` instance. Separating into sections resolved this.
+**Key imports:**
+- `Mathlib.Analysis.Matrix.Order` - matrix partial order where `A ≤ B ↔ (B - A).PosSemidef`
+- `Mathlib.Analysis.RCLike.Basic` - for `ComplexOrder` scope (provides `PartialOrder` and `StarOrderedRing`)
 
-### Analysis: FormallyReal/Def.lean:58
-
-**NOT eliminated** - documented as requiring deeper theory.
-
-**Problem:** `of_sq_eq_zero` tries to prove:
-- Given: `∀ a, jsq(a) = 0 → a = 0`
-- Prove: `∀ n (a : Fin n → J), Σ jsq(aᵢ) = 0 → ∀ i, aᵢ = 0`
-
-**Why it's hard:**
-- Requires proving squares form a *salient cone* (if x and -x are sums of squares, then x = 0)
-- This is circular with `positiveCone_salient` which uses `sum_sq_eq_zero`
-- Classical proof uses Koecher-Vinberg theorem or spectral theory
-
-**Resolution options documented:**
-1. Add explicit ordering axioms to JordanAlgebra
-2. Develop spectral theory (P3 task created: `af-tpm2`)
-3. For concrete algebras, prove both properties directly
+**Key insight:** This instance proves `FormallyRealJordan` directly (providing `sum_sq_eq_zero`) rather than going through `FormallyRealJordan'` which would use the sorried `of_sq_eq_zero`.
 
 ---
 
 ## Current State
 
 ### Jordan Algebra Project
-- 8 files, ~740 LOC total
+- 9 files, ~860 LOC total
 - **1 sorry remaining:**
-  - `FormallyReal/Def.lean` - `of_sq_eq_zero` (requires spectral theory)
-- Matrix Jordan product now fully proven
+  - `FormallyReal/Def.lean` - `of_sq_eq_zero` (abstract case, requires spectral theory)
+- Matrix Jordan algebra now formally real
 
 ### Archimedean Closure Project: COMPLETE
 - 44 files, 4,943 LOC, 0 sorries
@@ -51,65 +38,76 @@
 ## Next Steps
 
 ### Immediate (unblocked tasks)
-1. `af-dcxu`: Jordan/Matrix/Instance.lean - JordanAlgebra instance for Hermitian matrices
-2. `af-j4dq`: Jordan/FormallyReal/Spectrum.lean - Spectral properties
-3. `af-dc2h`: Jordan/Matrix/RealHermitian.lean - Real symmetric matrices
-4. `af-noad`: Jordan/FormallyReal/Square.lean - Square roots
+1. `af-j4dq`: Jordan/FormallyReal/Spectrum.lean - Spectral properties
+2. `af-dc2h`: Jordan/Matrix/RealHermitian.lean - Real symmetric matrices
+3. `af-noad`: Jordan/FormallyReal/Square.lean - Square roots
+4. `af-5gib`: Jordan/Matrix/ComplexHermitian.lean - Complex Hermitian matrices
+5. `af-mcgm`: Jordan/Matrix/Trace.lean - Trace inner product
 
 ### Deferred
-- `af-0xrg`: of_sq_eq_zero - needs architectural decision (spectral theory vs axioms)
+- `af-0xrg`: of_sq_eq_zero - needs spectral theory for abstract case
 - `af-tpm2`: Spectral theory development (P3)
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/Matrix/JordanProduct.lean` (restructured, sorry eliminated)
-- `AfTests/Jordan/FormallyReal/Def.lean` (added documentation)
+- `AfTests/Jordan/Matrix/FormallyReal.lean` (NEW - 123 LOC)
 - `HANDOFF.md` (updated)
 
 ---
 
 ## Sorries
 
-1. `AfTests/Jordan/FormallyReal/Def.lean:58-68` - `of_sq_eq_zero`
-   - Proving: single-element property implies sum-of-squares property
+1. `AfTests/Jordan/FormallyReal/Def.lean:74-79` - `of_sq_eq_zero`
+   - Proving: single-element property implies sum-of-squares property (ABSTRACT case)
    - Status: **Requires spectral theory or ordering axioms**
-   - See: Faraut-Korányi "Analysis on Symmetric Cones"
+   - Note: Concrete algebras (like Hermitian matrices) bypass this by proving directly
 
 ---
 
 ## Technical Notes
 
-### IsHermitian.jordanMul Proof Pattern
-The proof works entry-wise:
+### FormallyReal Proof for Hermitian Matrices
+
+The key lemmas used:
 ```lean
-have eq1 : ∀ x, star (A j x * B x i) = B i x * A x j := fun x => by
-  rw [star_mul', hA.apply, hB.apply, mul_comm]
-have eq2 : ∀ x, star (B j x * A x i) = A i x * B x j := fun x => by
-  rw [star_mul', hB.apply, hA.apply, mul_comm]
-simp only [eq1, eq2, add_comm]
+-- For Hermitian A, A² = Aᴴ * A
+theorem sq_eq_conjTranspose_mul (A : HermitianMatrix n 𝕜) :
+    A.val * A.val = A.val.conjTranspose * A.val
+
+-- Aᴴ * A is PSD
+theorem posSemidef_conjTranspose_mul_self (A : Matrix m n R) :
+    PosSemidef (Aᴴ * A)
+
+-- PSD sum = 0 implies each = 0 (from matrix order)
+theorem sum_eq_zero_iff_of_nonneg
+
+-- Aᴴ * A = 0 ↔ A = 0
+theorem conjTranspose_mul_self_eq_zero : Aᴴ * A = 0 ↔ A = 0
 ```
 
-### of_sq_eq_zero Circularity
+### Scoped Instances Required
+
+```lean
+open scoped ComplexOrder  -- RCLike.toPartialOrder, RCLike.toStarOrderedRing
+open scoped MatrixOrder   -- Matrix.instPartialOrder
 ```
-of_sq_eq_zero needs → cone salience
-cone salience needs → sum_sq_eq_zero
-sum_sq_eq_zero is → what of_sq_eq_zero proves
-```
-Breaking this requires either external ordering or spectral decomposition.
 
 ---
 
 ## Beads Summary
 
-- 1 task closed this session (af-yxux)
-- 1 new task created (af-tpm2 - spectral theory, P3)
-- af-0xrg remains in progress (blocked on architectural decision)
+- 1 task closed this session (af-0ia4 - FormallyReal instance)
+- af-0xrg remains open (blocked on architectural decision for abstract case)
 
 ---
 
 ## Previous Sessions
+
+### Session 37 (2026-01-30)
+- Sorry elimination: Matrix/JordanProduct.lean (IsHermitian.jordanMul)
+- Analysis of FormallyReal/Def.lean:58 (documented as needing spectral theory)
 
 ### Session 36 (2026-01-30)
 - Jordan FormallyReal properties, cone, matrix product (3 files, 269 LOC)
