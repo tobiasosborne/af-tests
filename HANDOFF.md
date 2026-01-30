@@ -1,37 +1,36 @@
-# Handoff: 2026-01-30 (Session 47)
+# Handoff: 2026-01-30 (Session 47 continued)
 
 ## Completed This Session
 
-### Parallel Work: U Properties + SpinFactor
-
-Ran two subagents in parallel:
+### Round 1: U Properties + SpinFactor Definition
 
 | File | LOC | Sorries | Issue |
 |------|-----|---------|-------|
 | `Jordan/Quadratic.lean` | 158 | 1 | af-7vob (in progress) |
 | `Jordan/SpinFactor/Def.lean` | 151 | **0** | af-myl1 (CLOSED) |
 
-**Quadratic.lean additions (56 LOC):**
-- `U_self`: `U a a = jmul a (jsq a)` (proven)
-- `U_idempotent_self`: `U e e = e` for idempotent e (proven)
-- `U_idempotent_comp`: `U_e ∘ U_e = U_e` (1 sorry - needs fundamental formula)
-- `U_L_comm`: U commutes with L operator (proven)
+### Round 2: FundamentalFormula + FormallyReal
 
-**SpinFactor/Def.lean (NEW, 151 LOC, 0 sorries):**
-- `SpinFactor n` = ℝ × EuclideanSpace ℝ (Fin n)
-- Jordan product: `(α, v) ∘ (β, w) = (αβ + ⟨v, w⟩, αw + βv)`
-- Full `JordanAlgebra` instance with Jordan identity proven
+| File | LOC | Sorries | Issue |
+|------|-----|---------|-------|
+| `Jordan/FundamentalFormula.lean` | 123 | 2 | af-5qj3 (in progress) |
+| `Jordan/SpinFactor/FormallyReal.lean` | 76 | **0** | af-dzzp (CLOSED) |
+
+**Also closed (already done in Def.lean):**
+- af-j3bp (SpinFactor/Instance.lean)
+- af-8huk (SpinFactor/Product.lean)
 
 ---
 
 ## Current State
 
 ### Jordan Algebra Project
-- **23 files, ~2950 LOC total**
-- **17 sorries remaining**
+- **25 files, ~3150 LOC total**
+- **19 sorries remaining**
   - Peirce.lean: 7
   - OperatorIdentities.lean: 3
-  - Quadratic.lean: 1 (new)
+  - Quadratic.lean: 1
+  - FundamentalFormula.lean: 2 (new)
   - FormallyReal/Spectrum.lean: 1
   - FormallyReal/Def.lean: 2
   - Primitive.lean: 3
@@ -45,7 +44,7 @@ Ran two subagents in parallel:
     ↓
 ✓ af-2lqt: Operator commutator identities (CLOSED - 3 sorries)
     ↓
-○ af-5qj3: Fundamental formula (blocked by af-7vob)
+◐ af-5qj3: Fundamental formula (IN PROGRESS - 2 sorries)
     ↓
 ○ af-s7tl: Peirce polynomial identity
     ↓
@@ -56,14 +55,13 @@ Ran two subagents in parallel:
 ○ af-bqjd: Peirce decomposition theorem
 ```
 
-### SpinFactor Chain Progress
+### SpinFactor Branch (Complete!)
 
 ```
-✓ af-myl1: SpinFactor/Def.lean (CLOSED - 0 sorries!)
-    ↓
-○ af-8huk: SpinFactor/Product.lean (READY)
-    ↓
-○ af-j3bp: SpinFactor/Instance.lean
+✓ af-myl1: SpinFactor/Def.lean (CLOSED - 0 sorries)
+✓ af-8huk: SpinFactor/Product.lean (CLOSED - in Def.lean)
+✓ af-j3bp: SpinFactor/Instance.lean (CLOSED - in Def.lean)
+✓ af-dzzp: SpinFactor/FormallyReal.lean (CLOSED - 0 sorries)
 ```
 
 ---
@@ -71,25 +69,22 @@ Ran two subagents in parallel:
 ## Next Steps
 
 ### Option 1: Continue Peirce Path
+**af-s7tl (Peirce polynomial identity)** - Derive from fundamental formula.
 
-**af-5qj3 (Fundamental Formula)** - Now approachable since U properties are mostly done.
-The remaining sorry in `U_idempotent_comp` can likely be resolved with the fundamental formula.
-
-### Option 2: Continue SpinFactor Path
-
-**af-8huk (SpinFactor/Product.lean)** - Additional Jordan product properties for spin factors.
+### Option 2: Quaternion Branch
+**af-475a (Quaternion/Instance.lean)** - JordanAlgebra instance for quaternion Hermitian matrices.
 
 ### Option 3: Sorry Elimination
-
-**af-0xrg (FormallyReal/Def.lean)** - The 2 sorries at lines 74, 79 need cone salience.
-This requires spectral theory or additional ordering axioms.
+Work on existing sorries in FundamentalFormula or OperatorIdentities.
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/Quadratic.lean` (158 LOC, +56)
+- `AfTests/Jordan/Quadratic.lean` (+56 LOC)
 - `AfTests/Jordan/SpinFactor/Def.lean` (NEW, 151 LOC)
+- `AfTests/Jordan/FundamentalFormula.lean` (NEW, 123 LOC)
+- `AfTests/Jordan/SpinFactor/FormallyReal.lean` (NEW, 76 LOC)
 - `HANDOFF.md` (updated)
 
 ---
