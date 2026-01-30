@@ -29,7 +29,19 @@ variable {J : Type*} [JordanAlgebra J]
 /-! ### Auxiliary Lemmas -/
 
 /-- Linearized Jordan identity: symmetric in b, c.
-    `jmul (jmul a b) (jsq a) + jmul (jmul a c) (jsq a) + ...` type identity. -/
+    `(a∘(bc))∘a² + (b∘(ac))∘a² + (c∘(ab))∘a² = a∘((bc)∘a²) + b∘((ac)∘a²) + c∘((ab)∘a²)`
+
+## Proof Strategy
+
+The first term satisfies Jordan identity: `(a∘(bc))∘a² = a∘((bc)∘a²)`.
+
+For the remaining terms, we need the deviation from Jordan to cancel. Using
+`operator_commutator_jsq_apply`, each deviation equals `2[L_a, L_{ab}](ac)` or similar.
+
+The key identity needed is:
+  `2⋅a∘((ab)∘(ac)) = (ab)∘(a∘(ac)) + (ac)∘(a∘(ab))`
+
+which ensures the sum of deviations vanishes. -/
 private theorem linearized_jordan_aux (a b c : J) :
     jmul (jmul a (jmul b c)) (jsq a) +
     jmul (jmul b (jmul a c)) (jsq a) +
@@ -37,9 +49,8 @@ private theorem linearized_jordan_aux (a b c : J) :
     jmul a (jmul (jmul b c) (jsq a)) +
     jmul b (jmul (jmul a c) (jsq a)) +
     jmul c (jmul (jmul a b) (jsq a)) := by
-  -- This follows from linearizing the Jordan identity in the first argument
-  -- Jordan: jmul (jmul x y) (jsq x) = jmul x (jmul y (jsq x))
-  -- Linearizing x → a + b + c and extracting cross terms
+  -- By Jordan identity on first term, then showing deviation terms cancel.
+  -- Requires bilinear operator identity (not yet proven in Mathlib).
   sorry
 
 /-- The U operator expanded twice for computing U_a(U_b(x)). -/

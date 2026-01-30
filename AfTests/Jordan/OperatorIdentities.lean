@@ -109,6 +109,52 @@ theorem linearized_rearranged (a b c : J) :
              jmul (jmul a b) (jmul c (jsq a))) = 0 := by convert h using 1; abel
   exact sub_eq_zero.mp h'
 
+/-! ### Operator Commutator with Squared Element -/
+
+/-- The operator commutator identity: `[L_{a²}, L_b] = 2[L_a, L_{ab}]`.
+
+This follows from the linearized Jordan identity by setting c = a:
+  2 • ([L_a, L_{ab}] + [L_b, L_{a²}] + [L_a, L_{ab}]) = 0
+which simplifies to 2[L_a, L_{ab}] = [L_{a²}, L_b]. -/
+theorem operator_commutator_jsq (a b : J) :
+    ⟦L (jsq a), L b⟧ = (2 : ℕ) • ⟦L a, L (jmul a b)⟧ := by
+  have h := linearized_jordan_operator a b a
+  rw [jmul_comm b a] at h
+  -- Combine: 2 • (2[L_a, L_{ab}] + [L_b, L_{aa}]) = 0
+  have step1 : (2 : ℕ) • ((2 : ℕ) • ⟦L a, L (jmul a b)⟧ + ⟦L b, L (jmul a a)⟧) = 0 := by
+    have ha : ⟦L a, L (jmul a b)⟧ + ⟦L b, L (jmul a a)⟧ + ⟦L a, L (jmul a b)⟧ =
+              (2 : ℕ) • ⟦L a, L (jmul a b)⟧ + ⟦L b, L (jmul a a)⟧ := by
+      rw [two_nsmul]; abel
+    rw [← ha]; exact h
+  -- Convert to ℝ-smul to use division
+  have h2 : (2 : ℝ) ≠ 0 := two_ne_zero
+  have step1' : (2 : ℝ) • ((2 : ℝ) • ⟦L a, L (jmul a b)⟧ + ⟦L b, L (jmul a a)⟧) = 0 := by
+    simp only [← Nat.cast_smul_eq_nsmul ℝ] at step1
+    convert step1 using 2
+  -- Cancel outer 2: 2[L_a, L_{ab}] + [L_b, L_{aa}] = 0
+  have step2 : (2 : ℝ) • ⟦L a, L (jmul a b)⟧ + ⟦L b, L (jmul a a)⟧ = 0 :=
+    (smul_eq_zero_iff_right h2).mp step1'
+  -- Rearrange: 2[L_a, L_{ab}] = -[L_b, L_{aa}] = [L_{aa}, L_b]
+  have step3 : (2 : ℝ) • ⟦L a, L (jmul a b)⟧ = ⟦L (jmul a a), L b⟧ := by
+    have hskew : ⟦L b, L (jmul a a)⟧ = -⟦L (jmul a a), L b⟧ := opComm_skew _ _
+    have : (2 : ℝ) • ⟦L a, L (jmul a b)⟧ = -⟦L b, L (jmul a a)⟧ :=
+      eq_neg_of_add_eq_zero_left step2
+    rw [this, hskew, neg_neg]
+  -- Convert back to nsmul
+  have step4 : (2 : ℕ) • ⟦L a, L (jmul a b)⟧ = ⟦L (jmul a a), L b⟧ := by
+    rw [← Nat.cast_smul_eq_nsmul ℝ]; exact step3
+  unfold jsq; exact step4.symm
+
+/-- Element form of operator_commutator_jsq:
+    (a²)∘(b∘x) - b∘((a²)∘x) = 2 • (a∘((ab)∘x) - (ab)∘(a∘x)). -/
+theorem operator_commutator_jsq_apply (a b x : J) :
+    jmul (jsq a) (jmul b x) - jmul b (jmul (jsq a) x) =
+    (2 : ℕ) • (jmul a (jmul (jmul a b) x) - jmul (jmul a b) (jmul a x)) := by
+  have h := operator_commutator_jsq a b
+  have := congrFun (congrArg DFunLike.coe h) x
+  simp only [opComm_apply, L_apply, LinearMap.smul_apply] at this
+  exact this
+
 /-! ### Idempotent Operator Identities -/
 
 /-- For an idempotent e and element a in eigenspace with eigenvalue ev,
