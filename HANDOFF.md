@@ -1,42 +1,47 @@
-# Handoff: 2026-01-30 (Session 46)
+# Handoff: 2026-01-30 (Session 47)
 
 ## Completed This Session
 
-### U Operator & Commutator Identities (Parallel Work)
+### Parallel Work: U Properties + SpinFactor
 
-Created two new files in parallel:
+Ran two subagents in parallel:
 
 | File | LOC | Sorries | Issue |
 |------|-----|---------|-------|
-| `Jordan/Quadratic.lean` | 102 | **0** | af-pjz9 |
-| `Jordan/OperatorIdentities.lean` | 94 | 3 | af-2lqt |
+| `Jordan/Quadratic.lean` | 158 | 1 | af-7vob (in progress) |
+| `Jordan/SpinFactor/Def.lean` | 151 | **0** | af-myl1 (CLOSED) |
 
-**Quadratic.lean (fully proven):**
-- `U : J → J → J` - The quadratic U operator
-- `U_one`, `U_zero_left`, `U_zero_right` - Identity behavior
-- `U_smul` - Quadratic scaling: `U (c • a) x = c² • U a x`
-- `U_linear` - U_a as linear map in second argument
+**Quadratic.lean additions (56 LOC):**
+- `U_self`: `U a a = jmul a (jsq a)` (proven)
+- `U_idempotent_self`: `U e e = e` for idempotent e (proven)
+- `U_idempotent_comp`: `U_e ∘ U_e = U_e` (1 sorry - needs fundamental formula)
+- `U_L_comm`: U commutes with L operator (proven)
 
-**OperatorIdentities.lean (structure done):**
-- `opComm` with notation `[[ f, g ]]` - Commutator bracket
-- `opComm_skew`, `opComm_self` - Basic properties (proven)
-- `linearized_jordan_operator` (sorry) - Key identity
-- `L_e_L_a_L_e` (sorry) - Idempotent composition identity
+**SpinFactor/Def.lean (NEW, 151 LOC, 0 sorries):**
+- `SpinFactor n` = ℝ × EuclideanSpace ℝ (Fin n)
+- Jordan product: `(α, v) ∘ (β, w) = (αβ + ⟨v, w⟩, αw + βv)`
+- Full `JordanAlgebra` instance with Jordan identity proven
 
 ---
 
 ## Current State
 
 ### Jordan Algebra Project
-- **22 files, ~2600 LOC total**
-- **15 sorries remaining** (5 FormallyReal/Primitive, 7 Peirce, 3 OperatorIdentities)
+- **23 files, ~2950 LOC total**
+- **17 sorries remaining**
+  - Peirce.lean: 7
+  - OperatorIdentities.lean: 3
+  - Quadratic.lean: 1 (new)
+  - FormallyReal/Spectrum.lean: 1
+  - FormallyReal/Def.lean: 2
+  - Primitive.lean: 3
 
 ### Peirce Chain Progress
 
 ```
 ✓ af-pjz9: U operator definition (CLOSED)
     ↓
-○ af-7vob: U operator properties (READY)
+◐ af-7vob: U operator properties (IN PROGRESS - 3/4 proven)
     ↓
 ✓ af-2lqt: Operator commutator identities (CLOSED - 3 sorries)
     ↓
@@ -51,32 +56,49 @@ Created two new files in parallel:
 ○ af-bqjd: Peirce decomposition theorem
 ```
 
+### SpinFactor Chain Progress
+
+```
+✓ af-myl1: SpinFactor/Def.lean (CLOSED - 0 sorries!)
+    ↓
+○ af-8huk: SpinFactor/Product.lean (READY)
+    ↓
+○ af-j3bp: SpinFactor/Instance.lean
+```
+
 ---
 
 ## Next Steps
 
-### Recommended: af-7vob (U Operator Properties)
+### Option 1: Continue Peirce Path
 
-Now unblocked. Append to `Jordan/Quadratic.lean`:
-- `U_self`: `U a a = jmul a (jsq a)`
-- `U_idempotent_self`: `U e e = e` for idempotent e
-- `U_idempotent_comp`: `U e ∘ U e = U e`
-- `U_L_comm`: Commutation with L operator
+**af-5qj3 (Fundamental Formula)** - Now approachable since U properties are mostly done.
+The remaining sorry in `U_idempotent_comp` can likely be resolved with the fundamental formula.
 
-### Alternative Path
-Skip abstract fundamental formula - verify Peirce rules directly for Hermitian matrices.
+### Option 2: Continue SpinFactor Path
+
+**af-8huk (SpinFactor/Product.lean)** - Additional Jordan product properties for spin factors.
+
+### Option 3: Sorry Elimination
+
+**af-0xrg (FormallyReal/Def.lean)** - The 2 sorries at lines 74, 79 need cone salience.
+This requires spectral theory or additional ordering axioms.
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/Quadratic.lean` (NEW, 102 LOC)
-- `AfTests/Jordan/OperatorIdentities.lean` (NEW, 94 LOC)
+- `AfTests/Jordan/Quadratic.lean` (158 LOC, +56)
+- `AfTests/Jordan/SpinFactor/Def.lean` (NEW, 151 LOC)
 - `HANDOFF.md` (updated)
 
 ---
 
 ## Previous Sessions
+
+### Session 46 (2026-01-30)
+- Created Quadratic.lean (U operator)
+- Created OperatorIdentities.lean (commutator bracket)
 
 ### Session 45 (2026-01-30)
 - Expanded Peirce.lean (98 → 175 LOC)
@@ -84,6 +106,3 @@ Skip abstract fundamental formula - verify Peirce rules directly for Hermitian m
 
 ### Session 44 (2026-01-30)
 - Completed 4 spectral infrastructure files (503 LOC)
-
-### Session 43 (2026-01-30)
-- Created 10 spectral theorem issues with dependencies
