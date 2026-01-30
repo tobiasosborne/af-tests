@@ -88,9 +88,18 @@ theorem formallyReal_iff_sq_eq_zero_imp_zero {J : Type*} [JordanAlgebra J] :
     exact FormallyRealJordan.sq_eq_zero_imp_zero ha
   · exact FormallyRealJordan.of_sq_eq_zero
 
-/-- Alternative class: the simpler characterization. -/
+/-- Alternative class: the simpler characterization.
+
+**Note:** This class is primarily for documentation. Concrete Jordan algebras
+(Hermitian matrices, spin factors, etc.) should prove `FormallyRealJordan` directly
+by showing that sums of squares are non-negative in some ordered structure.
+The instance `FormallyRealJordan' → FormallyRealJordan` uses sorries and should
+not be relied upon for proofs. -/
 class FormallyRealJordan' (J : Type*) [JordanAlgebra J] : Prop where
   sq_eq_zero_imp_zero : ∀ a : J, JordanAlgebra.jsq a = 0 → a = 0
 
+/-- WARNING: This instance uses sorries in `of_sq_eq_zero`. Concrete types should
+define `FormallyRealJordan` directly (see `HermitianMatrix`, `SpinFactor`,
+`QuaternionHermitianMatrix` for examples). -/
 instance {J : Type*} [JordanAlgebra J] [h : FormallyRealJordan' J] : FormallyRealJordan J :=
   FormallyRealJordan.of_sq_eq_zero h.sq_eq_zero_imp_zero

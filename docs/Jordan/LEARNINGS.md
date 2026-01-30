@@ -74,12 +74,30 @@ Full proof requires:
 
 ---
 
-## Eliminating the Two Remaining Sorries
+## FormallyRealJordan: Direct Proofs for Concrete Types
 
-### Current Status
+### Current Status (Session 50)
 
-**Hermitian matrices already have `FormallyRealJordan` proven!**
-See `AfTests/Jordan/Matrix/FormallyReal.lean`.
+All concrete Jordan algebras now prove `FormallyRealJordan` **directly**, without
+using the sorry-containing `of_sq_eq_zero` theorem:
+
+| Type | File | Method |
+|------|------|--------|
+| `HermitianMatrix n 𝕜` | `Matrix/FormallyReal.lean` | Matrix order + `sum_eq_zero_iff_of_nonneg` |
+| `SpinFactor n` | `SpinFactor/FormallyReal.lean` | Scalar part ≥ 0 + `sum_eq_zero_iff_of_nonneg` |
+| `QuaternionHermitianMatrix n` | `Quaternion/FormallyReal.lean` | normSq ≥ 0 + `sum_eq_zero_iff_of_nonneg` |
+
+### Key Pattern
+
+For each concrete type, prove that Jordan squares have a "non-negative" component:
+1. For matrices: `A*A` is positive semidefinite
+2. For spin factors: `(sq x).1 = x.1² + ⟨x.2, x.2⟩ ≥ 0`
+3. For quaternion matrices: `(A*A)ᵢᵢ = Σⱼ normSq(Aᵢⱼ) ≥ 0`
+
+Then use mathlib's `Finset.sum_eq_zero_iff_of_nonneg` to conclude that if sum = 0,
+each term = 0.
+
+### Abstract Sorries (Known Gap)
 
 The remaining sorries are in the **abstract** case only:
 1. `FormallyReal/Def.lean:74-79` - `of_sq_eq_zero`
@@ -172,23 +190,11 @@ import Mathlib.LinearAlgebra.Charpoly.Basic
 
 ---
 
-## Implementation Notes
+## Related Docs
 
-See `SPECTRAL_IMPLEMENTATION_PLAN.md` for the full spectral theorem plan.
-
----
-
-## Peirce Decomposition
-
-See `LEARNINGS_peirce.md` for detailed notes on:
-- Polynomial identity `L_e(L_e - 1/2)(L_e - 1) = 0`
-- Peirce multiplication rules
-- Fundamental formula requirements
-
----
+See also: `SPECTRAL_IMPLEMENTATION_PLAN.md`, `LEARNINGS_peirce.md`
 
 ## References
 
 - Hanche-Olsen & Størmer, *Jordan Operator Algebras*
 - McCrimmon, *A Taste of Jordan Algebras*
-- Cabrera García & Rodríguez Palacios, *Non-associative Normed Algebras*

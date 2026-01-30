@@ -10,21 +10,26 @@ import AfTests.Jordan.FormallyReal.Def
 # Quaternionic Hermitian Matrices are Formally Real
 
 Quaternionic Hermitian matrices form a formally real Jordan algebra:
-if A² = 0 then A = 0.
+if a sum of squares equals zero, each term is zero.
 
 ## Main results
 
 * `QuaternionHermitianMatrix.sq_eq_zero_imp_zero` - If A² = 0 then A = 0
-* `QuaternionHermitianMatrix.formallyReal` - The FormallyRealJordan' instance
+* `QuaternionHermitianMatrix.formallyReal` - The FormallyRealJordan instance
 
 ## Mathematical approach
 
 For a Hermitian matrix A (satisfying Aᴴ = A):
 1. A² = A * A (since jordanMul A A = A * A for Hermitian matrices)
-2. If A * A = 0, then diagonal entries (A * A)ᵢᵢ = 0
-3. (A * A)ᵢᵢ = Σⱼ Aᵢⱼ * star(Aᵢⱼ) = Σⱼ normSq(Aᵢⱼ) (by Hermitian property)
-4. Since normSq ≥ 0 and the sum is 0, all normSq(Aᵢⱼ) = 0
-5. Therefore all Aᵢⱼ = 0, so A = 0
+2. (A * A)ᵢᵢ = Σⱼ Aᵢⱼ * star(Aᵢⱼ) = Σⱼ normSq(Aᵢⱼ) (by Hermitian property)
+3. Since normSq ≥ 0, the diagonal (A * A)ᵢᵢ is a sum of non-negative reals
+4. For sum of squares Σₖ Aₖ², diagonal = Σₖ Σⱼ normSq(Aₖᵢⱼ) ≥ 0
+5. If sum = 0, by sum_eq_zero_iff_of_nonneg, each Aₖ = 0
+
+## Implementation
+
+We prove `FormallyRealJordan` directly to avoid the sorry in
+`FormallyRealJordan.of_sq_eq_zero` which requires spectral theory for abstract algebras.
 -/
 
 noncomputable section
@@ -109,11 +114,71 @@ theorem sq_eq_zero_imp_zero (A : QuaternionHermitianMatrix n)
   have hA_zero : A.val = 0 := matrix_sq_eq_zero_imp_zero A.val A.prop.isHermitian hval
   exact Subtype.ext hA_zero
 
+/-! ### Sum of Squares Properties -/
+
+/-- The normSq sum across all matrices at a given diagonal position. -/
+private def totalNormSq {m : ℕ} (A : Fin m → QuaternionHermitianMatrix n) (i : n) : ℝ :=
+  ∑ k, ∑ j, Quaternion.normSq ((A k).val i j)
+
+/-- Total normSq is non-negative. -/
+private theorem totalNormSq_nonneg {m : ℕ} (A : Fin m → QuaternionHermitianMatrix n) (i : n) :
+    0 ≤ totalNormSq A i :=
+  Finset.sum_nonneg fun _ _ => Finset.sum_nonneg fun _ _ => Quaternion.normSq_nonneg
+
+/-- Diagonal of sum of Jordan squares equals sum of diagonals (as quaternions). -/
+theorem sum_jsq_diag {m : ℕ} (A : Fin m → QuaternionHermitianMatrix n) (i : n) :
+    (∑ k, JordanAlgebra.jsq (A k)).val i i =
+    ∑ k, ((A k).val * (A k).val) i i := by
+  induction m with
+  | zero => simp [Matrix.zero_apply]
+  | succ p ih =>
+    rw [Fin.sum_univ_succ, Fin.sum_univ_succ]
+    simp only [AddSubgroup.coe_add, Matrix.add_apply, jsq_val_eq_mul_self]
+    congr 1
+    exact ih (fun k => A k.succ)
+
+/-- Diagonal of sum expressed as total normSq. -/
+theorem sum_jsq_diag_eq_totalNormSq {m : ℕ} (A : Fin m → QuaternionHermitianMatrix n) (i : n) :
+    (∑ k, JordanAlgebra.jsq (A k)).val i i = ↑(totalNormSq A i) := by
+  rw [sum_jsq_diag]
+  unfold totalNormSq
+  rw [← quaternion_sum_coe_eq_coe_sum]
+  congr 1
+  funext k
+  rw [← quaternion_sum_coe_eq_coe_sum]
+  exact diag_mul_self_hermitian (A k).val (A k).prop.isHermitian i
+
+/-- If sum of squares is zero, total normSq at each diagonal is zero. -/
+theorem sum_jsq_zero_imp_totalNormSq_zero {m : ℕ} (A : Fin m → QuaternionHermitianMatrix n)
+    (hsum : ∑ k, JordanAlgebra.jsq (A k) = 0) (i : n) : totalNormSq A i = 0 := by
+  have h : (∑ k, JordanAlgebra.jsq (A k)).val i i = 0 := by simp [hsum]
+  rw [sum_jsq_diag_eq_totalNormSq] at h
+  exact quaternion_coe_injective h
+
+/-- If sum of squares is zero, each matrix is zero. -/
+theorem sum_sq_eq_zero_imp_all_zero {m : ℕ} (A : Fin m → QuaternionHermitianMatrix n)
+    (hsum : ∑ k, JordanAlgebra.jsq (A k) = 0) : ∀ k, A k = 0 := by
+  intro k
+  apply Subtype.ext
+  funext i j
+  -- Total normSq at row i is zero
+  have htotal : totalNormSq A i = 0 := sum_jsq_zero_imp_totalNormSq_zero A hsum i
+  -- totalNormSq = Σₖ Σⱼ normSq(Aₖᵢⱼ), a sum of non-negative reals
+  unfold totalNormSq at htotal
+  -- Each inner sum is non-negative
+  have h_outer_nonneg : ∀ l ∈ Finset.univ, 0 ≤ ∑ j', Quaternion.normSq ((A l).val i j') :=
+    fun l _ => Finset.sum_nonneg fun _ _ => Quaternion.normSq_nonneg
+  -- So each inner sum is zero
+  have h_inner_zero :=
+    Finset.sum_eq_zero_iff_of_nonneg h_outer_nonneg |>.mp htotal k (Finset.mem_univ k)
+  -- Now use sum_normSq_eq_zero_iff
+  exact (sum_normSq_eq_zero_iff (A k).val i).mp h_inner_zero j
+
 /-! ### Formally Real Instance -/
 
 /-- Quaternionic Hermitian matrices form a formally real Jordan algebra. -/
-instance formallyReal : FormallyRealJordan' (QuaternionHermitianMatrix n) where
-  sq_eq_zero_imp_zero := sq_eq_zero_imp_zero
+instance formallyReal : FormallyRealJordan (QuaternionHermitianMatrix n) where
+  sum_sq_eq_zero _ A hsum k := sum_sq_eq_zero_imp_all_zero A hsum k
 
 end QuaternionHermitianMatrix
 

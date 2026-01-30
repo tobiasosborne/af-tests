@@ -1,100 +1,100 @@
-# Handoff: 2026-01-30 (Session 49)
+# Handoff: 2026-01-30 (Session 50)
 
 ## Completed This Session
 
-### Fix: OperatorIdentities Build Error
-Previous session (48) left OperatorIdentities.lean with compilation errors. Fixed:
+### FormallyRealJordan: Direct Proofs for Concrete Types
 
-| File | LOC | Sorries | Issue |
-|------|-----|---------|-------|
-| `Jordan/IsCommJordan.lean` | 94 | **0** | af-8h5d (CLOSED) |
-| `Jordan/OperatorIdentities.lean` | 101 | **2** | Fixed build |
+Fixed SpinFactor and QuaternionHermitianMatrix to prove `FormallyRealJordan` directly,
+avoiding the sorry-containing `of_sq_eq_zero` theorem:
 
-**What was wrong:**
-- `lie_mulLeft_eq_opComm_L`: Used `rw` instead of `simp only`, insufficient rewrites
-- `linearized_jordan_operator`: Broken simp chain with wrong arguments
-- `opComm_double_idempotent`: Claimed "direct computation" but needs Jordan identity
-- `L_e_L_a_L_e`: Used `linarith` incorrectly
+| File | Before | After |
+|------|--------|-------|
+| `SpinFactor/FormallyReal.lean` | Used `FormallyRealJordan'` (sorry chain) | Direct `FormallyRealJordan` proof |
+| `Quaternion/FormallyReal.lean` | Used `FormallyRealJordan'` (sorry chain) | Direct `FormallyRealJordan` proof |
 
-**Fixes applied:**
-- `linearized_jordan_operator`: Now uses IsCommJordan bridge (PROVEN, was sorry)
-- Other two theorems: Reverted to sorries (need real work)
+**Key Pattern:** Prove squares have non-negative component, use `sum_eq_zero_iff_of_nonneg`.
 
-**Tasks closed this session:** af-8h5d (1 total)
+**Issue worked:** af-0xrg (P1) - FormallyReal/Def.lean sorry elimination
+
+**Resolution:** The abstract sorries in `of_sq_eq_zero` cannot be proven without spectral
+theory. However, concrete types (matrices, spin factors, quaternions) now all prove
+`FormallyRealJordan` directly. The sorries no longer affect any concrete instances.
 
 ---
 
 ## Current State
 
 ### Jordan Algebra Project
-- **28 files, ~3515 LOC total**
-- **18 sorries remaining** (was 19)
-  - Peirce.lean: 7
-  - OperatorIdentities.lean: 2 (was 3)
-  - Quadratic.lean: 1
-  - FundamentalFormula.lean: 2
-  - FormallyReal/Spectrum.lean: 1
-  - FormallyReal/Def.lean: 2
-  - Primitive.lean: 3
+- **28 files, ~3600 LOC total**
+- **18 sorries remaining** (unchanged count, but now better isolated)
+
+### Sorries by File
+| File | Sorries | Notes |
+|------|---------|-------|
+| Peirce.lean | 7 | Multiplication rules |
+| FormallyReal/Def.lean | 2 | Abstract case (needs spectral theory) |
+| OperatorIdentities.lean | 2 | L_e_L_a_L_e, opComm_double_idempotent |
+| FundamentalFormula.lean | 2 | Main theorem |
+| Spectrum.lean | 1 | Eigenvalue properties |
+| Quadratic.lean | 1 | |
+| Primitive.lean | 3 | |
 
 ### Completed Branches (0 sorries)
-
-**SpinFactor branch:**
-- ✓ SpinFactor/Def.lean (151 LOC)
-- ✓ SpinFactor/FormallyReal.lean (76 LOC)
-
-**Quaternion branch:** ✓ COMPLETE
-- ✓ Quaternion/Hermitian.lean (170 LOC)
-- ✓ Quaternion/JordanProduct.lean (127 LOC)
-- ✓ Quaternion/Instance.lean (124 LOC)
-- ✓ Quaternion/FormallyReal.lean (120 LOC)
-
-**IsCommJordan bridge:** ✓ COMPLETE
-- ✓ IsCommJordan.lean (94 LOC) - bridges to Mathlib
+- ✓ SpinFactor (Def + FormallyReal)
+- ✓ Quaternion (Hermitian + JordanProduct + Instance + FormallyReal)
+- ✓ Matrix/FormallyReal
+- ✓ IsCommJordan bridge
 
 ---
 
-## Key Findings This Session
+## Key Findings
 
-### IsCommJordan Bridge Works
-Successfully created `JordanAlgebra → IsCommJordan` instance. This provides:
-- `linearized_jordan_jmul`: The linearized Jordan identity
-- Used to prove `linearized_jordan_operator` in OperatorIdentities.lean
+### FormallyRealJordan Direct Proof Pattern
 
-### Remaining OperatorIdentities Sorries
-These require more than direct computation:
-1. **`L_e_L_a_L_e`** - Needs linearized Jordan identity + idempotent manipulation
-2. **`opComm_double_idempotent`** - Equivalent to above, rearrangement
+For concrete Jordan algebras, prove `sum_sq_eq_zero` directly using:
+
+1. **Find non-negative component** - Something that's ≥ 0 for each square
+   - Matrices: positive semidefinite diagonal
+   - Spin factors: scalar part = x.1² + ⟨x.2, x.2⟩
+   - Quaternions: diagonal = Σⱼ normSq(Aᵢⱼ)
+
+2. **Use mathlib** - `Finset.sum_eq_zero_iff_of_nonneg` to conclude sum = 0 implies each = 0
+
+3. **Connect back** - Show component = 0 implies element = 0
+
+This avoids the circular dependency with `positiveCone_salient`.
 
 ---
 
 ## Next Steps
 
 ### Option 1: Continue Peirce Path
-- **af-dxb5**: P₀/P₁ multiplication rules
+- **af-dxb5**: P₀/P₁ multiplication rules (7 sorries in Peirce.lean)
 - **af-qvqz**: P₁/₂ multiplication rules
 
 ### Option 2: FundamentalFormula
 - **af-5qj3**: 2 sorries for the main theorem
 
-### Option 3: Complete OperatorIdentities
-- Prove `L_e_L_a_L_e` using linearized Jordan identity
+### Option 3: OperatorIdentities
+- 2 sorries: `L_e_L_a_L_e`, `opComm_double_idempotent`
+- Need linearized Jordan identity + idempotent manipulation
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/IsCommJordan.lean` (NEW, 94 LOC)
-- `AfTests/Jordan/OperatorIdentities.lean` (FIXED, 101 LOC)
+- `AfTests/Jordan/SpinFactor/FormallyReal.lean` (rewritten - direct proof)
+- `AfTests/Jordan/Quaternion/FormallyReal.lean` (rewritten - direct proof)
+- `AfTests/Jordan/FormallyReal/Def.lean` (improved documentation)
+- `docs/Jordan/LEARNINGS.md` (updated with direct proof pattern)
 
 ---
 
 ## Previous Sessions
 
-### Session 48 (2026-01-30)
-- Quaternion/FormallyReal.lean (complete)
-- OperatorIdentities.lean (broken - fixed this session)
+### Session 49 (2026-01-30)
+- IsCommJordan bridge + OperatorIdentities build fix
 
-### Session 47 (2026-01-30)
-- SpinFactor/Def.lean, FundamentalFormula.lean, SpinFactor/FormallyReal.lean
-- Quaternion/Instance.lean, Peirce.lean helpers
+### Session 48 (2026-01-30)
+- Quaternion/FormallyReal.lean (using FormallyRealJordan')
+- OperatorIdentities.lean (had build errors)
