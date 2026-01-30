@@ -1,36 +1,37 @@
-# Handoff: 2026-01-30 (Session 39)
+# Handoff: 2026-01-30 (Session 40)
 
 ## Completed This Session
 
-### Trace Inner Product for Hermitian Matrices
+### Real Symmetric Matrices (RealHermitian.lean)
 
-**Created** `AfTests/Jordan/Matrix/Trace.lean` (188 LOC, 0 sorries).
+**Created** `AfTests/Jordan/Matrix/RealHermitian.lean` (136 LOC, 0 sorries).
 
 **Main Definitions:**
-- `HermitianMatrix.traceInner` - The trace inner product `⟨A, B⟩ = Tr(AB)`
-- `HermitianMatrix.traceInnerReal` - Real-valued version `Re(Tr(AB))`
+- `RealSymmetricMatrix` - Type alias for `HermitianMatrix n ℝ`
+- `Matrix.isHermitian_iff_isSymm` - Over ℝ, `IsHermitian A ↔ IsSymm A`
+- `ofSymm` - Constructor from symmetric matrices
+- `diagonal` - Diagonal symmetric matrices
 
 **Main Results:**
-- `traceInner_comm` - Symmetry: `⟨A, B⟩ = ⟨B, A⟩`
-- `traceInner_self_nonneg` - Positivity: `0 ≤ ⟨A, A⟩`
-- `traceInner_self_eq_zero` - Definiteness: `⟨A, A⟩ = 0 ↔ A = 0`
-- `traceInner_conj` - Reality: `star(⟨A, B⟩) = ⟨A, B⟩` (trace is real for Hermitian pairs)
-- `traceInner_eq_trace_jmul` - Connection to Jordan product: `⟨A, B⟩ = Tr(A ∘ B)`
+- `Matrix.conjTranspose_eq_transpose_real` - Over ℝ, `conjTranspose = transpose`
+- `IsSymm.isHermitian` - Symmetric ⟹ Hermitian (for ℝ)
+- `IsHermitian.isSymm_of_real` - Hermitian ⟹ Symmetric (for ℝ)
+- `JordanAlgebra (RealSymmetricMatrix n)` - Inherited instance
+- `FormallyRealJordan (RealSymmetricMatrix n)` - Inherited instance
 
-**Key imports:**
-- `Mathlib.LinearAlgebra.Matrix.Trace` - trace definition and `trace_mul_comm`
-- `Mathlib.LinearAlgebra.Matrix.PosDef` - `trace_conjTranspose_mul_self_eq_zero_iff`
-- `Mathlib.Analysis.Matrix.Order` - `MatrixOrder` scope, `PosSemidef.trace_nonneg`
+**Key Insight:**
+Over ℝ, `TrivialStar` holds (`star x = x`), so `conjTranspose = transpose`.
+This means `IsHermitian ↔ IsSymm` and `selfAdjoint (Matrix n n ℝ)` = symmetric matrices.
 
 ---
 
 ## Current State
 
 ### Jordan Algebra Project
-- 11 files, ~1050 LOC total
+- 12 files, ~1190 LOC total
 - **1 sorry remaining:**
   - `FormallyReal/Def.lean` - `of_sq_eq_zero` (abstract case, requires spectral theory)
-- Matrix Jordan algebra: formally real, with trace inner product
+- Matrix Jordan algebra: JordanAlgebra, FormallyRealJordan, Trace, RealSymmetric
 
 ### Archimedean Closure Project: COMPLETE
 - 44 files, 4,943 LOC, 0 sorries
@@ -41,9 +42,9 @@
 
 ### Immediate (unblocked tasks)
 1. `af-j4dq`: Jordan/FormallyReal/Spectrum.lean - Spectral properties
-2. `af-dc2h`: Jordan/Matrix/RealHermitian.lean - Real symmetric matrices
-3. `af-noad`: Jordan/FormallyReal/Square.lean - Square roots
-4. `af-5gib`: Jordan/Matrix/ComplexHermitian.lean - Complex Hermitian matrices
+2. `af-noad`: Jordan/FormallyReal/Square.lean - Square roots
+3. `af-5gib`: Jordan/Matrix/ComplexHermitian.lean - Complex Hermitian matrices
+4. `af-390a`: Jordan/Quaternion/Hermitian.lean - Quaternionic Hermitian
 
 ### Deferred
 - `af-0xrg`: of_sq_eq_zero - needs spectral theory for abstract case
@@ -52,7 +53,7 @@
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/Matrix/Trace.lean` (NEW - 188 LOC)
+- `AfTests/Jordan/Matrix/RealHermitian.lean` (NEW - 136 LOC)
 - `HANDOFF.md` (updated)
 
 ---
@@ -68,39 +69,36 @@
 
 ## Technical Notes
 
-### Trace Inner Product Key Lemmas
+### Hermitian ↔ Symmetric Equivalence
 
+Over ℝ, where `star = id` (TrivialStar):
 ```lean
--- Trace cyclicity: Tr(AB) = Tr(BA)
-theorem trace_mul_comm (A : Matrix m n R) (B : Matrix n m R) :
-    trace (A * B) = trace (B * A)
+-- conjTranspose = transpose for real matrices
+theorem conjTranspose_eq_transpose_of_trivial (A : Matrix m n R) [TrivialStar R] :
+    A.conjTranspose = A.transpose
 
--- Definiteness: Tr(A^H A) = 0 ↔ A = 0
-theorem trace_conjTranspose_mul_self_eq_zero_iff {A : Matrix m n R} :
-    (Aᴴ * A).trace = 0 ↔ A = 0
-
--- PSD trace is nonneg
-lemma PosSemidef.trace_nonneg (hA : A.PosSemidef) : 0 ≤ A.trace
+-- So IsHermitian ↔ IsSymm
+theorem isHermitian_iff_isSymm (A : Matrix n n ℝ) : A.IsHermitian ↔ A.IsSymm
 ```
 
-### Reality of Trace Inner Product
-
-For Hermitian A, B:
-- `(AB)ᴴ = BᴴAᴴ = BA` (since A = Aᴴ, B = Bᴴ)
-- `star(Tr(AB)) = Tr((AB)ᴴ) = Tr(BA) = Tr(AB)`
-
-So `⟨A, B⟩` is always real for Hermitian matrices.
+This means `RealSymmetricMatrix n := HermitianMatrix n ℝ` automatically inherits:
+- `JordanAlgebra` instance
+- `FormallyRealJordan` instance
+- Trace inner product
 
 ---
 
 ## Beads Summary
 
-- 1 task closed this session (af-mcgm - Trace inner product)
+- 1 task closed this session (af-dc2h - RealHermitian.lean)
 - af-0xrg remains open (blocked on spectral theory)
 
 ---
 
 ## Previous Sessions
+
+### Session 39 (2026-01-30)
+- Trace inner product for Hermitian matrices (188 LOC)
 
 ### Session 38 (2026-01-30)
 - FormallyRealJordan instance for Hermitian matrices (123 LOC)
@@ -114,6 +112,3 @@ So `⟨A, B⟩` is always real for Hermitian matrices.
 
 ### Session 35 (2026-01-30)
 - Jordan algebra core infrastructure (5 files, 460 LOC)
-
-### Session 34 (2026-01-30)
-- Jordan implementation plan complete (45 tasks)
