@@ -62,6 +62,53 @@ theorem linearized_jordan_operator (a b c : J) :
   -- Applied to x, expand the Lie brackets to match our goal
   exact congrFun (congrArg DFunLike.coe h) x
 
+/-- The linearized Jordan identity evaluated at a² (jsq a).
+This relates products of the form `x ∘ (Y ∘ a²)` to `Y ∘ (x ∘ a²)`. -/
+theorem linearized_on_jsq (a b c : J) :
+    2 • (jmul a (jmul (jmul b c) (jsq a)) - jmul (jmul b c) (jmul a (jsq a)) +
+         jmul b (jmul (jmul c a) (jsq a)) - jmul (jmul c a) (jmul b (jsq a)) +
+         jmul c (jmul (jmul a b) (jsq a)) - jmul (jmul a b) (jmul c (jsq a))) = 0 := by
+  have h := linearized_jordan_jmul a b c
+  have hsmul : (2 • (⁅AddMonoid.End.mulLeft a, AddMonoid.End.mulLeft (jmul b c)⁆ +
+                     ⁅AddMonoid.End.mulLeft b, AddMonoid.End.mulLeft (jmul c a)⁆ +
+                     ⁅AddMonoid.End.mulLeft c, AddMonoid.End.mulLeft (jmul a b)⁆)) (jsq a) =
+               2 • ((jmul a (jmul (jmul b c) (jsq a)) - jmul (jmul b c) (jmul a (jsq a))) +
+                    (jmul b (jmul (jmul c a) (jsq a)) - jmul (jmul c a) (jmul b (jsq a))) +
+                    (jmul c (jmul (jmul a b) (jsq a)) - jmul (jmul a b) (jmul c (jsq a)))) := rfl
+  have happ : (2 • (⁅AddMonoid.End.mulLeft a, AddMonoid.End.mulLeft (jmul b c)⁆ +
+                    ⁅AddMonoid.End.mulLeft b, AddMonoid.End.mulLeft (jmul c a)⁆ +
+                    ⁅AddMonoid.End.mulLeft c, AddMonoid.End.mulLeft (jmul a b)⁆)) (jsq a) = 0 := by
+    rw [h]; rfl
+  rw [hsmul] at happ
+  convert happ using 1
+  abel
+
+/-- The linearized Jordan identity without the factor of 2, using that J is an ℝ-module. -/
+theorem linearized_core (a b c : J) :
+    jmul a (jmul (jmul b c) (jsq a)) - jmul (jmul b c) (jmul a (jsq a)) +
+    jmul b (jmul (jmul c a) (jsq a)) - jmul (jmul c a) (jmul b (jsq a)) +
+    jmul c (jmul (jmul a b) (jsq a)) - jmul (jmul a b) (jmul c (jsq a)) = 0 := by
+  have h := linearized_on_jsq a b c
+  have h2 : (2 : ℝ) ≠ 0 := two_ne_zero
+  rw [two_smul] at h
+  have hself : ∀ x : J, x + x = 0 → x = 0 := fun x hxx => by
+    have : (2 : ℝ) • x = 0 := by rw [two_smul]; exact hxx
+    exact (smul_eq_zero_iff_right h2).mp this
+  exact hself _ h
+
+/-- Rearranged linearized Jordan: relates `x ∘ (Y ∘ a²)` to `Y ∘ (x ∘ a²)`. -/
+theorem linearized_rearranged (a b c : J) :
+    jmul a (jmul (jmul b c) (jsq a)) + jmul b (jmul (jmul c a) (jsq a)) +
+    jmul c (jmul (jmul a b) (jsq a)) =
+    jmul (jmul b c) (jmul a (jsq a)) + jmul (jmul c a) (jmul b (jsq a)) +
+    jmul (jmul a b) (jmul c (jsq a)) := by
+  have h := linearized_core a b c
+  have h' : (jmul a (jmul (jmul b c) (jsq a)) + jmul b (jmul (jmul c a) (jsq a)) +
+             jmul c (jmul (jmul a b) (jsq a))) -
+            (jmul (jmul b c) (jmul a (jsq a)) + jmul (jmul c a) (jmul b (jsq a)) +
+             jmul (jmul a b) (jmul c (jsq a))) = 0 := by convert h using 1; abel
+  exact sub_eq_zero.mp h'
+
 /-! ### Idempotent Operator Identities -/
 
 /-- For an idempotent e and element a in eigenspace with eigenvalue ev,

@@ -190,6 +190,53 @@ import Mathlib.LinearAlgebra.Charpoly.Basic
 
 ---
 
+## Linearized Jordan Identity (Session 51)
+
+### What We Have
+
+The mathlib theorem `two_nsmul_lie_lmul_lmul_add_add_eq_zero` provides:
+```lean
+2 • (⁅L_a, L_{bc}⁆ + ⁅L_b, L_{ca}⁆ + ⁅L_c, L_{ab}⁆) = 0
+```
+
+Applied to `jsq a`, this gives `linearized_on_jsq`:
+```lean
+-- Relates x ∘ (Y ∘ a²) to Y ∘ (x ∘ a²)
+jmul a (jmul (jmul b c) (jsq a)) - jmul (jmul b c) (jmul a (jsq a)) + ... = 0
+```
+
+### Key Theorems Added (OperatorIdentities.lean)
+
+| Theorem | What it says |
+|---------|--------------|
+| `linearized_on_jsq` | The raw identity with factor of 2 |
+| `linearized_core` | Same without the factor of 2 |
+| `linearized_rearranged` | Sum form: `Σ x∘(Y∘a²) = Σ Y∘(x∘a²)` |
+
+### What `linearized_jordan_aux` Needs
+
+The `linearized_jordan_aux` theorem in FundamentalFormula.lean has structure:
+```lean
+-- Relates (x ∘ Y) ∘ a² to x ∘ (Y ∘ a²)
+jmul (jmul a (jmul b c)) (jsq a) + ... = jmul a (jmul (jmul b c) (jsq a)) + ...
+```
+
+This is a **different** associativity question:
+- `linearized_rearranged`: swaps order inside (x vs Y)
+- `linearized_jordan_aux`: changes parenthesization
+
+The first term is handled by Jordan identity. The remaining terms need a
+different proof approach - possibly iterating Jordan or using a different
+substitution in the linearized identity.
+
+### Status
+
+- **Proven**: `linearized_on_jsq`, `linearized_core`, `linearized_rearranged`
+- **Needs work**: `linearized_jordan_aux` (different structure)
+- **Blocked**: `fundamental_formula` depends on `linearized_jordan_aux`
+
+---
+
 ## Related Docs
 
 See also: `SPECTRAL_IMPLEMENTATION_PLAN.md`, `LEARNINGS_peirce.md`

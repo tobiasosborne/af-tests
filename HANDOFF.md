@@ -1,24 +1,30 @@
-# Handoff: 2026-01-30 (Session 50)
+# Handoff: 2026-01-30 (Session 51)
 
 ## Completed This Session
 
-### FormallyRealJordan: Direct Proofs for Concrete Types
+### Linearized Jordan Identity Lemmas
 
-Fixed SpinFactor and QuaternionHermitianMatrix to prove `FormallyRealJordan` directly,
-avoiding the sorry-containing `of_sq_eq_zero` theorem:
+Added three new proven theorems to `OperatorIdentities.lean`:
 
-| File | Before | After |
-|------|--------|-------|
-| `SpinFactor/FormallyReal.lean` | Used `FormallyRealJordan'` (sorry chain) | Direct `FormallyRealJordan` proof |
-| `Quaternion/FormallyReal.lean` | Used `FormallyRealJordan'` (sorry chain) | Direct `FormallyRealJordan` proof |
+| Theorem | Purpose |
+|---------|---------|
+| `linearized_on_jsq` | Linearized Jordan identity evaluated at a² |
+| `linearized_core` | Same without factor of 2 |
+| `linearized_rearranged` | Rearranged sum form |
 
-**Key Pattern:** Prove squares have non-negative component, use `sum_eq_zero_iff_of_nonneg`.
+These prove identities relating `x ∘ (Y ∘ a²)` to `Y ∘ (x ∘ a²)` using the
+mathlib theorem `two_nsmul_lie_lmul_lmul_add_add_eq_zero`.
 
-**Issue worked:** af-0xrg (P1) - FormallyReal/Def.lean sorry elimination
+### Key Finding: `linearized_jordan_aux` Structure Mismatch
 
-**Resolution:** The abstract sorries in `of_sq_eq_zero` cannot be proven without spectral
-theory. However, concrete types (matrices, spin factors, quaternions) now all prove
-`FormallyRealJordan` directly. The sorries no longer affect any concrete instances.
+Investigated the `linearized_jordan_aux` theorem in FundamentalFormula.lean.
+Found that it has a different structure than what `linearized_rearranged` provides:
+
+- **`linearized_rearranged`**: relates `x ∘ (Y ∘ a²)` to `Y ∘ (x ∘ a²)` (swap order)
+- **`linearized_jordan_aux`**: relates `(x ∘ Y) ∘ a²` to `x ∘ (Y ∘ a²)` (reassociate)
+
+The first term of `linearized_jordan_aux` follows from Jordan identity directly.
+The remaining terms need a different proof approach.
 
 ---
 
@@ -26,75 +32,92 @@ theory. However, concrete types (matrices, spin factors, quaternions) now all pr
 
 ### Jordan Algebra Project
 - **28 files, ~3600 LOC total**
-- **18 sorries remaining** (unchanged count, but now better isolated)
+- **18 sorries remaining**
 
 ### Sorries by File
 | File | Sorries | Notes |
 |------|---------|-------|
 | Peirce.lean | 7 | Multiplication rules |
-| FormallyReal/Def.lean | 2 | Abstract case (needs spectral theory) |
+| FormallyReal/Def.lean | 2 | Abstract case (needs spectral) |
 | OperatorIdentities.lean | 2 | L_e_L_a_L_e, opComm_double_idempotent |
-| FundamentalFormula.lean | 2 | Main theorem |
+| FundamentalFormula.lean | 2 | linearized_jordan_aux, fundamental_formula |
 | Spectrum.lean | 1 | Eigenvalue properties |
-| Quadratic.lean | 1 | |
-| Primitive.lean | 3 | |
+| Quadratic.lean | 1 | Depends on fundamental_formula |
+| Primitive.lean | 3 | Primitive idempotents |
 
-### Completed Branches (0 sorries)
-- ✓ SpinFactor (Def + FormallyReal)
-- ✓ Quaternion (Hermitian + JordanProduct + Instance + FormallyReal)
-- ✓ Matrix/FormallyReal
-- ✓ IsCommJordan bridge
-
----
-
-## Key Findings
-
-### FormallyRealJordan Direct Proof Pattern
-
-For concrete Jordan algebras, prove `sum_sq_eq_zero` directly using:
-
-1. **Find non-negative component** - Something that's ≥ 0 for each square
-   - Matrices: positive semidefinite diagonal
-   - Spin factors: scalar part = x.1² + ⟨x.2, x.2⟩
-   - Quaternions: diagonal = Σⱼ normSq(Aᵢⱼ)
-
-2. **Use mathlib** - `Finset.sum_eq_zero_iff_of_nonneg` to conclude sum = 0 implies each = 0
-
-3. **Connect back** - Show component = 0 implies element = 0
-
-This avoids the circular dependency with `positiveCone_salient`.
+### Dependency Chain (Key Blocker)
+```
+fundamental_formula (sorry)
+    ↓
+U_jsq (proven, uses fundamental_formula)
+    ↓
+U_idempotent_comp' (proven)
+    ↓
+peirce_polynomial_identity (sorry)
+    ↓
+Peirce multiplication rules (7 sorries)
+```
 
 ---
 
 ## Next Steps
 
-### Option 1: Continue Peirce Path
-- **af-dxb5**: P₀/P₁ multiplication rules (7 sorries in Peirce.lean)
-- **af-qvqz**: P₁/₂ multiplication rules
+### Option 1: Alternative Fundamental Formula Proof
+The current approach through `linearized_jordan_aux` has structural issues.
+Consider:
+- Direct algebraic expansion (lengthy but straightforward)
+- Different linearization substitutions
+- Check literature for alternative proof strategies
 
-### Option 2: FundamentalFormula
-- **af-5qj3**: 2 sorries for the main theorem
+### Option 2: Work on Non-Blocking Issues
+- Ready tasks from `bd ready` (new files, less critical)
+- Primitive.lean sorries (may be independent)
 
-### Option 3: OperatorIdentities
-- 2 sorries: `L_e_L_a_L_e`, `opComm_double_idempotent`
-- Need linearized Jordan identity + idempotent manipulation
+### Option 3: Accept Abstract Gaps
+- Mark fundamental_formula dependency chain as "needs spectral theory"
+- Focus on concrete type completeness (already good)
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/SpinFactor/FormallyReal.lean` (rewritten - direct proof)
-- `AfTests/Jordan/Quaternion/FormallyReal.lean` (rewritten - direct proof)
-- `AfTests/Jordan/FormallyReal/Def.lean` (improved documentation)
-- `docs/Jordan/LEARNINGS.md` (updated with direct proof pattern)
+- `AfTests/Jordan/OperatorIdentities.lean` - Added 3 new lemmas
+- `docs/Jordan/LEARNINGS.md` - Documented linearized identity findings
+- `HANDOFF.md` - This file
+
+---
+
+## Technical Notes
+
+### Using Mathlib's Linearized Jordan Identity
+
+```lean
+-- Access via IsCommJordan bridge
+have h := linearized_jordan_jmul a b c
+-- Type: 2 • (⁅mulLeft a, mulLeft (b*c)⁆ + ...) = 0
+
+-- Apply to specific element (e.g., jsq a)
+have happ := congrFun (congrArg DFunLike.coe h) (jsq a)
+
+-- Unfold Lie bracket at AddMonoid.End level
+-- Each ⁅f, g⁆ x = f(g(x)) - g(f(x)) by rfl
+```
+
+### Why linarith Doesn't Work on Module Elements
+
+Module operations like `jmul` are not in ℝ, so `linarith` fails.
+Use `sub_eq_zero.mp` instead:
+```lean
+have h' : X - Y = 0 := by convert h using 1; abel
+exact sub_eq_zero.mp h'
+```
 
 ---
 
 ## Previous Sessions
 
+### Session 50 (2026-01-30)
+- FormallyRealJordan direct proofs for SpinFactor, Quaternion
+
 ### Session 49 (2026-01-30)
 - IsCommJordan bridge + OperatorIdentities build fix
-
-### Session 48 (2026-01-30)
-- Quaternion/FormallyReal.lean (using FormallyRealJordan')
-- OperatorIdentities.lean (had build errors)
