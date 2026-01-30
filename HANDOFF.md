@@ -1,39 +1,50 @@
-# Handoff: 2026-01-30 (Session 36)
+# Handoff: 2026-01-30 (Session 37)
 
 ## Completed This Session
 
-### JORDAN ALGEBRA - FormallyReal Properties & Cone
+### Sorry Elimination: Matrix/JordanProduct.lean
 
-Created 3 new files extending the Jordan algebra infrastructure:
+**Eliminated** the sorry at `IsHermitian.jordanMul` (line 72).
 
-| File | LOC | Sorries | Description |
-|------|-----|---------|-------------|
-| `Jordan/FormallyReal/Properties.lean` | 81 | 0 | jsq_ne_zero, jsq_eq_zero_iff, smul_jone_ne_zero', jpow_two_eq_zero |
-| `Jordan/FormallyReal/OrderedCone.lean` | 114 | 0 | PositiveElement, positiveCone, positiveCone_pointed, positiveCone_salient |
-| `Jordan/Matrix/JordanProduct.lean` | 74 | 1 | jordanMul, jordanMul_comm, jordanMul_one, jordanMul_self |
-| **Total** | **269** | **1** | |
+**Problem:** Conflicting `Star R` instances between section variables and theorem-local `[StarRing R]`.
 
-**Key definitions:**
-- `PositiveElement a` - element is a sum of squares
-- `positiveCone J` - ConvexCone of sums of squares
-- `jordanMul A B` - Jordan product on matrices: (AB + BA)/2
+**Solution:**
+1. Restructured file into two sections: `Basic` (no Star) and `Hermitian` (only StarRing)
+2. Proof uses `star_mul'`, `star_inv₀`, `star_ofNat`, and `hA.apply`/`hB.apply`
+3. Final step: `simp only [eq1, eq2, add_comm]` where eq1/eq2 rewrite matrix entries
 
-**Tasks closed:** af-qbmf, af-cier, af-eti8
+**Key insight:** The `[Star R]` in the original variable declaration conflicted with `[StarRing R]` which provides its own `Star` instance. Separating into sections resolved this.
+
+### Analysis: FormallyReal/Def.lean:58
+
+**NOT eliminated** - documented as requiring deeper theory.
+
+**Problem:** `of_sq_eq_zero` tries to prove:
+- Given: `∀ a, jsq(a) = 0 → a = 0`
+- Prove: `∀ n (a : Fin n → J), Σ jsq(aᵢ) = 0 → ∀ i, aᵢ = 0`
+
+**Why it's hard:**
+- Requires proving squares form a *salient cone* (if x and -x are sums of squares, then x = 0)
+- This is circular with `positiveCone_salient` which uses `sum_sq_eq_zero`
+- Classical proof uses Koecher-Vinberg theorem or spectral theory
+
+**Resolution options documented:**
+1. Add explicit ordering axioms to JordanAlgebra
+2. Develop spectral theory (P3 task created: `af-tpm2`)
+3. For concrete algebras, prove both properties directly
 
 ---
 
 ## Current State
 
 ### Jordan Algebra Project
-- 8 files complete, 729 LOC total
-- 2 sorries:
-  - `FormallyReal/Def.lean:58` - sum-of-squares → single-square equivalence
-  - `Matrix/JordanProduct.lean:72` - IsHermitian.jordanMul (StarRing type class issue)
-- 42 tasks remaining in beads
+- 8 files, ~740 LOC total
+- **1 sorry remaining:**
+  - `FormallyReal/Def.lean` - `of_sq_eq_zero` (requires spectral theory)
+- Matrix Jordan product now fully proven
 
 ### Archimedean Closure Project: COMPLETE
 - 44 files, 4,943 LOC, 0 sorries
-- LaTeX: 75 pages complete
 
 ---
 
@@ -45,69 +56,66 @@ Created 3 new files extending the Jordan algebra infrastructure:
 3. `af-dc2h`: Jordan/Matrix/RealHermitian.lean - Real symmetric matrices
 4. `af-noad`: Jordan/FormallyReal/Square.lean - Square roots
 
-### Critical Path
-```
-Matrix/Instance → RealHermitian → ComplexHermitian → FormallyReal
-SpinFactor/Def → Product → Instance → FormallyReal
-```
-
-### Ready Tasks
-```bash
-bd ready  # Shows 42 ready tasks
-```
+### Deferred
+- `af-0xrg`: of_sq_eq_zero - needs architectural decision (spectral theory vs axioms)
+- `af-tpm2`: Spectral theory development (P3)
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/FormallyReal/Properties.lean` (new)
-- `AfTests/Jordan/FormallyReal/OrderedCone.lean` (new)
-- `AfTests/Jordan/Matrix/JordanProduct.lean` (new)
+- `AfTests/Jordan/Matrix/JordanProduct.lean` (restructured, sorry eliminated)
+- `AfTests/Jordan/FormallyReal/Def.lean` (added documentation)
 - `HANDOFF.md` (updated)
 
 ---
 
 ## Sorries
 
-1. `AfTests/Jordan/FormallyReal/Def.lean:58` - `of_sq_eq_zero` induction case
-   - Proving: sum of squares = 0 implies each element = 0
-   - Status: Structural, needs order theory from cone
-
-2. `AfTests/Jordan/Matrix/JordanProduct.lean:72` - `IsHermitian.jordanMul`
-   - Proving: Hermitian matrices closed under Jordan product
-   - Status: Needs StarRing/StarModule type class alignment
+1. `AfTests/Jordan/FormallyReal/Def.lean:58-68` - `of_sq_eq_zero`
+   - Proving: single-element property implies sum-of-squares property
+   - Status: **Requires spectral theory or ordering axioms**
+   - See: Faraut-Korányi "Analysis on Symmetric Cones"
 
 ---
 
 ## Technical Notes
 
-### ConvexCone for Positive Elements
-- Used `Mathlib.Geometry.Convex.Cone.Basic`
-- `positiveCone J` is a `ConvexCone ℝ J` with carrier = sums of squares
-- Proved `Pointed` (0 ∈ cone) and `Salient` (no nonzero x with -x also in cone)
+### IsHermitian.jordanMul Proof Pattern
+The proof works entry-wise:
+```lean
+have eq1 : ∀ x, star (A j x * B x i) = B i x * A x j := fun x => by
+  rw [star_mul', hA.apply, hB.apply, mul_comm]
+have eq2 : ∀ x, star (B j x * A x i) = A i x * B x j := fun x => by
+  rw [star_mul', hB.apply, hA.apply, mul_comm]
+simp only [eq1, eq2, add_comm]
+```
 
-### Matrix Jordan Product
-- Defined as `(2 : R)⁻¹ • (A * B + B * A)`
-- Requires `[Field R] [CharZero R]` for 2⁻¹ to exist
-- Hermitian closure needs `[StarRing R] [StarModule R R]` - left as sorry
+### of_sq_eq_zero Circularity
+```
+of_sq_eq_zero needs → cone salience
+cone salience needs → sum_sq_eq_zero
+sum_sq_eq_zero is → what of_sq_eq_zero proves
+```
+Breaking this requires either external ordering or spectral decomposition.
 
 ---
 
 ## Beads Summary
 
-- 3 tasks closed this session
-- 42 tasks ready to work
-- 251 total closed
+- 1 task closed this session (af-yxux)
+- 1 new task created (af-tpm2 - spectral theory, P3)
+- af-0xrg remains in progress (blocked on architectural decision)
 
 ---
 
 ## Previous Sessions
+
+### Session 36 (2026-01-30)
+- Jordan FormallyReal properties, cone, matrix product (3 files, 269 LOC)
 
 ### Session 35 (2026-01-30)
 - Jordan algebra core infrastructure (5 files, 460 LOC)
 
 ### Session 34 (2026-01-30)
 - Jordan implementation plan complete (45 tasks)
-
-### Session 33 (2026-01-30)
-- Idel thesis assessment complete

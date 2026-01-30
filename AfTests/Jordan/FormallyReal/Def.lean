@@ -42,20 +42,41 @@ theorem sq_eq_zero_imp_zero [FormallyRealJordan J] {a : J}
   simp only [Fin.sum_univ_one] at this
   exact this h 0
 
-/-- Constructor for FormallyRealJordan from the single element property. -/
+/-- Constructor for FormallyRealJordan from the single element property.
+
+**Mathematical Note:** This direction of the equivalence (single-element property implies
+sum-of-squares property) is classically true but requires that squares form a *proper cone*
+(salient: if x and -x are both sums of squares, then x = 0). In abstract Jordan algebras
+over ℝ, this follows from spectral theory or the Koecher-Vinberg theorem.
+
+**Implementation Note:** The proof requires showing that in a Jordan algebra where
+`a² = 0 → a = 0`, the sum of squares forms a salient cone. This is circular with
+`positiveCone_salient` in `OrderedCone.lean` which uses `sum_sq_eq_zero`.
+
+For concrete Jordan algebras (Hermitian matrices, spin factors), both properties can be
+verified directly. For the abstract case, this sorry represents a gap that requires either:
+1. Additional axioms (explicit ordering), or
+2. Spectral theory for Jordan algebras
+
+See: Faraut-Korányi "Analysis on Symmetric Cones" for the classical theory. -/
 theorem of_sq_eq_zero (h : ∀ a : J, JordanAlgebra.jsq a = 0 → a = 0) :
     FormallyRealJordan J where
   sum_sq_eq_zero n a hsum := by
     induction n with
     | zero => intro i; exact Fin.elim0 i
     | succ n ih =>
+      rw [Fin.sum_univ_succ] at hsum
       intro i
-      -- The sum of n+1 squares equals zero
-      -- Need to show each a i = 0
-      -- First, since squares are non-negative in formally real algebras,
-      -- if a sum of squares is zero, each square is zero
-      -- For now, we use a simpler approach: prove by induction
-      sorry
+      refine Fin.lastCases ?_ ?_ i
+      · -- Case: i = Fin.last n
+        -- Requires: jsq (a (Fin.last n)) = 0 from sum = 0
+        -- This needs the cone to be salient (no cancellation of positive elements)
+        sorry
+      · -- Case: i = Fin.castSucc j
+        intro j
+        -- Requires: truncated sum = 0, then apply IH
+        -- Also needs salience of the cone
+        sorry
 
 end FormallyRealJordan
 
