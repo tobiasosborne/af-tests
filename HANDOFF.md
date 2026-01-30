@@ -1,38 +1,35 @@
-# Handoff: 2026-01-30 (Session 35)
+# Handoff: 2026-01-30 (Session 36)
 
 ## Completed This Session
 
-### JORDAN ALGEBRA CORE INFRASTRUCTURE
+### JORDAN ALGEBRA - FormallyReal Properties & Cone
 
-Implemented 5 core files for Jordan algebra formalization:
+Created 3 new files extending the Jordan algebra infrastructure:
 
 | File | LOC | Sorries | Description |
 |------|-----|---------|-------------|
-| `Jordan/Basic.lean` | 116 | 0 | Bundled `JordanAlgebra` class over ℝ |
-| `Jordan/Product.lean` | 81 | 0 | Left multiplication operator L, L commutes with L_sq |
-| `Jordan/Subalgebra.lean` | 78 | 0 | `JordanSubalgebra` with SetLike, AddSubgroup, Submodule |
-| `Jordan/Ideal.lean` | 110 | 0 | `JordanIdeal` with ⊥ and ⊤ instances |
-| `Jordan/FormallyReal/Def.lean` | 75 | 1 | `FormallyRealJordan` class |
-| **Total** | **460** | **1** | |
+| `Jordan/FormallyReal/Properties.lean` | 81 | 0 | jsq_ne_zero, jsq_eq_zero_iff, smul_jone_ne_zero', jpow_two_eq_zero |
+| `Jordan/FormallyReal/OrderedCone.lean` | 114 | 0 | PositiveElement, positiveCone, positiveCone_pointed, positiveCone_salient |
+| `Jordan/Matrix/JordanProduct.lean` | 74 | 1 | jordanMul, jordanMul_comm, jordanMul_one, jordanMul_self |
+| **Total** | **269** | **1** | |
 
 **Key definitions:**
-- `JordanAlgebra J` - bundled class with `jmul`, `jone`, Jordan identity
-- `JordanAlgebra.L` - left multiplication operator as linear map
-- `JordanAlgebra.jsq` - square a ∘ a
-- `JordanAlgebra.jpow` - powers
-- `JordanSubalgebra`, `JordanIdeal` - set-like structures
-- `FormallyRealJordan` - a² = 0 implies a = 0
+- `PositiveElement a` - element is a sum of squares
+- `positiveCone J` - ConvexCone of sums of squares
+- `jordanMul A B` - Jordan product on matrices: (AB + BA)/2
 
-**Tasks closed:** af-fe86, af-qd97, af-z7c4, af-oznj, af-abff
+**Tasks closed:** af-qbmf, af-cier, af-eti8
 
 ---
 
 ## Current State
 
 ### Jordan Algebra Project
-- 5 files complete, 460 LOC
-- 1 sorry in `FormallyReal/Def.lean` (sum-of-squares → single-square equivalence)
-- 45 tasks remaining in beads
+- 8 files complete, 729 LOC total
+- 2 sorries:
+  - `FormallyReal/Def.lean:58` - sum-of-squares → single-square equivalence
+  - `Matrix/JordanProduct.lean:72` - IsHermitian.jordanMul (StarRing type class issue)
+- 42 tasks remaining in beads
 
 ### Archimedean Closure Project: COMPLETE
 - 44 files, 4,943 LOC, 0 sorries
@@ -43,33 +40,29 @@ Implemented 5 core files for Jordan algebra formalization:
 ## Next Steps
 
 ### Immediate (unblocked tasks)
-1. `af-qbmf`: Jordan/FormallyReal/Properties.lean
-2. `af-cier`: Jordan/FormallyReal/OrderedCone.lean
-3. `af-eti8`: Jordan/Matrix/JordanProduct.lean
-4. `af-dcxu`: Jordan/Matrix/Instance.lean
+1. `af-dcxu`: Jordan/Matrix/Instance.lean - JordanAlgebra instance for Hermitian matrices
+2. `af-j4dq`: Jordan/FormallyReal/Spectrum.lean - Spectral properties
+3. `af-dc2h`: Jordan/Matrix/RealHermitian.lean - Real symmetric matrices
+4. `af-noad`: Jordan/FormallyReal/Square.lean - Square roots
 
 ### Critical Path
 ```
-FormallyReal/Properties → OrderedCone → Spectrum → Square
-Matrix/Instance → RealHermitian → ComplexHermitian
-Quaternion/Hermitian → JordanProduct
-SpinFactor/Def → Clifford → Inner
+Matrix/Instance → RealHermitian → ComplexHermitian → FormallyReal
+SpinFactor/Def → Product → Instance → FormallyReal
 ```
 
 ### Ready Tasks
 ```bash
-bd ready  # Shows 45 ready tasks
+bd ready  # Shows 42 ready tasks
 ```
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/Basic.lean` (new)
-- `AfTests/Jordan/Product.lean` (new)
-- `AfTests/Jordan/Subalgebra.lean` (new)
-- `AfTests/Jordan/Ideal.lean` (new)
-- `AfTests/Jordan/FormallyReal/Def.lean` (new)
+- `AfTests/Jordan/FormallyReal/Properties.lean` (new)
+- `AfTests/Jordan/FormallyReal/OrderedCone.lean` (new)
+- `AfTests/Jordan/Matrix/JordanProduct.lean` (new)
 - `HANDOFF.md` (updated)
 
 ---
@@ -80,40 +73,41 @@ bd ready  # Shows 45 ready tasks
    - Proving: sum of squares = 0 implies each element = 0
    - Status: Structural, needs order theory from cone
 
+2. `AfTests/Jordan/Matrix/JordanProduct.lean:72` - `IsHermitian.jordanMul`
+   - Proving: Hermitian matrices closed under Jordan product
+   - Status: Needs StarRing/StarModule type class alignment
+
 ---
 
 ## Technical Notes
 
-### JordanAlgebra Design
-- Bundled class extending `AddCommGroup J, Module ℝ J`
-- Jordan product is `jmul` to avoid conflicts with ring `mul`
-- Follows mathlib `IsCommJordan` axioms but as bundled structure
+### ConvexCone for Positive Elements
+- Used `Mathlib.Geometry.Convex.Cone.Basic`
+- `positiveCone J` is a `ConvexCone ℝ J` with carrier = sums of squares
+- Proved `Pointed` (0 ∈ cone) and `Salient` (no nonzero x with -x also in cone)
 
-### FormallyRealJordan
-- Two equivalent definitions provided:
-  - `FormallyRealJordan` - sum characterization (Σ aᵢ² = 0 → ∀i, aᵢ = 0)
-  - `FormallyRealJordan'` - single element (a² = 0 → a = 0)
-- Instance `FormallyRealJordan' J → FormallyRealJordan J` provided
+### Matrix Jordan Product
+- Defined as `(2 : R)⁻¹ • (A * B + B * A)`
+- Requires `[Field R] [CharZero R]` for 2⁻¹ to exist
+- Hermitian closure needs `[StarRing R] [StarModule R R]` - left as sorry
 
 ---
 
 ## Beads Summary
 
-- 5 tasks closed this session
-- 45 tasks ready to work
-- 4 tasks blocked (waiting on dependencies)
-- 248 total closed
+- 3 tasks closed this session
+- 42 tasks ready to work
+- 251 total closed
 
 ---
 
 ## Previous Sessions
 
+### Session 35 (2026-01-30)
+- Jordan algebra core infrastructure (5 files, 460 LOC)
+
 ### Session 34 (2026-01-30)
 - Jordan implementation plan complete (45 tasks)
-- Created JORDAN_IMPLEMENTATION_PLAN.md
 
 ### Session 33 (2026-01-30)
 - Idel thesis assessment complete
-
-### Session 32 (2026-01-25)
-- LaTeX document completed with all appendices
