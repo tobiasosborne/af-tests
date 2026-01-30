@@ -68,15 +68,27 @@ For concrete algebras (Hermitian matrices), these properties can be proven direc
 
 ## Next Steps
 
-### Immediate (unblocked tasks)
-1. `af-noad`: Jordan/FormallyReal/Square.lean - Square roots
-2. `af-myl1`: Jordan/SpinFactor/Def.lean - Spin factor definition
-3. `af-8huk`: Jordan/SpinFactor/Product.lean - Spin factor Jordan product
+### RECOMMENDED: Research Jordan Spectral Theorem
+**`af-t2pn`**: Research formalization path for Jordan Spectral Theorem
+
+This is the critical blocker for eliminating both remaining sorries. Next session should:
+1. Spawn Explore agents to survey mathlib for:
+   - Existing Jordan algebra content
+   - Spectral theorem variants (self-adjoint, Hermitian)
+   - Cone/order theory (ProperCone, PositiveCone)
+   - Polynomial algebra tools (minimal polynomial)
+2. Create 50 LOC implementation plan avoiding typeclass diamonds
+3. Document findings in docs/Jordan/LEARNINGS.md
+
+### Other (unblocked tasks)
+- `af-noad`: Jordan/FormallyReal/Square.lean - Square roots
+- `af-myl1`: Jordan/SpinFactor/Def.lean - Spin factor definition
+- `af-8huk`: Jordan/SpinFactor/Product.lean - Spin factor Jordan product
 
 ### Blocked
 - `af-475a`: JordanAlgebra instance for quaternions (needs Field→DivisionRing refactor)
 - `af-qdzs`: FormallyRealJordan for quaternions (depends on af-475a)
-- `af-0xrg`: of_sq_eq_zero (needs spectral theory)
+- `af-0xrg`: of_sq_eq_zero (needs spectral theory from af-t2pn)
 
 ---
 
