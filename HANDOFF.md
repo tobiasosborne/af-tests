@@ -62,32 +62,43 @@ U_jsq → U_idempotent_comp' → Peirce identities
 
 ---
 
-## Recommended Next Steps
+## Next Steps: Operator Calculus Approach
 
-### Option 1: Axiomatize Fundamental Formula (Fastest)
-Add to `FormallyRealJordan` or create new class:
+Three issues created with dependency chain (~70-95 LOC total):
+
+### Step 1: af-gmzr (Ready to work)
+**Prove operator commutator identity**
 ```lean
-class HasFundamentalFormula (J : Type*) [JordanAlgebra J] where
-  fundamental_formula : ∀ a b x, U (U a b) x = U a (U b (U a x))
+[L_{a²}, L_b] = 2 L_a ∘ [L_a, L_b]
 ```
-- Verify for concrete instances (trivial for matrices)
-- Unblocks ~10 sorries immediately
+- Use `linearized_jordan_jmul` + Mathlib's `two_nsmul_lie_lmul_lmul_add_eq_lie_lmul_lmul_add`
+- File: `OperatorIdentities.lean`
+- Est: 15-20 LOC
 
-### Option 2: Prove via Operator Calculus (Medium, ~70-95 LOC)
-1. Use existing `linearized_jordan_jmul` from OperatorIdentities
-2. Prove `[L_{a²}, L_b] = 2 L_a ∘ [L_a, L_b]`
-3. Use `U = 2L² - L_{sq}` form
-4. Manipulate commutators
+### Step 2: af-dmot (Blocked by af-gmzr)
+**Prove linearized_jordan_aux via deviation cancellation**
+```lean
+(a∘(bc))∘a² + (b∘(ac))∘a² + (c∘(ab))∘a² = a∘((bc)∘a²) + b∘((ac)∘a²) + c∘((ab)∘a²)
+```
+- First term: Jordan identity ✓
+- Remaining: Show D(b,ac) + D(c,ab) = 0 using operator commutator
+- File: `FundamentalFormula.lean`
+- Est: 20-30 LOC
 
-### Option 3: Work on Independent Sorries
-Some sorries don't depend on fundamental formula:
-- `SpinFactor/FormallyReal.lean` - may have simpler direct proof
-- `Primitive.lean` - primitive idempotent theory
-- `FormallyReal/Spectrum.lean` - spectral properties
+### Step 3: af-secn (Blocked by af-dmot)
+**Prove fundamental_formula using operator calculus**
+```lean
+∀ x, U (U a b) x = U a (U b (U a x))
+```
+- Express via `U_a = 2L_a² - L_{a²}`
+- Manipulate commutators using Steps 1-2
+- File: `FundamentalFormula.lean`
+- Est: 20-30 LOC
+- **Unblocks ~10 sorries**
 
 ---
 
-## Open Research Issue
+## Research Issue
 
 **af-bk8q** - Deep research: Fundamental Formula proof strategies (P1)
 
