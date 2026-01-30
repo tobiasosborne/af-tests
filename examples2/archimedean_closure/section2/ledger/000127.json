@@ -1,0 +1,1 @@
+{"type":"challenge_raised","timestamp":"2026-01-23T20:25:30.668386532Z","challenge_id":"ch-4a51314fc0b35b4a","node_id":"1.2","target":"dependencies","reason":"MISSING DEPENDENCY: This lemma uses property 1.2 (definition of M) implicitly. The node should explicitly list definition 1.2 as a dependency to make the logical structure clear.","severity":"minor","raised_by":""}

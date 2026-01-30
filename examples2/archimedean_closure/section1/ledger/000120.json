@@ -1,0 +1,1 @@
+{"type":"challenge_raised","timestamp":"2026-01-23T20:03:13.004414071Z","challenge_id":"ch-ff4181b6cfd57da1","node_id":"1.5","target":"statement","reason":"Unitality of pi unspecified: Is pi required to be unital (pi(1) = I, the identity operator on H)? This is standard for *-representations but should be stated explicitly.","severity":"minor","raised_by":""}

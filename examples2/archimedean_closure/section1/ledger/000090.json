@@ -1,0 +1,1 @@
+{"type":"challenge_raised","timestamp":"2026-01-23T20:02:56.723417123Z","challenge_id":"ch-a3b98afcddacb6c2","node_id":"1.2","target":"statement","reason":"Zero element membership: Does 0 belong to M? This should follow from taking empty sums or all coefficients zero, but it's not explicitly stated. Every module should contain 0.","severity":"minor","raised_by":""}

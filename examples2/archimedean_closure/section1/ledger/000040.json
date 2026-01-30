@@ -1,0 +1,1 @@
+{"type":"challenge_raised","timestamp":"2026-01-23T20:02:15.316319285Z","challenge_id":"ch-88cfa3a77f0dc4c3","node_id":"1.5","target":"statement","reason":"B(H) undefined: The notation B(H) is never defined. Does it mean bounded linear operators on H? All linear operators? Self-adjoint operators? This is fundamental to the entire definition.","severity":"critical","raised_by":""}

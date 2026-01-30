@@ -1,0 +1,1 @@
+{"type":"challenge_raised","timestamp":"2026-01-23T20:25:30.003332061Z","challenge_id":"ch-eaa553359ad4fb76","node_id":"1","target":"gap","reason":"HIDDEN ASSUMPTION: Is A_0 assumed to be unital? The proof uses '1' as an element (e.g., in (1+x)*(1+x) and φ(1)=1), but this is never stated. A unital *-algebra assumption must be explicit.","severity":"major","raised_by":""}
