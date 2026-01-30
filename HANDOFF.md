@@ -1,30 +1,34 @@
-# Handoff: 2026-01-30 (Session 51)
+# Handoff: 2026-01-30 (Session 52)
 
 ## Completed This Session
 
-### 1. Linearized Jordan Identity Lemmas
-Added three new proven theorems to `OperatorIdentities.lean`:
+### 1. Deep Analysis of Fundamental Formula Blockers
+Investigated the structural challenges in proving `linearized_jordan_aux` and `fundamental_formula`:
 
-| Theorem | Purpose |
-|---------|---------|
-| `linearized_on_jsq` | Linearized Jordan identity evaluated at a² |
-| `linearized_core` | Same without factor of 2 |
-| `linearized_rearranged` | Rearranged sum form |
+**Key Finding**: The `linearized_jordan_aux` theorem requires proving:
+```lean
+(a∘(bc))∘a² + (b∘(ac))∘a² + (c∘(ab))∘a² = a∘((bc)∘a²) + b∘((ac)∘a²) + c∘((ab)∘a²)
+```
 
-### 2. Deep Research Issue Created
-Created **af-bk8q** (P1) with parallel subagent research on fundamental formula.
+- **First term**: `(a∘(bc))∘a² = a∘((bc)∘a²)` by Jordan identity ✓
+- **Second term**: `(b∘(ac))∘a²` vs `b∘((ac)∘a²)` - NOT Jordan (outer=b, square=a²)
+- **Third term**: Same issue with c
 
-**Key Finding:** In quadratic Jordan algebra formulations, the fundamental
-formula `U_{U_x(y)} = U_x U_y U_x` is taken as an **AXIOM**, not derived!
+The "deviation from Jordan" terms must cancel in the SUM, but direct proof is non-trivial.
 
-This explains why `linearized_jordan_aux` is difficult - we're trying to
-derive what quadratic algebras axiomatize.
+### 2. Research Agent Findings (aa3a583)
+Direct algebraic expansion of fundamental formula is **NOT feasible**:
+- ~12-16 terms on each side after full expansion
+- Term structures fundamentally different between LHS and RHS
+- Estimated **70-95 LOC** of intermediate lemmas needed
 
-### 3. Structural Analysis
-Found that `linearized_jordan_aux` has different structure than what
-`linearized_rearranged` provides:
-- `linearized_rearranged`: relates `x ∘ (Y ∘ a²)` to `Y ∘ (x ∘ a²)` (swap)
-- `linearized_jordan_aux`: relates `(x ∘ Y) ∘ a²` to `x ∘ (Y ∘ a²)` (reassoc)
+**Required intermediate lemmas**:
+1. Linearized Jordan identity (have in OperatorIdentities.lean)
+2. Operator commutator: `[L_{a²}, L_b] = 2 L_a ∘ [L_a, L_b]`
+3. Cross-Jordan identity for mixed terms
+
+### 3. Updated Research Issue
+Updated **af-bk8q** with detailed structural analysis findings.
 
 ---
 
@@ -32,33 +36,54 @@ Found that `linearized_jordan_aux` has different structure than what
 
 ### Jordan Algebra Project
 - **28 files, ~3600 LOC total**
-- **18 sorries remaining**
+- **21 sorries remaining** (across 9 files)
+
+### Sorry Counts by File
+| File | Sorries | Notes |
+|------|---------|-------|
+| FundamentalFormula.lean | 2 | linearized_jordan_aux, fundamental_formula |
+| Peirce.lean | 7 | Peirce multiplication rules |
+| FormallyReal/Def.lean | 3 | Abstract case (of_sq_eq_zero) |
+| Primitive.lean | 3 | Primitive idempotents |
+| OperatorIdentities.lean | 2 | L_e_L_a_L_e, opComm_double_idempotent |
+| FormallyReal/Spectrum.lean | 1 | spectral_sq_eigenvalues_nonneg |
+| Quadratic.lean | 1 | U_idempotent_comp |
+| SpinFactor/FormallyReal.lean | 1 | |
+| Quaternion/FormallyReal.lean | 1 | |
 
 ### Key Blocker: Fundamental Formula
 ```
 fundamental_formula (sorry)
     ↓
-U_jsq → U_idempotent_comp'
+linearized_jordan_aux (sorry - hard)
     ↓
-peirce_polynomial_identity
-    ↓
-7 Peirce multiplication sorries
+U_jsq → U_idempotent_comp' → Peirce identities
 ```
 
-### Recommended Next Steps (from research)
+---
 
-1. **Axiomatize Route** (Fastest)
-   - Add fundamental formula as axiom to `FormallyRealJordan`
-   - Verify it holds for concrete instances (matrices, spin factors)
-   - Unblocks ~10 sorries immediately
+## Recommended Next Steps
 
-2. **Operator Calculus Route** (Medium)
-   - Use mathlib's `commute_lmul_lmul_sq` and related lemmas
-   - Build up operator identities systematically
+### Option 1: Axiomatize Fundamental Formula (Fastest)
+Add to `FormallyRealJordan` or create new class:
+```lean
+class HasFundamentalFormula (J : Type*) [JordanAlgebra J] where
+  fundamental_formula : ∀ a b x, U (U a b) x = U a (U b (U a x))
+```
+- Verify for concrete instances (trivial for matrices)
+- Unblocks ~10 sorries immediately
 
-3. **MacDonald Theorem Route** (Complete but long)
-   - Polynomial identity theory for special Jordan algebras
-   - Structure theory extension
+### Option 2: Prove via Operator Calculus (Medium, ~70-95 LOC)
+1. Use existing `linearized_jordan_jmul` from OperatorIdentities
+2. Prove `[L_{a²}, L_b] = 2 L_a ∘ [L_a, L_b]`
+3. Use `U = 2L² - L_{sq}` form
+4. Manipulate commutators
+
+### Option 3: Work on Independent Sorries
+Some sorries don't depend on fundamental formula:
+- `SpinFactor/FormallyReal.lean` - may have simpler direct proof
+- `Primitive.lean` - primitive idempotent theory
+- `FormallyReal/Spectrum.lean` - spectral properties
 
 ---
 
@@ -66,40 +91,47 @@ peirce_polynomial_identity
 
 **af-bk8q** - Deep research: Fundamental Formula proof strategies (P1)
 
-Contains detailed findings from parallel subagent research including:
-- Literature analysis
+Contains:
+- Literature analysis (MacDonald's theorem, McCrimmon)
 - Mathlib lemma inventory
-- Direct expansion complexity analysis
-- Recommended approaches
+- Direct expansion complexity analysis (~70-95 LOC estimate)
+- Structural analysis showing why linearized_jordan_aux is hard
 
 ---
 
-## Files Modified This Session
+## Files Examined This Session
 
-- `AfTests/Jordan/OperatorIdentities.lean` - Added 3 new lemmas (+47 lines)
-- `docs/Jordan/LEARNINGS.md` - Documented linearized identity findings
-- `HANDOFF.md` - This file
+- `AfTests/Jordan/FundamentalFormula.lean` - Analyzed goal structure
+- `AfTests/Jordan/Quadratic.lean` - U operator definition
+- `AfTests/Jordan/OperatorIdentities.lean` - Existing linearized lemmas
+- `AfTests/Jordan/Peirce.lean` - Peirce multiplication sorries
 
 ---
 
 ## Technical Reference
 
-### Using Mathlib's Linearized Jordan Identity
-```lean
-have h := linearized_jordan_jmul a b c
--- Type: 2 • (⁅mulLeft a, mulLeft (b*c)⁆ + ...) = 0
-have happ := congrFun (congrArg DFunLike.coe h) (jsq a)
--- Unfolds to element-level identity
+### The Structural Mismatch
+```
+linearized_rearranged: x ∘ (Y ∘ a²) ↔ Y ∘ (x ∘ a²)   [order swap]
+linearized_jordan_aux: (x ∘ Y) ∘ a² ↔ x ∘ (Y ∘ a²)   [reassociation]
 ```
 
-### Available Mathlib Commutation Lemmas
-- `commute_lmul_lmul_sq` - L_a and L_{a²} commute
-- `commute_lmul_rmul_sq` - L_a and R_{a²} commute
+These are DIFFERENT operations. The first term of `linearized_jordan_aux`
+follows from Jordan identity, but remaining terms need sum-level cancellation.
+
+### Mathlib Lemmas Available
+- `IsJordan.lmul_comm_rmul_rmul` - Jordan identity
+- `commute_lmul_lmul_sq` - L_a commutes with L_{a²}
 - `two_nsmul_lie_lmul_lmul_add_add_eq_zero` - Cyclic linearization
+- `two_nsmul_lie_lmul_lmul_add_eq_lie_lmul_lmul_add` - Two-variable form
 
 ---
 
 ## Previous Sessions
+
+### Session 51 (2026-01-30)
+- Linearized Jordan identity lemmas added to OperatorIdentities.lean
+- Created research issue af-bk8q
 
 ### Session 50 (2026-01-30)
 - FormallyRealJordan direct proofs for SpinFactor, Quaternion
