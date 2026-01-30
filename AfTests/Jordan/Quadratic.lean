@@ -5,6 +5,7 @@ Authors: AF-Tests Contributors
 -/
 import AfTests.Jordan.Basic
 import AfTests.Jordan.Product
+import AfTests.Jordan.FormallyReal.Spectrum
 
 /-!
 # Quadratic U Operator for Jordan Algebras
@@ -98,5 +99,60 @@ theorem U_linear_apply (a x : J) : U_linear a x = U a x := rfl
 /-- U in terms of L operators: U_a = 2L_a² - L_{a²}. -/
 theorem U_eq_L (a x : J) : U a x = 2 • L a (L a x) - L (jsq a) x := by
   simp only [U_def, L_apply]
+
+/-! ### U Operator Properties -/
+
+/-- U_a(a) = a ∘ (a ∘ a) = a ∘ a². -/
+theorem U_self (a : J) : U a a = jmul a (jsq a) := by
+  -- U a a = 2 • jmul a (jmul a a) - jmul (jsq a) a
+  -- = 2 • jmul a (jsq a) - jmul (jsq a) a
+  -- = 2 • jmul a (jsq a) - jmul a (jsq a)  [by commutativity]
+  -- = jmul a (jsq a)
+  rw [U_def, jsq_def]
+  rw [jmul_comm (jmul a a) a]
+  rw [two_smul]
+  abel
+
+/-- For idempotent e, U_e(e) = e. -/
+theorem U_idempotent_self (e : J) (he : IsIdempotent e) : U e e = e := by
+  rw [U_self]
+  -- jsq e = e by idempotency, so jmul e (jsq e) = jmul e e = jsq e = e
+  rw [he.jsq_eq_self]
+  -- Now goal is jmul e e = e, which is jsq_def ▸ he
+  rw [← jsq_def]
+  exact he.jsq_eq_self
+
+/-- U_e is idempotent as an operator when e is idempotent: U_e ∘ U_e = U_e. -/
+theorem U_idempotent_comp (e : J) (he : IsIdempotent e) :
+    U_linear e ∘ₗ U_linear e = U_linear e := by
+  -- This requires showing U_e(U_e(x)) = U_e(x) for all x
+  -- Using the fundamental formula would make this straightforward,
+  -- but we can prove it directly from U_idempotent_self and linearity considerations
+  ext x
+  simp only [LinearMap.comp_apply, U_linear_apply]
+  -- This requires deeper Jordan algebra theory (fundamental formula)
+  sorry
+
+/-- U commutes with L in a specific way: U_a(L_a(x)) = L_a(U_a(x)). -/
+theorem U_L_comm (a x : J) : U a (L a x) = L a (U a x) := by
+  simp only [L_apply, U_def]
+  -- LHS: 2 • jmul a (jmul a (jmul a x)) - jmul (jsq a) (jmul a x)
+  -- RHS: jmul a (2 • jmul a (jmul a x) - jmul (jsq a) x)
+  -- Expand both sides using bilinearity
+  rw [jmul_sub]
+  -- RHS is now: jmul a (2 • jmul a (jmul a x)) - jmul a (jmul (jsq a) x)
+  -- Expand 2 • ... as ... + ... for both sides
+  simp only [two_smul, jmul_add]
+  -- Now need to show the subtracted terms match
+  simp only [jsq_def]
+  -- Use Jordan identity: jmul (jmul a a) (jmul a x) = jmul a (jmul (jmul a a) x)
+  have h1 : jmul (jmul a a) (jmul a x) = jmul a (jmul (jmul a a) x) := by
+    -- (a²)∘(a∘x) = (a∘x)∘(a²) by commutativity
+    rw [jmul_comm (jmul a a) (jmul a x)]
+    -- = a∘(x∘(a²)) by Jordan identity
+    rw [jordan_identity a x]
+    -- = a∘((a²)∘x) by commutativity
+    rw [jmul_comm x (jmul a a)]
+  rw [h1]
 
 end JordanAlgebra
