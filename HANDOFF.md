@@ -1,29 +1,36 @@
-# Handoff: 2026-01-30 (Session 48)
+# Handoff: 2026-01-30 (Session 49)
 
 ## Completed This Session
 
-### Quaternion FormallyReal
+### Fix: OperatorIdentities Build Error
+Previous session (48) left OperatorIdentities.lean with compilation errors. Fixed:
+
 | File | LOC | Sorries | Issue |
 |------|-----|---------|-------|
-| `Jordan/Quaternion/FormallyReal.lean` | 120 | **0** | af-qdzs (CLOSED) |
+| `Jordan/IsCommJordan.lean` | 94 | **0** | af-8h5d (CLOSED) |
+| `Jordan/OperatorIdentities.lean` | 101 | **2** | Fixed build |
 
-**Tasks closed this session:** af-qdzs (1 total)
+**What was wrong:**
+- `lie_mulLeft_eq_opComm_L`: Used `rw` instead of `simp only`, insufficient rewrites
+- `linearized_jordan_operator`: Broken simp chain with wrong arguments
+- `opComm_double_idempotent`: Claimed "direct computation" but needs Jordan identity
+- `L_e_L_a_L_e`: Used `linarith` incorrectly
 
-### OperatorIdentities Analysis (No Changes)
-Attempted to eliminate 3 sorries in OperatorIdentities.lean. Analysis revealed:
-- These require the **linearized Jordan identity** which needs ~30-50 lines of polarization proof
-- Alternative: Bridge to Mathlib's `IsCommJordan` which has `two_nsmul_lie_lmul_lmul_add_add_eq_zero`
-- Documented as future work (see Learnings)
+**Fixes applied:**
+- `linearized_jordan_operator`: Now uses IsCommJordan bridge (PROVEN, was sorry)
+- Other two theorems: Reverted to sorries (need real work)
+
+**Tasks closed this session:** af-8h5d (1 total)
 
 ---
 
 ## Current State
 
 ### Jordan Algebra Project
-- **27 files, ~3420 LOC total**
-- **19 sorries remaining** (unchanged)
+- **28 files, ~3515 LOC total**
+- **18 sorries remaining** (was 19)
   - Peirce.lean: 7
-  - OperatorIdentities.lean: 3
+  - OperatorIdentities.lean: 2 (was 3)
   - Quadratic.lean: 1
   - FundamentalFormula.lean: 2
   - FormallyReal/Spectrum.lean: 1
@@ -40,63 +47,54 @@ Attempted to eliminate 3 sorries in OperatorIdentities.lean. Analysis revealed:
 - ✓ Quaternion/Hermitian.lean (170 LOC)
 - ✓ Quaternion/JordanProduct.lean (127 LOC)
 - ✓ Quaternion/Instance.lean (124 LOC)
-- ✓ Quaternion/FormallyReal.lean (120 LOC) **NEW**
+- ✓ Quaternion/FormallyReal.lean (120 LOC)
 
-### Peirce Chain Progress
-```
-✓ af-pjz9: U operator definition (CLOSED)
-◐ af-7vob: U operator properties (IN PROGRESS - 3/4 proven)
-✓ af-2lqt: Operator commutator identities (CLOSED - 3 sorries)
-◐ af-5qj3: Fundamental formula (IN PROGRESS - 2 sorries)
-◐ af-s7tl: Peirce polynomial identity (IN PROGRESS - helper lemmas proven)
-○ af-dxb5: P₀/P₁ multiplication rules
-○ af-qvqz: P₁/₂ multiplication rules
-○ af-bqjd: Peirce decomposition theorem
-```
+**IsCommJordan bridge:** ✓ COMPLETE
+- ✓ IsCommJordan.lean (94 LOC) - bridges to Mathlib
 
 ---
 
 ## Key Findings This Session
 
-### OperatorIdentities Sorries (Why They're Hard)
+### IsCommJordan Bridge Works
+Successfully created `JordanAlgebra → IsCommJordan` instance. This provides:
+- `linearized_jordan_jmul`: The linearized Jordan identity
+- Used to prove `linearized_jordan_operator` in OperatorIdentities.lean
 
-1. **`linearized_jordan_operator`** - Needs polarization of Jordan identity
-   - Mathlib has this as `two_nsmul_lie_lmul_lmul_add_add_eq_zero` for `IsCommJordan`
-   - Our `JordanAlgebra` class isn't connected to Mathlib's `IsCommJordan`
-
-2. **`L_e_L_a_L_e`** and **`opComm_double_idempotent`** - Algebraically equivalent
-   - Both need the linearized Jordan identity as prerequisite
-
-**Recommended path:** Create bridge instance `JordanAlgebra J → IsCommJordan J`
+### Remaining OperatorIdentities Sorries
+These require more than direct computation:
+1. **`L_e_L_a_L_e`** - Needs linearized Jordan identity + idempotent manipulation
+2. **`opComm_double_idempotent`** - Equivalent to above, rearrangement
 
 ---
 
 ## Next Steps
 
-### Option 1: Bridge to IsCommJordan
-- Create instance connecting `JordanAlgebra` to Mathlib's `IsCommJordan`
-- Unlocks: linearized_jordan_operator, L_e_L_a_L_e, opComm_double_idempotent
-
-### Option 2: Continue Peirce Path
+### Option 1: Continue Peirce Path
 - **af-dxb5**: P₀/P₁ multiplication rules
 - **af-qvqz**: P₁/₂ multiplication rules
 
-### Option 3: FundamentalFormula
+### Option 2: FundamentalFormula
 - **af-5qj3**: 2 sorries for the main theorem
+
+### Option 3: Complete OperatorIdentities
+- Prove `L_e_L_a_L_e` using linearized Jordan identity
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/Quaternion/FormallyReal.lean` (NEW, 120 LOC)
+- `AfTests/Jordan/IsCommJordan.lean` (NEW, 94 LOC)
+- `AfTests/Jordan/OperatorIdentities.lean` (FIXED, 101 LOC)
 
 ---
 
 ## Previous Sessions
 
+### Session 48 (2026-01-30)
+- Quaternion/FormallyReal.lean (complete)
+- OperatorIdentities.lean (broken - fixed this session)
+
 ### Session 47 (2026-01-30)
 - SpinFactor/Def.lean, FundamentalFormula.lean, SpinFactor/FormallyReal.lean
 - Quaternion/Instance.lean, Peirce.lean helpers
-
-### Session 46 (2026-01-30)
-- Created Quadratic.lean (U operator), OperatorIdentities.lean
