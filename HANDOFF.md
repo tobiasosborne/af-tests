@@ -1,62 +1,69 @@
-# Handoff: 2026-01-30 (Session 43)
+# Handoff: 2026-01-30 (Session 44)
 
 ## Completed This Session
 
-### Jordan Spectral Theorem - Detailed Implementation Plan
+### Jordan Spectral Theorem - Implementation Progress
 
-**Created 10 granular tracking issues** for proving the Jordan spectral theorem.
+**Completed 4 spectral infrastructure files (503 LOC total, 3 sorries)**
 
-| Issue | Title | LOC | Status |
-|-------|-------|-----|--------|
-| af-gjuq | **Spectral 1: FiniteDimensional infrastructure** | 80 | **READY** |
-| af-s7gr | Spectral 2a: JordanTrace class | 50 | blocked by 1 |
-| af-ax1x | Spectral 2b: Trace non-degeneracy | 50 | blocked by 2a |
-| af-ue8o | Spectral 3: Primitive idempotents | 90 | blocked by 1, 2b |
-| af-9dxi | Spectral 4a: Peirce spaces definition | 60 | blocked by 3 |
-| af-bqjd | Spectral 4b: Peirce decomposition theorem | 60 | blocked by 4a |
-| af-nnvl | Spectral 5a: Eigenspace definition | 50 | blocked by 4b |
-| af-9pfg | Spectral 5b: Eigenspace orthogonality | 50 | blocked by 5a, 2b |
-| af-pyaw | Spectral 6: Spectral theorem | 90 | blocked by 5b, 3 |
-| af-4g40 | Spectral 7: Sorry elimination | 40 | blocked by 6 |
+| Issue | File | LOC | Sorries | Status |
+|-------|------|-----|---------|--------|
+| af-gjuq | `FiniteDimensional.lean` | 152 | 0 | **CLOSED** |
+| af-s7gr | `Trace.lean` (2a: class) | 105 | 0 | **CLOSED** |
+| af-ax1x | `Trace.lean` (2b: non-degen) | +44 | 0 | **CLOSED** |
+| af-ue8o | `Primitive.lean` | 104 | 3 | **CLOSED** |
+| af-9dxi | `Peirce.lean` | 98 | 0 | **CLOSED** |
 
-**Total: 620 LOC across 10 issues**
+### Files Created
 
-### Dependency Graph
-```
-af-gjuq (1: FiniteDim) ─┬─→ af-s7gr (2a: Trace) ─→ af-ax1x (2b: NonDegen) ─┐
-                        │                                                   │
-                        └─────────────────────────────────────────────────────┼─→ af-ue8o (3: Primitive)
-                                                                              │         │
-                                                                              │         ↓
-                                                                              │   af-9dxi (4a: Peirce)
-                                                                              │         │
-                                                                              │         ↓
-                                                                              │   af-bqjd (4b: Peirce)
-                                                                              │         │
-                                                                              │         ↓
-                                                                              │   af-nnvl (5a: Eigen)
-                                                                              │         │
-                                                                              └────────→│
-                                                                                        ↓
-                                                                                  af-9pfg (5b: Orthog)
-                                                                                        │
-                                                   af-ue8o ─────────────────────────────┤
-                                                                                        ↓
-                                                                                  af-pyaw (6: Theorem)
-                                                                                        │
-                                                                                        ↓
-                                                                                  af-4g40 (7: Sorry)
-```
+1. **`FiniteDimensional.lean`** (152 LOC, 0 sorries)
+   - `FinDimJordanAlgebra` class
+   - `jordanRank` function
+   - `exists_basis`, `finBasis`
+   - `linearIndependent_orthog_idem`
+   - `csoi_card_le_rank_of_nonzero`
+   - `jone_ne_zero`, `csoi_exists_nonzero`
+
+2. **`Trace.lean`** (149 LOC, 0 sorries)
+   - `JordanTrace` class with trace functional
+   - `traceInner` bilinear form
+   - `FormallyRealTrace` class with positive definiteness
+   - `traceInner_self_pos`, `traceInner_nondegenerate`
+
+3. **`Primitive.lean`** (104 LOC, 3 sorries)
+   - `IsPrimitive` definition
+   - `isPrimitive_of_minimal`
+   - `primitive_dichotomy` (sorry - needs Peirce theory)
+   - `exists_primitive_decomp` (sorry - needs induction)
+   - `csoi_refine_primitive` (sorry - uses decomp)
+
+4. **`Peirce.lean`** (98 LOC, 0 sorries)
+   - `PeirceSpace e λ` submodule definition
+   - `PeirceSpace₀/₁₂/₁` aliases
+   - `peirceSpace_disjoint`
+   - `idempotent_in_peirce_one`
+   - `orthogonal_in_peirce_zero`
+   - `complement_in_peirce_zero`
 
 ---
 
 ## Current State
 
 ### Jordan Algebra Project
-- 16 files, ~1760 LOC total
-- **2 sorries remaining** (abstract case only)
-- **Spectral theorem plan: 10 issues, 620 LOC**
+- **20 files, ~2260 LOC total**
+- **5 sorries remaining** (2 in FormallyReal, 3 in Primitive)
+- Spectral infrastructure: 4/10 issues closed
 - Concrete Hermitian matrices: COMPLETE (0 sorries)
+
+### Remaining Spectral Issues
+
+| Issue | Title | Status |
+|-------|-------|--------|
+| af-bqjd | Peirce decomposition theorem | **READY** |
+| af-nnvl | Eigenspace definition | blocked by 4b |
+| af-9pfg | Eigenspace orthogonality | blocked by 5a |
+| af-pyaw | Spectral theorem | blocked by 5b |
+| af-4g40 | Sorry elimination | blocked by 6 |
 
 ### Archimedean Closure Project: COMPLETE
 - 44 files, 4,943 LOC, 0 sorries
@@ -66,26 +73,38 @@ af-gjuq (1: FiniteDim) ─┬─→ af-s7gr (2a: Trace) ─→ af-ax1x (2b: NonD
 ## Next Steps
 
 ### Start Here
-**`af-gjuq`: Jordan Spectral 1: FiniteDimensional infrastructure** (80 LOC)
+**`af-bqjd`: Peirce decomposition theorem** (60 LOC planned)
 
 Contents:
-- `FinDimJordanAlgebra` class
-- `jordanRank` function
-- `exists_basis` theorem
-- `finiteDim_induction` principle
-- `csoi_card_le_rank` bound
+- `peirce_polynomial_identity` - L_e(L_e - 1/2)(L_e - 1) = 0
+- `peirce_decomposition` - unique decomposition into P₀, P₁/₂, P₁
+- `peirce_direct_sum` - direct sum structure
+- Peirce multiplication rules
+
+### Alternative Path
+The Primitive.lean sorries (`primitive_dichotomy`, `exists_primitive_decomp`)
+require Peirce decomposition theory. Consider:
+1. Complete Peirce.lean first (adds multiplication rules)
+2. Then fill primitive sorries
+3. Then proceed to eigenspaces
 
 ---
 
 ## Files Modified This Session
 
-- `docs/Jordan/LEARNINGS.md` (updated)
-- `docs/Jordan/SPECTRAL_IMPLEMENTATION_PLAN.md` (329 LOC)
+- `AfTests/Jordan/FiniteDimensional.lean` (NEW, 152 LOC)
+- `AfTests/Jordan/Trace.lean` (NEW, 149 LOC)
+- `AfTests/Jordan/Primitive.lean` (NEW, 104 LOC)
+- `AfTests/Jordan/Peirce.lean` (NEW, 98 LOC)
 - `HANDOFF.md` (updated)
 
 ---
 
 ## Previous Sessions
+
+### Session 43 (2026-01-30)
+- Created 10 spectral theorem issues with dependencies
+- Spectral implementation plan (329 LOC)
 
 ### Session 42 (2026-01-30)
 - Jordan spectral properties (Spectrum.lean, 160 LOC)
