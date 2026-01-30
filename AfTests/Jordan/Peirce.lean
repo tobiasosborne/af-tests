@@ -45,7 +45,7 @@ theorem mem_peirceSpace_iff (e : J) (ev : ℝ) (a : J) :
 
 /-- Notation for common Peirce spaces. -/
 abbrev PeirceSpace₀ (e : J) := PeirceSpace e 0
-noncomputable abbrev PeirceSpace₁₂ (e : J) := PeirceSpace e (1/2)
+noncomputable abbrev PeirceSpace₁₂ (e : J) := PeirceSpace e (1 / 2)
 abbrev PeirceSpace₁ (e : J) := PeirceSpace e 1
 
 /-! ### Basic Peirce Space Properties -/
@@ -94,5 +94,82 @@ theorem complement_in_peirce_zero {e : J} (he : IsIdempotent e) :
     jone - e ∈ PeirceSpace e 0 := by
   rw [mem_peirceSpace_iff, zero_smul]
   exact jone_sub_idempotent_orthogonal he
+
+/-! ### Peirce Polynomial Identity -/
+
+/-- For any idempotent e, L_e satisfies L_e(L_e - 1/2)(L_e - 1) = 0.
+This fundamental identity shows L_e has eigenvalues only in {0, 1/2, 1}. -/
+theorem peirce_polynomial_identity {e : J} (he : IsIdempotent e) :
+    (L e) ∘ₗ ((L e) - (1/2 : ℝ) • LinearMap.id) ∘ₗ ((L e) - LinearMap.id) = 0 := by
+  -- Expanded: L_e³ - (3/2)L_e² + (1 / 2)L_e = 0
+  -- For x: e∘(e∘(e∘x)) = (3/2)e∘(e∘x) - (1 / 2)e∘x
+  -- This follows from the Jordan identity via the operator identity.
+  ext x
+  simp only [LinearMap.comp_apply, LinearMap.sub_apply, LinearMap.smul_apply,
+    LinearMap.id_apply, L_apply, LinearMap.zero_apply]
+  -- Need: jmul e (jmul e (jmul e x) - 1/2 * (jmul e x)) - (jmul e (jmul e x) - 1/2 * x) = 0
+  -- Simplify using bilinearity
+  rw [jmul_sub, smul_jmul, jmul_sub]
+  ring_nf
+  -- The identity e∘(e∘(e∘x)) - (3/2)e∘(e∘x) + (1 / 2)e∘x = 0 for idempotent e
+  -- follows from the Jordan identity by operator calculus
+  sorry
+
+/-! ### Peirce Multiplication Rules -/
+
+/-- Product of two elements in P₀(e) stays in P₀(e). -/
+theorem peirce_mult_P0_P0 {e : J} (he : IsIdempotent e) {a b : J}
+    (ha : a ∈ PeirceSpace e 0) (hb : b ∈ PeirceSpace e 0) :
+    jmul a b ∈ PeirceSpace e 0 := by
+  rw [mem_peirceSpace_iff] at ha hb ⊢
+  rw [zero_smul] at ha hb ⊢
+  -- Need: e ∘ (a ∘ b) = 0 given e ∘ a = 0 and e ∘ b = 0
+  -- Use linearized Jordan identity
+  sorry
+
+/-- Product of two elements in P₁(e) stays in P₁(e). -/
+theorem peirce_mult_P1_P1 {e : J} (he : IsIdempotent e) {a b : J}
+    (ha : a ∈ PeirceSpace e 1) (hb : b ∈ PeirceSpace e 1) :
+    jmul a b ∈ PeirceSpace e 1 := by
+  rw [mem_peirceSpace_iff] at ha hb ⊢
+  rw [one_smul] at ha hb ⊢
+  -- Need: e ∘ (a ∘ b) = a ∘ b given e ∘ a = a and e ∘ b = b
+  sorry
+
+/-- Product of an element in P₀(e) with an element in P₁(e) is zero. -/
+theorem peirce_mult_P0_P1 {e : J} (he : IsIdempotent e) {a b : J}
+    (ha : a ∈ PeirceSpace e 0) (hb : b ∈ PeirceSpace e 1) :
+    jmul a b = 0 := by
+  rw [mem_peirceSpace_iff] at ha hb
+  rw [zero_smul] at ha
+  rw [one_smul] at hb
+  -- Need: a ∘ b = 0 given e ∘ a = 0 and e ∘ b = b
+  -- This follows from the orthogonal Peirce space property
+  sorry
+
+/-- Product of two elements in P_{1/2}(e) lands in P₀(e) ⊕ P₁(e). -/
+theorem peirce_mult_P12_P12 {e : J} (he : IsIdempotent e) {a b : J}
+    (ha : a ∈ PeirceSpace e (1 / 2)) (hb : b ∈ PeirceSpace e (1 / 2)) :
+    jmul a b ∈ PeirceSpace e 0 ⊔ PeirceSpace e 1 := by
+  -- The product a ∘ b for a, b ∈ P_{1/2} has no P_{1/2} component
+  sorry
+
+/-- Product of an element in P₀(e) with an element in P_{1/2}(e) stays in P_{1/2}(e). -/
+theorem peirce_mult_P0_P12 {e : J} (he : IsIdempotent e) {a b : J}
+    (ha : a ∈ PeirceSpace e 0) (hb : b ∈ PeirceSpace e (1 / 2)) :
+    jmul a b ∈ PeirceSpace e (1 / 2) := by
+  rw [mem_peirceSpace_iff] at ha hb ⊢
+  rw [zero_smul] at ha
+  -- Need: e ∘ (a ∘ b) = (1 / 2)(a ∘ b) given e ∘ a = 0 and e ∘ b = (1 / 2)b
+  sorry
+
+/-- Product of an element in P₁(e) with an element in P_{1/2}(e) stays in P_{1/2}(e). -/
+theorem peirce_mult_P1_P12 {e : J} (he : IsIdempotent e) {a b : J}
+    (ha : a ∈ PeirceSpace e 1) (hb : b ∈ PeirceSpace e (1 / 2)) :
+    jmul a b ∈ PeirceSpace e (1 / 2) := by
+  rw [mem_peirceSpace_iff] at ha hb ⊢
+  rw [one_smul] at ha
+  -- Need: e ∘ (a ∘ b) = (1 / 2)(a ∘ b) given e ∘ a = a and e ∘ b = (1 / 2)b
+  sorry
 
 end JordanAlgebra

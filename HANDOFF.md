@@ -1,69 +1,48 @@
-# Handoff: 2026-01-30 (Session 44)
+# Handoff: 2026-01-30 (Session 45)
 
 ## Completed This Session
 
-### Jordan Spectral Theorem - Implementation Progress
+### Peirce Decomposition - Structure Added
 
-**Completed 4 spectral infrastructure files (503 LOC total, 3 sorries)**
+Expanded `AfTests/Jordan/Peirce.lean` with:
 
-| Issue | File | LOC | Sorries | Status |
-|-------|------|-----|---------|--------|
-| af-gjuq | `FiniteDimensional.lean` | 152 | 0 | **CLOSED** |
-| af-s7gr | `Trace.lean` (2a: class) | 105 | 0 | **CLOSED** |
-| af-ax1x | `Trace.lean` (2b: non-degen) | +44 | 0 | **CLOSED** |
-| af-ue8o | `Primitive.lean` | 104 | 3 | **CLOSED** |
-| af-9dxi | `Peirce.lean` | 98 | 0 | **CLOSED** |
+| Theorem | Status | Notes |
+|---------|--------|-------|
+| `peirce_polynomial_identity` | sorry | L_e(L_e-1/2)(L_e-1)=0 |
+| `peirce_mult_P0_P0` | sorry | P₀×P₀⊆P₀ |
+| `peirce_mult_P1_P1` | sorry | P₁×P₁⊆P₁ |
+| `peirce_mult_P0_P1` | sorry | P₀×P₁=0 |
+| `peirce_mult_P12_P12` | sorry | P_{1/2}×P_{1/2}⊆P₀⊕P₁ |
+| `peirce_mult_P0_P12` | sorry | P₀×P_{1/2}⊆P_{1/2} |
+| `peirce_mult_P1_P12` | sorry | P₁×P_{1/2}⊆P_{1/2} |
 
-### Files Created
+**File size:** 175 LOC (under 200 limit)
 
-1. **`FiniteDimensional.lean`** (152 LOC, 0 sorries)
-   - `FinDimJordanAlgebra` class
-   - `jordanRank` function
-   - `exists_basis`, `finBasis`
-   - `linearIndependent_orthog_idem`
-   - `csoi_card_le_rank_of_nonzero`
-   - `jone_ne_zero`, `csoi_exists_nonzero`
+### Documentation Updates
 
-2. **`Trace.lean`** (149 LOC, 0 sorries)
-   - `JordanTrace` class with trace functional
-   - `traceInner` bilinear form
-   - `FormallyRealTrace` class with positive definiteness
-   - `traceInner_self_pos`, `traceInner_nondegenerate`
-
-3. **`Primitive.lean`** (104 LOC, 3 sorries)
-   - `IsPrimitive` definition
-   - `isPrimitive_of_minimal`
-   - `primitive_dichotomy` (sorry - needs Peirce theory)
-   - `exists_primitive_decomp` (sorry - needs induction)
-   - `csoi_refine_primitive` (sorry - uses decomp)
-
-4. **`Peirce.lean`** (98 LOC, 0 sorries)
-   - `PeirceSpace e λ` submodule definition
-   - `PeirceSpace₀/₁₂/₁` aliases
-   - `peirceSpace_disjoint`
-   - `idempotent_in_peirce_one`
-   - `orthogonal_in_peirce_zero`
-   - `complement_in_peirce_zero`
+- Split `LEARNINGS.md` to stay under 200 LOC
+- Created `LEARNINGS_peirce.md` with Peirce decomposition theory
+- Added verification of polynomial identity on 2×2 matrices
 
 ---
 
 ## Current State
 
 ### Jordan Algebra Project
-- **20 files, ~2260 LOC total**
-- **5 sorries remaining** (2 in FormallyReal, 3 in Primitive)
+- **20 files, ~2400 LOC total**
+- **12 sorries remaining** (5 FormallyReal/Primitive, 7 Peirce)
 - Spectral infrastructure: 4/10 issues closed
 - Concrete Hermitian matrices: COMPLETE (0 sorries)
 
 ### Remaining Spectral Issues
 
-| Issue | Title | Status |
-|-------|-------|--------|
-| af-bqjd | Peirce decomposition theorem | **READY** |
-| af-nnvl | Eigenspace definition | blocked by 4b |
-| af-9pfg | Eigenspace orthogonality | blocked by 5a |
-| af-pyaw | Spectral theorem | blocked by 5b |
-| af-4g40 | Sorry elimination | blocked by 6 |
+| Issue | Title | Status | Blockers |
+|-------|-------|--------|----------|
+| af-bqjd | Peirce decomposition | **IN PROGRESS** | Structure done, 7 sorries |
+| af-nnvl | Eigenspace definition | blocked by af-bqjd | |
+| af-9pfg | Eigenspace orthogonality | blocked by af-nnvl | |
+| af-pyaw | Spectral theorem | blocked by af-9pfg | |
+| af-4g40 | Sorry elimination | blocked by af-pyaw | |
 
 ### Archimedean Closure Project: COMPLETE
 - 44 files, 4,943 LOC, 0 sorries
@@ -72,35 +51,46 @@
 
 ## Next Steps
 
-### Start Here
-**`af-bqjd`: Peirce decomposition theorem** (60 LOC planned)
+### Option A: Fill Peirce Sorries (Hard)
 
-Contents:
-- `peirce_polynomial_identity` - L_e(L_e - 1/2)(L_e - 1) = 0
-- `peirce_decomposition` - unique decomposition into P₀, P₁/₂, P₁
-- `peirce_direct_sum` - direct sum structure
-- Peirce multiplication rules
+The Peirce sorries require the **fundamental formula**:
+```
+U_{U_a(b)} = U_a U_b U_a
+```
 
-### Alternative Path
-The Primitive.lean sorries (`primitive_dichotomy`, `exists_primitive_decomp`)
-require Peirce decomposition theory. Consider:
-1. Complete Peirce.lean first (adds multiplication rules)
-2. Then fill primitive sorries
-3. Then proceed to eigenspaces
+This is ~100+ LOC of operator algebra. See `docs/Jordan/LEARNINGS_peirce.md`.
+
+### Option B: Proceed with Eigenspaces
+
+Create `Eigenspace.lean` using Peirce theorems as axioms (with sorry).
+This lets downstream development continue.
+
+### Option C: Matrix-Specific Proofs
+
+For Hermitian matrices, we can verify Peirce rules directly using
+matrix arithmetic, bypassing abstract Jordan algebra machinery.
+
+### Recommended Path
+
+Start with **Option B** or **Option C** to make progress on spectral theory.
+The fundamental formula is a significant undertaking that could be deferred.
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/FiniteDimensional.lean` (NEW, 152 LOC)
-- `AfTests/Jordan/Trace.lean` (NEW, 149 LOC)
-- `AfTests/Jordan/Primitive.lean` (NEW, 104 LOC)
-- `AfTests/Jordan/Peirce.lean` (NEW, 98 LOC)
+- `AfTests/Jordan/Peirce.lean` (175 LOC, +77 from 98)
+- `docs/Jordan/LEARNINGS.md` (194 LOC, trimmed)
+- `docs/Jordan/LEARNINGS_peirce.md` (NEW, 87 LOC)
 - `HANDOFF.md` (updated)
 
 ---
 
 ## Previous Sessions
+
+### Session 44 (2026-01-30)
+- Completed 4 spectral infrastructure files (503 LOC)
+- FiniteDimensional, Trace, Primitive, Peirce basics
 
 ### Session 43 (2026-01-30)
 - Created 10 spectral theorem issues with dependencies
@@ -108,6 +98,3 @@ require Peirce decomposition theory. Consider:
 
 ### Session 42 (2026-01-30)
 - Jordan spectral properties (Spectrum.lean, 160 LOC)
-
-### Session 41 (2026-01-30)
-- Quaternionic Hermitian matrices and Jordan product (295 LOC)

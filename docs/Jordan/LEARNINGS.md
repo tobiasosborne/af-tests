@@ -172,45 +172,18 @@ import Mathlib.LinearAlgebra.Charpoly.Basic
 
 ---
 
-## Implementation Plan (~50 LOC Outline)
+## Implementation Notes
 
-### Phase 1: Matrix-Specific Proofs (Priority)
+See `SPECTRAL_IMPLEMENTATION_PLAN.md` for the full spectral theorem plan.
 
-**File: `AfTests/Jordan/Matrix/SpectralTheory.lean`** (~80 LOC)
+---
 
-```lean
--- Use Matrix.IsHermitian.spectral_theorem directly
--- Prove: For Hermitian A, A² = 0 → A = 0
--- Prove: For Hermitian A, eigenvalues of A² are ≥ 0
+## Peirce Decomposition
 
-theorem hermitian_sq_eq_zero_imp_zero (A : Matrix n n ℂ) (hA : A.IsHermitian) :
-    A * A = 0 → A = 0 := by
-  -- Use spectral decomposition: A = U * D * Uᴴ
-  -- Then A² = U * D² * Uᴴ = 0 implies D² = 0
-  -- D is real diagonal, so D = 0, hence A = 0
-  sorry
-
-theorem hermitian_sq_eigenvalues_nonneg (A : Matrix n n ℂ) (hA : A.IsHermitian) :
-    ∀ i, 0 ≤ (hA.sq).eigenvalues i := by
-  -- A² is positive semidefinite
-  -- Use Matrix.IsHermitian.posSemidef_iff_eigenvalues_nonneg
-  sorry
-```
-
-### Phase 2: Axiomatize Abstract Case
-
-**File: `AfTests/Jordan/FormallyReal/Spectral.lean`** (~60 LOC)
-
-```lean
--- Add spectral axiom to FormallyRealJordan
-class FormallyRealJordanSpectral (J : Type*) [JordanAlgebra J]
-    extends FormallyRealJordan J where
-  has_spectral_decomp : ∀ a : J, ∃ sd : SpectralDecomp J, sd.element = a
-```
-
-### Phase 3: Connect Matrix to Abstract
-
-Show `HermitianMatrix` satisfies `FormallyRealJordanSpectral`.
+See `LEARNINGS_peirce.md` for detailed notes on:
+- Polynomial identity `L_e(L_e - 1/2)(L_e - 1) = 0`
+- Peirce multiplication rules
+- Fundamental formula requirements
 
 ---
 
