@@ -2,35 +2,51 @@
 
 ## Completed This Session
 
-### Jordan Spectral Theorem Implementation Plan
+### Jordan Spectral Theorem - Detailed Implementation Plan
 
-**Created** `docs/Jordan/SPECTRAL_IMPLEMENTATION_PLAN.md` (329 LOC).
+**Created 10 granular tracking issues** for proving the Jordan spectral theorem.
 
-**7-Phase Plan to Prove Jordan Spectral Theorem:**
+| Issue | Title | LOC | Status |
+|-------|-------|-----|--------|
+| af-gjuq | **Spectral 1: FiniteDimensional infrastructure** | 80 | **READY** |
+| af-s7gr | Spectral 2a: JordanTrace class | 50 | blocked by 1 |
+| af-ax1x | Spectral 2b: Trace non-degeneracy | 50 | blocked by 2a |
+| af-ue8o | Spectral 3: Primitive idempotents | 90 | blocked by 1, 2b |
+| af-9dxi | Spectral 4a: Peirce spaces definition | 60 | blocked by 3 |
+| af-bqjd | Spectral 4b: Peirce decomposition theorem | 60 | blocked by 4a |
+| af-nnvl | Spectral 5a: Eigenspace definition | 50 | blocked by 4b |
+| af-9pfg | Spectral 5b: Eigenspace orthogonality | 50 | blocked by 5a, 2b |
+| af-pyaw | Spectral 6: Spectral theorem | 90 | blocked by 5b, 3 |
+| af-4g40 | Spectral 7: Sorry elimination | 40 | blocked by 6 |
 
-| Phase | File | LOC | Key Content |
-|-------|------|-----|-------------|
-| 1 | FiniteDimensional.lean | 80 | FinDimJordanAlgebra, rank bounds |
-| 2 | Trace.lean | 100 | JordanTrace, traceInner, InnerProductSpace |
-| 3 | Primitive.lean | 90 | IsPrimitive, primitive decomposition |
-| 4 | Peirce.lean | 120 | PeirceSpace, eigenvalues {0, 1/2, 1} |
-| 5 | Eigenspace.lean | 100 | eigenspace, spectrum, projections |
-| 6 | SpectralTheorem.lean | 90 | spectral_decomposition_exists |
-| 7 | FormallyReal/Spectral.lean | 40 | Sorry elimination |
-| **Total** | | **620** | |
+**Total: 620 LOC across 10 issues**
 
-**Tracking Issues Created:**
+### Dependency Graph
 ```
-af-eu3k (Phase 1) ← af-eb9j (Phase 2) ← af-o5d6 (Phase 3) ←
-af-z92s (Phase 4) ← af-dc5j (Phase 5) ← af-hqh3 (Phase 6) ← af-ifia (Phase 7)
+af-gjuq (1: FiniteDim) ─┬─→ af-s7gr (2a: Trace) ─→ af-ax1x (2b: NonDegen) ─┐
+                        │                                                   │
+                        └─────────────────────────────────────────────────────┼─→ af-ue8o (3: Primitive)
+                                                                              │         │
+                                                                              │         ↓
+                                                                              │   af-9dxi (4a: Peirce)
+                                                                              │         │
+                                                                              │         ↓
+                                                                              │   af-bqjd (4b: Peirce)
+                                                                              │         │
+                                                                              │         ↓
+                                                                              │   af-nnvl (5a: Eigen)
+                                                                              │         │
+                                                                              └────────→│
+                                                                                        ↓
+                                                                                  af-9pfg (5b: Orthog)
+                                                                                        │
+                                                   af-ue8o ─────────────────────────────┤
+                                                                                        ↓
+                                                                                  af-pyaw (6: Theorem)
+                                                                                        │
+                                                                                        ↓
+                                                                                  af-4g40 (7: Sorry)
 ```
-
-**Key Mathematical Steps:**
-1. Trace bilinear form → inner product structure
-2. Peirce decomposition (eigenvalues 0, 1/2, 1)
-3. Eigenspaces are orthogonal
-4. Finite spectrum → spectral projections
-5. a = Σ λᵢ eᵢ where eᵢ form primitive CSOI
 
 ---
 
@@ -39,8 +55,8 @@ af-z92s (Phase 4) ← af-dc5j (Phase 5) ← af-hqh3 (Phase 6) ← af-ifia (Phase
 ### Jordan Algebra Project
 - 16 files, ~1760 LOC total
 - **2 sorries remaining** (abstract case only)
-- Implementation plan: 7 phases, 620 LOC
-- **Concrete Hermitian matrices: COMPLETE** (0 sorries)
+- **Spectral theorem plan: 10 issues, 620 LOC**
+- Concrete Hermitian matrices: COMPLETE (0 sorries)
 
 ### Archimedean Closure Project: COMPLETE
 - 44 files, 4,943 LOC, 0 sorries
@@ -49,8 +65,8 @@ af-z92s (Phase 4) ← af-dc5j (Phase 5) ← af-hqh3 (Phase 6) ← af-ifia (Phase
 
 ## Next Steps
 
-### Ready to Start
-**`af-eu3k`**: Jordan Phase 1: FiniteDimensional.lean (80 LOC)
+### Start Here
+**`af-gjuq`: Jordan Spectral 1: FiniteDimensional infrastructure** (80 LOC)
 
 Contents:
 - `FinDimJordanAlgebra` class
@@ -59,15 +75,12 @@ Contents:
 - `finiteDim_induction` principle
 - `csoi_card_le_rank` bound
 
-### Blocked (chain)
-- af-eb9j → af-o5d6 → af-z92s → af-dc5j → af-hqh3 → af-ifia
-
 ---
 
 ## Files Modified This Session
 
 - `docs/Jordan/LEARNINGS.md` (updated)
-- `docs/Jordan/SPECTRAL_IMPLEMENTATION_PLAN.md` (NEW - 329 LOC)
+- `docs/Jordan/SPECTRAL_IMPLEMENTATION_PLAN.md` (329 LOC)
 - `HANDOFF.md` (updated)
 
 ---
