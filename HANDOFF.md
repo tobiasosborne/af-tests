@@ -1,40 +1,35 @@
-# Handoff: 2026-01-30 (Session 33)
+# Handoff: 2026-01-30 (Session 34)
 
 ## Completed This Session
 
-### IDEL THESIS FORMALIZATION ASSESSMENT
+### JORDAN ALGEBRA IMPLEMENTATION PLAN
 
-Analyzed Martin Idel's 2013 Master's thesis "On the structure of positive maps" for Lean 4 formalization feasibility.
+Created granular implementation plan for Jordan algebra infrastructure needed for Idel thesis formalization.
 
-**Created comprehensive documentation in `examples3/`:**
+**Created:**
+- `examples3/JORDAN_IMPLEMENTATION_PLAN.md` (~650 lines)
 
-| File | Description |
-|------|-------------|
-| `FORMALIZATION_REPORT.md` | Full assessment (700 lines) |
-| `MATHLIB_COVERAGE_MATRIX.md` | Detailed mathlib coverage (400 lines) |
-| `PROJECT_SKELETON.md` | Proposed structure + code stubs (500 lines) |
-| `THEOREM_DEPENDENCIES.md` | Critical path + parallel tracks (350 lines) |
+**45 beads issues registered** across 8 phases:
 
-### Key Findings
+| Phase | Tasks | LOC | Description |
+|-------|-------|-----|-------------|
+| 1 | 6 | 300 | Core infrastructure |
+| 2 | 5 | 250 | Formally real JA |
+| 3 | 6 | 300 | Hermitian matrix JA |
+| 4 | 5 | 250 | Quaternionic Hermitian |
+| 5 | 7 | 350 | Spin factors |
+| 6 | 4 | 200 | Reversibility |
+| 7 | 7 | 350 | Classification (Thm 2.13) |
+| 8 | 5 | 250 | Universal envelope |
+| **Total** | **45** | **2,250** | |
 
-**Thesis scope:**
-- 6 chapters + appendix (~130 pages)
-- ~6,400-8,300 LOC estimated for full formalization
-
-**Mathlib coverage:**
-- ~20% direct support
-- ~40% adaptable with work
-- ~40% must build from scratch
-
-**Critical gaps (must build ~4,000 LOC):**
-- Jordan algebra classification theorem
-- Skolem-Noether theorem
-- Artin-Wedderburn theorem
-- Positive projections onto Jordan algebras
-
-**Timeline @ 2K LOC/day agentic workflow:**
-- 5-7 days with parallel development
-- 4 independent tracks identified
+**Mathlib exploration completed:**
+- `IsCommJordan`, `IsJordan` - axioms available
+- `SymAlg` (Symmetrized.lean) - Jordan product `a ∘ b = ½(ab+ba)`
+- `Matrix.IsHermitian` - rich API
+- `selfAdjoint R` - has `Module ℝ` instance
+- `CliffordAlgebra Q` - for spin factors
+- `QuaternionAlgebra` - full star algebra support
 
 ---
 
@@ -44,30 +39,57 @@ Analyzed Martin Idel's 2013 Master's thesis "On the structure of positive maps" 
 - 44 files, 4,943 LOC, 0 sorries
 - LaTeX: 75 pages complete
 
-### Idel Thesis Assessment: COMPLETE
-- Full feasibility report generated
-- Ready for formalization if desired
+### Idel Thesis: PLANNING COMPLETE
+- Assessment complete (Session 33)
+- Implementation plan complete (this session)
+- 45 tracked tasks ready to execute
 
 ---
 
-## Next Steps (If Pursuing Idel Formalization)
+## Next Steps
 
-1. Initialize `IdelPositiveMaps/` lake project
-2. Start with Jordan algebra infrastructure
-3. Use parallel agent tracks (see THEOREM_DEPENDENCIES.md)
-4. Target: 1 week for complete formalization
+### Start Implementation
+1. Begin with `af-fe86`: Jordan/Basic.lean (bundled JordanAlgebra)
+2. Then `af-qd97`: Jordan/Product.lean
+3. Phases 3,4,5 can run in parallel after Phase 2
+
+### Critical Path
+```
+af-fe86 (Basic) → af-abff (FormallyReal/Def) → Phases 3,4,5
+                                              ↓
+                            af-8sf7 (Classification Theorem) [P1]
+                                              ↓
+                            af-k69m (Envelope/Def) → Phase 8
+```
+
+### Ready Tasks (no blockers)
+```
+bd ready  # Shows 10 ready tasks
+```
 
 ---
 
 ## Files Modified This Session
 
-- `examples3/FORMALIZATION_REPORT.md` (new, ~700 lines)
-- `examples3/MATHLIB_COVERAGE_MATRIX.md` (new, ~400 lines)
-- `examples3/PROJECT_SKELETON.md` (new, ~500 lines)
-- `examples3/THEOREM_DEPENDENCIES.md` (new, ~350 lines)
+- `examples3/JORDAN_IMPLEMENTATION_PLAN.md` (new, ~650 lines)
+- `HANDOFF.md` (updated)
 
 ---
 
-## Previous Session (2026-01-25)
+## Beads Summary
 
-LaTeX document completed with all appendices.
+- 45 new Jordan tasks created
+- 8 tasks blocked (dependency chain)
+- 46 tasks ready to work
+- Key dependencies set between phases
+
+---
+
+## Previous Sessions
+
+### Session 33 (2026-01-30)
+- Idel thesis assessment complete
+- Created FORMALIZATION_REPORT.md, MATHLIB_COVERAGE_MATRIX.md, PROJECT_SKELETON.md, THEOREM_DEPENDENCIES.md
+
+### Session 32 (2026-01-25)
+- LaTeX document completed with all appendices
