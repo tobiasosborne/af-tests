@@ -4,25 +4,31 @@
 
 ### Peirce Decomposition - Structure Added
 
-Expanded `AfTests/Jordan/Peirce.lean` with:
+Expanded `AfTests/Jordan/Peirce.lean` (98 → 175 LOC) with:
+- `peirce_polynomial_identity` (sorry)
+- 6 Peirce multiplication rules (sorry)
 
-| Theorem | Status | Notes |
-|---------|--------|-------|
-| `peirce_polynomial_identity` | sorry | L_e(L_e-1/2)(L_e-1)=0 |
-| `peirce_mult_P0_P0` | sorry | P₀×P₀⊆P₀ |
-| `peirce_mult_P1_P1` | sorry | P₁×P₁⊆P₁ |
-| `peirce_mult_P0_P1` | sorry | P₀×P₁=0 |
-| `peirce_mult_P12_P12` | sorry | P_{1/2}×P_{1/2}⊆P₀⊕P₁ |
-| `peirce_mult_P0_P12` | sorry | P₀×P_{1/2}⊆P_{1/2} |
-| `peirce_mult_P1_P12` | sorry | P₁×P_{1/2}⊆P_{1/2} |
+### Decomposed Peirce Sorries into 7 Tasks (~50 LOC each)
 
-**File size:** 175 LOC (under 200 limit)
+```
+af-pjz9: U operator definition
+    ↓
+af-7vob: U operator properties
+    ↓
+af-2lqt: Operator commutator identities ←─┐
+    ↓                                      │
+af-5qj3: Fundamental formula ─────────────┘
+    ↓
+af-s7tl: Peirce polynomial identity
+    ↓
+af-dxb5: P₀/P₁ multiplication rules
+    ↓
+af-qvqz: P₁/₂ multiplication rules
+    ↓
+af-bqjd: [COMPLETES] Peirce decomposition theorem
+```
 
-### Documentation Updates
-
-- Split `LEARNINGS.md` to stay under 200 LOC
-- Created `LEARNINGS_peirce.md` with Peirce decomposition theory
-- Added verification of polynomial identity on 2×2 matrices
+**Total estimated LOC:** ~350 (7 × 50)
 
 ---
 
@@ -31,56 +37,45 @@ Expanded `AfTests/Jordan/Peirce.lean` with:
 ### Jordan Algebra Project
 - **20 files, ~2400 LOC total**
 - **12 sorries remaining** (5 FormallyReal/Primitive, 7 Peirce)
-- Spectral infrastructure: 4/10 issues closed
-- Concrete Hermitian matrices: COMPLETE (0 sorries)
+- Peirce: structure done, sorry elimination decomposed
 
-### Remaining Spectral Issues
+### Ready to Start
 
-| Issue | Title | Status | Blockers |
-|-------|-------|--------|----------|
-| af-bqjd | Peirce decomposition | **IN PROGRESS** | Structure done, 7 sorries |
-| af-nnvl | Eigenspace definition | blocked by af-bqjd | |
-| af-9pfg | Eigenspace orthogonality | blocked by af-nnvl | |
-| af-pyaw | Spectral theorem | blocked by af-9pfg | |
-| af-4g40 | Sorry elimination | blocked by af-pyaw | |
+| Issue | Title | Dependencies |
+|-------|-------|--------------|
+| af-pjz9 | U operator definition | None |
+| af-2lqt | Operator commutator identities | None |
 
-### Archimedean Closure Project: COMPLETE
-- 44 files, 4,943 LOC, 0 sorries
+### Blocked Issues (Peirce Chain)
+
+| Issue | Title | Blocked By |
+|-------|-------|------------|
+| af-7vob | U operator properties | af-pjz9 |
+| af-5qj3 | Fundamental formula | af-pjz9, af-7vob, af-2lqt |
+| af-s7tl | Peirce polynomial | af-5qj3 |
+| af-dxb5 | P₀/P₁ rules | af-s7tl |
+| af-qvqz | P₁/₂ rules | af-dxb5 |
+| af-bqjd | Peirce decomposition | af-qvqz |
+| af-nnvl | Eigenspace definition | af-bqjd |
 
 ---
 
 ## Next Steps
 
-### Option A: Fill Peirce Sorries (Hard)
+### Recommended Start
+1. **af-pjz9**: Create `Jordan/Quadratic.lean` with U operator
+2. **af-2lqt**: Create `Jordan/OperatorIdentities.lean` (can run parallel)
 
-The Peirce sorries require the **fundamental formula**:
-```
-U_{U_a(b)} = U_a U_b U_a
-```
-
-This is ~100+ LOC of operator algebra. See `docs/Jordan/LEARNINGS_peirce.md`.
-
-### Option B: Proceed with Eigenspaces
-
-Create `Eigenspace.lean` using Peirce theorems as axioms (with sorry).
-This lets downstream development continue.
-
-### Option C: Matrix-Specific Proofs
-
-For Hermitian matrices, we can verify Peirce rules directly using
-matrix arithmetic, bypassing abstract Jordan algebra machinery.
-
-### Recommended Path
-
-Start with **Option B** or **Option C** to make progress on spectral theory.
-The fundamental formula is a significant undertaking that could be deferred.
+### Alternative Path
+Skip fundamental formula entirely - verify Peirce rules for Hermitian matrices
+directly using matrix arithmetic (Option C from previous session).
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/Peirce.lean` (175 LOC, +77 from 98)
-- `docs/Jordan/LEARNINGS.md` (194 LOC, trimmed)
+- `AfTests/Jordan/Peirce.lean` (175 LOC)
+- `docs/Jordan/LEARNINGS.md` (194 LOC)
 - `docs/Jordan/LEARNINGS_peirce.md` (NEW, 87 LOC)
 - `HANDOFF.md` (updated)
 
@@ -94,7 +89,3 @@ The fundamental formula is a significant undertaking that could be deferred.
 
 ### Session 43 (2026-01-30)
 - Created 10 spectral theorem issues with dependencies
-- Spectral implementation plan (329 LOC)
-
-### Session 42 (2026-01-30)
-- Jordan spectral properties (Spectrum.lean, 160 LOC)
