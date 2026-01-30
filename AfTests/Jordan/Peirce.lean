@@ -95,24 +95,42 @@ theorem complement_in_peirce_zero {e : J} (he : IsIdempotent e) :
   rw [mem_peirceSpace_iff, zero_smul]
   exact jone_sub_idempotent_orthogonal he
 
+/-! ### Helper Lemmas for Peirce Polynomial -/
+
+/-- Commutativity of nested jmul with idempotent:
+    (e ∘ x) ∘ e = e ∘ (e ∘ x). Follows from Jordan identity. -/
+theorem jmul_jmul_e_x_e {e : J} (he : IsIdempotent e) (x : J) :
+    jmul (jmul e x) e = jmul e (jmul e x) := by
+  have h := jordan_identity e x
+  unfold IsIdempotent jsq at he
+  -- Jordan identity: jmul (jmul e x) (jmul e e) = jmul e (jmul x (jmul e e))
+  rw [he, jmul_comm x e] at h
+  exact h
+
+/-- jmul distributes over nsmul on the right. -/
+theorem jmul_nsmul (a : J) (n : ℕ) (b : J) : jmul a (n • b) = n • jmul a b := by
+  induction n with
+  | zero => simp [jmul_zero]
+  | succ n ih => rw [succ_nsmul, jmul_add, ih, succ_nsmul]
+
 /-! ### Peirce Polynomial Identity -/
 
 /-- For any idempotent e, L_e satisfies L_e(L_e - 1/2)(L_e - 1) = 0.
-This fundamental identity shows L_e has eigenvalues only in {0, 1/2, 1}. -/
+This fundamental identity shows L_e has eigenvalues only in {0, 1/2, 1}.
+
+**Proof Strategy:** Polarize the Jordan identity (a∘b)∘a² = a∘(b∘a²) with a → e+x
+and extract the x-linear terms. Setting b = e (idempotent) gives:
+  `3 • e²(x) = 2 • e³(x) + e(x)`
+which rearranges to the Peirce polynomial `2 • e³(x) - 3 • e²(x) + e(x) = 0`. -/
 theorem peirce_polynomial_identity {e : J} (he : IsIdempotent e) :
     (L e) ∘ₗ ((L e) - (1/2 : ℝ) • LinearMap.id) ∘ₗ ((L e) - LinearMap.id) = 0 := by
-  -- Expanded: L_e³ - (3/2)L_e² + (1 / 2)L_e = 0
-  -- For x: e∘(e∘(e∘x)) = (3/2)e∘(e∘x) - (1 / 2)e∘x
-  -- This follows from the Jordan identity via the operator identity.
   ext x
   simp only [LinearMap.comp_apply, LinearMap.sub_apply, LinearMap.smul_apply,
     LinearMap.id_apply, L_apply, LinearMap.zero_apply]
-  -- Need: jmul e (jmul e (jmul e x) - 1/2 * (jmul e x)) - (jmul e (jmul e x) - 1/2 * x) = 0
-  -- Simplify using bilinearity
   rw [jmul_sub, smul_jmul, jmul_sub]
   ring_nf
-  -- The identity e∘(e∘(e∘x)) - (3/2)e∘(e∘x) + (1 / 2)e∘x = 0 for idempotent e
-  -- follows from the Jordan identity by operator calculus
+  -- Goal: 2 • e³(x) - 3 • e²(x) + e(x) = 0 (after normalization)
+  -- The proof requires extracting x-linear terms from jordan_identity (e + x) e
   sorry
 
 /-! ### Peirce Multiplication Rules -/
