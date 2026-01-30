@@ -1,34 +1,27 @@
-# Handoff: 2026-01-30 (Session 47 final)
+# Handoff: 2026-01-30 (Session 48)
 
 ## Completed This Session
 
-### Round 1: U Properties + SpinFactor Definition
+### Quaternion FormallyReal
 | File | LOC | Sorries | Issue |
 |------|-----|---------|-------|
-| `Jordan/Quadratic.lean` | 158 | 1 | af-7vob (in progress) |
-| `Jordan/SpinFactor/Def.lean` | 151 | **0** | af-myl1 (CLOSED) |
+| `Jordan/Quaternion/FormallyReal.lean` | 120 | **0** | af-qdzs (CLOSED) |
 
-### Round 2: FundamentalFormula + FormallyReal
-| File | LOC | Sorries | Issue |
-|------|-----|---------|-------|
-| `Jordan/FundamentalFormula.lean` | 123 | 2 | af-5qj3 (in progress) |
-| `Jordan/SpinFactor/FormallyReal.lean` | 76 | **0** | af-dzzp (CLOSED) |
+**Tasks closed this session:** af-qdzs (1 total)
 
-### Round 3: Peirce helpers + Quaternion Instance
-| File | LOC | Sorries | Issue |
-|------|-----|---------|-------|
-| `Jordan/Peirce.lean` | 193 | 7 | af-s7tl (in progress) |
-| `Jordan/Quaternion/Instance.lean` | 124 | **0** | af-475a (CLOSED) |
-
-**Tasks closed this session:** af-myl1, af-dzzp, af-j3bp, af-8huk, af-475a (5 total)
+### OperatorIdentities Analysis (No Changes)
+Attempted to eliminate 3 sorries in OperatorIdentities.lean. Analysis revealed:
+- These require the **linearized Jordan identity** which needs ~30-50 lines of polarization proof
+- Alternative: Bridge to Mathlib's `IsCommJordan` which has `two_nsmul_lie_lmul_lmul_add_add_eq_zero`
+- Documented as future work (see Learnings)
 
 ---
 
 ## Current State
 
 ### Jordan Algebra Project
-- **26 files, ~3300 LOC total**
-- **19 sorries remaining**
+- **27 files, ~3420 LOC total**
+- **19 sorries remaining** (unchanged)
   - Peirce.lean: 7
   - OperatorIdentities.lean: 3
   - Quadratic.lean: 1
@@ -43,10 +36,11 @@
 - ✓ SpinFactor/Def.lean (151 LOC)
 - ✓ SpinFactor/FormallyReal.lean (76 LOC)
 
-**Quaternion branch:**
+**Quaternion branch:** ✓ COMPLETE
 - ✓ Quaternion/Hermitian.lean (170 LOC)
 - ✓ Quaternion/JordanProduct.lean (127 LOC)
 - ✓ Quaternion/Instance.lean (124 LOC)
+- ✓ Quaternion/FormallyReal.lean (120 LOC) **NEW**
 
 ### Peirce Chain Progress
 ```
@@ -62,38 +56,47 @@
 
 ---
 
+## Key Findings This Session
+
+### OperatorIdentities Sorries (Why They're Hard)
+
+1. **`linearized_jordan_operator`** - Needs polarization of Jordan identity
+   - Mathlib has this as `two_nsmul_lie_lmul_lmul_add_add_eq_zero` for `IsCommJordan`
+   - Our `JordanAlgebra` class isn't connected to Mathlib's `IsCommJordan`
+
+2. **`L_e_L_a_L_e`** and **`opComm_double_idempotent`** - Algebraically equivalent
+   - Both need the linearized Jordan identity as prerequisite
+
+**Recommended path:** Create bridge instance `JordanAlgebra J → IsCommJordan J`
+
+---
+
 ## Next Steps
 
-### Option 1: Continue Peirce Path
-- **af-dxb5**: P₀/P₁ multiplication rules (blocked by af-s7tl)
-- Alternative: Work directly on multiplication sorries using eigenspace properties
+### Option 1: Bridge to IsCommJordan
+- Create instance connecting `JordanAlgebra` to Mathlib's `IsCommJordan`
+- Unlocks: linearized_jordan_operator, L_e_L_a_L_e, opComm_double_idempotent
 
-### Option 2: Quaternion FormallyReal
-- **af-qdzs**: Prove QuaternionHermitianMatrix is formally real
+### Option 2: Continue Peirce Path
+- **af-dxb5**: P₀/P₁ multiplication rules
+- **af-qvqz**: P₁/₂ multiplication rules
 
-### Option 3: Sorry Elimination
-- Focus on completing proofs with sorries in FundamentalFormula or OperatorIdentities
+### Option 3: FundamentalFormula
+- **af-5qj3**: 2 sorries for the main theorem
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/Quadratic.lean` (+56 LOC)
-- `AfTests/Jordan/SpinFactor/Def.lean` (NEW, 151 LOC)
-- `AfTests/Jordan/FundamentalFormula.lean` (NEW, 123 LOC)
-- `AfTests/Jordan/SpinFactor/FormallyReal.lean` (NEW, 76 LOC)
-- `AfTests/Jordan/Peirce.lean` (+18 LOC)
-- `AfTests/Jordan/Quaternion/Instance.lean` (NEW, 124 LOC)
+- `AfTests/Jordan/Quaternion/FormallyReal.lean` (NEW, 120 LOC)
 
 ---
 
 ## Previous Sessions
 
+### Session 47 (2026-01-30)
+- SpinFactor/Def.lean, FundamentalFormula.lean, SpinFactor/FormallyReal.lean
+- Quaternion/Instance.lean, Peirce.lean helpers
+
 ### Session 46 (2026-01-30)
 - Created Quadratic.lean (U operator), OperatorIdentities.lean
-
-### Session 45 (2026-01-30)
-- Expanded Peirce.lean (98 → 175 LOC)
-
-### Session 44 (2026-01-30)
-- Completed 4 spectral infrastructure files (503 LOC)
