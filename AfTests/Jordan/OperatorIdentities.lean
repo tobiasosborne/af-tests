@@ -3,8 +3,7 @@ Copyright (c) 2026 AF-Tests Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: AF-Tests Contributors
 -/
-import AfTests.Jordan.Basic
-import AfTests.Jordan.Product
+import AfTests.Jordan.IsCommJordan
 import AfTests.Jordan.FormallyReal.Spectrum
 
 /-!
@@ -50,12 +49,18 @@ theorem opComm_self (f : J →ₗ[ℝ] J) : ⟦f, f⟧ = 0 := by
 /-- The linearized Jordan identity in operator form:
     `2([L_a, L_{b∘c}] + [L_b, L_{c∘a}] + [L_c, L_{a∘b}]) = 0`
 
-This is the key identity relating commutators of multiplication operators. -/
+This is the key identity relating commutators of multiplication operators.
+The proof uses the bridge to Mathlib's IsCommJordan. -/
 theorem linearized_jordan_operator (a b c : J) :
     2 • (⟦L a, L (jmul b c)⟧ + ⟦L b, L (jmul c a)⟧ + ⟦L c, L (jmul a b)⟧) = 0 := by
-  -- This follows from the linearization of the Jordan identity
-  -- (a ∘ b) ∘ a² = a ∘ (b ∘ a²)
-  sorry
+  -- Use the Mathlib theorem from IsCommJordan
+  have h := linearized_jordan_jmul a b c
+  ext x
+  simp only [LinearMap.smul_apply, LinearMap.add_apply, LinearMap.zero_apply,
+             opComm_apply, L_apply]
+  -- h says: 2 • (⁅mulLeft a, mulLeft (b*c)⁆ + ...) = 0
+  -- Applied to x, expand the Lie brackets to match our goal
+  exact congrFun (congrArg DFunLike.coe h) x
 
 /-! ### Idempotent Operator Identities -/
 
@@ -66,15 +71,17 @@ theorem opComm_idempotent_eigenspace {e : J} (_he : IsIdempotent e)
     ⟦L e, L a⟧ x = jmul e (jmul a x) - jmul a (jmul e x) := rfl
 
 /-- For idempotent e: `L_e ∘ L_a ∘ L_e = L_{e∘(a∘e)} + (1/2)[L_e, [L_e, L_a]]`
-    This identity is used in analyzing Peirce space products. -/
-theorem L_e_L_a_L_e {e : J} (he : IsIdempotent e) (a : J) :
+    This identity is used in analyzing Peirce space products.
+
+Note: This requires the linearized Jordan identity for a full proof. -/
+theorem L_e_L_a_L_e {e : J} (_he : IsIdempotent e) (a : J) :
     L e ∘ₗ L a ∘ₗ L e = L (jmul e (jmul a e)) + (1/2 : ℝ) • ⟦L e, ⟦L e, L a⟧⟧ := by
   -- Follows from operator calculus and the Jordan identity
   sorry
 
 /-- The double commutator identity for idempotent:
     `[L_e, [L_e, L_a]]` relates to the projection onto P_{1/2}(e). -/
-theorem opComm_double_idempotent {e : J} (he : IsIdempotent e) (a : J) :
+theorem opComm_double_idempotent {e : J} (_he : IsIdempotent e) (a : J) :
     ⟦L e, ⟦L e, L a⟧⟧ = 2 • (L e ∘ₗ L a ∘ₗ L e) - 2 • L (jmul e (jmul a e)) := by
   -- Rearrangement of L_e_L_a_L_e
   sorry
