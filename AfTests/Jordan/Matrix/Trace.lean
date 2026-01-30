@@ -1,0 +1,188 @@
+/-
+Copyright (c) 2026 AF-Tests Contributors. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: AF-Tests Contributors
+-/
+import AfTests.Jordan.Matrix.Instance
+import Mathlib.LinearAlgebra.Matrix.Trace
+import Mathlib.LinearAlgebra.Matrix.PosDef
+import Mathlib.Analysis.Matrix.Order
+import Mathlib.Analysis.RCLike.Basic
+
+/-!
+# Trace Inner Product on Hermitian Matrices
+
+The trace inner product on Hermitian matrices is `⟨A, B⟩ = Tr(AB)`. This makes
+Hermitian matrices into a real inner product space.
+
+## Main definitions
+
+* `HermitianMatrix.traceInner` - The trace inner product `Tr(AB)`
+
+## Main results
+
+* `HermitianMatrix.traceInner_comm` - Symmetry: `⟨A, B⟩ = ⟨B, A⟩`
+* `HermitianMatrix.traceInner_self_nonneg` - Positivity: `0 ≤ ⟨A, A⟩`
+* `HermitianMatrix.traceInner_self_eq_zero` - Definiteness: `⟨A, A⟩ = 0 ↔ A = 0`
+-/
+
+open Matrix Finset BigOperators
+
+open scoped ComplexOrder MatrixOrder
+
+namespace HermitianMatrix
+
+variable {n : Type*} [DecidableEq n] [Fintype n]
+variable {𝕜 : Type*} [RCLike 𝕜]
+
+/-! ### Trace Inner Product Definition -/
+
+/-- The trace inner product on Hermitian matrices: `⟨A, B⟩ = Tr(AB)`. -/
+def traceInner (A B : HermitianMatrix n 𝕜) : 𝕜 :=
+  (A.val * B.val).trace
+
+omit [DecidableEq n] in
+theorem traceInner_def (A B : HermitianMatrix n 𝕜) :
+    traceInner A B = (A.val * B.val).trace := rfl
+
+/-! ### Basic Properties -/
+
+omit [DecidableEq n] in
+/-- Trace inner product is commutative. -/
+theorem traceInner_comm (A B : HermitianMatrix n 𝕜) :
+    traceInner A B = traceInner B A := by
+  simp only [traceInner_def]
+  exact trace_mul_comm A.val B.val
+
+omit [DecidableEq n] in
+/-- Trace inner product is additive in the first argument. -/
+theorem traceInner_add_left (A B C : HermitianMatrix n 𝕜) :
+    traceInner (A + B) C = traceInner A C + traceInner B C := by
+  simp only [traceInner_def, AddSubgroup.coe_add, add_mul, trace_add]
+
+omit [DecidableEq n] in
+/-- Trace inner product is additive in the second argument. -/
+theorem traceInner_add_right (A B C : HermitianMatrix n 𝕜) :
+    traceInner A (B + C) = traceInner A B + traceInner A C := by
+  simp only [traceInner_def, AddSubgroup.coe_add, mul_add, trace_add]
+
+omit [DecidableEq n] in
+/-- Trace inner product with zero. -/
+theorem traceInner_zero_left (A : HermitianMatrix n 𝕜) :
+    traceInner 0 A = 0 := by
+  simp only [traceInner_def, AddSubgroup.coe_zero, zero_mul, trace_zero]
+
+omit [DecidableEq n] in
+theorem traceInner_zero_right (A : HermitianMatrix n 𝕜) :
+    traceInner A 0 = 0 := by
+  simp only [traceInner_def, AddSubgroup.coe_zero, mul_zero, trace_zero]
+
+/-! ### Self Inner Product -/
+
+omit [DecidableEq n] in
+/-- `⟨A, A⟩ = Tr(A²)` for Hermitian A. -/
+theorem traceInner_self (A : HermitianMatrix n 𝕜) :
+    traceInner A A = (A.val * A.val).trace := rfl
+
+omit [DecidableEq n] in
+/-- For Hermitian A, `A² = Aᴴ * A`. -/
+theorem sq_eq_conjTranspose_mul' (A : HermitianMatrix n 𝕜) :
+    A.val * A.val = A.valᴴ * A.val := by
+  rw [A.prop.isHermitian.eq]
+
+omit [DecidableEq n] in
+/-- `⟨A, A⟩` is real (equals its conjugate). -/
+theorem traceInner_self_conj (A : HermitianMatrix n 𝕜) :
+    star (traceInner A A) = traceInner A A := by
+  simp only [traceInner_self, sq_eq_conjTranspose_mul']
+  rw [← trace_conjTranspose]
+  congr 1
+  rw [conjTranspose_mul, conjTranspose_conjTranspose, A.prop.isHermitian.eq]
+
+omit [DecidableEq n] in
+/-- `⟨A, A⟩` is nonnegative. -/
+theorem traceInner_self_nonneg (A : HermitianMatrix n 𝕜) :
+    0 ≤ traceInner A A := by
+  simp only [traceInner_self, sq_eq_conjTranspose_mul']
+  exact (posSemidef_conjTranspose_mul_self A.val).trace_nonneg
+
+omit [DecidableEq n] in
+/-- `⟨A, A⟩ = 0` if and only if `A = 0`. -/
+theorem traceInner_self_eq_zero (A : HermitianMatrix n 𝕜) :
+    traceInner A A = 0 ↔ A = 0 := by
+  simp only [traceInner_self, sq_eq_conjTranspose_mul']
+  rw [trace_conjTranspose_mul_self_eq_zero_iff]
+  constructor
+  · intro h
+    exact Subtype.ext h
+  · intro h
+    simp [h]
+
+/-! ### Trace of Jordan Product -/
+
+/-- The trace inner product equals `Tr(A ∘ B)` where ∘ is Jordan product.
+    Since `Tr(AB) = Tr(BA)`, we have `Tr((AB + BA)/2) = Tr(AB)`. -/
+theorem traceInner_eq_trace_jmul (A B : HermitianMatrix n 𝕜) :
+    traceInner A B = (jmul A B).val.trace := by
+  simp only [traceInner_def, jmul_val, jordanMul_def]
+  rw [trace_smul, trace_add, trace_mul_comm B.val A.val]
+  rw [← two_smul 𝕜 (A.val * B.val).trace]
+  rw [smul_smul]
+  simp
+
+omit [DecidableEq n] in
+/-- The trace inner product is real-valued for all Hermitian pairs. -/
+theorem traceInner_conj (A B : HermitianMatrix n 𝕜) :
+    star (traceInner A B) = traceInner A B := by
+  simp only [traceInner_def]
+  rw [← trace_conjTranspose, conjTranspose_mul, A.prop.isHermitian.eq, B.prop.isHermitian.eq]
+  exact trace_mul_comm B.val A.val
+
+/-! ### Real Inner Product -/
+
+/-- The real-valued trace inner product. -/
+def traceInnerReal (A B : HermitianMatrix n 𝕜) : ℝ :=
+  RCLike.re (traceInner A B)
+
+omit [DecidableEq n] in
+theorem traceInnerReal_def (A B : HermitianMatrix n 𝕜) :
+    traceInnerReal A B = RCLike.re (traceInner A B) := rfl
+
+omit [DecidableEq n] in
+/-- Real trace inner product is commutative. -/
+theorem traceInnerReal_comm (A B : HermitianMatrix n 𝕜) :
+    traceInnerReal A B = traceInnerReal B A := by
+  simp only [traceInnerReal_def, traceInner_comm]
+
+omit [DecidableEq n] in
+/-- Real trace inner product is additive. -/
+theorem traceInnerReal_add_left (A B C : HermitianMatrix n 𝕜) :
+    traceInnerReal (A + B) C = traceInnerReal A C + traceInnerReal B C := by
+  simp only [traceInnerReal_def, traceInner_add_left, map_add]
+
+omit [DecidableEq n] in
+/-- Real trace inner product self is nonnegative. -/
+theorem traceInnerReal_self_nonneg (A : HermitianMatrix n 𝕜) :
+    0 ≤ traceInnerReal A A := by
+  simp only [traceInnerReal_def]
+  have h := traceInner_self_nonneg A
+  exact (RCLike.nonneg_iff.mp h).1
+
+omit [DecidableEq n] in
+/-- Real trace inner product self equals zero iff A = 0. -/
+theorem traceInnerReal_self_eq_zero (A : HermitianMatrix n 𝕜) :
+    traceInnerReal A A = 0 ↔ A = 0 := by
+  simp only [traceInnerReal_def]
+  constructor
+  · intro h
+    -- traceInner A A is real (star = self), so im = 0
+    have h_im : RCLike.im (traceInner A A) = 0 := RCLike.conj_eq_iff_im.mp (traceInner_self_conj A)
+    -- With re = 0 and im = 0, we have traceInner A A = 0
+    have h_zero : traceInner A A = 0 := by
+      rw [← RCLike.re_add_im (traceInner A A), h, h_im]
+      simp
+    exact (traceInner_self_eq_zero A).mp h_zero
+  · intro h
+    simp [h, traceInner_zero_left]
+
+end HermitianMatrix

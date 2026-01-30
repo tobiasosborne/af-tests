@@ -1,34 +1,36 @@
-# Handoff: 2026-01-30 (Session 38)
+# Handoff: 2026-01-30 (Session 39)
 
 ## Completed This Session
 
-### FormallyRealJordan Instance for Hermitian Matrices
+### Trace Inner Product for Hermitian Matrices
 
-**Created** `AfTests/Jordan/Matrix/FormallyReal.lean` (123 LOC, 0 sorries).
+**Created** `AfTests/Jordan/Matrix/Trace.lean` (188 LOC, 0 sorries).
 
-**Main Result:** `FormallyRealJordan (HermitianMatrix n 𝕜)` for RCLike scalar types.
+**Main Definitions:**
+- `HermitianMatrix.traceInner` - The trace inner product `⟨A, B⟩ = Tr(AB)`
+- `HermitianMatrix.traceInnerReal` - Real-valued version `Re(Tr(AB))`
 
-**Proof Strategy:**
-1. For Hermitian A, `jsq A = A * A = Aᴴ * A` (using `sq_eq_conjTranspose_mul`)
-2. `Aᴴ * A` is positive semidefinite (using `posSemidef_conjTranspose_mul_self`)
-3. Sum of PSD matrices = 0 implies each = 0 (using matrix order from `ComplexOrder` + `MatrixOrder`)
-4. `Aᴴ * A = 0 ↔ A = 0` (using `conjTranspose_mul_self_eq_zero`)
+**Main Results:**
+- `traceInner_comm` - Symmetry: `⟨A, B⟩ = ⟨B, A⟩`
+- `traceInner_self_nonneg` - Positivity: `0 ≤ ⟨A, A⟩`
+- `traceInner_self_eq_zero` - Definiteness: `⟨A, A⟩ = 0 ↔ A = 0`
+- `traceInner_conj` - Reality: `star(⟨A, B⟩) = ⟨A, B⟩` (trace is real for Hermitian pairs)
+- `traceInner_eq_trace_jmul` - Connection to Jordan product: `⟨A, B⟩ = Tr(A ∘ B)`
 
 **Key imports:**
-- `Mathlib.Analysis.Matrix.Order` - matrix partial order where `A ≤ B ↔ (B - A).PosSemidef`
-- `Mathlib.Analysis.RCLike.Basic` - for `ComplexOrder` scope (provides `PartialOrder` and `StarOrderedRing`)
-
-**Key insight:** This instance proves `FormallyRealJordan` directly (providing `sum_sq_eq_zero`) rather than going through `FormallyRealJordan'` which would use the sorried `of_sq_eq_zero`.
+- `Mathlib.LinearAlgebra.Matrix.Trace` - trace definition and `trace_mul_comm`
+- `Mathlib.LinearAlgebra.Matrix.PosDef` - `trace_conjTranspose_mul_self_eq_zero_iff`
+- `Mathlib.Analysis.Matrix.Order` - `MatrixOrder` scope, `PosSemidef.trace_nonneg`
 
 ---
 
 ## Current State
 
 ### Jordan Algebra Project
-- 9 files, ~860 LOC total
+- 11 files, ~1050 LOC total
 - **1 sorry remaining:**
   - `FormallyReal/Def.lean` - `of_sq_eq_zero` (abstract case, requires spectral theory)
-- Matrix Jordan algebra now formally real
+- Matrix Jordan algebra: formally real, with trace inner product
 
 ### Archimedean Closure Project: COMPLETE
 - 44 files, 4,943 LOC, 0 sorries
@@ -42,17 +44,15 @@
 2. `af-dc2h`: Jordan/Matrix/RealHermitian.lean - Real symmetric matrices
 3. `af-noad`: Jordan/FormallyReal/Square.lean - Square roots
 4. `af-5gib`: Jordan/Matrix/ComplexHermitian.lean - Complex Hermitian matrices
-5. `af-mcgm`: Jordan/Matrix/Trace.lean - Trace inner product
 
 ### Deferred
 - `af-0xrg`: of_sq_eq_zero - needs spectral theory for abstract case
-- `af-tpm2`: Spectral theory development (P3)
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/Matrix/FormallyReal.lean` (NEW - 123 LOC)
+- `AfTests/Jordan/Matrix/Trace.lean` (NEW - 188 LOC)
 - `HANDOFF.md` (updated)
 
 ---
@@ -68,42 +68,42 @@
 
 ## Technical Notes
 
-### FormallyReal Proof for Hermitian Matrices
-
-The key lemmas used:
-```lean
--- For Hermitian A, A² = Aᴴ * A
-theorem sq_eq_conjTranspose_mul (A : HermitianMatrix n 𝕜) :
-    A.val * A.val = A.val.conjTranspose * A.val
-
--- Aᴴ * A is PSD
-theorem posSemidef_conjTranspose_mul_self (A : Matrix m n R) :
-    PosSemidef (Aᴴ * A)
-
--- PSD sum = 0 implies each = 0 (from matrix order)
-theorem sum_eq_zero_iff_of_nonneg
-
--- Aᴴ * A = 0 ↔ A = 0
-theorem conjTranspose_mul_self_eq_zero : Aᴴ * A = 0 ↔ A = 0
-```
-
-### Scoped Instances Required
+### Trace Inner Product Key Lemmas
 
 ```lean
-open scoped ComplexOrder  -- RCLike.toPartialOrder, RCLike.toStarOrderedRing
-open scoped MatrixOrder   -- Matrix.instPartialOrder
+-- Trace cyclicity: Tr(AB) = Tr(BA)
+theorem trace_mul_comm (A : Matrix m n R) (B : Matrix n m R) :
+    trace (A * B) = trace (B * A)
+
+-- Definiteness: Tr(A^H A) = 0 ↔ A = 0
+theorem trace_conjTranspose_mul_self_eq_zero_iff {A : Matrix m n R} :
+    (Aᴴ * A).trace = 0 ↔ A = 0
+
+-- PSD trace is nonneg
+lemma PosSemidef.trace_nonneg (hA : A.PosSemidef) : 0 ≤ A.trace
 ```
+
+### Reality of Trace Inner Product
+
+For Hermitian A, B:
+- `(AB)ᴴ = BᴴAᴴ = BA` (since A = Aᴴ, B = Bᴴ)
+- `star(Tr(AB)) = Tr((AB)ᴴ) = Tr(BA) = Tr(AB)`
+
+So `⟨A, B⟩` is always real for Hermitian matrices.
 
 ---
 
 ## Beads Summary
 
-- 1 task closed this session (af-0ia4 - FormallyReal instance)
-- af-0xrg remains open (blocked on architectural decision for abstract case)
+- 1 task closed this session (af-mcgm - Trace inner product)
+- af-0xrg remains open (blocked on spectral theory)
 
 ---
 
 ## Previous Sessions
+
+### Session 38 (2026-01-30)
+- FormallyRealJordan instance for Hermitian matrices (123 LOC)
 
 ### Session 37 (2026-01-30)
 - Sorry elimination: Matrix/JordanProduct.lean (IsHermitian.jordanMul)
