@@ -6,6 +6,8 @@ Authors: AF-Tests Contributors
 import AfTests.Jordan.FiniteDimensional
 import AfTests.Jordan.Trace
 import AfTests.Jordan.Peirce
+import Mathlib.Analysis.Complex.Polynomial.Basic
+import Mathlib.RingTheory.Artinian.Module
 
 /-!
 # Primitive Idempotents in Jordan Algebras
@@ -69,6 +71,66 @@ theorem IsPrimitive.orthog_of_ne {e f : J} (he : IsPrimitive e) (hf : IsIdempote
 theorem IsPrimitive.jmul_complement {e : J} (he : IsPrimitive e) :
     jmul e (jone - e) = 0 :=
   jone_sub_idempotent_orthogonal he.isIdempotent
+
+/-! ### Field Classification Results (H-O 2.2.6) -/
+
+/-- Frobenius theorem: A finite-dimensional field over ℝ is isomorphic to ℝ or ℂ.
+This is H-O 2.2.6. The proof uses that finite-dimensional implies algebraic,
+then applies `Real.nonempty_algEquiv_or` from mathlib. -/
+theorem finite_dim_field_over_real (F : Type*) [Field F] [Algebra ℝ F]
+    [FiniteDimensional ℝ F] :
+    Nonempty (F ≃ₐ[ℝ] ℝ) ∨ Nonempty (F ≃ₐ[ℝ] ℂ) :=
+  Real.nonempty_algEquiv_or F
+
+/-- ℂ is not formally real: i² + 1² = 0 but i ≠ 0. -/
+theorem complex_not_formally_real :
+    ∃ (n : ℕ) (a : Fin n → ℂ), (∑ i, a i ^ 2) = 0 ∧ ∃ i, a i ≠ 0 := by
+  use 2, ![Complex.I, 1]
+  constructor
+  · simp [Fin.sum_univ_two, Complex.I_sq]
+  · use 0; simp [Complex.I_ne_zero]
+
+/-- A formally real finite-dimensional field over ℝ is isomorphic to ℝ.
+This is used in the proof of H-O 2.9.4(ii): since ℂ is not formally real
+(i² + 1² = 0), any formally real field must be ℝ. -/
+theorem formallyReal_field_is_real (F : Type*) [Field F] [Algebra ℝ F]
+    [FiniteDimensional ℝ F]
+    (hfr : ∀ (n : ℕ) (a : Fin n → F), (∑ i, a i ^ 2) = 0 → ∀ i, a i = 0) :
+    Nonempty (F ≃ₐ[ℝ] ℝ) := by
+  cases Real.nonempty_algEquiv_or F with
+  | inl h => exact h
+  | inr h =>
+    -- F ≅ ℂ, contradiction with formal reality
+    exfalso
+    obtain ⟨e⟩ := h
+    obtain ⟨n, a, hsum, i, hi⟩ := complex_not_formally_real
+    -- Transfer to F via the isomorphism
+    let a' : Fin n → F := fun j => e.symm (a j)
+    have hsum' : ∑ j, a' j ^ 2 = 0 := by
+      have heq : e (∑ j, a' j ^ 2) = 0 := by
+        simp only [map_sum, map_pow, a', AlgEquiv.apply_symm_apply, hsum]
+      exact e.injective (by simp [heq])
+    have ha'i : a' i ≠ 0 := by
+      intro h
+      apply hi
+      have : e (a' i) = 0 := by simp only [h, map_zero]
+      simp only [a', AlgEquiv.apply_symm_apply] at this
+      exact this
+    exact ha'i (hfr n a' hsum' i)
+
+/-! ### Artinian Ring Structure Theorem (H-O 2.9.3) -/
+
+/-- An Artinian reduced commutative ring decomposes as a product of fields.
+This is H-O Lemma 2.9.3. The proof uses mathlib's `IsArtinianRing.equivPi`. -/
+noncomputable def artinian_reduced_is_product_of_fields (R : Type*) [CommRing R]
+    [IsArtinianRing R] [IsReduced R] :
+    R ≃+* ((I : MaximalSpectrum R) → R ⧸ I.asIdeal) :=
+  IsArtinianRing.equivPi R
+
+/-- Each factor in the decomposition of an Artinian reduced ring is a field. -/
+noncomputable instance artinian_reduced_factor_field (R : Type*) [CommRing R]
+    [IsArtinianRing R] [IsReduced R] (I : MaximalSpectrum R) : Field (R ⧸ I.asIdeal) :=
+  IsArtinianRing.fieldOfSubtypeIsMaximal R I
 
 /-! ### Strongly Connected Idempotents -/
 
