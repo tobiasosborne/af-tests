@@ -87,6 +87,51 @@ theorem spectral_decomp_eigenvalues_eq_spectrum [FinDimJordanAlgebra J] [JordanT
 
 /-! ### Square Eigenvalue Theorem -/
 
+/-- jmul distributes over finite sums on the left. -/
+theorem sum_jmul {ι : Type*} (s : Finset ι) (f : ι → J) (r : ι → ℝ) (e : J) :
+    jmul (∑ i ∈ s, r i • f i) e = ∑ i ∈ s, r i • jmul (f i) e := by
+  classical
+  induction s using Finset.induction_on with
+  | empty => simp [zero_jmul]
+  | insert x s' hx ih =>
+    rw [Finset.sum_insert hx, Finset.sum_insert hx]
+    rw [add_jmul, jmul_smul, ih]
+
+/-- Squaring a sum of scaled orthogonal idempotents gives squared coefficients. -/
+theorem jsq_sum_orthog_idem {n : ℕ} (c : CSOI J n) (coef : Fin n → ℝ) :
+    jsq (∑ i, coef i • c.idem i) = ∑ i, (coef i) ^ 2 • c.idem i := by
+  classical
+  unfold jsq
+  -- Step 1: Expand left multiplication over the sum
+  rw [sum_jmul Finset.univ c.idem coef (∑ j, coef j • c.idem j)]
+  -- Goal: ∑ i, coef i • jmul (c.idem i) (∑ j, coef j • c.idem j) = ∑ i, coef i ^ 2 • c.idem i
+  -- Step 2: For each i, expand the inner jmul over the sum
+  have expand_inner : ∀ i, jmul (c.idem i) (∑ j, coef j • c.idem j) =
+      ∑ j, coef j • jmul (c.idem i) (c.idem j) := fun i =>
+    jmul_sum Finset.univ (c.idem i) coef c.idem
+  simp only [expand_inner]
+  -- Goal: ∑ i, coef i • ∑ j, coef j • jmul (c.idem i) (c.idem j) = ∑ i, coef i ^ 2 • c.idem i
+  -- Step 3: Distribute outer smul into inner sum
+  simp only [Finset.smul_sum]
+  -- Goal: ∑ i, ∑ j, coef i • coef j • jmul (c.idem i) (c.idem j) = ...
+  simp only [smul_smul]
+  -- Goal: ∑ i, ∑ j, (coef i * coef j) • jmul (c.idem i) (c.idem j) = ...
+  -- Step 4: For each i, extract diagonal term and show others vanish
+  congr 1
+  ext i
+  rw [← Finset.add_sum_erase Finset.univ _ (Finset.mem_univ i)]
+  have other_terms :
+      ∑ j ∈ Finset.univ.erase i, (coef i * coef j) • jmul (c.idem i) (c.idem j) = 0 := by
+    apply Finset.sum_eq_zero
+    intro j hj
+    rw [Finset.mem_erase] at hj
+    rw [c.orthog i j hj.1.symm, smul_zero]
+  rw [other_terms, add_zero]
+  -- c.is_idem i : IsIdempotent (c.idem i), which means jsq (c.idem i) = c.idem i
+  -- So jmul (c.idem i) (c.idem i) = c.idem i
+  have h_idem : jmul (c.idem i) (c.idem i) = c.idem i := c.is_idem i
+  rw [h_idem, sq]
+
 /-- The spectral decomposition of a² uses the same CSOI with squared eigenvalues.
 
 Proof: If a = Σ λᵢ eᵢ with orthogonal idempotents, then
@@ -96,8 +141,13 @@ theorem spectral_sq [FinDimJordanAlgebra J] [JordanTrace J] [FormallyRealJordan 
     (a : J) (sd : SpectralDecomp a) :
     ∃ sd_sq : SpectralDecomp (jsq a), sd_sq.n = sd.n := by
   -- Construct sd_sq using same CSOI, squared eigenvalues
-  -- a² = Σ (λᵢ²) eᵢ by orthogonality of the CSOI
-  sorry
+  -- First show jsq a = ∑ i, (λᵢ²) • eᵢ
+  have key : jsq a = ∑ i, (sd.eigenvalues i) ^ 2 • sd.csoi.idem i := by
+    have h1 : jsq a = jsq (∑ i, sd.eigenvalues i • sd.csoi.idem i) := congrArg jsq sd.decomp
+    have h2 : jsq (∑ i, sd.eigenvalues i • sd.csoi.idem i) =
+        ∑ i, (sd.eigenvalues i) ^ 2 • sd.csoi.idem i := jsq_sum_orthog_idem sd.csoi sd.eigenvalues
+    exact h1.trans h2
+  exact ⟨⟨sd.n, fun i => (sd.eigenvalues i) ^ 2, sd.csoi, key⟩, rfl⟩
 
 /-- Eigenvalues of a² are squares of eigenvalues of a. -/
 theorem spectrum_sq [FinDimJordanAlgebra J] [JordanTrace J] [FormallyRealJordan J] (a : J) :

@@ -1,17 +1,26 @@
-# Handoff: 2026-01-31 (Session 71)
+# Handoff: 2026-01-31 (Session 72)
 
 ## Completed This Session
 
-- **Import cycle fixed**: Removed unnecessary import of Primitive.lean from Peirce.lean
-- **Proof structure for orthogonal_primitive_peirce_sq**: Added helper lemma and decomposition steps
-- **FinDimJordanAlgebra hypothesis added**: Theorems now match H-O 2.9.4 assumptions
+- **PROVEN: `spectral_sq`** - Key structural theorem now has no sorry!
+- **PROVEN: `jsq_sum_orthog_idem`** - Squaring sums of orthogonal idempotents
+- **PROVEN: `sum_jmul`** - Left multiplication distributes over sums
 
-### Key Technical Changes
+### Key Technical Achievement
 
-1. **Removed `import AfTests.Jordan.Primitive` from Peirce.lean** — it wasn't used and created a cycle
-2. **Added `import AfTests.Jordan.Peirce` to Primitive.lean** — enables use of Peirce multiplication rules
-3. **New helper lemma `primitive_peirce_one_scalar`** — key characterization: P₁(e) = ℝe for primitive e
-4. **Structured proof of `orthogonal_primitive_peirce_sq`** — decomposes into clear steps using Peirce tools
+**`spectral_sq` is now proven without sorry:**
+```lean
+theorem spectral_sq (a : J) (sd : SpectralDecomp a) :
+    ∃ sd_sq : SpectralDecomp (jsq a), sd_sq.n = sd.n
+```
+
+This theorem shows: if `a = Σ λᵢ eᵢ` (orthogonal idempotents), then `a² = Σ λᵢ² eᵢ`.
+
+The proof uses the helper lemma `jsq_sum_orthog_idem` which expands:
+```
+(∑ᵢ coef i • eᵢ)² = ∑ᵢ (coef i)² • eᵢ
+```
+This follows from orthogonality (cross-terms vanish) and idempotency (diagonal terms simplify).
 
 ---
 
@@ -19,67 +28,67 @@
 
 | Metric | Value |
 |--------|-------|
-| Total Sorries | ~26 (added 1 helper lemma sorry) |
+| Total Sorries in Jordan/ | ~26 |
 | Build Status | PASSING |
+| SpectralTheorem.lean | 6 sorries (was 7) |
 
-### Primitive.lean Status (5 sorries)
+### SpectralTheorem.lean Status (6 sorries)
 
 | Line | Theorem | Status | Notes |
 |------|---------|--------|-------|
-| 95 | `primitive_peirce_one_scalar` | NEW | Key helper: P₁(e) = ℝe |
-| 122 | `orthogonal_primitive_peirce_sq` | IN PROGRESS | H-O 2.9.4(iv), proof structured |
-| 134 | `orthogonal_primitive_structure` | BLOCKED | Depends on peirce_sq |
-| 167 | `exists_primitive_decomp` | BLOCKED | Needs primitivity characterization |
-| 174 | `csoi_refine_primitive` | BLOCKED | Depends on exists_primitive_decomp |
+| 59 | `spectral_decomposition_exists` | sorry | Depends on primitivity |
+| 71 | `spectral_decomposition_finset` | sorry | Depends on line 59 |
+| 80 | `spectrum_eq_eigenvalueSet` | sorry | Needs spectral decomp |
+| 140 | `spectral_sq` | **PROVEN** | No longer has sorry! |
+| 159, 162 | `spectrum_sq` (2 cases) | sorry | Relates operator eigenvalues to decomp |
+| 173 | `sq_eigenvalues_nonneg` | sorry | Needs spectrum_sq |
+
+### Primitive.lean Status (5 sorries) - UNCHANGED
+
+Still blocking the main spectral theorems.
+
+---
+
+## Key Discovery: Two Notions of "Eigenvalue"
+
+The file has two related but distinct concepts:
+
+1. **Operator eigenvalues** (`spectrum a`): Eigenvalues of `L_a : v ↦ a ∘ v`
+2. **Decomposition coefficients** (`SpectralDecomp.eigenvalues`): The λᵢ in `a = Σ λᵢ eᵢ`
+
+These are related when the eᵢ are primitive idempotents, but proving this relationship
+requires more Peirce theory. The theorem `spectrum_sq` (with 2 sorries) aims to prove
+they're equal, but this needs `spectral_decomposition_exists` which depends on primitivity.
+
+**Key insight:** `spectral_sq` (now proven) works with decomposition coefficients,
+not operator eigenvalues. It's structural and doesn't need primitivity.
 
 ---
 
 ## Next Steps (Priority Order)
 
 ### 1. Prove `primitive_peirce_one_scalar` (P1) - af-lhxr
-**Key missing lemma.** Shows that for primitive e, PeirceSpace e 1 = ℝe.
+**Still the key blocker.** Shows P₁(e) = ℝe for primitive e.
 
-**Proof strategy:**
-- In finite-dim formally real Jordan algebra, if dim(P₁(e)) > 1
-- Then P₁(e) contains non-scalar elements
-- The subalgebra {eAe} = P₁(e) is itself a Jordan algebra with identity e
-- In a formally real Jordan algebra of dim > 1, there exist non-trivial idempotents
-- This contradicts primitivity of e
+**Direct proof strategy (no circularity):**
+1. {eAe} is associative commutative (Peirce theory fact)
+2. {eAe} is formally real (inherited)
+3. If dim({eAe}) > 1, take x not proportional to e
+4. Show x² = αe + βx for some α, β (finite-dim)
+5. Construct non-trivial idempotent from this equation
+6. Contradiction with primitivity
 
-**Requires:** May need spectral theorem for finite-dim subalgebras (circular?)
+This uses spectral theory for *commutative associative* algebras, not Jordan.
 
-### 2. Complete `orthogonal_primitive_peirce_sq` proof (P1)
-Once `primitive_peirce_one_scalar` is proven:
-- Steps 1-3 are written (decomposition, obtain scalars)
-- Step 4: Show r₁ = r₂ (coefficients equal)
-- Step 5: Show μ ≥ 0 (formal reality)
+### 2. Complete Primitive.lean sorries → unlocks spectral theory
 
-### 3. Chain through to spectral theory
-- `orthogonal_primitive_structure` → uses peirce_sq
-- `exists_primitive_decomp` → induction using primitivity
-- `csoi_refine_primitive` → uses decomp
-
----
-
-## Key Insight: Potential Circularity
-
-The proof of `primitive_peirce_one_scalar` may require showing that finite-dimensional
-formally real Jordan algebras have idempotents (from spectral theory). But spectral
-theory depends on primitivity.
-
-**Options:**
-1. **Axiomatize**: Add P₁(e) = ℝe as part of primitive definition for fin-dim case
-2. **Direct proof**: Show P₁(e) = ℝe without full spectral theorem
-3. **Literature search**: Check H-O for how they prove this
-
-Recommend checking H-O Section 2.9 more carefully for the exact proof.
+### 3. Then prove `spectral_decomposition_exists`
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/Peirce.lean` — Removed import of Primitive.lean
-- `AfTests/Jordan/Primitive.lean` — Added Peirce import, helper lemma, structured proof
+- `AfTests/Jordan/SpectralTheorem.lean` — Added `sum_jmul`, `jsq_sum_orthog_idem`; proved `spectral_sq`
 - `HANDOFF.md` — This file
 
 ---
@@ -88,7 +97,7 @@ Recommend checking H-O Section 2.9 more carefully for the exact proof.
 
 | Issue | Status | Notes |
 |-------|--------|-------|
-| af-lhxr | IN PROGRESS | orthogonal_primitive_peirce_sq |
-| af-4g40 | OPEN | Spectral sorry elimination, blocked |
-| af-hbnj | OPEN | exists_primitive_decomp |
+| af-4g40 | IN PROGRESS | spectral_sq now proven! |
+| af-lhxr | OPEN (P1) | primitive_peirce_one_scalar - key blocker |
+| af-hbnj | OPEN (P1) | exists_primitive_decomp |
 | af-5zpv | OPEN (P0) | JordanTrace needs instances |
