@@ -3,62 +3,90 @@
 ## Completed This Session
 
 ### 1. Semisimple Jordan Algebras (af-5fwf)
-- Created `AfTests/Jordan/Semisimple.lean`
-- Defines `JordanIdeal.idealSum` and `JordanIdeal.idealInf` operations
-- Defines `JordanIdeal.Independent` and `JordanIdeal.IsDirectSum`
-- Defines `IsSemisimpleJordan J` typeclass
-- Proves `IsSimpleJordan.isSemisimpleJordan` (simple implies semisimple)
-- 175 lines, 0 sorries
+- Created `AfTests/Jordan/Semisimple.lean` (175 lines, 0 sorries)
+- Defines `IsSemisimpleJordan` typeclass
+- Proves simple implies semisimple
 
-| Theorem | Status |
-|---------|--------|
-| `mem_idealSum` | ✓ Proven |
-| `mem_idealInf` | ✓ Proven |
-| `independent_iff` | ✓ Proven |
-| `isDirectSum_iff` | ✓ Proven |
-| `IsSemisimpleJordan.jone_ne_zero` | ✓ Proven |
-| `IsSimpleJordan.isSemisimpleJordan` | ✓ Proven |
+### 2. Spectral Theory Roadmap Analysis
+- Confirmed Peirce decomposition is prerequisite for spectral theorem
+- Mapped existing beads issues to 21-step implementation plan
+- Identified `af-dxb5` as the unblocked starting point
 
 ---
 
 ## Current State
 
-### Jordan Module Health
-| Component | Status | Sorries |
-|-----------|--------|---------|
-| GNS/ | Complete | 0 |
-| ArchimedeanClosure/ | Structure done | 0 |
-| Jordan/ | Active | ~23 |
+| Metric | Value |
+|--------|-------|
+| Total LOC | 24,536 |
+| Total Sorries | 25 |
+| Issues Closed | 291 / 316 (92%) |
 
-### Key Sorries Remaining
-1. `FormallyReal/Def.lean:74-79` — `of_sq_eq_zero`
-2. `FormallyReal/Spectrum.lean:158` — `spectral_sq_eigenvalues_nonneg`
-3. `FormallyReal/Square.lean:79,115` — uniqueness, existence
-4. `FundamentalFormula.lean:54,83` — `linearized_jordan_aux`, `fundamental_formula`
-5. `OperatorIdentities.lean:170,177` — idempotent identities
-
----
-
-## Next Steps
-
-| Priority | Issue | Description |
-|----------|-------|-------------|
-| P2 | af-jb15 | Jordan/Quaternion/Embedding.lean: Complex embedding |
-| P2 | af-sclc | Jordan/SpinFactor/SpinSystem.lean: Spin systems |
-| P2 | af-rx3g | Jordan/Reversible/Properties.lean: Properties |
-| P2 | af-u388 | Jordan/SpinFactor/Clifford.lean: Clifford connection |
+### Component Health
+| Component | LOC | Sorries | Status |
+|-----------|-----|---------|--------|
+| GNS/ | 2,455 | 0 | Complete |
+| ArchimedeanClosure/ | 4,943 | 0 | Complete |
+| Jordan/ | 4,648 | 25 | Active |
 
 ---
 
-## Known Issues
+## 🎯 NEXT SESSION: Start Peirce Chain
 
-- Square root uniqueness requires JB-algebra structure (invertibility of b+c)
-- Square root existence requires spectral theorem
-- `linearized_jordan_aux` blocked by false bilinear identity — needs MacDonald
+### Immediate Target: `peirce_polynomial_identity` (Step 0.1)
+
+**File:** `AfTests/Jordan/Peirce.lean:125-134`
+
+**Goal:** Prove L_e(L_e - 1/2)(L_e - 1) = 0 for idempotent e
+
+**Technique:**
+1. Polarize Jordan identity (a∘b)∘a² = a∘(b∘a²) with a → e+x
+2. Extract x-linear terms
+3. Use e² = e to simplify
+4. Result: 2e³(x) - 3e²(x) + e(x) = 0
+
+**Then:** Close af-dxb5 by proving P0/P1 multiplication rules (Steps 1.1-1.3)
 
 ---
 
-## Files Modified
+## Spectral Theory Dependency Chain
+
+```
+af-dxb5 (P0/P1 rules) ← UNBLOCKED, START HERE
+    └── af-qvqz (P1/2 rules)
+            └── af-bqjd (Peirce decomposition theorem)
+                    └── af-nnvl (Eigenspace definition)
+                            └── af-9pfg (Eigenspace orthogonality)
+                                    └── af-pyaw (Spectral theorem) [P1]
+                                            └── af-4g40 (Sorry elimination) [P1]
+```
+
+### Full Plan (21 steps, ~940 LOC)
+
+| Phase | What | Steps | LOC | Sorries |
+|-------|------|-------|-----|---------|
+| 0 | peirce_polynomial_identity | 1 | ~50 | 1 |
+| 1 | P0/P1 rules (af-dxb5) | 3 | ~130 | 3 |
+| 2 | P1/2 rules (af-qvqz) | 3 | ~130 | 3 |
+| 3 | Peirce theorem (af-bqjd) | 3 | ~130 | TBD |
+| 4 | Eigenspaces (af-nnvl, af-9pfg) | 4 | ~190 | TBD |
+| 5 | Spectral theorem (af-pyaw) | 4 | ~180 | 2 |
+| 6 | Sorry elimination (af-4g40) | 3 | ~130 | 5 |
+
+---
+
+## Known Gotchas
+
+| Issue | Avoid |
+|-------|-------|
+| QuaternionHermitianMatrix timeout | Don't use `[Field R]` for quaternions |
+| False bilinear identity | Verify identities against H-O book |
+| Module ℝ loop | Provide Module instance upfront |
+
+---
+
+## Files Modified This Session
 
 - `AfTests/Jordan/Semisimple.lean` — NEW: Semisimple structure
+- `docs/Jordan/LEARNINGS.md` — Added Session 59 + spectral roadmap
 - `HANDOFF.md` — This file

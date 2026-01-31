@@ -542,6 +542,92 @@ The semisimple structure enables:
 
 ---
 
+## Spectral Theory Roadmap (Session 59 Analysis)
+
+### The Path to Zero Sorries
+
+**Key insight:** Peirce decomposition (H-O Section 2.6) is a **prerequisite** for the spectral
+theorem (H-O Section 3.2). The book proves Peirce first because it's the algebraic foundation.
+
+### Beads Dependency Chain
+
+```
+af-dxb5 (P0/P1 rules) ← UNBLOCKED, START HERE
+    └── af-qvqz (P1/2 rules)
+            └── af-bqjd (Peirce decomposition theorem)
+                    └── af-nnvl (Eigenspace definition)
+                            └── af-9pfg (Eigenspace orthogonality)
+                                    └── af-pyaw (Spectral theorem) [P1]
+                                            └── af-4g40 (Sorry elimination) [P1]
+```
+
+### 21-Step Implementation Plan (~940 LOC total)
+
+#### Phase 0: Foundation (~50 LOC)
+| Step | File | What |
+|------|------|------|
+| 0.1 | `Peirce.lean:125` | `peirce_polynomial_identity`: L_e(L_e-1/2)(L_e-1)=0 |
+
+**Technique:** Polarize Jordan identity with a→e+x, extract x-linear terms, use e²=e.
+
+#### Phase 1: P0/P1 Rules (af-dxb5, ~130 LOC)
+| Step | What | Technique |
+|------|------|-----------|
+| 1.1 | `peirce_mult_P0_P0` | Use linearized_jordan_operator |
+| 1.2 | `peirce_mult_P1_P1` | Symmetric to P0×P0 |
+| 1.3 | `peirce_mult_P0_P1 = 0` | **Hardest** - orthogonality property |
+
+#### Phase 2: P1/2 Rules (af-qvqz, ~130 LOC)
+| Step | What | Technique |
+|------|------|-----------|
+| 2.1 | `peirce_mult_P0_P12` | Eigenvalue algebra |
+| 2.2 | `peirce_mult_P1_P12` | Eigenvalue algebra |
+| 2.3 | `peirce_mult_P12_P12` | (1/2)·(1/2) → {0,1} |
+
+#### Phase 3: Peirce Theorem (af-bqjd, ~130 LOC)
+- Define `PeirceDecomposition` structure
+- Prove existence and uniqueness
+
+#### Phase 4: Eigenspaces (af-nnvl, af-9pfg, ~190 LOC)
+- Define `Eigenspace a λ`
+- Prove submodule properties
+- Prove orthogonality and finiteness
+
+#### Phase 5: Spectral Theorem (af-pyaw, ~180 LOC)
+- Define `Spectrum a`
+- Prove spectrum is real
+- Prove `spectral_decomposition_exists`
+- Prove `spectral_sq_eigenvalues_nonneg`
+
+#### Phase 6: Sorry Elimination (af-4g40, ~130 LOC)
+- `of_sq_eq_zero` in `FormallyReal/Def.lean`
+- `isPositiveSqrt_unique` in `FormallyReal/Square.lean`
+- `HasPositiveSqrt.of_positiveElement`
+
+### Sorries by Category (Current: 25)
+
+| Category | Count | Blocked By |
+|----------|-------|------------|
+| Peirce multiplication | 7 | Phase 0 (polynomial identity) |
+| Primitive idempotents | 3 | Phase 1-2 |
+| Formally real (abstract) | 3 | Phase 5-6 |
+| Square roots | 2 | Phase 6 |
+| Fundamental formula | 2 | Independent (MacDonald) |
+| Operator identities | 2 | Phase 1 |
+| Classification | 2 | Phase 3 |
+| Other | 4 | Various |
+
+### Critical Path
+
+**Sessions 60-62:** Peirce polynomial + P0/P1 rules (Phase 0-1)
+**Sessions 63-64:** P1/2 rules (Phase 2)
+**Sessions 65-67:** Peirce theorem + eigenspaces (Phase 3-4)
+**Sessions 68-70:** Spectral theorem + sorry elimination (Phase 5-6)
+
+**Estimated:** 10-12 sessions to eliminate all spectral-chain sorries.
+
+---
+
 ## References
 
 - Hanche-Olsen & Størmer, *Jordan Operator Algebras* (see `examples3/Jordan Operator Algebras/`)
