@@ -53,6 +53,9 @@ Closed 10 ThreeCycle/Primitivity issues as legacy/irrelevant:
 - `AfTests/Jordan/FormallyReal/Def.lean` - Removed dangerous instance
 - `AfTests/Jordan/Simple.lean` - NEW: IsSimpleJordan class
 - `AfTests/Jordan/Reversible/Def.lean` - NEW: IsReversible class
+- `examples3/Jordan Operator Algebras/` - NEW: Book (CC-licensed)
+- `examples3/joa-m.pdf` - NEW: Book PDF
+- `CLAUDE.md` - Added book reference
 - `docs/Jordan/LEARNINGS.md` - Added Simple/Reversible section
 - `HANDOFF.md` - This file
 
