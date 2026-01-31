@@ -113,4 +113,28 @@ theorem jpow_one (a : J) : jpow a 1 = a := by
 theorem jpow_two (a : J) : jpow a 2 = jsq a := by
   rw [jpow_succ, jpow_one, jsq_def]
 
+/-! ### Idempotents -/
+
+/-- An element is idempotent if e² = e. -/
+def IsIdempotent (e : J) : Prop := jsq e = e
+
+theorem IsIdempotent.jsq_eq_self {e : J} (h : IsIdempotent e) : jsq e = e := h
+
+/-- Zero is idempotent. -/
+theorem isIdempotent_zero : IsIdempotent (0 : J) := by
+  unfold IsIdempotent jsq
+  exact jmul_zero 0
+
+/-- One is idempotent. -/
+theorem isIdempotent_jone : IsIdempotent (jone : J) := by
+  unfold IsIdempotent jsq
+  exact jmul_jone jone
+
+/-- If e is idempotent, so is (1 - e). -/
+theorem IsIdempotent.complement {e : J} (he : IsIdempotent e) :
+    IsIdempotent (jone - e) := by
+  unfold IsIdempotent jsq at *
+  rw [sub_jmul, jmul_sub, jmul_sub]
+  simp only [jone_jmul, jmul_jone, he, sub_self, sub_zero]
+
 end JordanAlgebra

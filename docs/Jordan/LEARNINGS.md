@@ -1467,6 +1467,59 @@ partial result.
 
 ---
 
+## Session 81: No Nilpotents Theorem (H-O 2.9.4(i))
+
+### The Theorem
+
+```lean
+theorem no_nilpotent_of_formallyReal [FormallyRealJordan J]
+    {a : J} {n : ℕ} (hn : n ≥ 1) (h : jpow a n = 0) : a = 0
+```
+
+### Proof Strategy (Strong Induction)
+
+1. **Base case (n = 1):** `a^1 = a = 0` directly.
+
+2. **Inductive case (n ≥ 2):** Let `k = ⌈n/2⌉ = (n + 1) / 2`.
+   - `2k ≥ n`, so `a^{2k} = 0` (by `jpow_eq_zero_of_ge`)
+   - `(a^k)² = a^{2k} = 0` (by `jpow_add`)
+   - `a^k = 0` (by formal reality `sq_eq_zero_imp_zero`)
+   - `a = 0` (by IH since `k < n`)
+
+### Key Lemma
+
+```lean
+theorem jpow_eq_zero_of_ge {a : J} {n m : ℕ} (hn : jpow a n = 0) (hm : m ≥ n) :
+    jpow a m = 0 := by
+  have heq : m = n + (m - n) := by omega
+  rw [heq, ← jpow_add, hn, zero_jmul]
+```
+
+### Import Cycle Resolution
+
+The proof required `jpow_add` from `LinearizedJordan.lean`, but this created an import cycle:
+
+```
+Def → LinearizedJordan → OperatorIdentities → Spectrum → Properties → Def
+```
+
+**Resolution:**
+1. Moved `IsIdempotent` from `Spectrum.lean` to `Basic.lean`
+2. Removed unused `import Spectrum` from `OperatorIdentities.lean`
+
+### Lean Pattern: Ceiling Division
+
+For `k = ⌈n/2⌉` in natural number arithmetic:
+```lean
+let k := (n + 1) / 2  -- For n ≥ 1, gives ceiling of n/2
+-- Or for n+2 case in match:
+let k := (n + 3) / 2  -- Ceiling of (n+2)/2
+have hk_lt : k < n + 2 := by omega
+have h2k_ge : 2 * k ≥ n + 2 := by omega
+```
+
+---
+
 ## References
 
 - Hanche-Olsen & Størmer, *Jordan Operator Algebras* (see `examples3/Jordan Operator Algebras/`)

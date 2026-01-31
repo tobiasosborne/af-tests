@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: AF-Tests Contributors
 -/
 import AfTests.Jordan.IsCommJordan
-import AfTests.Jordan.FormallyReal.Spectrum
 
 /-!
 # Operator Identities for Jordan Algebras

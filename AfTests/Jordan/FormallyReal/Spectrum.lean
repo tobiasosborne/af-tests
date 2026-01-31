@@ -41,31 +41,9 @@ namespace JordanAlgebra
 
 variable {J : Type*} [JordanAlgebra J]
 
-/-! ### Idempotents -/
-
-/-- An element is idempotent if e² = e. -/
-def IsIdempotent (e : J) : Prop := jsq e = e
-
-theorem IsIdempotent.jsq_eq_self {e : J} (h : IsIdempotent e) : jsq e = e := h
-
-/-- Zero is idempotent. -/
-theorem isIdempotent_zero : IsIdempotent (0 : J) := by
-  unfold IsIdempotent jsq
-  exact jmul_zero 0
-
-/-- One is idempotent. -/
-theorem isIdempotent_jone : IsIdempotent (jone : J) := by
-  unfold IsIdempotent jsq
-  exact jmul_jone jone
-
-/-- If e is idempotent, so is (1 - e). -/
-theorem IsIdempotent.complement {e : J} (he : IsIdempotent e) :
-    IsIdempotent (jone - e) := by
-  unfold IsIdempotent jsq at *
-  rw [sub_jmul, jmul_sub, jmul_sub]
-  simp only [jone_jmul, jmul_jone, he, sub_self, sub_zero]
-
 /-! ### Orthogonal Idempotents -/
+
+-- Note: IsIdempotent is now defined in Basic.lean
 
 /-- Two elements are orthogonal (in Jordan sense) if their product is zero. -/
 def AreOrthogonal (e f : J) : Prop := jmul e f = 0
