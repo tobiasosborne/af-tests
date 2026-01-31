@@ -7,6 +7,12 @@
 - Defines `IsPositiveSqrt` and `HasPositiveSqrt` predicates
 - 115 lines, 2 sorries (uniqueness + existence)
 
+### 2. Real Symmetric Matrices Simplicity (af-hd1v)
+- Created `AfTests/Jordan/Classification/RealSymmetric.lean`
+- Proves `RealSymmetricMatrix.nontrivial` (n ≥ 1)
+- Instance `IsSimpleJordan (RealSymmetricMatrix n)` (1 sorry)
+- 85 lines, 1 sorry (ideal trichotomy)
+
 | Theorem | Status |
 |---------|--------|
 | `isPositiveSqrt_zero` | ✓ Proven |
