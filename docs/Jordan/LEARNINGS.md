@@ -1189,43 +1189,56 @@ from spectral theory, creating a potential circular dependency.
 
 ---
 
-## Session 73: Verification Check - UNVERIFIED IDENTITIES
+## Session 73: H-O Source Verification
 
-### ⚠️ WARNING: Potentially Unverified Theorems
+### Verified H-O Formulas (from `examples3/Jordan Operator Algebras/joa-m/joa-m.md`)
 
-The following theorems in `OperatorIdentities.lean` have sorries and their H-O references
-**could not be verified** against the actual book:
+| Equation | H-O Ref | Formula |
+|----------|---------|---------|
+| (2.33) | Linearized Jordan | `[T_a, T_{b∘c}] + [T_b, T_{c∘a}] + [T_c, T_{a∘b}] = 0` |
+| (2.34) | Four-variable | `a∘((b∘c)∘d) + b∘((c∘a)∘d) + c∘((a∘b)∘d) = (b∘c)∘(a∘d) + ...` |
+| (2.35) | Operator formula | `T_a T_{b∘c} + T_b T_{c∘a} + T_c T_{a∘b} = T_{a∘(b∘c)} + T_b T_a T_c + T_c T_a T_b` |
+| (2.39) | U operator | `U_a = 2T_a² - T_{a²}` |
+| (2.60) | T_p spectral | `T_p = (1/2)(ι + U_p - U_{p⊥})` |
+| (2.61) | U_p idempotent | `U_p² = U_p`, `U_p U_{p⊥} = 0` |
+| (2.62) | T_p U_p | `T_p U_p = U_p T_p = U_p` |
+| (2.63) | Commutator | `2[T_p, T_{p∘a}] = [T_p, T_a]` |
 
-| Theorem | Claimed Identity | Status |
-|---------|-----------------|--------|
-| `L_e_L_a_L_e` (line 170) | `L_e ∘ L_a ∘ L_e = L_{e∘(a∘e)} + (1/2)[L_e, [L_e, L_a]]` | **UNVERIFIED** |
-| `opComm_double_idempotent` (line 177) | `[L_e, [L_e, L_a]] = 2(L_e ∘ L_a ∘ L_e) - 2 L_{e∘(a∘e)}` | **UNVERIFIED** |
+### ⚠️ NOT DIRECTLY IN H-O (need derivation or removal)
 
-**These are circular** - each is just a rearrangement of the other.
+| Theorem | File:Line | Status |
+|---------|-----------|--------|
+| `L_e_L_a_L_e` | OperatorIdentities.lean:170 | NOT in H-O - needs derivation from (2.35) or removal |
+| `opComm_double_idempotent` | OperatorIdentities.lean:177 | Circular with above |
+
+These theorems have sorries and claim formulas not directly stated in H-O.
+They **might** be derivable from (2.35) but this needs verification.
 
 ### Rule: Verify Against Source Before Proving
 
-Before attempting to fill a sorry:
-1. **Locate the exact theorem** in H-O or McCrimmon
-2. **Quote the statement verbatim** from the source
-3. **Note section/page number**
-4. If source cannot be located, **flag as potentially hallucinated**
+Before filling a sorry:
+1. **Find the exact theorem** in `examples3/Jordan Operator Algebras/joa-m/joa-m.md`
+2. **Quote the equation number** (e.g., "(2.35)")
+3. **Note the section** (e.g., "2.4.4")
+4. If not found, either derive from known formulas or flag as potentially wrong
 
-### What Was Actually Verified in Previous Sessions
+### Verified Theorems in Codebase
 
-The following have been traced to specific H-O sections:
-- `four_variable_identity` → H-O 2.34 ✓
-- `operator_formula` → H-O 2.35 ✓
-- `peirce_polynomial_identity` → H-O 2.6.2 ✓
-- `primitive_peirce_one_scalar` → H-O 2.9.4(ii) ✓ (statement verified, proof strategy documented)
+| Lean theorem | H-O reference | Status |
+|--------------|---------------|--------|
+| `four_variable_identity` | (2.34) | ✓ Verified |
+| `operator_formula` | (2.35) | ✓ Verified |
+| `linearized_jordan_operator` | (2.33) | ✓ Verified |
+| `peirce_polynomial_identity` | 2.6.2 / (2.64) | ✓ Verified |
+| `primitive_peirce_one_scalar` | 2.9.4(ii) | ✓ Statement verified |
 
 ### Session 73 Summary
 
-**No code changes made this session.** Session focused on:
-1. Reading existing code and learnings
-2. Understanding the blocking issues for spectral theory
-3. Discovering the need to verify operator identities against H-O
-4. Flagging potentially unverified theorems
+**No code changes.** Verified H-O book access at:
+`examples3/Jordan Operator Algebras/joa-m/joa-m.md`
+
+Key finding: Two sorried theorems (`L_e_L_a_L_e`, `opComm_double_idempotent`) are
+not directly in H-O. Need to either derive them or remove them.
 
 ---
 

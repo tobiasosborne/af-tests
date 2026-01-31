@@ -2,15 +2,29 @@
 
 ## Completed This Session
 
-**No code changes.** Session was research/verification focused.
+**No code changes.** Session verified H-O book access and formulas.
 
-### Key Finding: Verification Warning
+### Key Finding: H-O Book Location
 
-Discovered that some theorems in `OperatorIdentities.lean` may be **unverified**:
-- `L_e_L_a_L_e` (line 170) - claimed identity not verified against H-O
-- `opComm_double_idempotent` (line 177) - circular with above
+The H-O book is available at:
+```
+examples3/Jordan Operator Algebras/joa-m/joa-m.md
+```
 
-**Rule added to learnings:** Always verify theorem statements against H-O/McCrimmon before attempting to fill sorries.
+### Verified vs Unverified Theorems
+
+**Two sorried theorems in `OperatorIdentities.lean` are NOT directly in H-O:**
+- `L_e_L_a_L_e` (line 170)
+- `opComm_double_idempotent` (line 177)
+
+These might be derivable from H-O (2.35) but need verification before filling.
+
+**Verified H-O formulas documented in learnings:**
+- (2.33) Linearized Jordan axiom
+- (2.34) Four-variable identity
+- (2.35) Operator formula
+- (2.39) U_a = 2T_a² - T_{a²}
+- (2.60)-(2.63) Idempotent/Peirce formulas
 
 ---
 
