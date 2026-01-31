@@ -1080,6 +1080,72 @@ Once Primitive.lean sorries are filled:
 
 ---
 
+## Session 71: Import Fix & Proof Structure for Primitives
+
+### Import Cycle Fixed
+
+**Problem:** Peirce.lean imported Primitive.lean, preventing Primitive.lean from using
+Peirce multiplication rules.
+
+**Solution:** Removed the unused import `import AfTests.Jordan.Primitive` from Peirce.lean.
+Peirce.lean doesn't actually use anything from Primitive - it only depends on Product
+and LinearizedJordan.
+
+This enables the natural dependency:
+```
+LinearizedJordan.lean
+    │
+    ▼
+Peirce.lean (Peirce multiplication rules)
+    │
+    ▼
+Primitive.lean (uses Peirce rules for primitivity characterization)
+```
+
+### Key Helper Lemma: `primitive_peirce_one_scalar`
+
+Added theorem statement (with sorry):
+```lean
+theorem primitive_peirce_one_scalar [FinDimJordanAlgebra J] [FormallyRealJordan J]
+    {e : J} (he : IsPrimitive e) {x : J} (hx : x ∈ PeirceSpace e 1) :
+    ∃ r : ℝ, x = r • e
+```
+
+This is H-O 2.9.4(ii): primitivity ⟺ {eAe} = ℝe
+
+**Why it's key:** This lemma enables the proof of `orthogonal_primitive_peirce_sq`:
+- For a ∈ Peirce½(e) ∩ Peirce½(f), we get a² ∈ P₀(e) ⊕ P₁(e)
+- The P₁(e) component is in ℝe by this lemma
+- Similarly for f
+
+### Proof Structure for `orthogonal_primitive_peirce_sq`
+
+The theorem is now structured with clear steps:
+1. Show a ∈ PeirceSpace e (1/2) and a ∈ PeirceSpace f (1/2)
+2. By `peirce_mult_P12_P12`, jsq a ∈ P₀(e) ⊕ P₁(e) and jsq a ∈ P₀(f) ⊕ P₁(f)
+3. Decompose jsq a = c₀e + c₁e and jsq a = c₀f + c₁f
+4. By `primitive_peirce_one_scalar`: c₁e = r₁ • e and c₁f = r₂ • f
+5. Show r₁ = r₂ (remaining work)
+6. Show μ ≥ 0 by formal reality (remaining work)
+
+### Potential Circularity Concern
+
+The proof of `primitive_peirce_one_scalar` may require showing that finite-dim
+formally real Jordan algebras of dim > 1 have non-trivial idempotents. This comes
+from spectral theory, creating a potential circular dependency.
+
+**Options to investigate:**
+1. Direct proof using Peirce decomposition (if P₁(e) has orthogonal elements)
+2. Axiomatize for now and revisit
+3. Check H-O Section 2.9 for exact proof technique
+
+### Files Modified
+
+- `AfTests/Jordan/Peirce.lean` — Removed unused import
+- `AfTests/Jordan/Primitive.lean` — Added Peirce import, helper lemma, structured proof
+
+---
+
 ## References
 
 - Hanche-Olsen & Størmer, *Jordan Operator Algebras* (see `examples3/Jordan Operator Algebras/`)

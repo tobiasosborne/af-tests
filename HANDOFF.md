@@ -1,18 +1,17 @@
-# Handoff: 2026-01-31 (Session 70)
+# Handoff: 2026-01-31 (Session 71)
 
 ## Completed This Session
 
-- **af-pdw2 RESOLVED**: Researched correct primitive idempotent theory in H-O Section 2.9
-- **Primitive.lean FIXED**: Replaced false `primitive_dichotomy` with correct H-O theorems
+- **Import cycle fixed**: Removed unnecessary import of Primitive.lean from Peirce.lean
+- **Proof structure for orthogonal_primitive_peirce_sq**: Added helper lemma and decomposition steps
+- **FinDimJordanAlgebra hypothesis added**: Theorems now match H-O 2.9.4 assumptions
 
-### Key Research Findings
+### Key Technical Changes
 
-**The statement "two primitives are orthogonal or equal" is FALSE.**
-
-Correct theory from H-O 2.9.4:
-1. Every element lies in a maximal associative subalgebra with pairwise orthogonal primitives
-2. For **orthogonal** primitives p, q: either {pAq} = 0 or p, q are strongly connected
-3. Two primitives CAN be non-orthogonal and distinct (counterexample: rank-1 projections in symmetric matrices)
+1. **Removed `import AfTests.Jordan.Primitive` from Peirce.lean** — it wasn't used and created a cycle
+2. **Added `import AfTests.Jordan.Peirce` to Primitive.lean** — enables use of Peirce multiplication rules
+3. **New helper lemma `primitive_peirce_one_scalar`** — key characterization: P₁(e) = ℝe for primitive e
+4. **Structured proof of `orthogonal_primitive_peirce_sq`** — decomposes into clear steps using Peirce tools
 
 ---
 
@@ -20,46 +19,67 @@ Correct theory from H-O 2.9.4:
 
 | Metric | Value |
 |--------|-------|
-| Total Sorries | ~25 (same count, correct theorems) |
+| Total Sorries | ~26 (added 1 helper lemma sorry) |
 | Build Status | PASSING |
 
-### Primitive.lean Status (4 sorries)
+### Primitive.lean Status (5 sorries)
 
-| Line | Theorem | Status |
-|------|---------|--------|
-| 85 | `orthogonal_primitive_peirce_sq` | NEW - correct H-O 2.9.4(iv) |
-| 97 | `orthogonal_primitive_structure` | NEW - correct H-O 2.9.4(iv) |
-| 130 | `exists_primitive_decomp` | Still valid goal |
-| 140 | `csoi_refine_primitive` | Still valid goal |
+| Line | Theorem | Status | Notes |
+|------|---------|--------|-------|
+| 95 | `primitive_peirce_one_scalar` | NEW | Key helper: P₁(e) = ℝe |
+| 122 | `orthogonal_primitive_peirce_sq` | IN PROGRESS | H-O 2.9.4(iv), proof structured |
+| 134 | `orthogonal_primitive_structure` | BLOCKED | Depends on peirce_sq |
+| 167 | `exists_primitive_decomp` | BLOCKED | Needs primitivity characterization |
+| 174 | `csoi_refine_primitive` | BLOCKED | Depends on exists_primitive_decomp |
 
 ---
 
 ## Next Steps (Priority Order)
 
-### 1. Fill `orthogonal_primitive_peirce_sq` (P1)
-**Proof sketch:** For orthogonal primitives p, q and a ∈ Peirce½(p) ∩ Peirce½(q):
-- By Peirce multiplication: a² ∈ {pAp} + {qAq} = ℝp + ℝq (primitivity gives 1D)
-- So a² = λ₁p + λ₂q
-- Operator commutation of a with p+q shows λ₁ = λ₂
-- Formal reality shows λ ≥ 0
+### 1. Prove `primitive_peirce_one_scalar` (P1) - af-lhxr
+**Key missing lemma.** Shows that for primitive e, PeirceSpace e 1 = ℝe.
 
-### 2. Fill `orthogonal_primitive_structure` (P1)
-Follows from `orthogonal_primitive_peirce_sq`:
-- If ∃ nonzero a in Peirce½ space, then a² = λ(p+q) with λ > 0
-- (λ^{-1/2}a)² = p + q, so p, q are strongly connected
+**Proof strategy:**
+- In finite-dim formally real Jordan algebra, if dim(P₁(e)) > 1
+- Then P₁(e) contains non-scalar elements
+- The subalgebra {eAe} = P₁(e) is itself a Jordan algebra with identity e
+- In a formally real Jordan algebra of dim > 1, there exist non-trivial idempotents
+- This contradicts primitivity of e
 
-### 3. Fill `exists_primitive_decomp` (P1)
-Induction on dimension using primitivity characterization.
+**Requires:** May need spectral theorem for finite-dim subalgebras (circular?)
 
-### 4. Spectral Theory (af-4g40)
-Once primitive decomposition works, spectral sorries can be addressed.
+### 2. Complete `orthogonal_primitive_peirce_sq` proof (P1)
+Once `primitive_peirce_one_scalar` is proven:
+- Steps 1-3 are written (decomposition, obtain scalars)
+- Step 4: Show r₁ = r₂ (coefficients equal)
+- Step 5: Show μ ≥ 0 (formal reality)
+
+### 3. Chain through to spectral theory
+- `orthogonal_primitive_structure` → uses peirce_sq
+- `exists_primitive_decomp` → induction using primitivity
+- `csoi_refine_primitive` → uses decomp
+
+---
+
+## Key Insight: Potential Circularity
+
+The proof of `primitive_peirce_one_scalar` may require showing that finite-dimensional
+formally real Jordan algebras have idempotents (from spectral theory). But spectral
+theory depends on primitivity.
+
+**Options:**
+1. **Axiomatize**: Add P₁(e) = ℝe as part of primitive definition for fin-dim case
+2. **Direct proof**: Show P₁(e) = ℝe without full spectral theorem
+3. **Literature search**: Check H-O for how they prove this
+
+Recommend checking H-O Section 2.9 more carefully for the exact proof.
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/Primitive.lean` — Replaced false theorem with correct H-O theory
-- `docs/Jordan/LEARNINGS.md` — Added Session 70 research findings
+- `AfTests/Jordan/Peirce.lean` — Removed import of Primitive.lean
+- `AfTests/Jordan/Primitive.lean` — Added Peirce import, helper lemma, structured proof
 - `HANDOFF.md` — This file
 
 ---
@@ -68,6 +88,7 @@ Once primitive decomposition works, spectral sorries can be addressed.
 
 | Issue | Status | Notes |
 |-------|--------|-------|
-| af-pdw2 | ✅ RESOLVED | Correct theory identified |
-| af-xp4b | Can be closed | Counterexample documented |
-| af-4g40 | OPEN | Depends on primitive decomposition |
+| af-lhxr | IN PROGRESS | orthogonal_primitive_peirce_sq |
+| af-4g40 | OPEN | Spectral sorry elimination, blocked |
+| af-hbnj | OPEN | exists_primitive_decomp |
+| af-5zpv | OPEN (P0) | JordanTrace needs instances |

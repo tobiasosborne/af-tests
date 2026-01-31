@@ -5,6 +5,7 @@ Authors: AF-Tests Contributors
 -/
 import AfTests.Jordan.FiniteDimensional
 import AfTests.Jordan.Trace
+import AfTests.Jordan.Peirce
 
 /-!
 # Primitive Idempotents in Jordan Algebras
@@ -80,28 +81,56 @@ def IsStronglyConnected (e f : J) : Prop :=
 
 /-! ### Structure of Orthogonal Primitives (H-O 2.9.4(iv)) -/
 
-/-- In a formally real Jordan algebra, for orthogonal minimal idempotents p, q,
-the element a² (where a ∈ {pAq}) satisfies a² = λ(p+q) for some λ ≥ 0.
+/-- For a primitive idempotent e, every element x in PeirceSpace e 1 satisfies x = r • e.
+This is H-O 2.9.4(ii): primitivity is equivalent to {eAe} = ℝe.
+The proof uses finite-dimensionality: if PeirceSpace e 1 has dimension > 1,
+there would exist a non-trivial idempotent contradicting primitivity. -/
+theorem primitive_peirce_one_scalar [FinDimJordanAlgebra J] [FormallyRealJordan J]
+    {e : J} (he : IsPrimitive e) {x : J} (hx : x ∈ PeirceSpace e 1) :
+    ∃ r : ℝ, x = r • e := by
+  -- In a finite-dimensional formally real Jordan algebra, if e is primitive,
+  -- then PeirceSpace e 1 = ℝ • e (one-dimensional).
+  -- The proof requires showing that higher-dimensional Peirce-1 spaces contain
+  -- non-trivial idempotents, contradicting primitivity.
+  sorry
+
+/-- In a formally real finite-dimensional Jordan algebra, for orthogonal minimal
+idempotents p, q, the element a² (where a ∈ {pAq}) satisfies a² = μ(p+q) for some μ ≥ 0.
 This is H-O Lemma 2.9.4(iv). -/
-theorem orthogonal_primitive_peirce_sq [FormallyRealJordan J] {e f : J}
+theorem orthogonal_primitive_peirce_sq [FinDimJordanAlgebra J] [FormallyRealJordan J] {e f : J}
     (he : IsPrimitive e) (hf : IsPrimitive f) (horth : AreOrthogonal e f)
     {a : J} (ha_peirce : jmul e a = (1 / 2 : ℝ) • a ∧ jmul f a = (1 / 2 : ℝ) • a) :
     ∃ μ : ℝ, 0 ≤ μ ∧ jsq a = μ • (e + f) := by
-  -- By Peirce multiplication rules, a² ∈ {eAe} + {fAf} = ℝe + ℝf (primitivity)
-  -- So a² = λ₁e + λ₂f. Operator commutation with e+f shows λ₁ = λ₂.
-  -- Formal reality shows λ ≥ 0.
+  -- Step 1: By peirce_mult_P12_P12, a² ∈ P₀(e) ⊕ P₁(e) and a² ∈ P₀(f) ⊕ P₁(f)
+  have ha_in_P12_e : a ∈ PeirceSpace e (1/2) := by rw [mem_peirceSpace_iff]; exact ha_peirce.1
+  have ha_in_P12_f : a ∈ PeirceSpace f (1/2) := by rw [mem_peirceSpace_iff]; exact ha_peirce.2
+  have h_sq_e := peirce_mult_P12_P12 he.isIdempotent ha_in_P12_e ha_in_P12_e
+  have h_sq_f := peirce_mult_P12_P12 hf.isIdempotent ha_in_P12_f ha_in_P12_f
+  -- Step 2: Decompose a² w.r.t. e: a² = c₀ + c₁ where c₀ ∈ P₀(e), c₁ ∈ P₁(e)
+  rw [Submodule.mem_sup] at h_sq_e h_sq_f
+  obtain ⟨c₀e, hc₀e, c₁e, hc₁e, heq_e⟩ := h_sq_e
+  obtain ⟨c₀f, hc₀f, c₁f, hc₁f, heq_f⟩ := h_sq_f
+  -- Step 3: By primitivity, c₁e = r₁ • e and c₁f = r₂ • f
+  obtain ⟨r₁, hr₁⟩ := primitive_peirce_one_scalar he hc₁e
+  obtain ⟨r₂, hr₂⟩ := primitive_peirce_one_scalar hf hc₁f
+  -- Step 4: Show r₁ = r₂ using symmetry of the setup
+  -- Key observation: e and f are symmetric in the hypotheses, so the coefficients must be equal
+  -- This follows from examining: jmul e (jsq a) vs jmul f (jsq a)
+  -- Step 5: Show c₀e = r₂ • f and c₀f = r₁ • e
+  -- Since e ∈ P₀(f) and f ∈ P₀(e), we need orthogonality analysis
+  -- The full proof requires showing that the cross-terms align
   sorry
 
 /-- For orthogonal primitive idempotents in a formally real Jordan algebra,
 either their Peirce ½ space is trivial or they are strongly connected.
 This is the key dichotomy from H-O 2.9.4(iv). -/
-theorem orthogonal_primitive_structure [FormallyRealJordan J] {e f : J}
+theorem orthogonal_primitive_structure [FinDimJordanAlgebra J] [FormallyRealJordan J] {e f : J}
     (he : IsPrimitive e) (hf : IsPrimitive f) (horth : AreOrthogonal e f) :
     (∀ a : J, jmul e a = (1 / 2 : ℝ) • a → jmul f a = (1 / 2 : ℝ) • a → a = 0) ∨
     IsStronglyConnected e f := by
   -- If there exists nonzero a in the Peirce ½ space, then by orthogonal_primitive_peirce_sq,
-  -- a² = λ(e+f) with λ > 0 (λ = 0 would mean a² = 0, hence a = 0 by formal reality).
-  -- Then (λ^{-1/2} a)² = e + f, so e and f are strongly connected.
+  -- a² = μ(e+f) with μ > 0 (μ = 0 would mean a² = 0, hence a = 0 by formal reality).
+  -- Then (μ^{-1/2} a)² = e + f, so e and f are strongly connected.
   sorry
 
 /-! ### Note on "Primitive Dichotomy"
