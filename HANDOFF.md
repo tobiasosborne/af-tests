@@ -1,31 +1,23 @@
-# Handoff: 2026-01-31 (Session 58)
+# Handoff: 2026-01-31 (Session 59)
 
 ## Completed This Session
 
-### 1. Square Roots in Formally Real Jordan Algebras (af-noad)
-- Created `AfTests/Jordan/FormallyReal/Square.lean`
-- Defines `IsPositiveSqrt` and `HasPositiveSqrt` predicates
-- 115 lines, 2 sorries (uniqueness + existence)
-
-### 2. Real Symmetric Matrices Simplicity (af-hd1v)
-- Created `AfTests/Jordan/Classification/RealSymmetric.lean`
-- Proves `RealSymmetricMatrix.nontrivial` (n ≥ 1)
-- Instance `IsSimpleJordan (RealSymmetricMatrix n)` (1 sorry)
-- 85 lines, 1 sorry (ideal trichotomy)
-
-### 3. Complex Hermitian Matrices Simplicity (af-3hxp)
-- Created `AfTests/Jordan/Classification/ComplexHermitian.lean`
-- Proves `ComplexHermitianMatrix.nontrivial` (n ≥ 1)
-- Instance `IsSimpleJordan (ComplexHermitianMatrix n)` (1 sorry)
-- 80 lines, 1 sorry (ideal trichotomy)
+### 1. Semisimple Jordan Algebras (af-5fwf)
+- Created `AfTests/Jordan/Semisimple.lean`
+- Defines `JordanIdeal.idealSum` and `JordanIdeal.idealInf` operations
+- Defines `JordanIdeal.Independent` and `JordanIdeal.IsDirectSum`
+- Defines `IsSemisimpleJordan J` typeclass
+- Proves `IsSimpleJordan.isSemisimpleJordan` (simple implies semisimple)
+- 175 lines, 0 sorries
 
 | Theorem | Status |
 |---------|--------|
-| `isPositiveSqrt_zero` | ✓ Proven |
-| `isPositiveSqrt_jone` | ✓ Proven |
-| `PositiveElement.of_hasPositiveSqrt` | ✓ Proven |
-| `isPositiveSqrt_unique` | Sorry (needs invertibility of b+c) |
-| `HasPositiveSqrt.of_positiveElement` | Sorry (needs spectral theorem) |
+| `mem_idealSum` | ✓ Proven |
+| `mem_idealInf` | ✓ Proven |
+| `independent_iff` | ✓ Proven |
+| `isDirectSum_iff` | ✓ Proven |
+| `IsSemisimpleJordan.jone_ne_zero` | ✓ Proven |
+| `IsSimpleJordan.isSemisimpleJordan` | ✓ Proven |
 
 ---
 
@@ -51,10 +43,10 @@
 
 | Priority | Issue | Description |
 |----------|-------|-------------|
-| P2 | af-5fwf | Jordan/Semisimple.lean: Semisimple structure |
 | P2 | af-jb15 | Jordan/Quaternion/Embedding.lean: Complex embedding |
 | P2 | af-sclc | Jordan/SpinFactor/SpinSystem.lean: Spin systems |
 | P2 | af-rx3g | Jordan/Reversible/Properties.lean: Properties |
+| P2 | af-u388 | Jordan/SpinFactor/Clifford.lean: Clifford connection |
 
 ---
 
@@ -68,6 +60,5 @@
 
 ## Files Modified
 
-- `AfTests/Jordan/FormallyReal/Square.lean` — NEW: Square roots
-- `docs/Jordan/LEARNINGS.md` — Added Session 58 learnings
+- `AfTests/Jordan/Semisimple.lean` — NEW: Semisimple structure
 - `HANDOFF.md` — This file

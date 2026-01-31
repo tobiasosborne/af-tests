@@ -492,6 +492,56 @@ This is the foundation for:
 
 ---
 
+## Session 59: Semisimple Jordan Algebras
+
+### File Created: `Jordan/Semisimple.lean`
+
+Created 175-line file defining semisimple Jordan algebras.
+
+### Main Definitions
+
+| Definition | Type | Description |
+|------------|------|-------------|
+| `JordanIdeal.idealSum I K` | `JordanIdeal J` | Sum of two ideals |
+| `JordanIdeal.idealInf I K` | `JordanIdeal J` | Intersection of two ideals |
+| `JordanIdeal.Independent I K` | `Prop` | `idealInf I K = ⊥` |
+| `JordanIdeal.IsDirectSum I K` | `Prop` | `Independent I K ∧ idealSum I K = ⊤` |
+| `IsSemisimpleJordan J` | `Prop` | Every ideal has a complement |
+
+### Key Design Decisions
+
+1. **Complement-based definition**: We define semisimple as "every ideal has a complementary
+   ideal" rather than "direct sum of simples". This is equivalent for finite-dimensional
+   algebras but the complement definition is easier to work with in general.
+
+2. **Avoided lattice notation**: Instead of using `⊔` and `⊓` notation (which requires
+   lattice instances), we defined `idealSum` and `idealInf` explicitly. This keeps the
+   file self-contained without needing to set up a full lattice structure.
+
+3. **Simple implies semisimple**: In a simple algebra, every ideal is ⊥ or ⊤, so:
+   - If I = ⊥, complement is ⊤ (trivially independent, sum is ⊤)
+   - If I = ⊤, complement is ⊥ (trivially independent, sum is ⊤)
+
+### Theorems Proven (0 sorries)
+
+| Theorem | Statement |
+|---------|-----------|
+| `mem_idealSum` | `x ∈ I+K ↔ ∃ a ∈ I, ∃ b ∈ K, x = a + b` |
+| `mem_idealInf` | `x ∈ I ∩ K ↔ x ∈ I ∧ x ∈ K` |
+| `independent_iff` | `I ∩ K = ⊥ ↔ ∀ x ∈ I, x ∈ K → x = 0` |
+| `isDirectSum_iff` | Characterization in terms of unique decomposition |
+| `IsSemisimpleJordan.jone_ne_zero` | Identity is nonzero in semisimple algebras |
+| `IsSimpleJordan.isSemisimpleJordan` | Simple algebras are semisimple |
+
+### Future Extensions
+
+The semisimple structure enables:
+- Wedderburn-type decomposition: J ≅ J₁ × ... × Jₙ with Jᵢ simple
+- Characterization: finite-dimensional semisimple ↔ no nilpotent ideals
+- Product constructions: direct products of semisimple algebras
+
+---
+
 ## References
 
 - Hanche-Olsen & Størmer, *Jordan Operator Algebras* (see `examples3/Jordan Operator Algebras/`)
