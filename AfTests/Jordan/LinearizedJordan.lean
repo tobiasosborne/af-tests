@@ -188,47 +188,152 @@ and the induction step uses that L_a commutes with L_{aⁿ} implies L_a commutes
 with L_{aⁿ⁺¹} via the fundamental Jordan identity. -/
 
 /-- Auxiliary: L_a and L_{aⁿ} commute for all n. This is the key to power associativity.
-The proof uses simple induction on n, with fundamental_jordan' providing the key step. -/
+The proof uses strong induction on n, with fundamental_jordan' providing the n=2 case
+and operator_formula_apply providing the recursion for n≥3.
+
+Key insight: From operator_formula_apply with b = a, c = a^{n-2}, d = x (for n ≥ 3):
+  a^n ∘ x = 2(a ∘ (a^{n-1} ∘ x)) + a^{n-2} ∘ (a² ∘ x) - ...
+where the omitted terms involve nested products.
+
+Since L_a commutes with L_{a²} (by L_L_jsq_comm) and with L_{a^{n-1}}, L_{a^{n-2}} (by IH),
+applying L_a to both sides gives the same result. -/
 theorem L_jpow_comm_L (a : J) (n : ℕ) : Commute (L a) (L (jpow a n)) := by
-  -- Prove by induction on n
-  induction n with
-  | zero =>
-    -- n = 0: L_a commutes with L_1 (identity)
-    rw [Commute, SemiconjBy, jpow_zero]
-    ext x
-    show L a (L jone x) = L jone (L a x)
-    simp only [L_apply, jone_jmul]
-  | succ m ih =>
-    -- Inductive step: assume L_a commutes with L_{aᵐ}, prove L_a commutes with L_{aᵐ⁺¹}
-    rw [Commute, SemiconjBy] at ih ⊢
-    rw [jpow_succ]
-    ext x
-    -- The goal is: (L a * L (jmul a (jpow a m))) x = (L (jmul a (jpow a m)) * L a) x
-    -- Which unfolds to: a ∘ ((a ∘ aᵐ) ∘ x) = (a ∘ aᵐ) ∘ (a ∘ x)
-    show L a (L (jmul a (jpow a m)) x) = L (jmul a (jpow a m)) (L a x)
-    simp only [L_apply]
-    -- Goal: jmul a (jmul (jmul a (jpow a m)) x) = jmul (jmul a (jpow a m)) (jmul a x)
-    -- Cases on m
-    cases m with
-    | zero =>
-      -- m = 0: a ∘ ((a ∘ 1) ∘ x) = (a ∘ 1) ∘ (a ∘ x) is a ∘ (a ∘ x) = a ∘ (a ∘ x)
-      simp only [jpow_zero, jmul_jone]
-    | succ k =>
-      -- m = k + 1: need a ∘ ((a ∘ a^{k+1}) ∘ x) = (a ∘ a^{k+1}) ∘ (a ∘ x)
-      -- For k = 0: a ∘ ((a ∘ a) ∘ x) = (a ∘ a) ∘ (a ∘ x) = fundamental_jordan' ✓
-      cases k with
-      | zero =>
-        -- k = 0, m = 1: need a ∘ ((a ∘ a¹) ∘ x) = (a ∘ a¹) ∘ (a ∘ x)
-        -- which is a ∘ (a² ∘ x) = a² ∘ (a ∘ x)
-        have h01 : (0 : ℕ) + 1 = 1 := rfl
-        simp only [h01, jpow_one]
-        -- Goal is: jmul a (jmul (jsq a) x) = jmul (jsq a) (jmul a x)
-        exact fundamental_jordan' a x
-      | succ j =>
-        -- k ≥ 1: This case requires deeper analysis using the operator formula (H-O 2.35)
-        -- to express L_{aⁿ} as a polynomial in L_a and L_{a²}, which commute by L_L_jsq_comm.
-        -- This is a standard result in Jordan algebra theory (H-O 2.4.4).
-        sorry
+  -- Prove by strong induction on n
+  induction n using Nat.strong_induction_on with
+  | _ n ih =>
+    -- ih : ∀ m < n, Commute (L a) (L (jpow a m))
+    match n with
+    | 0 =>
+      -- n = 0: L_a commutes with L_1 (trivial)
+      rw [Commute, SemiconjBy, jpow_zero]
+      ext x
+      change L a (L jone x) = L jone (L a x)
+      simp only [L_apply, jone_jmul]
+    | 1 =>
+      -- n = 1: L_a commutes with L_a (trivial)
+      rw [Commute, SemiconjBy, jpow_one]
+    | 2 =>
+      -- n = 2: L_a commutes with L_{a²} by L_L_jsq_comm
+      have h2 : jpow a 2 = jsq a := by
+        calc jpow a 2 = jmul a (jpow a 1) := rfl
+          _ = jmul a a := by rw [jpow_one]
+          _ = jsq a := rfl
+      rw [h2]
+      exact L_L_jsq_comm a
+    | n + 3 =>
+      -- n ≥ 3: Use operator_formula_apply to derive recursion (element-level approach)
+      -- We have IH for all k < n+3, in particular for n+1 and n+2
+      have ih_nm1 : Commute (L a) (L (jpow a (n + 2))) := ih (n + 2) (by omega)
+      have ih_nm2 : Commute (L a) (L (jpow a (n + 1))) := ih (n + 1) (by omega)
+      have ih_jsq := L_L_jsq_comm a  -- L_a commutes with L_{a²}
+      -- Convert commutativity to element form
+      rw [Commute, SemiconjBy] at ih_nm1 ih_nm2 ih_jsq ⊢
+      ext x
+      change L a (L (jpow a (n + 3)) x) = L (jpow a (n + 3)) (L a x)
+      simp only [L_apply]
+      -- Goal: jmul a (jmul (jpow a (n+3)) x) = jmul (jpow a (n+3)) (jmul a x)
+      -- Use operator_formula_apply with b = a, c = jpow a (n+1), d = x
+      have h_op := operator_formula_apply a a (jpow a (n + 1)) x
+      -- Simplify jmul terms in h_op
+      have h_bc : jmul a (jpow a (n + 1)) = jpow a (n + 2) := jpow_succ a (n + 1)
+      have h_ca : jmul (jpow a (n + 1)) a = jpow a (n + 2) := by
+        rw [jmul_comm]; exact jpow_succ a (n + 1)
+      have h_ab : jmul a a = jsq a := rfl
+      simp only [h_bc, h_ca, h_ab] at h_op
+      -- h_op : jmul a (jmul (jpow a (n+2)) x) + jmul a (jmul (jpow a (n+2)) x) +
+      --        jmul (jpow a (n+1)) (jmul (jsq a) x) =
+      --        jmul (jmul a (jpow a (n+2))) x + jmul a (jmul a (jmul (jpow a (n+1)) x)) +
+      --        jmul (jpow a (n+1)) (jmul a (jmul a x))
+      -- Extract element commutativity from operator commutativity
+      have hc1 : ∀ y, jmul a (jmul (jpow a (n + 2)) y) = jmul (jpow a (n + 2)) (jmul a y) := by
+        intro y
+        have heq := congrFun (congrArg DFunLike.coe ih_nm1) y
+        -- (L a * L (jpow ...)) y = (L ... * L a) y, where * is composition
+        exact heq
+      have hc2 : ∀ y, jmul a (jmul (jpow a (n + 1)) y) = jmul (jpow a (n + 1)) (jmul a y) := by
+        intro y
+        exact congrFun (congrArg DFunLike.coe ih_nm2) y
+      have hc3 : ∀ y, jmul a (jmul (jsq a) y) = jmul (jsq a) (jmul a y) := by
+        intro y
+        exact congrFun (congrArg DFunLike.coe ih_jsq) y
+      -- Apply jmul a to both sides of h_op and use commutativity to simplify
+      have h_op' := operator_formula_apply a a (jpow a (n + 1)) (jmul a x)
+      simp only [h_bc, h_ca, h_ab] at h_op'
+      -- Rewrite using jpow a (n+3) = jmul a (jpow a (n+2))
+      have h_n3 : jmul a (jpow a (n + 2)) = jpow a (n + 3) := jpow_succ a (n + 2)
+      rw [h_n3] at h_op h_op'
+      -- h_op: 2·(a ∘ (a^{n+2} ∘ x)) + (a^{n+1} ∘ (a² ∘ x)) =
+      --       (a^{n+3} ∘ x) + (a ∘ (a ∘ (a^{n+1} ∘ x))) + (a^{n+1} ∘ (a ∘ (a ∘ x)))
+      -- Rearrange to get: (a^{n+3} ∘ x) = 2·(...) + (...) - (...) - (...)
+      have expr_x : jmul (jpow a (n + 3)) x =
+          jmul a (jmul (jpow a (n + 2)) x) + jmul a (jmul (jpow a (n + 2)) x) +
+          jmul (jpow a (n + 1)) (jmul (jsq a) x) -
+          jmul a (jmul a (jmul (jpow a (n + 1)) x)) -
+          jmul (jpow a (n + 1)) (jmul a (jmul a x)) := by
+        -- From h_op we derive this by additive rearrangement
+        have heq := h_op
+        -- heq: LHS = RHS, where RHS = jpow + ... + ...
+        -- Rearrange: jpow = LHS - ... - ...
+        calc jmul (jpow a (n + 3)) x
+            = jmul (jpow a (n + 3)) x + jmul a (jmul a (jmul (jpow a (n + 1)) x)) +
+              jmul (jpow a (n + 1)) (jmul a (jmul a x)) -
+              jmul a (jmul a (jmul (jpow a (n + 1)) x)) -
+              jmul (jpow a (n + 1)) (jmul a (jmul a x)) := by abel
+          _ = jmul a (jmul (jpow a (n + 2)) x) + jmul a (jmul (jpow a (n + 2)) x) +
+              jmul (jpow a (n + 1)) (jmul (jsq a) x) -
+              jmul a (jmul a (jmul (jpow a (n + 1)) x)) -
+              jmul (jpow a (n + 1)) (jmul a (jmul a x)) := by rw [heq]
+      have expr_ax : jmul (jpow a (n + 3)) (jmul a x) =
+          jmul a (jmul (jpow a (n + 2)) (jmul a x)) + jmul a (jmul (jpow a (n + 2)) (jmul a x)) +
+          jmul (jpow a (n + 1)) (jmul (jsq a) (jmul a x)) -
+          jmul a (jmul a (jmul (jpow a (n + 1)) (jmul a x))) -
+          jmul (jpow a (n + 1)) (jmul a (jmul a (jmul a x))) := by
+        have heq := h_op'
+        calc jmul (jpow a (n + 3)) (jmul a x)
+            = jmul (jpow a (n + 3)) (jmul a x) + jmul a (jmul a (jmul (jpow a (n + 1)) (jmul a x))) +
+              jmul (jpow a (n + 1)) (jmul a (jmul a (jmul a x))) -
+              jmul a (jmul a (jmul (jpow a (n + 1)) (jmul a x))) -
+              jmul (jpow a (n + 1)) (jmul a (jmul a (jmul a x))) := by abel
+          _ = jmul a (jmul (jpow a (n + 2)) (jmul a x)) + jmul a (jmul (jpow a (n + 2)) (jmul a x)) +
+              jmul (jpow a (n + 1)) (jmul (jsq a) (jmul a x)) -
+              jmul a (jmul a (jmul (jpow a (n + 1)) (jmul a x))) -
+              jmul (jpow a (n + 1)) (jmul a (jmul a (jmul a x))) := by rw [heq]
+      -- Apply a to both sides of expr_x and use commutativity
+      calc jmul a (jmul (jpow a (n + 3)) x)
+          = jmul a (jmul a (jmul (jpow a (n + 2)) x) + jmul a (jmul (jpow a (n + 2)) x) +
+                    jmul (jpow a (n + 1)) (jmul (jsq a) x) -
+                    jmul a (jmul a (jmul (jpow a (n + 1)) x)) -
+                    jmul (jpow a (n + 1)) (jmul a (jmul a x))) := by rw [expr_x]
+        _ = jmul a (jmul a (jmul (jpow a (n + 2)) x)) + jmul a (jmul a (jmul (jpow a (n + 2)) x)) +
+            jmul a (jmul (jpow a (n + 1)) (jmul (jsq a) x)) -
+            jmul a (jmul a (jmul a (jmul (jpow a (n + 1)) x))) -
+            jmul a (jmul (jpow a (n + 1)) (jmul a (jmul a x))) := by
+          simp only [jmul_sub, jmul_add]
+        _ = jmul a (jmul (jpow a (n + 2)) (jmul a x)) + jmul a (jmul (jpow a (n + 2)) (jmul a x)) +
+            jmul (jpow a (n + 1)) (jmul (jsq a) (jmul a x)) -
+            jmul a (jmul a (jmul (jpow a (n + 1)) (jmul a x))) -
+            jmul (jpow a (n + 1)) (jmul a (jmul a (jmul a x))) := by
+          -- Use commutativity hypotheses term by term
+          -- Term 1&2: a ∘ (a ∘ (a^{n+2} ∘ x)) = a ∘ (a^{n+2} ∘ (a ∘ x)) by hc1
+          have t1 : jmul a (jmul a (jmul (jpow a (n + 2)) x)) =
+                    jmul a (jmul (jpow a (n + 2)) (jmul a x)) := by
+            congr 1; exact hc1 x
+          -- Term 3: a ∘ (a^{n+1} ∘ (a² ∘ x)) = a^{n+1} ∘ (a² ∘ (a ∘ x))
+          have t3 : jmul a (jmul (jpow a (n + 1)) (jmul (jsq a) x)) =
+                    jmul (jpow a (n + 1)) (jmul (jsq a) (jmul a x)) := by
+            rw [hc2 (jmul (jsq a) x)]
+            congr 1
+            exact hc3 x
+          -- Term 4: a ∘ (a ∘ (a ∘ (a^{n+1} ∘ x))) = a ∘ (a ∘ (a^{n+1} ∘ (a ∘ x)))
+          have t4 : jmul a (jmul a (jmul a (jmul (jpow a (n + 1)) x))) =
+                    jmul a (jmul a (jmul (jpow a (n + 1)) (jmul a x))) := by
+            congr 2; exact hc2 x
+          -- Term 5: a ∘ (a^{n+1} ∘ (a ∘ (a ∘ x))) = a^{n+1} ∘ (a ∘ (a ∘ (a ∘ x)))
+          have t5 : jmul a (jmul (jpow a (n + 1)) (jmul a (jmul a x))) =
+                    jmul (jpow a (n + 1)) (jmul a (jmul a (jmul a x))) := by
+            exact hc2 (jmul a (jmul a x))
+          rw [t1, t3, t4, t5]
+        _ = jmul (jpow a (n + 3)) (jmul a x) := by rw [← expr_ax]
 
 /-- Power associativity: a^m ∘ a^n = a^{m+n}. This is H-O 2.4.4.
 The proof uses that L_a and L_{aⁿ} commute for all n. -/
