@@ -1,116 +1,76 @@
-# Handoff: 2026-01-30 (Session 53)
+# Handoff: 2026-01-31 (Session 55)
 
 ## Completed This Session
 
-### 1. Proved operator_commutator_jsq (af-gmzr) ✓
-Added to OperatorIdentities.lean (~45 LOC):
-```lean
-theorem operator_commutator_jsq (a b : J) :
-    ⟦L (jsq a), L b⟧ = (2 : ℕ) • ⟦L a, L (jmul a b)⟧
-```
-This identity follows from the linearized Jordan identity by setting c = a.
+### 1. Safety Fix: Removed Dangerous Instance
+- **af-51o6** ✓: Removed `FormallyRealJordan' → FormallyRealJordan` instance
+- Location: `FormallyReal/Def.lean:104`
+- This instance used sorries and could contaminate downstream proofs
+- Concrete types already define `FormallyRealJordan` directly
 
-Also added `operator_commutator_jsq_apply` - element form.
+### 2. Legacy Code Cleanup
+Closed 10 ThreeCycle/Primitivity issues as legacy/irrelevant:
+- af-m4dh (file splitting)
+- af-6hl, af-268, af-ny8, af-3ht (H_contains_threecycle cases)
+- af-j5f, af-axv, af-p9e, af-5zd, af-v3z (sorry elimination)
 
-### 2. Partial Progress on linearized_jordan_aux (af-dmot)
-Documented proof strategy in FundamentalFormula.lean:
-- First term uses Jordan identity directly ✓
-- Remaining terms require bilinear operator identity (not yet proven)
-
-**Key Finding**: The proof reduces to proving:
-```lean
-2⋅a∘((ab)∘(ac)) = (ab)∘(a∘(ac)) + (ac)∘(a∘(ab))
-```
-
-This is **NOT** a direct consequence of Jordan identity or its linearizations.
+### 3. New Infrastructure Created
+| File | Issue | Lines | Sorries | Description |
+|------|-------|-------|---------|-------------|
+| `Jordan/Simple.lean` | af-1y8e | 86 | 0 | `IsSimpleJordan` class |
+| `Jordan/Reversible/Def.lean` | af-q2jl | 60 | 0 | `IsReversible` class |
 
 ---
 
 ## Current State
 
-### Jordan Algebra Project
-- **28 files, ~3600 LOC total**
-- **21 sorries remaining** (unchanged from Session 52)
+### Jordan Module Health
+- **GNS/**: 0 sorries, all files <200 LOC ✓
+- **ArchimedeanClosure/**: 0 sorries, all files <200 LOC ✓
+- **Jordan/**: ~21 sorries (abstract theory gaps)
+- **ThreeCycle/, Primitivity/**: Legacy, not maintained
 
-### Sorry Counts by File
-| File | Sorries | Notes |
-|------|---------|-------|
-| FundamentalFormula.lean | 2 | linearized_jordan_aux (bilinear identity needed), fundamental_formula |
-| Peirce.lean | 7 | Peirce multiplication rules |
-| FormallyReal/Def.lean | 3 | Abstract case (of_sq_eq_zero) |
-| Primitive.lean | 3 | Primitive idempotents |
-| OperatorIdentities.lean | 2 | L_e_L_a_L_e, opComm_double_idempotent |
-| FormallyReal/Spectrum.lean | 1 | spectral_sq_eigenvalues_nonneg |
-| Quadratic.lean | 1 | U_idempotent_comp |
-| SpinFactor/FormallyReal.lean | 1 | |
-| Quaternion/FormallyReal.lean | 1 | |
+### Key Sorries Remaining
+1. `FormallyReal/Def.lean:74-79` - `of_sq_eq_zero` (abstract case)
+2. `FormallyReal/Spectrum.lean:158` - `spectral_sq_eigenvalues_nonneg`
 
 ---
 
-## Operator Calculus Chain Status
+## Ready Issues (P1)
 
-### Step 1: af-gmzr ✓ CLOSED
-Proved `operator_commutator_jsq`: `[L_{a²}, L_b] = 2[L_a, L_{ab}]`
-
-### Step 2: af-dmot - IN PROGRESS
-**Partially complete**. The proof of `linearized_jordan_aux` requires:
-- Bilinear operator identity: `2a∘(pq) = p∘(aq) + q∘(ap)` where p=ab, q=ac
-- This identity may require a different approach (possibly literature search)
-
-### Step 3: af-secn (Blocked by af-dmot)
-Prove fundamental_formula using operator calculus
-
----
-
-## Technical Finding: Bilinear Operator Identity
-
-The identity needed is:
-```
-2⋅a∘((ab)∘(ac)) = (ab)∘(a∘(ac)) + (ac)∘(a∘(ab))
-```
-
-**Properties**:
-- Symmetric in b and c ✓
-- Verified in 1D (commutative case) ✓
-- Not a direct Jordan consequence
-- Requires operator L_a to have specific action on products of form (ab)∘(ac)
-
-**Possible approaches**:
-1. Literature search for this identity
-2. Derive from Jacobi identity for [L_x, L_y]
-3. Linearize Jordan identity in multiple variables
+| Issue | Description |
+|-------|-------------|
+| af-v6hv | Formalize Hanche-Olsen operator identities (2.33-2.35) |
+| af-0hav | Rewrite fundamental_formula using Jordan axiom directly |
+| af-4g40 | Jordan Spectral 7: Sorry elimination |
+| af-pyaw | Jordan Spectral 6: Spectral theorem |
+| af-8sf7 | JvNW classification |
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/OperatorIdentities.lean` - Added operator_commutator_jsq (45 LOC)
-- `AfTests/Jordan/FundamentalFormula.lean` - Updated proof strategy docs
+- `AfTests/Jordan/FormallyReal/Def.lean` - Removed dangerous instance
+- `AfTests/Jordan/Simple.lean` - NEW: IsSimpleJordan class
+- `AfTests/Jordan/Reversible/Def.lean` - NEW: IsReversible class
+- `docs/Jordan/LEARNINGS.md` - Added Simple/Reversible section
+- `HANDOFF.md` - This file
 
 ---
 
-## Next Steps
+## Reference: Previous Session Findings
 
-### Priority 1: Research bilinear identity
-- Search literature (McCrimmon, Jacobson) for the identity
-- Try alternative linearization strategies
-- Consider if it follows from associator-like properties
+### Bilinear Identity is FALSE (Session 54)
+The conjectured identity `2⋅a∘((ab)∘(ac)) = (ab)∘(a∘(ac)) + (ac)∘(a∘(ab))` is **wrong**.
+Counterexample: 2×2 Pauli matrices.
 
-### Priority 2: If stuck on bilinear identity
-- Work on independent issues (Peirce, Primitive)
-- These don't depend on fundamental_formula
+### Fundamental Formula IS the Jordan Axiom
+From Hanche-Olsen 2.4.2: `(a²∘b)∘a = a²∘(b∘a)` is exactly `[T_a, T_{a²}] = 0`.
 
----
-
-## Previous Sessions
-
-### Session 52 (2026-01-30)
-- Deep analysis of fundamental formula blockers
-- Created operator calculus approach (af-gmzr → af-dmot → af-secn)
-
-### Session 51 (2026-01-30)
-- Linearized Jordan identity lemmas added to OperatorIdentities.lean
-- Created research issue af-bk8q
-
-### Session 50 (2026-01-30)
-- FormallyRealJordan direct proofs for SpinFactor, Quaternion
+### Correct Operator Identities (Book Reference)
+| Identity | Section | Line |
+|----------|---------|------|
+| Jordan axiom | 2.4.1 | 967 |
+| Linearized Jordan | 2.4.3 | 995 |
+| Four-variable identity | 2.4.4 | 1004 |
+| MacDonald's theorem | 2.4.13 | 1063 |

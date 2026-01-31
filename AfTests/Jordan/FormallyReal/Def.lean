@@ -98,8 +98,13 @@ not be relied upon for proofs. -/
 class FormallyRealJordan' (J : Type*) [JordanAlgebra J] : Prop where
   sq_eq_zero_imp_zero : ∀ a : J, JordanAlgebra.jsq a = 0 → a = 0
 
-/-- WARNING: This instance uses sorries in `of_sq_eq_zero`. Concrete types should
-define `FormallyRealJordan` directly (see `HermitianMatrix`, `SpinFactor`,
-`QuaternionHermitianMatrix` for examples). -/
-instance {J : Type*} [JordanAlgebra J] [h : FormallyRealJordan' J] : FormallyRealJordan J :=
-  FormallyRealJordan.of_sq_eq_zero h.sq_eq_zero_imp_zero
+/-!
+## REMOVED: FormallyRealJordan' → FormallyRealJordan instance
+
+The instance `FormallyRealJordan' → FormallyRealJordan` was removed because
+it used sorries in `of_sq_eq_zero` and could contaminate downstream proofs.
+
+Concrete types (HermitianMatrix, SpinFactor, QuaternionHermitianMatrix) define
+`FormallyRealJordan` directly by proving sums of squares are non-negative in an ordered
+structure. See `Matrix/FormallyReal.lean`, `SpinFactor/FormallyReal.lean`, etc.
+-/

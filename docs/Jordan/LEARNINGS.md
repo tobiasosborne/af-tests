@@ -237,11 +237,77 @@ substitution in the linearized identity.
 
 ---
 
+## ⚠️ CRITICAL: Bilinear Identity is FALSE (Session 54)
+
+### The Conjecture (WRONG)
+
+The operator calculus chain (af-gmzr → af-dmot → af-secn) assumed:
+```
+2⋅a∘((ab)∘(ac)) = (ab)∘(a∘(ac)) + (ac)∘(a∘(ab))
+```
+
+**This identity is NOT TRUE in general Jordan algebras.**
+
+### Impact
+
+| Issue | Status | Notes |
+|-------|--------|-------|
+| af-gmzr | ✅ Valid | `[L_{a²}, L_b] = 2[L_a, L_{ab}]` is correct |
+| af-dmot | ❌ Invalid | `linearized_jordan_aux` proof strategy wrong |
+| af-secn | ❌ Blocked | `fundamental_formula` depends on af-dmot |
+| spectral_sq_eigenvalues_nonneg | ⚠️ Check | May depend on this chain |
+
+### What Went Wrong
+
+1. Identity was **verified in 1D** (commutative case) ✓
+2. Assumed to generalize to non-commutative Jordan algebras
+3. **Not a consequence** of Jordan identity or linearizations
+
+### Next Steps
+
+1. Search Hanche-Olsen & Størmer for correct operator identities
+2. Find alternative proof of fundamental_formula in literature
+3. Re-evaluate the entire spectral theory dependency chain
+4. See issue **af-hhwi** (P0)
+
+---
+
 ## Related Docs
 
 See also: `SPECTRAL_IMPLEMENTATION_PLAN.md`, `LEARNINGS_peirce.md`
 
+---
+
+## Simple and Reversible Jordan Algebras (Session 55)
+
+### IsSimpleJordan
+
+A Jordan algebra is **simple** if:
+1. It is nontrivial (∃ a ≠ 0)
+2. Every ideal is either ⊥ or ⊤
+
+Key theorems in `Jordan/Simple.lean`:
+- `IsSimpleJordan.jone_ne_zero` - Identity is nonzero (proved directly from nontriviality)
+- `IsSimpleJordan.ideal_eq_top_of_ne_bot` - Nonzero ideals are ⊤
+
+### IsReversible
+
+A Jordan algebra is **reversible** if it embeds into an associative algebra A such that:
+1. Jordan product preserved: f(a∘b) = ½(f(a)f(b) + f(b)f(a))
+2. Image closed under reversal: abc + cba ∈ image(f)
+
+This is stronger than being "special" (just embedding). All simple Jordan algebras
+except the exceptional Albert algebra (3×3 octonion Hermitian matrices) are reversible.
+
+### FormallyRealJordan' Instance Removed
+
+The instance `FormallyRealJordan' → FormallyRealJordan` was **removed** because it
+used sorries in `of_sq_eq_zero`. Concrete types (HermitianMatrix, SpinFactor,
+QuaternionHermitianMatrix) define `FormallyRealJordan` directly.
+
+---
+
 ## References
 
-- Hanche-Olsen & Størmer, *Jordan Operator Algebras*
+- Hanche-Olsen & Størmer, *Jordan Operator Algebras* (see `examples3/Jordan Operator Algebras/`)
 - McCrimmon, *A Taste of Jordan Algebras*
