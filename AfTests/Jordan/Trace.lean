@@ -39,10 +39,14 @@ class JordanTrace (J : Type*) [JordanAlgebra J] where
   trace_smul : ∀ r a, trace (r • a) = r * trace a
   /-- Trace is symmetric under Jordan product. -/
   trace_jmul_comm : ∀ a b, trace (jmul a b) = trace (jmul b a)
+  /-- L_a is self-adjoint w.r.t. the trace inner product: τ(a∘v, w) = τ(v, a∘w).
+  This is the key property for eigenspace orthogonality. For Hermitian matrices,
+  it follows from cyclicity of the trace. -/
+  trace_L_selfadjoint : ∀ a v w, trace (jmul (jmul a v) w) = trace (jmul v (jmul a w))
   /-- Trace of identity is positive. -/
   trace_jone_pos : 0 < trace jone
 
-export JordanTrace (trace trace_add trace_smul trace_jmul_comm trace_jone_pos)
+export JordanTrace (trace trace_add trace_smul trace_jmul_comm trace_L_selfadjoint trace_jone_pos)
 
 /-! ### Basic Trace Properties -/
 
@@ -101,6 +105,12 @@ theorem traceInner_neg_left (a b : J) : traceInner (-a) b = -traceInner a b := b
 
 theorem traceInner_neg_right (a b : J) : traceInner a (-b) = -traceInner a b := by
   rw [traceInner_symm, traceInner_neg_left, traceInner_symm]
+
+/-- L_a is self-adjoint w.r.t. the trace inner product. -/
+theorem traceInner_jmul_left (a v w : J) :
+    traceInner (jmul a v) w = traceInner v (jmul a w) := by
+  unfold traceInner
+  exact trace_L_selfadjoint a v w
 
 end JordanAlgebra
 

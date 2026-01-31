@@ -1,24 +1,20 @@
-# Handoff: 2026-01-31 (Session 66)
+# Handoff: 2026-01-31 (Session 67)
 
 ## Completed This Session
 
-### 1. Eigenspace Definition (af-nnvl) - COMPLETE ✅
-- **File:** `AfTests/Jordan/Eigenspace.lean` (194 LOC, 0 sorries)
-- Created eigenspace infrastructure using mathlib's `Module.End.eigenspace`
-- **Key definitions:**
-  - `eigenspace a μ` - μ-eigenspace of L_a
-  - `IsEigenvalue a μ` - μ is an eigenvalue of a
-  - `eigenvalueSet a` - set of all eigenvalues
-- **Key theorems:**
-  - `eigenspace_eq_peirceSpace` - eigenspaces match Peirce spaces
-  - `eigenvalueSet_jone = {1}` - jone has only eigenvalue 1
-  - `idempotent_eigenvalues_subset` - idempotent eigenvalues ⊆ {0, 1/2, 1}
+### 1. Eigenspace Orthogonality (af-9pfg) - COMPLETE ✅
+- **Files modified:** `AfTests/Jordan/Eigenspace.lean` (+63 LOC), `AfTests/Jordan/Trace.lean` (+12 LOC)
+- Added self-adjointness axiom `trace_L_selfadjoint` to `JordanTrace` class
+- **Key theorems proven:**
+  - `eigenspace_orthogonal` - Eigenspaces for distinct eigenvalues are orthogonal w.r.t. trace inner product
+  - `eigenspace_traceInner_zero` - Quantified version of orthogonality
+  - `eigenvalueSet_finite` - In finite dimensions, eigenvalue sets are finite
+  - `traceInner_jmul_left` - Self-adjointness of L_a: τ(a∘v, w) = τ(v, a∘w)
 
 ### Key Lean Patterns Discovered
-- `Module.End.eigenspace f μ` for eigenspace (not `f.eigenspace`)
-- `omit [Inst] in` goes BEFORE docstrings
-- Operator precedence: `a * b • v` parses as `a * (b • v)`, use `((a * b)) • v`
-- `sub_eq_zero.mp` to get `a = b` from `a - b = 0`
+- `λ` is reserved in Lean 4 - use `r`, `s` or other names for eigenvalues
+- `omit [Inst] in` before theorems to exclude unused section variables
+- `Module.End.HasEigenvalue` not `(L a).HasEigenvalue` - use explicit namespace
 
 ---
 
@@ -26,32 +22,32 @@
 
 | Metric | Value |
 |--------|-------|
-| Total LOC | ~25,400 |
+| Total LOC | ~25,500 |
 | Total Sorries | 18 |
-| Issues Closed | 294 / 316 (93%) |
+| Issues Closed | 295 / 316 (93%) |
 
 ### Component Health
 | Component | LOC | Sorries | Status |
 |-----------|-----|---------|--------|
 | GNS/ | 2,455 | 0 | Complete |
 | ArchimedeanClosure/ | 4,943 | 0 | Complete |
-| Jordan/ | ~5,450 | 18 | Active |
+| Jordan/ | ~5,550 | 18 | Active |
 
 ---
 
-## 🎯 NEXT SESSION: Eigenspace Orthogonality (af-9pfg)
+## 🎯 NEXT SESSION: Spectral Theorem (af-pyaw)
 
 ### Spectral Theory Dependency Chain
 ```
 af-nnvl (Eigenspace definition) ← COMPLETE ✅
-    └── af-9pfg (Eigenspace orthogonality) ← READY
-            └── af-pyaw (Spectral theorem) [P1]
+    └── af-9pfg (Eigenspace orthogonality) ← COMPLETE ✅
+            └── af-pyaw (Spectral theorem) [P1] ← READY
                     └── af-4g40 (Sorry elimination) [P1]
 ```
 
 ### Next Steps
 1. Run `bd ready` to see available work
-2. `af-9pfg` is now unblocked - proves eigenspaces are orthogonal/finite
+2. `af-pyaw` is now unblocked - proves spectral decomposition exists
 3. Alternatively: work on ready P2 tasks (spin factors, reversible, etc.)
 
 ---
@@ -73,5 +69,6 @@ af-nnvl (Eigenspace definition) ← COMPLETE ✅
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/Eigenspace.lean` — NEW file (194 LOC)
+- `AfTests/Jordan/Eigenspace.lean` — Added orthogonality and finiteness theorems (+63 LOC)
+- `AfTests/Jordan/Trace.lean` — Added `trace_L_selfadjoint` axiom (+12 LOC)
 - `HANDOFF.md` — This file

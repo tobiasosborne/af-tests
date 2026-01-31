@@ -4,7 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: AF-Tests Contributors
 -/
 import AfTests.Jordan.Peirce
+import AfTests.Jordan.Trace
+import AfTests.Jordan.FiniteDimensional
 import Mathlib.LinearAlgebra.Eigenspace.Basic
+import Mathlib.LinearAlgebra.Eigenspace.Minpoly
 
 /-!
 # Eigenspaces in Jordan Algebras
@@ -190,5 +193,65 @@ theorem idempotent_eigenvalues_subset (e : J) (he : IsIdempotent e) :
   · -- hμhalf: μ - 1/2 = 0, so μ = 1/2
     have hμeq : μ = 1/2 := sub_eq_zero.mp hμhalf
     simp [hμeq]
+
+/-! ### Eigenspace Orthogonality -/
+
+omit [Nontrivial J] in
+/-- Eigenspaces for distinct eigenvalues are orthogonal w.r.t. the trace inner product.
+
+This is the key result for the spectral theorem: if `v` is in the r-eigenspace and
+`w` is in the s-eigenspace with r ≠ s, then τ(v, w) = 0.
+
+Proof: Since a∘v = r·v and a∘w = s·w:
+- τ(a∘v, w) = τ(r·v, w) = r · τ(v, w)
+- τ(v, a∘w) = τ(v, s·w) = s · τ(v, w)
+- But τ(a∘v, w) = τ(v, a∘w) by self-adjointness of L_a
+- So (r - s) · τ(v, w) = 0
+- Since r ≠ s, we have τ(v, w) = 0
+-/
+theorem eigenspace_orthogonal [JordanTrace J] (a : J) {r s : ℝ} (hne : r ≠ s)
+    (v : J) (hv : v ∈ eigenspace a r) (w : J) (hw : w ∈ eigenspace a s) :
+    traceInner v w = 0 := by
+  -- Get eigenvalue equations
+  rw [mem_eigenspace_iff] at hv hw
+  -- τ(a∘v, w) = r · τ(v, w)
+  have eq1 : traceInner (jmul a v) w = r * traceInner v w := by
+    rw [hv, traceInner_smul_left]
+  -- τ(v, a∘w) = s · τ(v, w)
+  have eq2 : traceInner v (jmul a w) = s * traceInner v w := by
+    rw [hw, traceInner_smul_right]
+  -- By self-adjointness: τ(a∘v, w) = τ(v, a∘w)
+  have eq3 : traceInner (jmul a v) w = traceInner v (jmul a w) :=
+    traceInner_jmul_left a v w
+  -- Combine: r · τ(v,w) = s · τ(v,w)
+  have eq4 : r * traceInner v w = s * traceInner v w := by
+    rw [← eq1, eq3, eq2]
+  -- So (r - s) · τ(v,w) = 0
+  have eq5 : (r - s) * traceInner v w = 0 := by
+    linarith
+  -- Since r ≠ s, we have τ(v,w) = 0
+  have hdiff : r - s ≠ 0 := sub_ne_zero.mpr hne
+  exact (mul_eq_zero.mp eq5).resolve_left hdiff
+
+omit [Nontrivial J] in
+/-- Eigenspaces are pairwise disjoint submodules with respect to trace orthogonality. -/
+theorem eigenspace_traceInner_zero [JordanTrace J] (a : J) {r s : ℝ} (hne : r ≠ s) :
+    ∀ v ∈ eigenspace a r, ∀ w ∈ eigenspace a s, traceInner v w = 0 :=
+  fun v hv w hw => eigenspace_orthogonal a hne v hv w hw
+
+/-! ### Finiteness in Finite Dimensions -/
+
+omit [Nontrivial J] in
+/-- In finite dimensions, the eigenvalue set is finite.
+This follows from mathlib's `Module.End.finite_hasEigenvalue`. -/
+theorem eigenvalueSet_finite [FinDimJordanAlgebra J] (a : J) :
+    Set.Finite (eigenvalueSet a) := by
+  -- eigenvalueSet a is exactly the eigenvalues of L a
+  have hsubset : eigenvalueSet a ⊆ {r | Module.End.HasEigenvalue (L a) r} := by
+    intro r hr
+    rw [mem_eigenvalueSet_iff, IsEigenvalue] at hr
+    exact hr
+  -- The eigenvalues of L a are finite by mathlib
+  exact Set.Finite.subset (Module.End.finite_hasEigenvalue (L a)) hsubset
 
 end JordanAlgebra
