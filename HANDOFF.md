@@ -1,25 +1,31 @@
-# Handoff: 2026-01-31 (Session 62)
+# Handoff: 2026-01-31 (Session 63)
 
 ## Completed This Session
 
-### 1. `peirce_mult_P0_P1` PROVEN
-- **File:** `AfTests/Jordan/Peirce.lean:211-310`
-- **Sorries eliminated:** 1 (24 → 23)
-- **Technique:** Use `four_variable_identity e a b e` to derive constraints on c = a∘b:
-  - `L_e²(c) = L_e(c) - c`
-  - `L_e³(c) = -c`
-  - Combined with Peirce polynomial → `c = 2L_e(c)` → `L_e(c) = (1/2)c`
-  - Then `L_e²(c)` computed two ways: `(1/4)c` vs `-(1/2)c` → `(3/4)c = 0` → `c = 0`
+### 1. `peirce_mult_P12_P12` PROVEN ✅
+- **File:** `AfTests/Jordan/Peirce.lean:338-392`
+- **Sorries eliminated:** 1 (21 → 20)
+- **Technique:** Use `four_variable_identity e a b e` with a, b ∈ P_{1/2}:
+  - Derive `L_e²(c) = L_e(c)` where c = a∘b
+  - This means c ∈ ker(L_e(L_e - 1)) = P₀ ⊕ P₁
+  - Decompose c = (c - L_e(c)) + L_e(c) explicitly
 
-### 2. `peirce_mult_P0_P0` PROVEN
-- **File:** `AfTests/Jordan/Peirce.lean:192-207`
-- **Sorries eliminated:** 1 (23 → 22)
-- **Technique:** Direct application of `four_variable_identity e e a b` gives `0 = e∘(a∘b)`
+### 2. `peirce_mult_P0_P12` PROVEN ✅
+- **File:** `AfTests/Jordan/Peirce.lean:345-361`
+- **Sorries eliminated:** 1 (20 → 19)
+- **Technique:** Use `four_variable_identity a e e b` with e∘a = 0:
+  - Directly gives `a ∘ (e ∘ b) = e ∘ (a ∘ b)`
+  - Since e∘b = (1/2)b, we get e∘(a∘b) = (1/2)(a∘b)
 
-### 3. `peirce_mult_P1_P1` PROVEN
-- **File:** `AfTests/Jordan/Peirce.lean:208-227`
-- **Sorries eliminated:** 1 (22 → 21)
-- **Technique:** `four_variable_identity e e a b` gives `2L_e(c) + c = 2c + L_e(c)` → `L_e(c) = c`
+### 3. `peirce_mult_P1_P12` PROVEN ✅
+- **File:** `AfTests/Jordan/Peirce.lean:363-390`
+- **Sorries eliminated:** 1 (19 → 18)
+- **Technique:** Use `four_variable_identity a e e b` with e∘a = a:
+  - Get (1/2)c + 2·L_e(c) = L_e(c) + c
+  - Rearrange to L_e(c) = (1/2)c
+
+### 🎉 Peirce.lean is now SORRY-FREE!
+All 7 Peirce multiplication rules are proven.
 
 ---
 
@@ -27,57 +33,55 @@
 
 | Metric | Value |
 |--------|-------|
-| Total LOC | ~24,600 |
-| Total Sorries | 21 |
-| Issues Closed | 291 / 316 (92%) |
+| Total LOC | ~24,700 |
+| Total Sorries | 18 |
+| Issues Closed | 292 / 316 (92%) |
 
 ### Component Health
 | Component | LOC | Sorries | Status |
 |-----------|-----|---------|--------|
 | GNS/ | 2,455 | 0 | Complete |
 | ArchimedeanClosure/ | 4,943 | 0 | Complete |
-| Jordan/ | ~4,700 | 21 | Active |
+| Jordan/ | ~4,800 | 18 | Active |
 
 ---
 
-## 🎯 NEXT SESSION: P_{1/2} Multiplication Rules
-
-### Remaining Peirce Sorries
-- `peirce_mult_P12_P12` - P_{1/2} × P_{1/2} ⊆ P₀ ⊕ P₁
-- `peirce_mult_P0_P12` - P₀ × P_{1/2} ⊆ P_{1/2}
-- `peirce_mult_P1_P12` - P₁ × P_{1/2} ⊆ P_{1/2}
-
-**Strategy:** Use `four_variable_identity` with appropriate substitutions. The P_{1/2} cases
-are more complex because the eigenvalue 1/2 creates more intricate algebra.
+## 🎯 NEXT SESSION: Peirce Decomposition Theorem
 
 ### Spectral Theory Dependency Chain
 
 ```
 af-dxb5 (P0/P1 rules) ← COMPLETE ✅
-    └── af-qvqz (P1/2 rules) ← NEXT TARGET
-            └── af-bqjd (Peirce decomposition theorem)
+    └── af-qvqz (P1/2 rules) ← COMPLETE ✅
+            └── af-bqjd (Peirce decomposition theorem) ← NEXT TARGET
                     └── af-nnvl (Eigenspace definition)
                             └── af-9pfg (Eigenspace orthogonality)
                                     └── af-pyaw (Spectral theorem) [P1]
                                             └── af-4g40 (Sorry elimination) [P1]
 ```
 
+### Issue af-bqjd Goals
+- Define `PeirceDecomposition` structure
+- Prove existence: every element decomposes as x₀ + x_{1/2} + x₁
+- Prove uniqueness: the decomposition is unique
+
 ---
 
 ## Proof Techniques Discovered
 
-### P0×P1 = 0 (Orthogonality)
-The most complex case. For c = a∘b with a ∈ P₀, b ∈ P₁:
-1. `four_variable_identity e a b e` → `L_e²(c) = L_e(c) - c`
-2. Iterate → `L_e³(c) = -c`
-3. Peirce polynomial `2L³ - 3L² + L = 0` → `c = 2L_e(c)`
-4. Compute `L_e²(c)` two ways → `(3/4)c = 0` → `c = 0`
+### P_{1/2} × P_{1/2} ⊆ P₀ ⊕ P₁ (New this session)
+For c = a∘b with a, b ∈ P_{1/2}:
+1. `four_variable_identity e a b e` with eigenvalue simplifications
+2. Derive `L_e²(c) = L_e(c)` (idempotent action)
+3. Decompose: c = (c - L_e(c)) + L_e(c)
+   - L_e(c - L_e(c)) = L_e(c) - L_e²(c) = 0 ⟹ (c - L_e(c)) ∈ P₀
+   - L_e(L_e(c)) = L_e²(c) = L_e(c) ⟹ L_e(c) ∈ P₁
+4. Use `Submodule.mem_sup` to conclude
 
-### P0×P0 ⊆ P0
-Direct: `four_variable_identity e e a b` with e∘a = e∘b = 0 → `0 = e∘(a∘b)`
-
-### P1×P1 ⊆ P1
-Direct: `four_variable_identity e e a b` with e∘a = a, e∘b = b → `e∘(a∘b) = a∘b`
+### P₀ × P_{1/2} and P₁ × P_{1/2} ⊆ P_{1/2}
+Use `four_variable_identity a e e b`:
+- Most terms simplify to 0 or scalar multiples
+- Eigenvalue algebra gives L_e(c) = (1/2)c directly
 
 ---
 
@@ -87,13 +91,13 @@ Direct: `four_variable_identity e e a b` with e∘a = a, e∘b = b → `e∘(a�
 |-------|----------|
 | ℕ-smul vs ℝ-smul | `simp only [← Nat.cast_smul_eq_nsmul ℝ]` |
 | `linarith` on modules | Use `abel` or `calc` chains |
-| `3 • x` expansion | `rw [show (3:ℕ) = 2+1 from rfl, add_nsmul, two_nsmul, one_nsmul]` |
+| `smul_jmul` vs `jmul_smul` | `smul_jmul r a b = jmul a (r•b)`, `jmul_smul r a b = jmul (r•a) b` |
+| Submodule supremum | Use `Submodule.mem_sup` and exhibit decomposition |
 | `smul_eq_zero` | Returns `Or`, use `.resolve_left` |
-| `n • -c` expansion | Use `neg_nsmul` to get `-(n • c)` |
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/Peirce.lean` — Three Peirce multiplication rules proven
+- `AfTests/Jordan/Peirce.lean` — Three P_{1/2} multiplication rules proven (sorry-free!)
 - `HANDOFF.md` — This file

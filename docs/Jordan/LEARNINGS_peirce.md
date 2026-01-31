@@ -39,45 +39,79 @@ For idempotent e with Peirce spaces P₀, P_{1/2}, P₁:
 
 ---
 
-## Proof Difficulty
+## Implementation Status (COMPLETE ✅)
 
-The Peirce rules require the Jordan **fundamental formula**:
-```
-U_{U_a(b)} = U_a U_b U_a
-```
-where `U_a(x) = 2a∘(a∘x) - a²∘x`.
+All Peirce multiplication rules are proven using `four_variable_identity`.
 
-This is non-trivial (~100+ LOC) to derive from the Jordan identity.
-
----
-
-## Alternative: Linearized Jordan Identity
-
-The identity `two_nsmul_lie_lmul_lmul_add_add_eq_zero` in mathlib gives:
-```
-2([L_a, L_{b∘c}] + [L_b, L_{c∘a}] + [L_c, L_{a∘b}]) = 0
-```
-
-This can be used to derive Peirce rules but requires careful case analysis.
+### Proven Theorems
+- `peirce_polynomial_identity` - L_e(L_e - 1/2)(L_e - 1) = 0 ✅
+- `peirce_mult_P0_P0` - P₀ × P₀ ⊆ P₀ ✅
+- `peirce_mult_P1_P1` - P₁ × P₁ ⊆ P₁ ✅
+- `peirce_mult_P0_P1` - P₀ × P₁ = 0 ✅
+- `peirce_mult_P12_P12` - P_{1/2} × P_{1/2} ⊆ P₀ ⊕ P₁ ✅
+- `peirce_mult_P0_P12` - P₀ × P_{1/2} ⊆ P_{1/2} ✅
+- `peirce_mult_P1_P12` - P₁ × P_{1/2} ⊆ P_{1/2} ✅
 
 ---
 
-## Current Implementation Status
+## Proof Techniques
 
-### Completed
-- `PeirceSpace e ev` definition and basic properties
-- `peirceSpace_disjoint` - distinct eigenspaces are disjoint
-- `idempotent_in_peirce_one` - e ∈ P₁(e)
-- `complement_in_peirce_zero` - (1-e) ∈ P₀(e)
+### Core Tool: `four_variable_identity` (H-O 2.34)
 
-### Sorries (Need Fundamental Formula)
-- `peirce_polynomial_identity` - L_e(L_e - 1/2)(L_e - 1) = 0
-- `peirce_mult_P0_P0` - P₀ × P₀ ⊆ P₀
-- `peirce_mult_P1_P1` - P₁ × P₁ ⊆ P₁
-- `peirce_mult_P0_P1` - P₀ × P₁ = 0
-- `peirce_mult_P12_P12` - P_{1/2} × P_{1/2} ⊆ P₀ ⊕ P₁
-- `peirce_mult_P0_P12` - P₀ × P_{1/2} ⊆ P_{1/2}
-- `peirce_mult_P1_P12` - P₁ × P_{1/2} ⊆ P_{1/2}
+```
+a ∘ ((b∘c) ∘ d) + b ∘ ((c∘a) ∘ d) + c ∘ ((a∘b) ∘ d)
+  = (b∘c) ∘ (a∘d) + (c∘a) ∘ (b∘d) + (a∘b) ∘ (c∘d)
+```
+
+Substituting idempotent e and Peirce eigenvectors gives constraints on products.
+
+### P₀ × P₀ ⊆ P₀ (Direct)
+Use `four_variable_identity e e a b` with e∘a = e∘b = 0:
+- Most terms vanish → `0 = e∘(a∘b)`
+
+### P₁ × P₁ ⊆ P₁ (Direct)
+Use `four_variable_identity e e a b` with e∘a = a, e∘b = b:
+- Algebra gives `e∘(a∘b) = a∘b`
+
+### P₀ × P₁ = 0 (Orthogonality)
+Most complex case. For c = a∘b with a ∈ P₀, b ∈ P₁:
+1. `four_variable_identity e a b e` → `L_e²(c) = L_e(c) - c`
+2. Iterate → `L_e³(c) = -c`
+3. Peirce polynomial `2L³ - 3L² + L = 0` → `c = 2L_e(c)`
+4. Compute `L_e²(c)` two ways → `(3/4)c = 0` → `c = 0`
+
+### P₀ × P_{1/2} and P₁ × P_{1/2} ⊆ P_{1/2}
+Use `four_variable_identity a e e b`:
+- With eigenvalue conditions, most terms simplify
+- Direct eigenvalue algebra gives L_e(c) = (1/2)c
+
+### P_{1/2} × P_{1/2} ⊆ P₀ ⊕ P₁
+For c = a∘b with a, b ∈ P_{1/2}:
+1. `four_variable_identity e a b e` with eigenvalue simplifications
+2. Derive `L_e²(c) = L_e(c)` (idempotent action on product)
+3. Decompose: c = (c - L_e(c)) + L_e(c)
+   - L_e(c - L_e(c)) = 0 ⟹ (c - L_e(c)) ∈ P₀
+   - L_e(L_e(c)) = L_e(c) ⟹ L_e(c) ∈ P₁
+4. Use `Submodule.mem_sup` to conclude c ∈ P₀ ⊔ P₁
+
+---
+
+## Key Lean Patterns
+
+### Scalar multiplication
+- `jmul_smul r a b : jmul (r • a) b = r • jmul a b`
+- `smul_jmul r a b : jmul a (r • b) = r • jmul a b`
+
+### Submodule supremum
+```lean
+rw [Submodule.mem_sup]
+refine ⟨x₀, hx₀_mem, x₁, hx₁_mem, hsum⟩
+```
+
+### Module element arithmetic
+- Use `abel` instead of `ring` (no associativity)
+- Use `calc` chains with explicit rewrites
+- `sub_eq_zero.mpr` / `sub_eq_zero.mp` for equality ↔ subtraction
 
 ---
 

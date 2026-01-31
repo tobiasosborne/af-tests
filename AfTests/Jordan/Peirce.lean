@@ -339,8 +339,57 @@ theorem peirce_mult_P0_P1 {e : J} (he : IsIdempotent e) {a b : J}
 theorem peirce_mult_P12_P12 {e : J} (he : IsIdempotent e) {a b : J}
     (ha : a ∈ PeirceSpace e (1 / 2)) (hb : b ∈ PeirceSpace e (1 / 2)) :
     jmul a b ∈ PeirceSpace e 0 ⊔ PeirceSpace e 1 := by
-  -- The product a ∘ b for a, b ∈ P_{1/2} has no P_{1/2} component
-  sorry
+  -- Strategy: Show L_e²(c) = L_e(c), then decompose c = (c - L_e(c)) + L_e(c)
+  -- where (c - L_e(c)) ∈ P₀ and L_e(c) ∈ P₁
+  rw [mem_peirceSpace_iff] at ha hb
+  set c := jmul a b with hc_def
+  unfold IsIdempotent jsq at he
+  -- Derived eigenvalue properties
+  have hae : jmul a e = (1/2 : ℝ) • a := by rw [jmul_comm]; exact ha
+  have hbe : jmul b e = (1/2 : ℝ) • b := by rw [jmul_comm]; exact hb
+  -- Step 1: Derive L_e²(c) = L_e(c) using four_variable_identity e a b e
+  -- The identity gives:
+  -- e∘((a∘b)∘e) + a∘((b∘e)∘e) + b∘((e∘a)∘e) = (a∘b)∘e² + (b∘e)∘(a∘e) + (e∘a)∘(b∘e)
+  have h4v := four_variable_identity e a b e
+  -- Simplify step by step
+  -- (e∘a)∘e = (1/2)a ∘ e = (1/2)(a∘e) = (1/4)a
+  have heae : jmul (jmul e a) e = (1/4 : ℝ) • a := by
+    rw [ha, jmul_smul, hae, smul_smul]; norm_num
+  -- (b∘e)∘e = (1/2)b ∘ e = (1/4)b
+  have hbee : jmul (jmul b e) e = (1/4 : ℝ) • b := by
+    rw [hbe, jmul_smul, hbe, smul_smul]; norm_num
+  -- (a∘b)∘e = e∘c (by commutativity)
+  have hce : jmul c e = jmul e c := jmul_comm c e
+  -- Cross products
+  have h_cross1 : jmul (jmul b e) (jmul a e) = (1/4 : ℝ) • c := by
+    rw [hbe, hae, jmul_smul, smul_jmul, smul_smul, jmul_comm b a, ← hc_def]
+    norm_num
+  have h_cross2 : jmul (jmul e a) (jmul b e) = (1/4 : ℝ) • c := by
+    rw [ha, hbe, jmul_smul, smul_jmul, smul_smul, ← hc_def]
+    norm_num
+  -- Rewrite h4v
+  rw [he, hbee, heae, hce, h_cross1, h_cross2, smul_jmul, smul_jmul] at h4v
+  -- h4v: e∘(e∘c) + (1/4)(a∘b) + (1/4)(b∘a) = e∘c + (1/4)c + (1/4)c
+  have hba : jmul b a = c := jmul_comm b a
+  rw [hba, ← hc_def] at h4v
+  -- h4v: e∘(e∘c) + (1/4)c + (1/4)c = e∘c + (1/4)c + (1/4)c
+  have key : jmul e (jmul e c) = jmul e c := by
+    have h := sub_eq_zero.mpr h4v
+    have h' : jmul e (jmul e c) - jmul e c = 0 := by
+      calc jmul e (jmul e c) - jmul e c
+        = jmul e (jmul e c) + (1/4 : ℝ) • c + (1/4 : ℝ) • c -
+          (jmul e c + (1/4 : ℝ) • c + (1/4 : ℝ) • c) := by abel
+        _ = 0 := h
+    exact sub_eq_zero.mp h'
+  -- Step 2: Decompose c = (c - L_e(c)) + L_e(c)
+  rw [Submodule.mem_sup]
+  refine ⟨c - jmul e c, ?_, jmul e c, ?_, ?_⟩
+  -- (c - L_e(c)) ∈ P₀: L_e(c - L_e(c)) = L_e(c) - L_e²(c) = 0
+  · rw [mem_peirceSpace_iff, zero_smul, jmul_sub, key, sub_self]
+  -- L_e(c) ∈ P₁: L_e(L_e(c)) = L_e²(c) = L_e(c)
+  · rw [mem_peirceSpace_iff, one_smul]; exact key
+  -- c = (c - L_e(c)) + L_e(c)
+  · abel
 
 /-- Product of an element in P₀(e) with an element in P_{1/2}(e) stays in P_{1/2}(e). -/
 theorem peirce_mult_P0_P12 {e : J} (he : IsIdempotent e) {a b : J}
@@ -348,8 +397,17 @@ theorem peirce_mult_P0_P12 {e : J} (he : IsIdempotent e) {a b : J}
     jmul a b ∈ PeirceSpace e (1 / 2) := by
   rw [mem_peirceSpace_iff] at ha hb ⊢
   rw [zero_smul] at ha
-  -- Need: e ∘ (a ∘ b) = (1 / 2)(a ∘ b) given e ∘ a = 0 and e ∘ b = (1 / 2)b
-  sorry
+  -- Need: e ∘ (a ∘ b) = (1/2)(a ∘ b) given e ∘ a = 0 and e ∘ b = (1/2)b
+  -- Use four_variable_identity a e e b
+  have h4v := four_variable_identity a e e b
+  unfold IsIdempotent jsq at he
+  -- Simplify using e∘a = 0, e² = e, e∘b = (1/2)b
+  have hae : jmul a e = 0 := by rw [jmul_comm]; exact ha
+  simp only [he, ha, hae, jmul_zero, zero_jmul, add_zero] at h4v
+  -- h4v: a ∘ (e ∘ b) = e ∘ (a ∘ b)
+  -- LHS = a ∘ ((1/2)b) = (1/2)(a ∘ b)
+  rw [hb, smul_jmul] at h4v
+  exact h4v.symm
 
 /-- Product of an element in P₁(e) with an element in P_{1/2}(e) stays in P_{1/2}(e). -/
 theorem peirce_mult_P1_P12 {e : J} (he : IsIdempotent e) {a b : J}
@@ -357,7 +415,27 @@ theorem peirce_mult_P1_P12 {e : J} (he : IsIdempotent e) {a b : J}
     jmul a b ∈ PeirceSpace e (1 / 2) := by
   rw [mem_peirceSpace_iff] at ha hb ⊢
   rw [one_smul] at ha
-  -- Need: e ∘ (a ∘ b) = (1 / 2)(a ∘ b) given e ∘ a = a and e ∘ b = (1 / 2)b
-  sorry
+  -- Need: e ∘ (a ∘ b) = (1/2)(a ∘ b) given e ∘ a = a and e ∘ b = (1/2)b
+  -- Use four_variable_identity a e e b
+  have h4v := four_variable_identity a e e b
+  unfold IsIdempotent jsq at he
+  have hae : jmul a e = a := by rw [jmul_comm]; exact ha
+  simp only [he, ha, hae] at h4v
+  -- h4v: a ∘ (e ∘ b) + e ∘ (a ∘ b) + e ∘ (a ∘ b) = e ∘ (a ∘ b) + a ∘ (e ∘ b) + a ∘ (e ∘ b)
+  -- Simplify using e ∘ b = (1/2)b
+  rw [hb, smul_jmul] at h4v
+  -- h4v: (1/2)(a∘b) + e∘(a∘b) + e∘(a∘b) = e∘(a∘b) + (1/2)(a∘b) + (1/2)(a∘b)
+  -- Rearrange: 2·e∘(a∘b) = e∘(a∘b) + (1/2)(a∘b), so e∘(a∘b) = (1/2)(a∘b)
+  set c := jmul a b with hc
+  have h : jmul e c = (1/2 : ℝ) • c := by
+    have h' := sub_eq_zero.mpr h4v
+    -- h': (1/2)c + 2·Le(c) - (Le(c) + c) = 0, so Le(c) = (1/2)c
+    have calc1 : jmul e c - (1/2 : ℝ) • c = 0 := by
+      calc jmul e c - (1/2 : ℝ) • c
+        = (1/2 : ℝ) • c + jmul e c + jmul e c -
+          (jmul e c + (1/2 : ℝ) • c + (1/2 : ℝ) • c) := by abel
+        _ = 0 := h'
+    exact sub_eq_zero.mp calc1
+  exact h
 
 end JordanAlgebra
