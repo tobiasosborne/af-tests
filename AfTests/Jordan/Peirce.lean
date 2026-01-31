@@ -639,7 +639,213 @@ theorem peirce_direct_sum {e : J} (he : IsIdempotent e) :
   · -- Independence: prove iSupIndep
     -- The strategy: show each space has trivial intersection with the sum of others
     -- using that eigenvalues 0, 1/2, 1 are pairwise distinct and L_e is a linear operator
-    sorry
+    rw [iSupIndep_def]
+    intro i
+    -- For Fin 3, we check each case
+    fin_cases i <;> simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.head_cons]
+    · -- Case i = 0: show Disjoint P₀ (P_{1/2} ⊔ P₁)
+      rw [Submodule.disjoint_def]
+      intro x hx0 hxsup
+      -- hx0 : x ∈ ![P₀, P_{1/2}, P₁] 0 = x ∈ P₀
+      -- x ∈ P₀ means L_e(x) = 0
+      have hx0' : jmul e x = 0 := by
+        have : x ∈ PeirceSpace e 0 := hx0
+        rw [mem_peirceSpace_iff, zero_smul] at this
+        exact this
+      -- x is in the sup of P_{1/2} and P₁ over j ≠ 0
+      -- The sup over j ≠ 0 in Fin 3 is P_{1/2} ⊔ P₁
+      have hsup : ⨆ (j : Fin 3) (_ : j ≠ (0 : Fin 3)), (![PeirceSpace e 0, PeirceSpace e (1 / 2),
+          PeirceSpace e 1]) j = PeirceSpace e (1/2) ⊔ PeirceSpace e 1 := by
+        apply le_antisymm
+        · apply iSup_le
+          intro j; apply iSup_le; intro hj
+          fin_cases j
+          · exact absurd rfl hj
+          · exact le_sup_left
+          · exact le_sup_right
+        · apply sup_le
+          · calc PeirceSpace e (1/2) = (![PeirceSpace e 0, PeirceSpace e (1/2),
+                PeirceSpace e 1]) 1 := rfl
+              _ ≤ ⨆ (j : Fin 3) (_ : j ≠ 0), _ := le_biSup _ (by decide : (1 : Fin 3) ≠ 0)
+          · calc PeirceSpace e 1 = (![PeirceSpace e 0, PeirceSpace e (1/2),
+                PeirceSpace e 1]) 2 := rfl
+              _ ≤ ⨆ (j : Fin 3) (_ : j ≠ 0), _ := le_biSup _ (by decide : (2 : Fin 3) ≠ 0)
+      simp only [Fin.mk_zero] at hxsup
+      rw [hsup, Submodule.mem_sup] at hxsup
+      obtain ⟨y, hy, z, hz, hsum⟩ := hxsup
+      rw [mem_peirceSpace_iff] at hy hz
+      rw [one_smul] at hz
+      -- x = y + z with L_e(y) = (1/2)y, L_e(z) = z
+      -- Also L_e(x) = 0, so L_e(y + z) = (1/2)y + z = 0
+      have h1 : (1/2 : ℝ) • y + z = 0 := by
+        calc (1/2 : ℝ) • y + z = jmul e y + jmul e z := by rw [hy, hz]
+          _ = jmul e (y + z) := by rw [← jmul_add]
+          _ = jmul e x := by rw [hsum]
+          _ = 0 := hx0'
+      -- Apply L_e again: L_e²(x) = 0, and L_e²(y + z) = (1/4)y + z
+      have hLe2_x : jmul e (jmul e x) = 0 := by rw [hx0', jmul_zero]
+      have h2 : (1/4 : ℝ) • y + z = 0 := by
+        have hLe2_yz : jmul e (jmul e (y + z)) = (1/4 : ℝ) • y + z := by
+          calc jmul e (jmul e (y + z)) = jmul e (jmul e y + jmul e z) := by rw [jmul_add]
+            _ = jmul e ((1/2 : ℝ) • y + z) := by rw [hy, hz]
+            _ = jmul e ((1/2 : ℝ) • y) + jmul e z := by rw [jmul_add]
+            _ = (1/2 : ℝ) • jmul e y + jmul e z := by rw [smul_jmul]
+            _ = (1/2 : ℝ) • ((1/2 : ℝ) • y) + z := by rw [hy, hz]
+            _ = (1/4 : ℝ) • y + z := by rw [smul_smul]; norm_num
+        calc (1/4 : ℝ) • y + z = jmul e (jmul e (y + z)) := hLe2_yz.symm
+          _ = jmul e (jmul e x) := by rw [hsum]
+          _ = 0 := hLe2_x
+      -- From h1: (1/2)y + z = 0 and h2: (1/4)y + z = 0
+      -- Subtract: (1/4)y = 0, so y = 0
+      have hy0 : y = 0 := by
+        have hdiff : (1/4 : ℝ) • y = 0 := by
+          have : (1/2 : ℝ) • y + z - ((1/4 : ℝ) • y + z) = 0 - 0 := by rw [h1, h2]
+          simp only [sub_zero, add_sub_add_right_eq_sub] at this
+          have : ((1/2 : ℝ) - (1/4 : ℝ)) • y = 0 := by rw [sub_smul]; exact this
+          simp only [show (1/2 : ℝ) - 1/4 = 1/4 by norm_num] at this
+          exact this
+        have h14 : (1/4 : ℝ) ≠ 0 := by norm_num
+        exact (smul_eq_zero_iff_right h14).mp hdiff
+      -- Then z = 0 from h1
+      have hz0 : z = 0 := by simp only [hy0, smul_zero, zero_add] at h1; exact h1
+      -- Therefore x = 0
+      rw [← hsum, hy0, hz0, add_zero]
+    · -- Case i = 1: show Disjoint P_{1/2} (P₀ ⊔ P₁)
+      rw [Submodule.disjoint_def]
+      intro x hx12 hxsup
+      -- hx12 : x ∈ P_{1/2}, convert to L_e(x) = (1/2)x
+      have hx12' : jmul e x = (1/2 : ℝ) • x := by
+        have : x ∈ PeirceSpace e (1/2) := hx12
+        rw [mem_peirceSpace_iff] at this
+        exact this
+      have hsup : ⨆ (j : Fin 3) (_ : j ≠ (1 : Fin 3)), (![PeirceSpace e 0, PeirceSpace e (1 / 2),
+          PeirceSpace e 1]) j = PeirceSpace e 0 ⊔ PeirceSpace e 1 := by
+        apply le_antisymm
+        · apply iSup_le; intro j; apply iSup_le; intro hj
+          fin_cases j
+          · exact le_sup_left
+          · exact absurd rfl hj
+          · exact le_sup_right
+        · apply sup_le
+          · calc PeirceSpace e 0 = (![PeirceSpace e 0, PeirceSpace e (1/2),
+                PeirceSpace e 1]) 0 := rfl
+              _ ≤ ⨆ (j : Fin 3) (_ : j ≠ 1), _ := le_biSup _ (by decide : (0 : Fin 3) ≠ 1)
+          · calc PeirceSpace e 1 = (![PeirceSpace e 0, PeirceSpace e (1/2),
+                PeirceSpace e 1]) 2 := rfl
+              _ ≤ ⨆ (j : Fin 3) (_ : j ≠ 1), _ := le_biSup _ (by decide : (2 : Fin 3) ≠ 1)
+      simp only [Fin.mk_one] at hxsup
+      rw [hsup, Submodule.mem_sup] at hxsup
+      obtain ⟨y, hy, z, hz, hsum⟩ := hxsup
+      rw [mem_peirceSpace_iff, zero_smul] at hy
+      rw [mem_peirceSpace_iff, one_smul] at hz
+      -- x = y + z with L_e(y) = 0, L_e(z) = z
+      -- L_e(x) = (1/2)x, so L_e(y + z) = 0 + z = z
+      -- But L_e(x) = (1/2)(y + z), so z = (1/2)y + (1/2)z
+      have h1 : z = (1/2 : ℝ) • y + (1/2 : ℝ) • z := by
+        calc z = 0 + z := by rw [zero_add]
+          _ = jmul e y + jmul e z := by rw [hy, hz]
+          _ = jmul e (y + z) := by rw [← jmul_add]
+          _ = jmul e x := by rw [hsum]
+          _ = (1/2 : ℝ) • x := hx12'
+          _ = (1/2 : ℝ) • (y + z) := by rw [hsum]
+          _ = (1/2 : ℝ) • y + (1/2 : ℝ) • z := by rw [smul_add]
+      -- From h1: z - (1/2)z = (1/2)y, so (1/2)z = (1/2)y
+      have h2 : (1/2 : ℝ) • z = (1/2 : ℝ) • y := by
+        have hsub : z - (1/2 : ℝ) • z = (1/2 : ℝ) • y := by
+          calc z - (1/2 : ℝ) • z = (1/2 : ℝ) • y + (1/2 : ℝ) • z - (1/2 : ℝ) • z := by rw [← h1]
+            _ = (1/2 : ℝ) • y := by abel
+        have hsub' : (1 - 1/2 : ℝ) • z = (1/2 : ℝ) • y := by
+          rw [sub_smul, one_smul]; exact hsub
+        simp only [show (1 - 1/2 : ℝ) = 1/2 by norm_num] at hsub'
+        exact hsub'
+      -- So z = y (multiply by 2)
+      have hzy : z = y := by
+        have h12 : (1/2 : ℝ) ≠ 0 := by norm_num
+        exact (smul_right_injective J h12 h2.symm).symm
+      -- But z ∈ P₁ and y ∈ P₀, and P₀ ∩ P₁ = {0}
+      -- y ∈ P₀ means L_e(y) = 0, z = y so L_e(z) = 0, but also L_e(z) = z
+      -- Hence z = 0
+      have hz0 : z = 0 := by
+        have : jmul e z = 0 := by rw [hzy, hy]
+        rw [hz] at this
+        exact this
+      have hy0 : y = 0 := hzy ▸ hz0
+      rw [← hsum, hy0, hz0, add_zero]
+    · -- Case i = 2: show Disjoint P₁ (P₀ ⊔ P_{1/2})
+      rw [Submodule.disjoint_def]
+      intro x hx1 hxsup
+      -- hx1 : x ∈ P₁, convert to L_e(x) = x
+      have hx1' : jmul e x = x := by
+        have : x ∈ PeirceSpace e 1 := hx1
+        rw [mem_peirceSpace_iff, one_smul] at this
+        exact this
+      have hsup : ⨆ (j : Fin 3) (_ : j ≠ (2 : Fin 3)), (![PeirceSpace e 0, PeirceSpace e (1 / 2),
+          PeirceSpace e 1]) j = PeirceSpace e 0 ⊔ PeirceSpace e (1/2) := by
+        apply le_antisymm
+        · apply iSup_le; intro j; apply iSup_le; intro hj
+          fin_cases j
+          · exact le_sup_left
+          · exact le_sup_right
+          · exact absurd rfl hj
+        · apply sup_le
+          · calc PeirceSpace e 0 = (![PeirceSpace e 0, PeirceSpace e (1/2),
+                PeirceSpace e 1]) 0 := rfl
+              _ ≤ ⨆ (j : Fin 3) (_ : j ≠ 2), _ := le_biSup _ (by decide : (0 : Fin 3) ≠ 2)
+          · calc PeirceSpace e (1/2) = (![PeirceSpace e 0, PeirceSpace e (1/2),
+                PeirceSpace e 1]) 1 := rfl
+              _ ≤ ⨆ (j : Fin 3) (_ : j ≠ 2), _ := le_biSup _ (by decide : (1 : Fin 3) ≠ 2)
+      simp only [show (⟨2, by decide⟩ : Fin 3) = (2 : Fin 3) from rfl] at hxsup
+      rw [hsup, Submodule.mem_sup] at hxsup
+      obtain ⟨y, hy, z, hz, hsum⟩ := hxsup
+      rw [mem_peirceSpace_iff, zero_smul] at hy
+      rw [mem_peirceSpace_iff] at hz
+      -- x ∈ P₁: L_e(x) = x
+      -- y ∈ P₀: L_e(y) = 0
+      -- z ∈ P_{1/2}: L_e(z) = (1/2)z
+      -- x = y + z, so L_e(x) = 0 + (1/2)z = (1/2)z
+      -- But L_e(x) = x = y + z, so y + z = (1/2)z
+      have h1 : y + z = (1/2 : ℝ) • z := by
+        calc y + z = x := hsum
+          _ = jmul e x := hx1'.symm
+          _ = jmul e (y + z) := by rw [← hsum]
+          _ = jmul e y + jmul e z := jmul_add e y z
+          _ = 0 + (1/2 : ℝ) • z := by rw [hy, hz]
+          _ = (1/2 : ℝ) • z := zero_add _
+      -- So y = (1/2)z - z = -(1/2)z
+      have hy_eq : y = -(1/2 : ℝ) • z := by
+        have hcalc : y = (1/2 : ℝ) • z - z := by
+          calc y = y + z - z := by abel
+            _ = (1/2 : ℝ) • z - z := by rw [h1]
+        rw [hcalc, sub_eq_add_neg, ← neg_one_smul ℝ z, ← add_smul]
+        norm_num
+      -- Apply L_e to x again: L_e²(x) = L_e(x) = x (since x ∈ P₁)
+      -- L_e²(y + z) = L_e(0 + (1/2)z) = (1/2)L_e(z) = (1/4)z
+      have hLe2 : jmul e (jmul e (y + z)) = (1/4 : ℝ) • z := by
+        calc jmul e (jmul e (y + z)) = jmul e (0 + (1/2 : ℝ) • z) := by rw [jmul_add, hy, hz]
+          _ = jmul e ((1/2 : ℝ) • z) := by rw [zero_add]
+          _ = (1/2 : ℝ) • jmul e z := smul_jmul (1/2) e z
+          _ = (1/2 : ℝ) • ((1/2 : ℝ) • z) := by rw [hz]
+          _ = (1/4 : ℝ) • z := by rw [smul_smul]; norm_num
+      -- But L_e²(x) = x = y + z, so y + z = (1/4)z
+      have h2 : y + z = (1/4 : ℝ) • z := by
+        calc y + z = x := hsum
+          _ = jmul e x := hx1'.symm
+          _ = jmul e (jmul e x) := congrArg (jmul e) hx1'.symm
+          _ = jmul e (jmul e (y + z)) := by rw [← hsum]
+          _ = (1/4 : ℝ) • z := hLe2
+      -- From h1: y + z = (1/2)z and h2: y + z = (1/4)z
+      -- So (1/2)z = (1/4)z, hence (1/4)z = 0, so z = 0
+      have hz0 : z = 0 := by
+        have : (1/2 : ℝ) • z = (1/4 : ℝ) • z := by rw [← h1, h2]
+        have hdiff : (1/4 : ℝ) • z = 0 := by
+          have hsub : (1/2 : ℝ) • z - (1/4 : ℝ) • z = 0 := by rw [this, sub_self]
+          rw [← sub_smul] at hsub
+          simp only [show (1/2 : ℝ) - 1/4 = 1/4 by norm_num] at hsub
+          exact hsub
+        have h14 : (1/4 : ℝ) ≠ 0 := by norm_num
+        exact (smul_eq_zero_iff_right h14).mp hdiff
+      have hy0 : y = 0 := by simp only [hy_eq, hz0, smul_zero, neg_zero]
+      rw [← hsum, hy0, hz0, add_zero]
   · -- Spanning: prove iSup = ⊤
     -- The iSup over Fin 3 equals the three-way sup
     set f := ![PeirceSpace e 0, PeirceSpace e (1/2), PeirceSpace e 1] with hf

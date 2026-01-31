@@ -163,6 +163,46 @@ To show π maps into correct Peirce space, verify L_e(π(x)) = λ·π(x):
 
 ---
 
+## iSupIndep Proof for Peirce Spaces (Session 65)
+
+### The Goal
+Prove `iSupIndep ![PeirceSpace e 0, PeirceSpace e (1/2), PeirceSpace e 1]`
+
+### Strategy
+`iSupIndep f` means: `∀ i, Disjoint (f i) (⨆ (j ≠ i), f j)`
+
+For each of the 3 Peirce spaces, show it has trivial intersection with the sum of the other two using eigenvalue analysis.
+
+### Case P₀ ∩ (P_{1/2} ⊔ P₁) = {0}
+If x ∈ P₀ and x = y + z with y ∈ P_{1/2}, z ∈ P₁:
+- L_e(x) = 0 and L_e(y+z) = (1/2)y + z, so (1/2)y + z = 0
+- L_e²(x) = 0 and L_e²(y+z) = (1/4)y + z = 0
+- Solving: (1/4)y = 0 → y = 0, then z = 0, so x = 0
+
+### Case P_{1/2} ∩ (P₀ ⊔ P₁) = {0}
+If x ∈ P_{1/2} and x = y + z with y ∈ P₀, z ∈ P₁:
+- L_e(x) = (1/2)x and L_e(y+z) = 0 + z = z
+- So z = (1/2)(y+z), giving (1/2)z = (1/2)y, hence z = y
+- But z ∈ P₁ means L_e(z) = z, while y ∈ P₀ means L_e(y) = 0
+- So L_e(z) = z = 0 (since z = y and L_e(z) = L_e(y) = 0)
+
+### Case P₁ ∩ (P₀ ⊔ P_{1/2}) = {0}
+If x ∈ P₁ and x = y + z with y ∈ P₀, z ∈ P_{1/2}:
+- L_e(x) = x and L_e(y+z) = 0 + (1/2)z, so y + z = (1/2)z
+- L_e²(x) = x and L_e²(y+z) = (1/4)z, so y + z = (1/4)z
+- From (1/2)z = (1/4)z: (1/4)z = 0 → z = 0, then y = 0
+
+### Lean Patterns for Fin 3 Cases
+```lean
+fin_cases i <;> simp only [Matrix.cons_val_zero, ...]
+-- Converts matrix access ![a,b,c] to individual elements
+
+simp only [Fin.mk_zero] at hxsup
+-- Converts ⟨0, by decide⟩ to (0 : Fin 3) for rewriting
+```
+
+---
+
 ## References
 
 - Hanche-Olsen & Størmer, *Jordan Operator Algebras*, Ch. 2
