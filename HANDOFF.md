@@ -1,24 +1,20 @@
-# Handoff: 2026-01-31 (Session 84)
+# Handoff: 2026-01-31 (Session 85)
 
 ## Completed This Session
 
-### Progress on af-fbx8: primitive_peirce_one_dim_one
+### Fixed Build + Added Lagrange Idempotent Lemma
 
-**Attempted** implementation of `peirce_one_quadratic_scalar` lemma - the core of H-O 2.9.4(ii).
+**Build now PASSES.** Fixed compilation error from Session 84.
 
-**Mathematical approach verified correct:**
-1. For x ∈ P₁(e), get quadratic x² = r·x + s·e (from finite dimension)
-2. Discriminant Δ = r² + 4s determines three cases:
-   - Δ ≤ 0: y = x - (r/2)·e satisfies y² = (Δ/4)·e ≤ 0, use `peirce_one_sq_nonpos_imp_zero`
-   - Δ = 0: Nilpotent case, formal reality
-   - Δ > 0: Lagrange idempotent f = (x - μ·e)/√Δ contradicts primitivity
+**Added `lagrange_idempotent_in_peirce_one`** theorem:
+- If x ∈ P₁(e) satisfies x² = r·x + s·e with Δ = r² + 4s > 0
+- Then f = (1/√Δ)·(x - μ·e) is an idempotent in P₁(e)
+- Membership in P₁(e) is **PROVEN** (submodule closure)
+- Idempotent verification has **sorry** (algebraic computation)
 
-**Lean implementation has errors:**
-- `ring` vs `module` tactic issues (ring doesn't work on module elements)
-- Missing/unfound `jsq_smul` lemma
-- Various calc chain issues in Δ > 0 case
-
-**Code state:** Primitive.lean has partial proof with errors, needs cleanup.
+**Restructured `primitive_peirce_one_dim_one`** with clear proof outline:
+- Step A: Get quadratic relation (TODO)
+- Step B: Discriminant analysis with two cases
 
 ---
 
@@ -26,57 +22,69 @@
 
 | Metric | Value |
 |--------|-------|
-| Total Sorries in Jordan/ | ~26 (unchanged) |
-| Build Status | **FAILING** (errors in Primitive.lean) |
-| Key Progress | Math strategy verified, Lean tactics identified |
+| Total Sorries in Jordan/ | 27 (+1 from Lagrange computation) |
+| Build Status | **PASSING** |
+| Key Progress | Lagrange idempotent structure proven, P₁(e) membership proven |
 
 ---
 
-## Critical: File Needs Cleanup
+## Blocking Sorries for af-fbx8
 
-`AfTests/Jordan/Primitive.lean` has compilation errors from incomplete proof attempt.
-**Before next session:** Either fix errors or revert to sorry.
+1. **Algebraic computation** in `lagrange_idempotent_in_peirce_one` (line 223):
+   - Need: (x - μe)² = √Δ·(x - μe)
+   - Involves: r - 2μ = √Δ and s + μ² = -μ√Δ
+
+2. **Quadratic relation** in `primitive_peirce_one_dim_one` (line 270):
+   - Need: Show x satisfies x² = r·x + s·e from finite dimension
+   - Approach: {e, x, x², ...} eventually linearly dependent
 
 ---
 
-## Remaining Work for af-fbx8
+## Helper Lemmas Available
 
-The main sorry is in `hle_span` (line ~350 after edits):
-
-```lean
-have hle_span : (PeirceSpace e 1 : Submodule ℝ J) ≤ Submodule.span ℝ {e} := by
-  intro x hx
-  rw [Submodule.mem_span_singleton]
-  -- Use peirce_one_quadratic_scalar once working
-  sorry
-```
-
-**Proof requires:**
-1. Working `peirce_one_quadratic_scalar` lemma
-2. Lemma to extract quadratic relation from finite dimension (linear dependence of {e, x, x²})
+| Lemma | Status | Used For |
+|-------|--------|----------|
+| `peirce_one_sq_nonpos_imp_zero` | ✅ PROVEN | Δ ≤ 0 case |
+| `primitive_idempotent_in_P1` | ✅ PROVEN | Δ > 0 case (after Lagrange) |
+| `jpow_succ_mem_peirce_one` | ✅ PROVEN | Powers stay in P₁(e) |
+| `lagrange_idempotent_in_peirce_one` | Partial | f ∈ P₁(e) proven, f² = f needs work |
 
 ---
 
 ## Next Session Recommendations
 
-1. **Fix or revert Primitive.lean** to get build passing
-2. **Find/prove `jsq_smul`**: `jsq (r • x) = r^2 • jsq x`
-3. **Use `module` tactic** instead of `ring` for module element manipulations
-4. **Add linear dependence lemma** to extract quadratic from finite dim
+1. **Fill Lagrange algebraic computation**:
+   - Use `jmul_sub`, `sub_jmul`, `jmul_smul`, `smul_jmul`
+   - Verify coefficients: r - 2μ = √Δ, s + μ² = -μ√Δ
+
+2. **Add quadratic relation lemma**:
+   - `exists_quadratic_relation`: For x ∈ P₁(e), ∃ r s, jsq x = r • x + s • e
+   - Proof: {e, x, x²} linearly dependent by finite dimension
+
+3. **Complete primitive_peirce_one_dim_one**:
+   - Use quadratic relation + discriminant case analysis
+   - Δ ≤ 0: `peirce_one_sq_nonpos_imp_zero`
+   - Δ > 0: `lagrange_idempotent_in_peirce_one` + `primitive_idempotent_in_P1`
 
 ---
 
-## Key Learnings This Session
+## Key Mathematical Insight (Verified)
 
-See `docs/Jordan/LEARNINGS.md` Session 84 for:
-- Complete mathematical proof of quadratic discriminant approach
-- Lean tactic issues: `ring` vs `module`
-- Lagrange idempotent construction details
+For x ∈ P₁(e) with quadratic x² = rx + se and Δ = r² + 4s:
+
+**Case Δ ≤ 0:** Let y = x - (r/2)·e, then y² = (Δ/4)·e ≤ 0.
+By `peirce_one_sq_nonpos_imp_zero`, y = 0, so x = (r/2)·e.
+
+**Case Δ > 0:** The Lagrange element f = (x - μe)/√Δ where μ = (r-√Δ)/2
+satisfies f² = f and f ∈ P₁(e). By primitivity, f = 0 or f = e.
+- f = 0 ⟹ x = μ·e
+- f = e ⟹ x = λ·e where λ = (r+√Δ)/2
+
+Either way, x ∈ ℝ·e. ∎
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/Primitive.lean` — Added `peirce_one_quadratic_scalar` (partial, errors)
-- `docs/Jordan/LEARNINGS.md` — Session 84 learnings
+- `AfTests/Jordan/Primitive.lean` — Added lagrange_idempotent_in_peirce_one, fixed build
 - `HANDOFF.md` — This file
