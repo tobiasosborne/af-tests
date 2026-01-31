@@ -1323,6 +1323,29 @@ Simpler but less direct:
 7. Contradiction with x independent from e
 8. Hence dim = 1, so PeirceSpace e 1 = ℝ·e
 
+### Issues Created (17 total)
+
+**Foundation (ready now):**
+- af-wjdv, af-8mz4: identity lemmas
+- af-8bry, af-g16d: Mul and One definitions
+- af-60x0: AddCommGroup
+- af-niay: no nilpotents
+- af-n2e3: FiniteDimensional
+
+**Ring structure:**
+- af-1tzf: KEY associativity proof
+- af-qrr5, af-elpg, af-n3xe, af-gwqf: ring axioms
+
+**Artinian theory:**
+- af-t68m: IsReduced
+- af-nl8m: IsArtinian
+- af-5669: equivPi structure theorem
+
+**Final:**
+- af-agxd, af-pdie: field classification
+- af-2oyk: minimality argument
+- af-sgff: FILL primitive_peirce_one_scalar
+
 ---
 
 ## References
