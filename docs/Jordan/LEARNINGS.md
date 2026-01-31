@@ -433,6 +433,65 @@ other results and is a foundational tool.
 
 ---
 
+## Session 58: Square Roots in Formally Real Jordan Algebras
+
+### File Created: `FormallyReal/Square.lean`
+
+Created 115-line file defining square roots for positive elements.
+
+### Main Definitions
+
+| Definition | Type | Description |
+|------------|------|-------------|
+| `IsPositiveSqrt a b` | `Prop` | `b² = a` and `b` is positive (sum of squares) |
+| `HasPositiveSqrt a` | `Prop` | `∃ b, IsPositiveSqrt a b` |
+
+### Theorems Proven (0 sorries)
+
+| Theorem | Statement |
+|---------|-----------|
+| `isPositiveSqrt_zero` | `0` has `0` as positive square root |
+| `isPositiveSqrt_jone` | `1` has `1` as positive square root (if `1` is positive) |
+| `PositiveElement.of_hasPositiveSqrt` | If `a` has a positive sqrt, then `a` is positive |
+
+### Theorems with Sorries (2)
+
+| Theorem | Needs |
+|---------|-------|
+| `isPositiveSqrt_unique` | Full uniqueness proof (currently partial: shows `(b-c)(b+c) = 0`) |
+| `HasPositiveSqrt.of_positiveElement` | Spectral theorem for existence |
+
+### Key Proof Technique
+
+For the partial uniqueness proof, we show:
+```
+(b - c)(b + c) = b² - c² = 0
+```
+using the expansion:
+```lean
+jmul (b - c) (b + c)
+  = jmul b b - jmul c b + (jmul b c - jmul c c)  -- bilinearity
+  = jmul b b - jmul c b + (jmul c b - jmul c c)  -- commutativity hypothesis
+  = jmul b b - jmul c c                           -- abel cancellation
+  = jsq b - jsq c = 0
+```
+
+The final step (concluding `b = c` from `(b-c)(b+c) = 0`) requires either:
+1. `b + c` invertible (always true for positive elements in JB-algebras)
+2. Power-associativity to show `(b-c)² = 0` implies `b = c`
+
+### Connection to Spectral Theory
+
+The H-O spectral theorem (3.2.4) states: for `a` in a JB-algebra, `C(a) ≅ C(Sp a)`.
+For positive elements, `Sp a ⊆ [0,∞)`, so we can apply `√` to get the square root.
+
+This is the foundation for:
+- Order structure on JB-algebras
+- Functional calculus
+- The key identity `U_a b ≥ 0` for `a, b ≥ 0`
+
+---
+
 ## References
 
 - Hanche-Olsen & Størmer, *Jordan Operator Algebras* (see `examples3/Jordan Operator Algebras/`)
