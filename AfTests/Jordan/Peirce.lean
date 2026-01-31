@@ -196,8 +196,15 @@ theorem peirce_mult_P0_P0 {e : J} (he : IsIdempotent e) {a b : J}
   rw [mem_peirceSpace_iff] at ha hb ⊢
   rw [zero_smul] at ha hb ⊢
   -- Need: e ∘ (a ∘ b) = 0 given e ∘ a = 0 and e ∘ b = 0
-  -- Use linearized Jordan identity
-  sorry
+  -- Use four_variable_identity e e a b
+  have h4v := four_variable_identity e e a b
+  unfold IsIdempotent jsq at he
+  -- Simplify using e∘a = 0, e∘b = 0, e² = e
+  simp only [he, ha, jmul_comm a e, zero_jmul, jmul_zero] at h4v
+  -- h4v: 0 + 0 + jmul a (jmul e b) = 0 + 0 + jmul e (jmul a b)
+  simp only [hb, jmul_zero, add_zero, zero_add] at h4v
+  -- h4v: 0 = jmul e (jmul a b)
+  exact h4v.symm
 
 /-- Product of two elements in P₁(e) stays in P₁(e). -/
 theorem peirce_mult_P1_P1 {e : J} (he : IsIdempotent e) {a b : J}
@@ -206,7 +213,21 @@ theorem peirce_mult_P1_P1 {e : J} (he : IsIdempotent e) {a b : J}
   rw [mem_peirceSpace_iff] at ha hb ⊢
   rw [one_smul] at ha hb ⊢
   -- Need: e ∘ (a ∘ b) = a ∘ b given e ∘ a = a and e ∘ b = b
-  sorry
+  -- Use four_variable_identity e e a b
+  have h4v := four_variable_identity e e a b
+  unfold IsIdempotent jsq at he
+  -- Simplify: LHS = e∘(a∘b) + e∘(a∘b) + a∘b, RHS = a∘b + a∘b + e∘(a∘b)
+  simp only [he, ha, jmul_comm a e, hb] at h4v
+  -- h4v: e∘(a∘b) + e∘(a∘b) + a∘b = a∘b + a∘b + e∘(a∘b)
+  -- Rearrange: 2·e∘(a∘b) + a∘b = 2·(a∘b) + e∘(a∘b) → e∘(a∘b) = a∘b
+  have h := sub_eq_zero.mpr h4v
+  -- h: 2·e∘(a∘b) + a∘b - (2·(a∘b) + e∘(a∘b)) = 0
+  have h' : jmul e (jmul a b) - jmul a b = 0 := by
+    calc jmul e (jmul a b) - jmul a b
+      = jmul e (jmul a b) + jmul e (jmul a b) + jmul a b -
+        (jmul a b + jmul a b + jmul e (jmul a b)) := by abel
+      _ = 0 := h
+  exact sub_eq_zero.mp h'
 
 /-- Product of an element in P₀(e) with an element in P₁(e) is zero. -/
 theorem peirce_mult_P0_P1 {e : J} (he : IsIdempotent e) {a b : J}
@@ -253,21 +274,66 @@ theorem peirce_mult_P0_P1 {e : J} (he : IsIdempotent e) {a b : J}
     rw [h3]; convert h using 1; abel
   rw [constr2, constr1] at key
   -- key: 2•(-c) - 3•(L_e(c) - c) + L_e(c) = 0
-  -- This simplifies to: c - 2L_e(c) = 0, so c = 2L_e(c)
-  --
-  -- PROOF STRATEGY (documented in LEARNINGS.md Session 61):
-  -- 1. constr1: L_e²(c) = L_e(c) - c  [PROVEN above]
-  -- 2. constr2: L_e³(c) = -c          [PROVEN above]
-  -- 3. key: 2L³ - 3L² + L = 0         [PROVEN above]
-  -- 4. Substituting → c = 2L_e(c), meaning L_e(c) = c/2
-  -- 5. Then L_e²(c) computed two ways:
-  --    - From constr1: L_e²(c) = c/2 - c = -c/2
-  --    - From linearity: L_e²(c) = L_e(c/2) = c/4
-  -- 6. So c/4 = -c/2, hence 3c/4 = 0, hence c = 0
-  --
-  -- The math is VERIFIED CORRECT. Lean tactic manipulation pending cleanup.
-  -- See docs/Jordan/LEARNINGS.md Session 61 for full proof.
-  sorry
+  -- Simplifies to: c = 2 • L_e(c), meaning L_e(c) = (1/2)c
+  -- Step 1: Derive c = 2 • jmul e c from key
+  have c_eq_2Le : c = (2 : ℕ) • jmul e c := by
+    -- key: 2 • -c - 3 • (jmul e c - c) + jmul e c = 0
+    -- 2 • -c = -(2 • c), 3 • (Le c - c) = 3 • Le c - 3 • c
+    -- So: -(2 • c) - (3 • Le c - 3 • c) + Le c = 0
+    -- = (3-2) • c + (1-3) • Le c = 0
+    -- = c - 2 • Le c = 0
+    have h : c - (2 : ℕ) • jmul e c = 0 := by
+      -- Expand 2 • -c = -(2 • c) and 3 • (Le c - c) = 3 • Le c - 3 • c
+      rw [neg_nsmul, nsmul_sub] at key
+      -- key: -(2 • c) - (3 • jmul e c - 3 • c) + jmul e c = 0
+      -- This equals: 3 • c - 2 • c - 3 • jmul e c + jmul e c = 0
+      have key' : (3 : ℕ) • c - (2 : ℕ) • c - (3 : ℕ) • jmul e c + jmul e c = 0 := by
+        convert key using 1; abel
+      have h3c : (3 : ℕ) • c - (2 : ℕ) • c = c := by
+        rw [show (3 : ℕ) = 2 + 1 from rfl, add_nsmul, one_nsmul, add_sub_cancel_left]
+      have h3L : (3 : ℕ) • jmul e c - jmul e c = (2 : ℕ) • jmul e c := by
+        rw [show (3 : ℕ) = 2 + 1 from rfl, add_nsmul, one_nsmul, add_sub_cancel_right]
+      calc c - (2 : ℕ) • jmul e c
+        = (3 : ℕ) • c - (2 : ℕ) • c - ((3 : ℕ) • jmul e c - jmul e c) := by rw [h3c, h3L]
+        _ = (3 : ℕ) • c - (2 : ℕ) • c - (3 : ℕ) • jmul e c + jmul e c := by abel
+        _ = 0 := key'
+    exact sub_eq_zero.mp h
+  -- Convert to ℝ-smul: c = (2:ℝ) • jmul e c
+  have c_eq_2Le' : c = (2 : ℝ) • jmul e c := by
+    simp only [← Nat.cast_smul_eq_nsmul ℝ] at c_eq_2Le
+    exact c_eq_2Le
+  -- Step 2: Derive jmul e c = (1/2) • c
+  have h2ne : (2 : ℝ) ≠ 0 := two_ne_zero
+  have Le_eq : jmul e c = (1/2 : ℝ) • c := by
+    have h := c_eq_2Le'
+    -- c = 2 • Le c, so Le c = (1/2) • c
+    calc jmul e c
+      = (2 : ℝ)⁻¹ • ((2 : ℝ) • jmul e c) := by rw [smul_smul, inv_mul_cancel₀ h2ne, one_smul]
+      _ = (2 : ℝ)⁻¹ • c := by rw [← h]
+      _ = (1/2 : ℝ) • c := by rw [one_div]
+  -- Step 3: L_e²(c) computed two ways
+  -- From constr1: L_e²(c) = L_e(c) - c = (1/2)c - c = -(1/2)c
+  have L2_way1 : jmul e (jmul e c) = -(1/2 : ℝ) • c := by
+    calc jmul e (jmul e c) = jmul e c - c := constr1
+      _ = (1/2 : ℝ) • c - c := by rw [Le_eq]
+      _ = (1/2 - 1 : ℝ) • c := by rw [sub_smul, one_smul]
+      _ = -(1/2 : ℝ) • c := by norm_num
+  -- From linearity: L_e²(c) = L_e((1/2)c) = (1/2) L_e(c) = (1/2)·(1/2)c = (1/4)c
+  have L2_way2 : jmul e (jmul e c) = (1/4 : ℝ) • c := by
+    calc jmul e (jmul e c) = jmul e ((1/2 : ℝ) • c) := by rw [Le_eq]
+      _ = (1/2 : ℝ) • jmul e c := smul_jmul (1/2 : ℝ) e c
+      _ = (1/2 : ℝ) • ((1/2 : ℝ) • c) := by rw [Le_eq]
+      _ = ((1/2 : ℝ) * (1/2 : ℝ)) • c := by rw [smul_smul]
+      _ = (1/4 : ℝ) • c := by norm_num
+  -- Step 4: (1/4)c = -(1/2)c → (3/4)c = 0 → c = 0
+  have h34 : (3/4 : ℝ) • c = 0 := by
+    have heq : (1/4 : ℝ) • c = -(1/2 : ℝ) • c := L2_way2.symm.trans L2_way1
+    calc (3/4 : ℝ) • c = (1/4 : ℝ) • c + (1/2 : ℝ) • c := by
+           rw [← add_smul]; norm_num
+      _ = -(1/2 : ℝ) • c + (1/2 : ℝ) • c := by rw [heq]
+      _ = 0 := by rw [neg_smul, neg_add_cancel]
+  have h34ne : (3/4 : ℝ) ≠ 0 := by norm_num
+  exact smul_eq_zero.mp h34 |>.resolve_left h34ne
 
 /-- Product of two elements in P_{1/2}(e) lands in P₀(e) ⊕ P₁(e). -/
 theorem peirce_mult_P12_P12 {e : J} (he : IsIdempotent e) {a b : J}
