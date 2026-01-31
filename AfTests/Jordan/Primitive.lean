@@ -144,6 +144,17 @@ def IsStronglyConnected (e f : J) : Prop :=
 
 /-! ### Structure of Orthogonal Primitives (H-O 2.9.4(iv)) -/
 
+/-- Powers of an element in P₁(e) stay in P₁(e) (for n ≥ 1). -/
+theorem jpow_succ_mem_peirce_one {e : J} (he : IsIdempotent e) {a : J}
+    (ha : a ∈ PeirceSpace e 1) (n : ℕ) : jpow a (n + 1) ∈ PeirceSpace e 1 := by
+  induction n with
+  | zero =>
+    convert ha using 1
+    exact jpow_one a
+  | succ n ih =>
+    rw [jpow_succ]
+    exact peirce_mult_P1_P1 he ha ih
+
 /-- Key lemma: Any idempotent in P₁(e) that satisfies jmul e f = f must be 0 or e.
 This follows directly from the definition of primitive. -/
 theorem primitive_idempotent_in_P1 {e : J}
