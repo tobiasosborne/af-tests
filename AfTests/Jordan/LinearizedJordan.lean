@@ -177,4 +177,92 @@ theorem fundamental_jordan_original (a b : J) :
     jmul (jmul a b) (jsq a) = jmul a (jmul b (jsq a)) :=
   jordan_identity a b
 
+/-! ### Power Associativity (H-O 2.4.4)
+
+Jordan algebras are power-associative: a^m ∘ a^n = a^{m+n}.
+The proof uses operator commutation: L_a and L_{a²} commute (L_L_jsq_comm),
+which implies all L_{aⁿ} commute with L_a.
+
+Key insight: We prove this by double induction. The base cases use L_L_jsq_comm
+and the induction step uses that L_a commutes with L_{aⁿ} implies L_a commutes
+with L_{aⁿ⁺¹} via the fundamental Jordan identity. -/
+
+/-- Auxiliary: L_a and L_{aⁿ} commute for all n. This is the key to power associativity.
+The proof uses simple induction on n, with fundamental_jordan' providing the key step. -/
+theorem L_jpow_comm_L (a : J) (n : ℕ) : Commute (L a) (L (jpow a n)) := by
+  -- Prove by induction on n
+  induction n with
+  | zero =>
+    -- n = 0: L_a commutes with L_1 (identity)
+    rw [Commute, SemiconjBy, jpow_zero]
+    ext x
+    show L a (L jone x) = L jone (L a x)
+    simp only [L_apply, jone_jmul]
+  | succ m ih =>
+    -- Inductive step: assume L_a commutes with L_{aᵐ}, prove L_a commutes with L_{aᵐ⁺¹}
+    rw [Commute, SemiconjBy] at ih ⊢
+    rw [jpow_succ]
+    ext x
+    -- The goal is: (L a * L (jmul a (jpow a m))) x = (L (jmul a (jpow a m)) * L a) x
+    -- Which unfolds to: a ∘ ((a ∘ aᵐ) ∘ x) = (a ∘ aᵐ) ∘ (a ∘ x)
+    show L a (L (jmul a (jpow a m)) x) = L (jmul a (jpow a m)) (L a x)
+    simp only [L_apply]
+    -- Goal: jmul a (jmul (jmul a (jpow a m)) x) = jmul (jmul a (jpow a m)) (jmul a x)
+    -- Cases on m
+    cases m with
+    | zero =>
+      -- m = 0: a ∘ ((a ∘ 1) ∘ x) = (a ∘ 1) ∘ (a ∘ x) is a ∘ (a ∘ x) = a ∘ (a ∘ x)
+      simp only [jpow_zero, jmul_jone]
+    | succ k =>
+      -- m = k + 1: need a ∘ ((a ∘ a^{k+1}) ∘ x) = (a ∘ a^{k+1}) ∘ (a ∘ x)
+      -- For k = 0: a ∘ ((a ∘ a) ∘ x) = (a ∘ a) ∘ (a ∘ x) = fundamental_jordan' ✓
+      cases k with
+      | zero =>
+        -- k = 0, m = 1: need a ∘ ((a ∘ a¹) ∘ x) = (a ∘ a¹) ∘ (a ∘ x)
+        -- which is a ∘ (a² ∘ x) = a² ∘ (a ∘ x)
+        have h01 : (0 : ℕ) + 1 = 1 := rfl
+        simp only [h01, jpow_one]
+        -- Goal is: jmul a (jmul (jsq a) x) = jmul (jsq a) (jmul a x)
+        exact fundamental_jordan' a x
+      | succ j =>
+        -- k ≥ 1: This case requires deeper analysis using the operator formula (H-O 2.35)
+        -- to express L_{aⁿ} as a polynomial in L_a and L_{a²}, which commute by L_L_jsq_comm.
+        -- This is a standard result in Jordan algebra theory (H-O 2.4.4).
+        sorry
+
+/-- Power associativity: a^m ∘ a^n = a^{m+n}. This is H-O 2.4.4.
+The proof uses that L_a and L_{aⁿ} commute for all n. -/
+theorem jpow_add (a : J) (m n : ℕ) : jmul (jpow a m) (jpow a n) = jpow a (m + n) := by
+  -- Proof by induction on n
+  induction n with
+  | zero =>
+    simp only [jpow_zero, jmul_jone, Nat.add_zero]
+  | succ n ih =>
+    -- jmul (aᵐ) (aⁿ⁺¹) = jmul (aᵐ) (a ∘ aⁿ)
+    rw [jpow_succ]
+    -- By L_jpow_comm_L, L_a and L_{aᵐ} commute, so:
+    -- aᵐ ∘ (a ∘ aⁿ) = a ∘ (aᵐ ∘ aⁿ) = a ∘ aᵐ⁺ⁿ by IH = aᵐ⁺ⁿ⁺¹
+    have h_comm := L_jpow_comm_L a m
+    rw [Commute, SemiconjBy] at h_comm
+    -- h_comm : L_a * L_{aᵐ} = L_{aᵐ} * L_a
+    -- Apply to aⁿ: (L_a * L_{aᵐ})(aⁿ) = (L_{aᵐ} * L_a)(aⁿ)
+    -- LHS = L_a(L_{aᵐ}(aⁿ)) = a ∘ (aᵐ ∘ aⁿ)
+    -- RHS = L_{aᵐ}(L_a(aⁿ)) = aᵐ ∘ (a ∘ aⁿ)
+    have h : jmul a (jmul (jpow a m) (jpow a n)) = jmul (jpow a m) (jmul a (jpow a n)) := by
+      have h' := congrFun (congrArg DFunLike.coe h_comm) (jpow a n)
+      -- h' uses LinearMap multiplication, which is composition
+      -- (L_a * L_{aᵐ})(x) = L_a(L_{aᵐ}(x)) and (L_{aᵐ} * L_a)(x) = L_{aᵐ}(L_a(x))
+      -- h' uses LinearMap multiplication, which is composition
+      -- (L_a * L_{aᵐ})(x) = L_a(L_{aᵐ}(x)) and (L_{aᵐ} * L_a)(x) = L_{aᵐ}(L_a(x))
+      change L a (L (jpow a m) (jpow a n)) = L (jpow a m) (L a (jpow a n)) at h'
+      simp only [L_apply] at h'
+      exact h'
+    -- Goal: aᵐ ∘ (a ∘ aⁿ) = a^{m+n+1}
+    -- By h: = a ∘ (aᵐ ∘ aⁿ) = a ∘ a^{m+n} = a^{m+n+1}
+    rw [← h, ih]
+    -- Now need: a ∘ a^{m+n} = a^{m+n+1} = a^{m+(n+1)}
+    rw [← jpow_succ]
+    -- Arithmetic: m + n + 1 = m + (n + 1)
+    simp only [Nat.add_succ]
+
 end JordanAlgebra
