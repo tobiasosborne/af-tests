@@ -1,29 +1,21 @@
-# Handoff: 2026-01-31 (Session 60)
+# Handoff: 2026-01-31 (Session 61)
 
 ## Completed This Session
 
-### 1. Peirce Polynomial Identity - Proof Strategy Discovered
-- **File:** `AfTests/Jordan/Peirce.lean`
-- Added `import AfTests.Jordan.LinearizedJordan` (line 8)
-- Proof skeleton at lines 126-158 with **1 sorry remaining**
+### 1. `peirce_polynomial_identity` PROVEN ✅
+- **File:** `AfTests/Jordan/Peirce.lean:126-188`
+- **Sorries eliminated:** 1 (25 → 24)
+- **Technique:** Used `four_variable_identity e e x e` to derive `2L³ - 3L² + L = 0`
 
-### Key Mathematical Insight (VERIFIED CORRECT)
+### 2. P0×P1 Orthogonality Strategy DISCOVERED
+- **Theorem:** `peirce_mult_P0_P1` - if a ∈ P₀(e), b ∈ P₁(e), then a∘b = 0
+- **Mathematical proof:** COMPLETE AND VERIFIED (see LEARNINGS.md Session 61)
+- **Lean implementation:** IN PROGRESS (module tactic issues)
 
-Using `four_variable_identity e e x e` with idempotent e gives:
-```
-2·L_e³(x) + L_e(x) = 3·L_e²(x)
-```
-Rearranging: `2·L_e³ - 3·L_e² + L_e = 0` which is the Peirce polynomial.
-
-**What's proven:**
-- `key : (2:ℕ) • L³ - (3:ℕ) • L² + L = 0` ✓
-
-**What's left (1 sorry):**
-- Convert `key` to match the goal form with `(1/2 : ℝ)` coefficients
-- Goal: `L³ - L² - (1/2)L² + (1/2)L = 0`
-- This equals `(1/2) • (2L³ - 3L² + L) = (1/2) • 0 = 0`
-
-See `docs/Jordan/LEARNINGS.md` Session 60 for detailed proof strategy.
+**Key insight:** From `four_variable_identity e a b e`, derive that c = a∘b satisfies:
+1. `L_e²(c) = L_e(c) - c`
+2. `L_e³(c) = -c`
+3. Combined with Peirce polynomial → `c = 2L_e(c)` → `L_e(c) = -c` → `c = 0`
 
 ---
 
@@ -32,7 +24,7 @@ See `docs/Jordan/LEARNINGS.md` Session 60 for detailed proof strategy.
 | Metric | Value |
 |--------|-------|
 | Total LOC | 24,536 |
-| Total Sorries | 25 |
+| Total Sorries | 24 |
 | Issues Closed | 291 / 316 (92%) |
 
 ### Component Health
@@ -40,32 +32,40 @@ See `docs/Jordan/LEARNINGS.md` Session 60 for detailed proof strategy.
 |-----------|-----|---------|--------|
 | GNS/ | 2,455 | 0 | Complete |
 | ArchimedeanClosure/ | 4,943 | 0 | Complete |
-| Jordan/ | 4,648 | 25 | Active |
+| Jordan/ | 4,648 | 24 | Active |
 
 ---
 
-## 🎯 NEXT SESSION: Start Peirce Chain
+## 🎯 NEXT SESSION: Complete P0×P1 Proof
 
-### Immediate Target: `peirce_polynomial_identity` (Step 0.1)
+### Immediate Target: `peirce_mult_P0_P1` (Continue)
 
-**File:** `AfTests/Jordan/Peirce.lean:125-134`
+**File:** `AfTests/Jordan/Peirce.lean:211-310`
 
-**Goal:** Prove L_e(L_e - 1/2)(L_e - 1) = 0 for idempotent e
+**Status:** Mathematical proof complete, Lean tactics need cleanup.
 
-**Technique:**
-1. Polarize Jordan identity (a∘b)∘a² = a∘(b∘a²) with a → e+x
-2. Extract x-linear terms
-3. Use e² = e to simplify
-4. Result: 2e³(x) - 3e²(x) + e(x) = 0
+**Issues encountered:**
+- ℕ-smul vs ℝ-smul coercion (use `Nat.cast_smul_eq_nsmul`)
+- `linarith`/`ring` don't work on module elements (use `abel`, `calc`)
+- `3 • x ≠ x + x + x` automatically (need explicit conversion)
 
-**Then:** Close af-dxb5 by proving P0/P1 multiplication rules (Steps 1.1-1.3)
+**Next steps:**
+1. Clean up the calc chains in the proof
+2. Use `smul_eq_zero.mp` for final step: `2c = 0 → c = 0`
+3. Alternatively: simplify using `c = -c → 2c = 0` more directly
+
+### Then: Other Peirce Multiplication Rules (af-dxb5)
+
+Same technique should work for:
+- `peirce_mult_P0_P0`: P₀ × P₀ ⊆ P₀
+- `peirce_mult_P1_P1`: P₁ × P₁ ⊆ P₁
 
 ---
 
 ## Spectral Theory Dependency Chain
 
 ```
-af-dxb5 (P0/P1 rules) ← UNBLOCKED, START HERE
+af-dxb5 (P0/P1 rules) ← IN PROGRESS
     └── af-qvqz (P1/2 rules)
             └── af-bqjd (Peirce decomposition theorem)
                     └── af-nnvl (Eigenspace definition)
@@ -74,32 +74,21 @@ af-dxb5 (P0/P1 rules) ← UNBLOCKED, START HERE
                                             └── af-4g40 (Sorry elimination) [P1]
 ```
 
-### Full Plan (21 steps, ~940 LOC)
-
-| Phase | What | Steps | LOC | Sorries |
-|-------|------|-------|-----|---------|
-| 0 | peirce_polynomial_identity | 1 | ~50 | 1 |
-| 1 | P0/P1 rules (af-dxb5) | 3 | ~130 | 3 |
-| 2 | P1/2 rules (af-qvqz) | 3 | ~130 | 3 |
-| 3 | Peirce theorem (af-bqjd) | 3 | ~130 | TBD |
-| 4 | Eigenspaces (af-nnvl, af-9pfg) | 4 | ~190 | TBD |
-| 5 | Spectral theorem (af-pyaw) | 4 | ~180 | 2 |
-| 6 | Sorry elimination (af-4g40) | 3 | ~130 | 5 |
-
 ---
 
 ## Known Gotchas
 
-| Issue | Avoid |
-|-------|-------|
-| QuaternionHermitianMatrix timeout | Don't use `[Field R]` for quaternions |
-| False bilinear identity | Verify identities against H-O book |
-| Module ℝ loop | Provide Module instance upfront |
+| Issue | Solution |
+|-------|----------|
+| ℕ-smul vs ℝ-smul | `simp only [← Nat.cast_smul_eq_nsmul ℝ]` |
+| `linarith` on modules | Use `abel` or `calc` chains |
+| `3 • x` expansion | `rw [show (3:ℕ) = 2+1 from rfl, add_nsmul, two_nsmul, one_nsmul]` |
+| `smul_eq_zero` | Returns `Or`, use `.resolve_left` |
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/Semisimple.lean` — NEW: Semisimple structure
-- `docs/Jordan/LEARNINGS.md` — Added Session 59 + spectral roadmap
+- `AfTests/Jordan/Peirce.lean` — peirce_polynomial_identity PROVEN
+- `docs/Jordan/LEARNINGS.md` — Session 61 documentation
 - `HANDOFF.md` — This file

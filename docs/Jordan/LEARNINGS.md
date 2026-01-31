@@ -787,6 +787,125 @@ The `module` tactic might work here. Or use `simp only [smul_sub, smul_add, smul
 
 ---
 
+## Session 61: Peirce Polynomial PROVEN + P0×P1 Orthogonality Strategy
+
+### VICTORY: `peirce_polynomial_identity` Proven!
+
+**File:** `AfTests/Jordan/Peirce.lean:126-188`
+
+The proof is COMPLETE (0 sorries). Key technique:
+
+1. Use `four_variable_identity e e x e` to derive `2L³ + L = 3L²`
+2. Rearrange to `2L³ - 3L² + L = 0` (in ℕ-smul form)
+3. Convert to ℝ-smul and show goal equals `(1/2) • (2L³ - 3L² + L) = 0`
+
+**Working Lean patterns discovered:**
+```lean
+-- Convert ℕ-smul to ℝ-smul:
+simp only [← Nat.cast_smul_eq_nsmul ℝ] at key
+
+-- Derive L³ = L² - L from four_variable_identity:
+have constr1 : jmul e (jmul e c) = jmul e c - c := by
+  calc jmul e (jmul e c) = jmul e (jmul e c) + c - c := by abel
+    _ = jmul e c - c := by rw [h4v]
+
+-- Use jmul_sub for linearity:
+jmul_sub e _ _  -- NOT jmul_sub (which doesn't exist), use rw [jmul_sub]
+```
+
+### P0×P1 Orthogonality: Mathematical Strategy DISCOVERED
+
+**Theorem:** `peirce_mult_P0_P1` - if a ∈ P₀(e), b ∈ P₁(e), then a∘b = 0
+
+**Proof Strategy (VERIFIED MATHEMATICALLY CORRECT):**
+
+Let c = a∘b. Using `four_variable_identity e a b e` with e∘a = 0, e∘b = b, e² = e:
+
+```
+e ∘ ((a∘b)∘e) + a ∘ ((b∘e)∘e) + b ∘ ((e∘a)∘e) = (a∘b)∘e² + (b∘e)∘(a∘e) + (e∘a)∘(b∘e)
+```
+
+Simplifying with e∘a = 0, b∘e = b (from e∘b = b and commutativity):
+```
+e ∘ (c∘e) + a∘b + 0 = c∘e + 0 + 0
+e ∘ (e∘c) + c = e∘c        (using jmul_comm c e = jmul e c)
+```
+
+**Key constraint:** `L_e²(c) + c = L_e(c)`, equivalently `L_e²(c) = L_e(c) - c`
+
+**Chain of deductions:**
+
+1. `L_e²(c) = L_e(c) - c` (from four_variable_identity)
+2. `L_e³(c) = L_e(L_e(c) - c) = L_e²(c) - L_e(c) = (L_e(c) - c) - L_e(c) = -c`
+3. From Peirce polynomial: `2L³ - 3L² + L = 0`
+4. Substituting: `2(-c) - 3(L_e(c) - c) + L_e(c) = -2c - 3L + 3c + L = c - 2L = 0`
+5. Therefore: `c = 2L_e(c)`, meaning `L_e(c) = c/2`
+6. Then: `L_e²(c) = L_e(c/2) = L_e(c)/2 = c/4` (by linearity)
+7. But also: `L_e²(c) = L_e(c) - c = c/2 - c = -c/2`
+8. So: `c/4 = -c/2`, hence `3c/4 = 0`, therefore `c = 0` ✓
+
+**ALTERNATIVE SHORTER PATH (discovered during debugging):**
+
+From steps 1-4, we get `c = 2L_e(c)`.
+From step 1: `L_e²(c) = L_e(c) - c`
+
+Computing two ways:
+- Way 1: `2L_e²(c) = 2L_e(L_e(c)) = L_e(2L_e(c)) = L_e(c)` (since c = 2L_e(c))
+- Way 2: `2L_e²(c) = 2(L_e(c) - c) = 2L_e(c) - 2c = c - 2c = -c` (using c = 2L_e(c))
+
+So `L_e(c) = -c`. But also `2L_e(c) = c`, so `-2c = c`, hence `3c = 0`, so `c = 0` ✓
+
+### Lean Tactic Issues Encountered
+
+**Problem:** Module element manipulations don't work with `linarith` or `ring`.
+
+**Solutions found:**
+- Use `abel` for additive manipulations
+- Use `calc` chains with explicit rewrites
+- `sub_eq_zero.mpr` / `sub_eq_zero.mp` for equality ↔ subtraction
+- `smul_eq_zero.mp` to conclude element = 0 from scalar • element = 0
+
+**Problem:** ℕ-smul vs ℝ-smul coercion issues.
+
+**Solution:**
+```lean
+simp only [← Nat.cast_smul_eq_nsmul ℝ] at hypothesis
+-- Converts (n : ℕ) • x to (n : ℝ) • x
+```
+
+**Problem:** `3 • x` doesn't automatically equal `x + x + x`.
+
+**Solution:**
+```lean
+have h3 : (3 : ℕ) • y = y + y + y := by
+  rw [show (3 : ℕ) = 2 + 1 from rfl, add_nsmul, two_nsmul, one_nsmul]
+```
+
+### Current State of Peirce.lean
+
+| Theorem | Status | Notes |
+|---------|--------|-------|
+| `peirce_polynomial_identity` | ✅ PROVEN | Lines 126-188 |
+| `peirce_mult_P0_P0` | sorry | Needs similar analysis |
+| `peirce_mult_P1_P1` | sorry | Needs similar analysis |
+| `peirce_mult_P0_P1` | IN PROGRESS | Math correct, Lean tactics messy |
+| `peirce_mult_P12_P12` | sorry | |
+| `peirce_mult_P0_P12` | sorry | |
+| `peirce_mult_P1_P12` | sorry | |
+
+### Sorry Count
+
+- **Before session:** 25 sorries
+- **After session:** 24 sorries (peirce_polynomial_identity eliminated)
+- **Progress on:** peirce_mult_P0_P1 (proof strategy complete, implementation partial)
+
+### Files Modified
+
+- `AfTests/Jordan/Peirce.lean` - peirce_polynomial_identity proven, P0_P1 work in progress
+- `docs/Jordan/LEARNINGS.md` - This documentation
+
+---
+
 ## References
 
 - Hanche-Olsen & Størmer, *Jordan Operator Algebras* (see `examples3/Jordan Operator Algebras/`)
