@@ -143,4 +143,38 @@ theorem L_L_jsq_comm (a : J) : Commute (L a) (L (jsq a)) := by
     _ = jmul (jmul a x) (jsq a) := (jordan_identity a x).symm
     _ = jmul (jsq a) (jmul a x) := jmul_comm _ _
 
+/-! ### The Fundamental Jordan Identity (Element Form) -/
+
+/-- The fundamental Jordan identity in element form (Hanche-Olsen 2.4.2).
+
+`(a² ∘ b) ∘ a = a² ∘ (b ∘ a)` for all a, b.
+
+This is equivalent to the Jordan axiom `(a ∘ b) ∘ a² = a ∘ (b ∘ a²)` and expresses
+that the operators T_a and T_{a²} commute. It follows immediately from `L_L_jsq_comm`. -/
+theorem fundamental_jordan (a b : J) : jmul (jmul (jsq a) b) a = jmul (jsq a) (jmul b a) := by
+  -- Use commutativity to rewrite to the form from L_L_jsq_comm
+  calc jmul (jmul (jsq a) b) a
+      = jmul a (jmul (jsq a) b) := jmul_comm _ _
+    _ = jmul (jsq a) (jmul a b) := by
+        -- From L_L_jsq_comm: L_a ∘ L_{a²} = L_{a²} ∘ L_a applied to b
+        have h := L_L_jsq_comm a
+        have hx : L a (L (jsq a) b) = L (jsq a) (L a b) :=
+          congrFun (congrArg DFunLike.coe h.eq) b
+        simp only [L_apply] at hx
+        exact hx
+    _ = jmul (jsq a) (jmul b a) := by rw [jmul_comm a b]
+
+/-- Alternative form: `a ∘ (a² ∘ b) = a² ∘ (a ∘ b)`. -/
+theorem fundamental_jordan' (a b : J) : jmul a (jmul (jsq a) b) = jmul (jsq a) (jmul a b) := by
+  have h := L_L_jsq_comm a
+  have hx : L a (L (jsq a) b) = L (jsq a) (L a b) :=
+    congrFun (congrArg DFunLike.coe h.eq) b
+  simp only [L_apply] at hx
+  exact hx
+
+/-- The Jordan identity applied: `(a ∘ b) ∘ a² = a ∘ (b ∘ a²)` (original form). -/
+theorem fundamental_jordan_original (a b : J) :
+    jmul (jmul a b) (jsq a) = jmul a (jmul b (jsq a)) :=
+  jordan_identity a b
+
 end JordanAlgebra

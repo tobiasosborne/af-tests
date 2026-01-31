@@ -382,6 +382,57 @@ QuaternionHermitianMatrix) define `FormallyRealJordan` directly.
 
 ---
 
+## Session 57: Fundamental Jordan Identity Analysis
+
+### What Was Proven
+
+Added three theorems to `LinearizedJordan.lean`:
+
+| Theorem | Statement | Notes |
+|---------|-----------|-------|
+| `fundamental_jordan` | `(a² ∘ b) ∘ a = a² ∘ (b ∘ a)` | Element form of H-O 2.4.2 |
+| `fundamental_jordan'` | `a ∘ (a² ∘ b) = a² ∘ (a ∘ b)` | Alternative form |
+| `fundamental_jordan_original` | `(a ∘ b) ∘ a² = a ∘ (b ∘ a²)` | Original Jordan axiom |
+
+These are direct corollaries of `L_L_jsq_comm` (T_a and T_{a²} commute).
+
+### Why `linearized_jordan_aux` Has a Sorry
+
+**Key discovery:** The `linearized_jordan_aux` theorem requires the bilinear identity
+that Session 54 showed is FALSE.
+
+The theorem states:
+```
+(a(bc))a² + (b(ac))a² + (c(ab))a² = a((bc)a²) + b((ac)a²) + c((ab)a²)
+```
+
+**Analysis:**
+- First term `(a(bc))a² = a((bc)a²)` by Jordan identity ✓
+- Other terms require: `(b(ac))a² = b((ac)a²)` and `(c(ab))a² = c((ab)a²)`
+- These are NOT Jordan identity instances!
+
+Using `operator_commutator_jsq`: `[L_{a²}, L_b] = 2[L_a, L_{ab}]`, we can show the
+remaining terms require:
+```
+2·a((ab)(ac)) = (ab)(a(ac)) + (ac)(a(ab))
+```
+
+**This is exactly the bilinear identity from Session 54 that was proven FALSE.**
+
+### Path Forward for U Fundamental Formula
+
+The U fundamental formula `U_{U_a(b)} = U_a ∘ U_b ∘ U_a` requires one of:
+
+1. **MacDonald's theorem** (af-3c28): Polynomial identities linear in one variable
+   that hold in special Jordan algebras hold in all Jordan algebras
+2. **Direct proof**: ~2 page calculation in McCrimmon's book
+3. **Leave as sorry**: Status quo, acceptable for abstract theory
+
+**Recommendation:** Focus on MacDonald's theorem (af-3c28) as it enables many
+other results and is a foundational tool.
+
+---
+
 ## References
 
 - Hanche-Olsen & Størmer, *Jordan Operator Algebras* (see `examples3/Jordan Operator Algebras/`)
