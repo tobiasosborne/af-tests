@@ -628,6 +628,165 @@ af-dxb5 (P0/P1 rules) ← UNBLOCKED, START HERE
 
 ---
 
+## Session 60: Peirce Polynomial Identity Proof
+
+### The Key Identity
+
+For idempotent `e` (e² = e), we need to prove:
+```
+L_e(L_e - 1/2)(L_e - 1) = 0
+```
+Equivalently: `2 L_e³(x) - 3 L_e²(x) + L_e(x) = 0` for all x.
+
+### Proof Strategy (VERIFIED CORRECT)
+
+**Use `four_variable_identity` from LinearizedJordan.lean with a = b = e, c = x, d = e:**
+
+```
+four_variable_identity e e x e gives:
+e ∘ ((e ∘ x) ∘ e) + e ∘ ((x ∘ e) ∘ e) + x ∘ ((e ∘ e) ∘ e) =
+(e ∘ x) ∘ (e ∘ e) + (x ∘ e) ∘ (e ∘ e) + (e ∘ e) ∘ (x ∘ e)
+```
+
+**Simplify using e² = e and jmul_comm:**
+```
+e ∘ ((e ∘ x) ∘ e) + e ∘ ((e ∘ x) ∘ e) + (e ∘ x) =
+(e ∘ x) ∘ e + (e ∘ x) ∘ e + e ∘ (e ∘ x)
+```
+
+**Use `jmul_jmul_e_x_e` (already proven in Peirce.lean:102):**
+```
+(e ∘ x) ∘ e = e ∘ (e ∘ x)
+```
+
+**This gives:**
+```
+2 · e ∘ (e ∘ (e ∘ x)) + (e ∘ x) = 2 · e ∘ (e ∘ x) + e ∘ (e ∘ x)
+2 · L_e³(x) + L_e(x) = 3 · L_e²(x)
+```
+
+**Rearranging:** `2 L_e³(x) - 3 L_e²(x) + L_e(x) = 0` ✓
+
+### Required Import
+
+**CRITICAL:** Peirce.lean needs `import AfTests.Jordan.LinearizedJordan` to access `four_variable_identity`.
+
+### Implementation Notes
+
+1. The goal after `ring_nf` has form involving `(1/2 : ℝ)` scalars
+2. Need to convert between `ℕ`-smul and `ℝ`-smul using `Nat.cast_smul_eq_nsmul`
+3. The `linarith` tactic should handle the arithmetic once setup correctly
+4. Key lemmas needed:
+   - `four_variable_identity` (LinearizedJordan.lean)
+   - `jmul_jmul_e_x_e` (Peirce.lean:102)
+   - `IsIdempotent` unfolding: `he : jmul e e = e`
+
+### H-O Reference
+
+Section 2.6.2 (page 47-48) derives this from equation (2.64):
+```
+T_p = U_p + ½(ι - U_p - U_p⊥) + 0·U_p⊥
+```
+This shows T_p has eigenvalues {0, 1/2, 1}, hence the minimal polynomial divides x(x-1/2)(x-1).
+
+### Current State
+
+- Added import to Peirce.lean (line 8)
+- Wrote proof skeleton at lines 126-164
+- **ERROR on line 144:** The rewrite `rw [jmul_comm x e, hcomm] at h4v` fails because after the first `simp` the term `jmul x e` no longer appears
+
+### Fix for Line 144 Error
+
+The problem is the order of simplifications. After line 138's `simp`, h4v already has `jmul e x` not `jmul x e`.
+
+**DELETE line 144** (the problematic rw). The h4v is already in the right form after line 141.
+
+After line 141, h4v should have form:
+```
+jmul e (jmul e (jmul e x)) + jmul e (jmul e (jmul e x)) + jmul e x =
+jmul e (jmul e x) + jmul e (jmul e x) + jmul e (jmul e x)
+```
+
+This is exactly `2·L_e³(x) + L_e(x) = 3·L_e²(x)`, which gives the Peirce polynomial.
+
+### Debugging Commands
+
+```bash
+# Check errors
+lake build AfTests.Jordan.Peirce
+
+# Or use lean LSP
+lean_diagnostic_messages on Peirce.lean
+lean_goal on specific lines to see goal state
+```
+
+### CRITICAL: linarith doesn't work on Jordan elements!
+
+`linarith` only works on ordered rings/fields (like ℝ). Jordan algebra elements are NOT ordered, so you CANNOT use `linarith` on them.
+
+**Instead use:**
+- `abel` for additive manipulations
+- `sub_eq_zero.mpr` to convert `a = b` to `a - b = 0`
+- Direct `calc` chains with rewrites
+
+### Correct Proof Pattern
+
+The goal after `ring_nf` is:
+```
+jmul e (jmul e (jmul e x) - jmul e x) - (1/2) • (jmul e (jmul e x) - jmul e x) = 0
+```
+
+From h4v we have:
+```
+L³ + L³ + L = L² + L² + L²
+```
+i.e. `2·L³ + L = 3·L²`
+
+Use `sub_eq_zero.mpr` and `abel` to rearrange:
+```lean
+have key : 2 • L³ - 3 • L² + L = 0 := by
+  have h := h4v  -- 2·L³ + L = 3·L²
+  -- convert using sub_eq_zero
+  ...
+```
+
+Then expand the goal using `jmul_sub`, `smul_sub`, `sub_smul` and show it equals `key`.
+
+### Session 60 Proof Attempt Status
+
+**File modified:** `AfTests/Jordan/Peirce.lean` lines 126-195
+
+**What works:**
+- Import added: `import AfTests.Jordan.LinearizedJordan` (line 8)
+- `four_variable_identity e e x e` gives the right identity
+- `key : 2 • L³ - 3 • L² + L = 0` is proven (uses `ℕ`-smul)
+- `key' : (2:ℝ) • L³ - (3:ℝ) • L² + L = 0` attempts conversion
+
+**What's failing:**
+The calc chain steps have type mismatch issues between `ℕ`-smul and `ℝ`-smul.
+
+**Alternative approach for next agent:**
+
+Instead of the complex calc chain, try:
+```lean
+-- After key' is proven with ℝ coefficients
+-- Goal is: L³ - L² - ((1/2)L² - (1/2)L) = 0
+-- Direct computation:
+have h : jmul e (jmul e (jmul e x)) - jmul e (jmul e x) -
+         ((1/2 : ℝ) • jmul e (jmul e x) - (1/2 : ℝ) • jmul e x) =
+         (1/2 : ℝ) • (2 • jmul e (jmul e (jmul e x)) - 3 • jmul e (jmul e x) + jmul e x) := by
+  -- Use: L³ - L² - (1/2)L² + (1/2)L = (1/2)(2L³ - 3L² + L)
+  -- Verify: (1/2)*2*L³ = L³ ✓
+  -- (1/2)*3*L² = (3/2)L² = L² + (1/2)L² ✓
+  -- (1/2)*L = (1/2)L ✓
+  module  -- or use module axioms manually
+rw [h, key', smul_zero]
+```
+
+The `module` tactic might work here. Or use `simp only [smul_sub, smul_add, smul_smul]` then `norm_num` then `abel`.
+
+---
+
 ## References
 
 - Hanche-Olsen & Størmer, *Jordan Operator Algebras* (see `examples3/Jordan Operator Algebras/`)

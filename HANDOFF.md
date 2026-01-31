@@ -1,16 +1,29 @@
-# Handoff: 2026-01-31 (Session 59)
+# Handoff: 2026-01-31 (Session 60)
 
 ## Completed This Session
 
-### 1. Semisimple Jordan Algebras (af-5fwf)
-- Created `AfTests/Jordan/Semisimple.lean` (175 lines, 0 sorries)
-- Defines `IsSemisimpleJordan` typeclass
-- Proves simple implies semisimple
+### 1. Peirce Polynomial Identity - Proof Strategy Discovered
+- **File:** `AfTests/Jordan/Peirce.lean`
+- Added `import AfTests.Jordan.LinearizedJordan` (line 8)
+- Proof skeleton at lines 126-158 with **1 sorry remaining**
 
-### 2. Spectral Theory Roadmap Analysis
-- Confirmed Peirce decomposition is prerequisite for spectral theorem
-- Mapped existing beads issues to 21-step implementation plan
-- Identified `af-dxb5` as the unblocked starting point
+### Key Mathematical Insight (VERIFIED CORRECT)
+
+Using `four_variable_identity e e x e` with idempotent e gives:
+```
+2·L_e³(x) + L_e(x) = 3·L_e²(x)
+```
+Rearranging: `2·L_e³ - 3·L_e² + L_e = 0` which is the Peirce polynomial.
+
+**What's proven:**
+- `key : (2:ℕ) • L³ - (3:ℕ) • L² + L = 0` ✓
+
+**What's left (1 sorry):**
+- Convert `key` to match the goal form with `(1/2 : ℝ)` coefficients
+- Goal: `L³ - L² - (1/2)L² + (1/2)L = 0`
+- This equals `(1/2) • (2L³ - 3L² + L) = (1/2) • 0 = 0`
+
+See `docs/Jordan/LEARNINGS.md` Session 60 for detailed proof strategy.
 
 ---
 

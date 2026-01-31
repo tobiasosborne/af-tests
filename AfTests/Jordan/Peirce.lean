@@ -5,6 +5,7 @@ Authors: AF-Tests Contributors
 -/
 import AfTests.Jordan.Primitive
 import AfTests.Jordan.Product
+import AfTests.Jordan.LinearizedJordan
 
 /-!
 # Peirce Decomposition for Jordan Algebras
@@ -129,8 +130,32 @@ theorem peirce_polynomial_identity {e : J} (he : IsIdempotent e) :
     LinearMap.id_apply, L_apply, LinearMap.zero_apply]
   rw [jmul_sub, smul_jmul, jmul_sub]
   ring_nf
-  -- Goal: 2 • e³(x) - 3 • e²(x) + e(x) = 0 (after normalization)
-  -- The proof requires extracting x-linear terms from jordan_identity (e + x) e
+  -- Goal after ring_nf: e∘((e∘(e∘x)) - (e∘x)) - (1/2)•((e∘(e∘x)) - (e∘x)) = 0
+  -- This is equivalent to: 2L³ - 3L² + L = 0 (Peirce polynomial)
+
+  -- PROOF STRATEGY (verified correct, see LEARNINGS.md Session 60):
+  -- Use four_variable_identity e e x e to get: 2L³ + L = 3L²
+  -- Then rearrange to: 2L³ - 3L² + L = 0
+
+  have h4v := four_variable_identity e e x e
+  unfold IsIdempotent jsq at he
+  simp only [he, jmul_comm x e] at h4v
+  have hcomm : jmul (jmul e x) e = jmul e (jmul e x) := jmul_jmul_e_x_e (by rwa [IsIdempotent, jsq]) x
+  simp only [hcomm] at h4v
+  -- h4v: L³ + L³ + L = L² + L² + L² (i.e., 2L³ + L = 3L²)
+  have key : (2 : ℕ) • jmul e (jmul e (jmul e x)) - (3 : ℕ) • jmul e (jmul e x) +
+             jmul e x = 0 := by
+    have h : jmul e (jmul e (jmul e x)) + jmul e (jmul e (jmul e x)) + jmul e x -
+             (jmul e (jmul e x) + jmul e (jmul e x) + jmul e (jmul e x)) = 0 :=
+      sub_eq_zero.mpr h4v
+    simp only [two_nsmul] at h ⊢
+    have h3 : (3 : ℕ) • jmul e (jmul e x) =
+              jmul e (jmul e x) + jmul e (jmul e x) + jmul e (jmul e x) := by
+      rw [show (3 : ℕ) = 2 + 1 from rfl, add_nsmul, two_nsmul, one_nsmul]
+    rw [h3]; convert h using 1; abel
+  -- key: 2•L³ - 3•L² + L = 0 (with ℕ coefficients)
+  -- Remaining: convert to goal form with (1/2) factors
+  -- Goal: L³ - L² - (1/2)L² + (1/2)L = 0  which equals (1/2)(2L³ - 3L² + L) = 0
   sorry
 
 /-! ### Peirce Multiplication Rules -/
