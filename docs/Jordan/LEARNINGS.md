@@ -1189,6 +1189,46 @@ from spectral theory, creating a potential circular dependency.
 
 ---
 
+## Session 73: Verification Check - UNVERIFIED IDENTITIES
+
+### ⚠️ WARNING: Potentially Unverified Theorems
+
+The following theorems in `OperatorIdentities.lean` have sorries and their H-O references
+**could not be verified** against the actual book:
+
+| Theorem | Claimed Identity | Status |
+|---------|-----------------|--------|
+| `L_e_L_a_L_e` (line 170) | `L_e ∘ L_a ∘ L_e = L_{e∘(a∘e)} + (1/2)[L_e, [L_e, L_a]]` | **UNVERIFIED** |
+| `opComm_double_idempotent` (line 177) | `[L_e, [L_e, L_a]] = 2(L_e ∘ L_a ∘ L_e) - 2 L_{e∘(a∘e)}` | **UNVERIFIED** |
+
+**These are circular** - each is just a rearrangement of the other.
+
+### Rule: Verify Against Source Before Proving
+
+Before attempting to fill a sorry:
+1. **Locate the exact theorem** in H-O or McCrimmon
+2. **Quote the statement verbatim** from the source
+3. **Note section/page number**
+4. If source cannot be located, **flag as potentially hallucinated**
+
+### What Was Actually Verified in Previous Sessions
+
+The following have been traced to specific H-O sections:
+- `four_variable_identity` → H-O 2.34 ✓
+- `operator_formula` → H-O 2.35 ✓
+- `peirce_polynomial_identity` → H-O 2.6.2 ✓
+- `primitive_peirce_one_scalar` → H-O 2.9.4(ii) ✓ (statement verified, proof strategy documented)
+
+### Session 73 Summary
+
+**No code changes made this session.** Session focused on:
+1. Reading existing code and learnings
+2. Understanding the blocking issues for spectral theory
+3. Discovering the need to verify operator identities against H-O
+4. Flagging potentially unverified theorems
+
+---
+
 ## References
 
 - Hanche-Olsen & Størmer, *Jordan Operator Algebras* (see `examples3/Jordan Operator Algebras/`)

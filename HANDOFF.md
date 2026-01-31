@@ -1,26 +1,16 @@
-# Handoff: 2026-01-31 (Session 72)
+# Handoff: 2026-01-31 (Session 73)
 
 ## Completed This Session
 
-- **PROVEN: `spectral_sq`** - Key structural theorem now has no sorry!
-- **PROVEN: `jsq_sum_orthog_idem`** - Squaring sums of orthogonal idempotents
-- **PROVEN: `sum_jmul`** - Left multiplication distributes over sums
+**No code changes.** Session was research/verification focused.
 
-### Key Technical Achievement
+### Key Finding: Verification Warning
 
-**`spectral_sq` is now proven without sorry:**
-```lean
-theorem spectral_sq (a : J) (sd : SpectralDecomp a) :
-    ∃ sd_sq : SpectralDecomp (jsq a), sd_sq.n = sd.n
-```
+Discovered that some theorems in `OperatorIdentities.lean` may be **unverified**:
+- `L_e_L_a_L_e` (line 170) - claimed identity not verified against H-O
+- `opComm_double_idempotent` (line 177) - circular with above
 
-This theorem shows: if `a = Σ λᵢ eᵢ` (orthogonal idempotents), then `a² = Σ λᵢ² eᵢ`.
-
-The proof uses the helper lemma `jsq_sum_orthog_idem` which expands:
-```
-(∑ᵢ coef i • eᵢ)² = ∑ᵢ (coef i)² • eᵢ
-```
-This follows from orthogonality (cross-terms vanish) and idempotency (diagonal terms simplify).
+**Rule added to learnings:** Always verify theorem statements against H-O/McCrimmon before attempting to fill sorries.
 
 ---
 
@@ -28,75 +18,49 @@ This follows from orthogonality (cross-terms vanish) and idempotency (diagonal t
 
 | Metric | Value |
 |--------|-------|
-| Total Sorries in Jordan/ | ~26 |
+| Total Sorries in Jordan/ | 26 |
 | Build Status | PASSING |
-| SpectralTheorem.lean | 6 sorries (was 7) |
+| SpectralTheorem.lean | 6 sorries |
+| Primitive.lean | 5 sorries |
 
-### SpectralTheorem.lean Status (6 sorries)
+### Key Blocking Issue: `primitive_peirce_one_scalar`
 
-| Line | Theorem | Status | Notes |
-|------|---------|--------|-------|
-| 59 | `spectral_decomposition_exists` | sorry | Depends on primitivity |
-| 71 | `spectral_decomposition_finset` | sorry | Depends on line 59 |
-| 80 | `spectrum_eq_eigenvalueSet` | sorry | Needs spectral decomp |
-| 140 | `spectral_sq` | **PROVEN** | No longer has sorry! |
-| 159, 162 | `spectrum_sq` (2 cases) | sorry | Relates operator eigenvalues to decomp |
-| 173 | `sq_eigenvalues_nonneg` | sorry | Needs spectrum_sq |
+This theorem (H-O 2.9.4(ii)) blocks most spectral theory sorries.
 
-### Primitive.lean Status (5 sorries) - UNCHANGED
+**H-O Proof Strategy (VERIFIED against book):**
+1. {pAp} is commutative associative (Peirce theory)
+2. Has no nilpotents (formal reality)
+3. Finite-dimensional → Artinian
+4. Apply Lemma 2.9.3 → product of fields
+5. Minimality → single field
+6. Formally real → field is ℝ
+7. Hence {pAp} = ℝp
 
-Still blocking the main spectral theorems.
+**Mathlib resources identified:**
+- `IsArtinianRing.isSemisimpleRing_of_isReduced` - Artinian + Reduced → Semisimple
+- `IsSemisimpleRing.exists_algEquiv_pi_matrix_divisionRing_finite` - Wedderburn structure
 
----
-
-## Key Discovery: Two Notions of "Eigenvalue"
-
-The file has two related but distinct concepts:
-
-1. **Operator eigenvalues** (`spectrum a`): Eigenvalues of `L_a : v ↦ a ∘ v`
-2. **Decomposition coefficients** (`SpectralDecomp.eigenvalues`): The λᵢ in `a = Σ λᵢ eᵢ`
-
-These are related when the eᵢ are primitive idempotents, but proving this relationship
-requires more Peirce theory. The theorem `spectrum_sq` (with 2 sorries) aims to prove
-they're equal, but this needs `spectral_decomposition_exists` which depends on primitivity.
-
-**Key insight:** `spectral_sq` (now proven) works with decomposition coefficients,
-not operator eigenvalues. It's structural and doesn't need primitivity.
+**Missing infrastructure:**
+- Proof that PeirceSpace e 1 is associative (not just closed under ∘)
+- Connection to mathlib's ring theory infrastructure
 
 ---
 
 ## Next Steps (Priority Order)
 
-### 1. Prove `primitive_peirce_one_scalar` (P1) - af-lhxr
-**Still the key blocker.** Shows P₁(e) = ℝe for primitive e.
+### 1. Verify OperatorIdentities.lean theorems against H-O
 
-**CANONICAL H-O PROOF (Lemma 2.9.4(ii)):**
+Before filling sorries at lines 173, 180, check if the identities are real.
 
-Uses **Lemma 2.9.3**: Commutative ring without nilpotents + DCC → direct sum of fields.
+### 2. Focus on `primitive_peirce_one_scalar`
 
-1. {pAp} is commutative associative (Peirce theory - DONE)
-2. Has no nilpotents (formal reality)
-3. Finite-dimensional → DCC
-4. **Apply 2.9.3** → {pAp} = F₁ ⊕ ... ⊕ Fₙ (direct sum of fields)
-5. p = e₁ + ... + eₙ (sum of field identities)
-6. **Minimality** → n = 1 (else eᵢ is sub-idempotent)
-7. {pAp} is a single field F
-8. **Formally real** → F ≠ ℂ
-9. Only formally real field over ℝ is ℝ (H-O 2.2.6)
-10. Hence {pAp} = ℝp
+The key blocker. Requires:
+- Showing PeirceSpace e 1 is an associative subalgebra
+- Connecting to mathlib's semisimple ring theory
 
-**Mathlib search needed:** Structure theorem for semisimple commutative algebras.
+### 3. Alternative: Work on concrete cases
 
-### 2. Complete Primitive.lean sorries → unlocks spectral theory
-
-### 3. Then prove `spectral_decomposition_exists`
-
----
-
-## Files Modified This Session
-
-- `AfTests/Jordan/SpectralTheorem.lean` — Added `sum_jmul`, `jsq_sum_orthog_idem`; proved `spectral_sq`
-- `HANDOFF.md` — This file
+Classification sorries in `ComplexHermitian.lean` and `RealSymmetric.lean` may be more tractable.
 
 ---
 
@@ -104,7 +68,14 @@ Uses **Lemma 2.9.3**: Commutative ring without nilpotents + DCC → direct sum o
 
 | Issue | Status | Notes |
 |-------|--------|-------|
-| af-4g40 | IN PROGRESS | spectral_sq now proven! |
-| af-lhxr | OPEN (P1) | primitive_peirce_one_scalar - key blocker |
-| af-hbnj | OPEN (P1) | exists_primitive_decomp |
+| af-4g40 | OPEN (P1) | spectral sorries - blocked by primitivity |
+| af-lhxr | OPEN (P1) | orthogonal_primitive_peirce_sq - blocked |
+| af-hbnj | OPEN (P1) | exists_primitive_decomp - blocked |
 | af-5zpv | OPEN (P0) | JordanTrace needs instances |
+
+---
+
+## Files Modified This Session
+
+- `docs/Jordan/LEARNINGS.md` — Added Session 73 verification warning
+- `HANDOFF.md` — This file
