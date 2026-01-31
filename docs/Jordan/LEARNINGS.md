@@ -2,6 +2,38 @@
 
 Research findings from formalizing Jordan algebras in Lean 4.
 
+---
+
+## 🚨 CRITICAL: AXIOM GAPS (Session 67)
+
+**AXIOMS ARE EXTREME GAPS!** Adding axioms to typeclasses without concrete instances
+means theorems are vacuously true. This is WORSE than sorries.
+
+### Current Axiom Gaps (P0 issues created)
+
+| Class | Axiom | Issue | Status |
+|-------|-------|-------|--------|
+| `JordanTrace` | trace_add, trace_smul, trace_jmul_comm, trace_jone_pos | af-5zpv | NO INSTANCES |
+| `JordanTrace` | trace_L_selfadjoint | af-2dzb | NO INSTANCES |
+| `FormallyRealTrace` | trace_jsq_nonneg, trace_jsq_eq_zero_iff | af-pxqu | NO INSTANCES |
+
+### Rule: NEVER add typeclass axioms without concrete instances
+
+When adding axioms to a typeclass:
+1. **IMMEDIATELY** create a concrete instance proving the axiom
+2. If you can't prove it for concrete types, **DON'T ADD THE AXIOM**
+3. Create a P0 issue if axiom is added without instance
+
+### Impact
+
+All theorems using `[JordanTrace J]` or `[FormallyRealTrace J]` are currently
+vacuously true because no instances exist. This includes:
+- `eigenspace_orthogonal`
+- `eigenspace_traceInner_zero`
+- `traceInner_jmul_left`
+
+---
+
 ## Mathlib Jordan Content (as of v4.26.0)
 
 ### What Exists
