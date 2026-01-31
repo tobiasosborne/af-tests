@@ -39,11 +39,11 @@ For idempotent e with Peirce spaces P₀, P_{1/2}, P₁:
 
 ---
 
-## Implementation Status (COMPLETE ✅)
+## Implementation Status
 
-All Peirce multiplication rules are proven using `four_variable_identity`.
+### Multiplication Rules (COMPLETE ✅)
 
-### Proven Theorems
+All Peirce multiplication rules are proven using `four_variable_identity`:
 - `peirce_polynomial_identity` - L_e(L_e - 1/2)(L_e - 1) = 0 ✅
 - `peirce_mult_P0_P0` - P₀ × P₀ ⊆ P₀ ✅
 - `peirce_mult_P1_P1` - P₁ × P₁ ⊆ P₁ ✅
@@ -51,6 +51,16 @@ All Peirce multiplication rules are proven using `four_variable_identity`.
 - `peirce_mult_P12_P12` - P_{1/2} × P_{1/2} ⊆ P₀ ⊕ P₁ ✅
 - `peirce_mult_P0_P12` - P₀ × P_{1/2} ⊆ P_{1/2} ✅
 - `peirce_mult_P1_P12` - P₁ × P_{1/2} ⊆ P_{1/2} ✅
+
+### Decomposition Theorem (90% COMPLETE)
+
+Projection operators and decomposition existence proven:
+- `peirceProj₀`, `peirceProj₁₂`, `peirceProj₁` - Lagrange interpolation projections ✅
+- `peirceProj_sum` - Projections sum to identity ✅
+- `peirceProj₀_mem`, `peirceProj₁₂_mem`, `peirceProj₁_mem` - Project into correct spaces ✅
+- `peirce_decomposition` - Existence of decomposition ✅
+- `peirceSpace_iSup_eq_top` - Peirce spaces span algebra ✅
+- `peirce_direct_sum` - IsInternal (1 sorry: independence proof)
 
 ---
 
@@ -112,6 +122,44 @@ refine ⟨x₀, hx₀_mem, x₁, hx₁_mem, hsum⟩
 - Use `abel` instead of `ring` (no associativity)
 - Use `calc` chains with explicit rewrites
 - `sub_eq_zero.mpr` / `sub_eq_zero.mp` for equality ↔ subtraction
+
+---
+
+---
+
+## Lagrange Interpolation Projections (Session 64)
+
+### Construction
+The Peirce polynomial p(x) = x(x - 1/2)(x - 1) has roots at 0, 1/2, 1.
+Lagrange interpolation gives projection formulas:
+
+```
+π_λ = ∏_{μ≠λ} (L - μ) / (λ - μ)
+
+π₀ = (L - 1/2)(L - 1) / [(0 - 1/2)(0 - 1)] = 2(L² - (3/2)L + 1/2) = 2L² - 3L + 1
+π_{1/2} = L(L - 1) / [(1/2)(1/2 - 1)] = -4L(L - 1) = -4L² + 4L
+π₁ = L(L - 1/2) / [(1)(1/2)] = 2L(L - 1/2) = 2L² - L
+```
+
+### Verification
+Check: π₀ + π_{1/2} + π₁ = (2L² - 3L + 1) + (-4L² + 4L) + (2L² - L) = 0L² + 0L + 1 = id ✓
+
+### Lean Implementation
+```lean
+def peirceProj₀ (e : J) : J →ₗ[ℝ] J :=
+  (2 : ℝ) • (L e ∘ₗ L e) - (3 : ℝ) • L e + LinearMap.id
+
+def peirceProj₁₂ (e : J) : J →ₗ[ℝ] J :=
+  -(4 : ℝ) • (L e ∘ₗ L e) + (4 : ℝ) • L e
+
+def peirceProj₁ (e : J) : J →ₗ[ℝ] J :=
+  (2 : ℝ) • (L e ∘ₗ L e) - L e
+```
+
+### Key Proof Pattern
+To show π maps into correct Peirce space, verify L_e(π(x)) = λ·π(x):
+1. Expand using 2L³ = 3L² - L (from Peirce polynomial)
+2. Simplify: e.g., for π₀: L_e(2L² - 3L + 1) = 2L³ - 3L² + L = 0 ✓
 
 ---
 

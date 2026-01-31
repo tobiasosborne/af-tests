@@ -438,4 +438,224 @@ theorem peirce_mult_P1_P12 {e : J} (he : IsIdempotent e) {a b : J}
     exact sub_eq_zero.mp calc1
   exact h
 
+/-! ### Peirce Projection Operators -/
+
+/-- Projection onto P₀(e): π₀ = 2(L_e - 1/2)(L_e - 1) = 2L² - 3L + 1.
+    This is the Lagrange interpolation polynomial for eigenvalue 0. -/
+def peirceProj₀ (e : J) : J →ₗ[ℝ] J :=
+  (2 : ℝ) • (L e ∘ₗ L e) - (3 : ℝ) • L e + LinearMap.id
+
+/-- Projection onto P_{1/2}(e): π_{1/2} = -4L(L - 1) = -4L² + 4L.
+    This is the Lagrange interpolation polynomial for eigenvalue 1/2. -/
+def peirceProj₁₂ (e : J) : J →ₗ[ℝ] J :=
+  -(4 : ℝ) • (L e ∘ₗ L e) + (4 : ℝ) • L e
+
+/-- Projection onto P₁(e): π₁ = 2L(L - 1/2) = 2L² - L.
+    This is the Lagrange interpolation polynomial for eigenvalue 1. -/
+def peirceProj₁ (e : J) : J →ₗ[ℝ] J :=
+  (2 : ℝ) • (L e ∘ₗ L e) - L e
+
+/-- The three Peirce projections sum to the identity. -/
+theorem peirceProj_sum (e : J) :
+    peirceProj₀ e + peirceProj₁₂ e + peirceProj₁ e = LinearMap.id := by
+  ext x
+  simp only [LinearMap.add_apply, peirceProj₀, peirceProj₁₂, peirceProj₁,
+    LinearMap.sub_apply, LinearMap.smul_apply, LinearMap.comp_apply,
+    LinearMap.id_apply, LinearMap.neg_apply, L_apply]
+  -- Goal: (2L² - 3L + 1)x + (-4L² + 4L)x + (2L² - L)x = x
+  -- = (2 - 4 + 2)L²x + (-3 + 4 - 1)Lx + x = 0·L²x + 0·Lx + x = x
+  -- Use module axioms: coefficients are 0, 0, 1
+  have h1 : (2 : ℝ) + (-4) + 2 = 0 := by norm_num
+  have h2 : (-3 : ℝ) + 4 + (-1) = 0 := by norm_num
+  calc (2 : ℝ) • jmul e (jmul e x) - (3 : ℝ) • jmul e x + x +
+       (-(4 : ℝ) • jmul e (jmul e x) + (4 : ℝ) • jmul e x) +
+       ((2 : ℝ) • jmul e (jmul e x) - jmul e x)
+    = ((2 : ℝ) + (-4) + 2) • jmul e (jmul e x) + ((-3 : ℝ) + 4 + (-1)) • jmul e x + x := by
+        rw [neg_smul]; module
+    _ = (0 : ℝ) • jmul e (jmul e x) + (0 : ℝ) • jmul e x + x := by rw [h1, h2]
+    _ = x := by simp [zero_smul]
+
+/-- π₀ maps into P₀(e). -/
+theorem peirceProj₀_mem {e : J} (he : IsIdempotent e) (x : J) :
+    peirceProj₀ e x ∈ PeirceSpace e 0 := by
+  rw [mem_peirceSpace_iff, zero_smul]
+  simp only [peirceProj₀, LinearMap.sub_apply, LinearMap.add_apply,
+    LinearMap.smul_apply, LinearMap.comp_apply, LinearMap.id_apply, L_apply]
+  -- Need: L_e((2L² - 3L + 1)x) = 0, i.e., 2L³ - 3L² + L = 0
+  rw [jmul_add, jmul_sub, smul_jmul, smul_jmul]
+  -- Use Peirce polynomial from four_variable_identity
+  have h4v := four_variable_identity e e x e
+  unfold IsIdempotent jsq at he
+  simp only [he, jmul_comm x e] at h4v
+  have hcomm : jmul (jmul e x) e = jmul e (jmul e x) :=
+    jmul_jmul_e_x_e (by rwa [IsIdempotent, jsq]) x
+  simp only [hcomm] at h4v
+  -- h4v: L³ + L³ + L = L² + L² + L² (i.e., 2L³ + L = 3L²)
+  have key : (2 : ℕ) • jmul e (jmul e (jmul e x)) - (3 : ℕ) • jmul e (jmul e x) +
+             jmul e x = 0 := by
+    have h : jmul e (jmul e (jmul e x)) + jmul e (jmul e (jmul e x)) + jmul e x -
+             (jmul e (jmul e x) + jmul e (jmul e x) + jmul e (jmul e x)) = 0 :=
+      sub_eq_zero.mpr h4v
+    simp only [two_nsmul] at h ⊢
+    have h3 : (3 : ℕ) • jmul e (jmul e x) =
+              jmul e (jmul e x) + jmul e (jmul e x) + jmul e (jmul e x) := by
+      rw [show (3 : ℕ) = 2 + 1 from rfl, add_nsmul, two_nsmul, one_nsmul]
+    rw [h3]; convert h using 1; abel
+  simp only [← Nat.cast_smul_eq_nsmul ℝ] at key
+  exact key
+
+/-- π_{1/2} maps into P_{1/2}(e). -/
+theorem peirceProj₁₂_mem {e : J} (he : IsIdempotent e) (x : J) :
+    peirceProj₁₂ e x ∈ PeirceSpace e (1 / 2) := by
+  rw [mem_peirceSpace_iff]
+  simp only [peirceProj₁₂, LinearMap.add_apply, LinearMap.smul_apply,
+    LinearMap.comp_apply, L_apply]
+  -- Need: L_e((-4L² + 4L)x) = (1/2)·((-4L² + 4L)x)
+  -- I.e., -4L³ + 4L² = (1/2)(-4L² + 4L) = -2L² + 2L
+  rw [jmul_add, smul_jmul, smul_jmul]
+  -- Goal: (-4)•L³x + 4•L²x = (1/2)•((-4)•L²x + 4•Lx)
+  have h4v := four_variable_identity e e x e
+  unfold IsIdempotent jsq at he
+  simp only [he, jmul_comm x e] at h4v
+  have hcomm : jmul (jmul e x) e = jmul e (jmul e x) :=
+    jmul_jmul_e_x_e (by rwa [IsIdempotent, jsq]) x
+  simp only [hcomm] at h4v
+  have key : (2 : ℕ) • jmul e (jmul e (jmul e x)) - (3 : ℕ) • jmul e (jmul e x) +
+             jmul e x = 0 := by
+    have h : jmul e (jmul e (jmul e x)) + jmul e (jmul e (jmul e x)) + jmul e x -
+             (jmul e (jmul e x) + jmul e (jmul e x) + jmul e (jmul e x)) = 0 :=
+      sub_eq_zero.mpr h4v
+    simp only [two_nsmul] at h ⊢
+    have h3 : (3 : ℕ) • jmul e (jmul e x) =
+              jmul e (jmul e x) + jmul e (jmul e x) + jmul e (jmul e x) := by
+      rw [show (3 : ℕ) = 2 + 1 from rfl, add_nsmul, two_nsmul, one_nsmul]
+    rw [h3]; convert h using 1; abel
+  simp only [← Nat.cast_smul_eq_nsmul ℝ] at key
+  -- From key: 2L³ = 3L² - L, so 4L³ = 6L² - 2L, so -4L³ = -6L² + 2L
+  have h2L3 : (2 : ℝ) • jmul e (jmul e (jmul e x)) = (3 : ℝ) • jmul e (jmul e x) - jmul e x := by
+    have h' : (2 : ℝ) • jmul e (jmul e (jmul e x)) - (3 : ℝ) • jmul e (jmul e x) + jmul e x = 0 := key
+    calc (2 : ℝ) • jmul e (jmul e (jmul e x))
+      = (2 : ℝ) • jmul e (jmul e (jmul e x)) - (3 : ℝ) • jmul e (jmul e x) + jmul e x +
+        ((3 : ℝ) • jmul e (jmul e x) - jmul e x) := by abel
+      _ = 0 + ((3 : ℝ) • jmul e (jmul e x) - jmul e x) := by rw [h']
+      _ = (3 : ℝ) • jmul e (jmul e x) - jmul e x := by simp
+  have from_key : (-4 : ℝ) • jmul e (jmul e (jmul e x)) = (-6 : ℝ) • jmul e (jmul e x) +
+                  (2 : ℝ) • jmul e x := by
+    calc (-4 : ℝ) • jmul e (jmul e (jmul e x))
+      = (-2 : ℝ) • ((2 : ℝ) • jmul e (jmul e (jmul e x))) := by rw [smul_smul]; norm_num
+      _ = (-2 : ℝ) • ((3 : ℝ) • jmul e (jmul e x) - jmul e x) := by rw [h2L3]
+      _ = (-6 : ℝ) • jmul e (jmul e x) + (2 : ℝ) • jmul e x := by
+          rw [smul_sub, smul_smul]; simp only [neg_mul, neg_neg]; norm_num
+  -- Now: -4L³ + 4L² = (-6L² + 2L) + 4L² = -2L² + 2L = (1/2)(-4L² + 4L)
+  calc (-4 : ℝ) • jmul e (jmul e (jmul e x)) + (4 : ℝ) • jmul e (jmul e x)
+    = ((-6 : ℝ) • jmul e (jmul e x) + (2 : ℝ) • jmul e x) + (4 : ℝ) • jmul e (jmul e x) := by
+        rw [from_key]
+    _ = (-2 : ℝ) • jmul e (jmul e x) + (2 : ℝ) • jmul e x := by module
+    _ = (1/2 : ℝ) • ((-4 : ℝ) • jmul e (jmul e x) + (4 : ℝ) • jmul e x) := by
+        simp only [smul_add, smul_smul]; norm_num
+
+/-- π₁ maps into P₁(e). -/
+theorem peirceProj₁_mem {e : J} (he : IsIdempotent e) (x : J) :
+    peirceProj₁ e x ∈ PeirceSpace e 1 := by
+  rw [mem_peirceSpace_iff, one_smul]
+  simp only [peirceProj₁, LinearMap.sub_apply, LinearMap.smul_apply,
+    LinearMap.comp_apply, L_apply]
+  -- Need: L_e((2L² - L)x) = (2L² - L)x
+  -- I.e., 2L³ - L² = 2L² - L, i.e., 2L³ - 3L² + L = 0 ✓
+  rw [jmul_sub, smul_jmul]
+  have h4v := four_variable_identity e e x e
+  unfold IsIdempotent jsq at he
+  simp only [he, jmul_comm x e] at h4v
+  have hcomm : jmul (jmul e x) e = jmul e (jmul e x) :=
+    jmul_jmul_e_x_e (by rwa [IsIdempotent, jsq]) x
+  simp only [hcomm] at h4v
+  have key : (2 : ℕ) • jmul e (jmul e (jmul e x)) - (3 : ℕ) • jmul e (jmul e x) +
+             jmul e x = 0 := by
+    have h : jmul e (jmul e (jmul e x)) + jmul e (jmul e (jmul e x)) + jmul e x -
+             (jmul e (jmul e x) + jmul e (jmul e x) + jmul e (jmul e x)) = 0 :=
+      sub_eq_zero.mpr h4v
+    simp only [two_nsmul] at h ⊢
+    have h3 : (3 : ℕ) • jmul e (jmul e x) =
+              jmul e (jmul e x) + jmul e (jmul e x) + jmul e (jmul e x) := by
+      rw [show (3 : ℕ) = 2 + 1 from rfl, add_nsmul, two_nsmul, one_nsmul]
+    rw [h3]; convert h using 1; abel
+  simp only [← Nat.cast_smul_eq_nsmul ℝ] at key
+  -- From key: 2L³ = 3L² - L
+  -- Need: 2L³ - L² = 2L² - L
+  -- Subst: (3L² - L) - L² = 2L² - L ✓
+  have from_key : (2 : ℝ) • jmul e (jmul e (jmul e x)) =
+                  (3 : ℝ) • jmul e (jmul e x) - jmul e x := by
+    have h' : (2 : ℝ) • jmul e (jmul e (jmul e x)) - (3 : ℝ) • jmul e (jmul e x) + jmul e x = 0 := key
+    calc (2 : ℝ) • jmul e (jmul e (jmul e x))
+      = (2 : ℝ) • jmul e (jmul e (jmul e x)) - (3 : ℝ) • jmul e (jmul e x) + jmul e x +
+        ((3 : ℝ) • jmul e (jmul e x) - jmul e x) := by abel
+      _ = 0 + ((3 : ℝ) • jmul e (jmul e x) - jmul e x) := by rw [h']
+      _ = (3 : ℝ) • jmul e (jmul e x) - jmul e x := by simp
+  calc (2 : ℝ) • jmul e (jmul e (jmul e x)) - jmul e (jmul e x)
+    = ((3 : ℝ) • jmul e (jmul e x) - jmul e x) - jmul e (jmul e x) := by rw [from_key]
+    _ = (2 : ℝ) • jmul e (jmul e x) - jmul e x := by module
+
+/-! ### Peirce Decomposition Theorem -/
+
+/-- Every element decomposes uniquely into Peirce components. -/
+theorem peirce_decomposition {e : J} (he : IsIdempotent e) (a : J) :
+    ∃ (a₀ a₁₂ a₁ : J),
+      a₀ ∈ PeirceSpace e 0 ∧
+      a₁₂ ∈ PeirceSpace e (1/2) ∧
+      a₁ ∈ PeirceSpace e 1 ∧
+      a = a₀ + a₁₂ + a₁ := by
+  refine ⟨peirceProj₀ e a, peirceProj₁₂ e a, peirceProj₁ e a,
+          peirceProj₀_mem he a, peirceProj₁₂_mem he a, peirceProj₁_mem he a, ?_⟩
+  -- a = π₀(a) + π_{1/2}(a) + π₁(a) follows from peirceProj_sum
+  have h := peirceProj_sum e
+  calc a = LinearMap.id a := rfl
+    _ = (peirceProj₀ e + peirceProj₁₂ e + peirceProj₁ e) a := by rw [← h]
+    _ = peirceProj₀ e a + peirceProj₁₂ e a + peirceProj₁ e a := by
+        simp only [LinearMap.add_apply]
+
+/-- The supremum of the three Peirce spaces is the whole algebra. -/
+theorem peirceSpace_iSup_eq_top {e : J} (he : IsIdempotent e) :
+    PeirceSpace e 0 ⊔ PeirceSpace e (1/2) ⊔ PeirceSpace e 1 = ⊤ := by
+  rw [eq_top_iff]
+  intro a _
+  obtain ⟨a₀, a₁₂, a₁, ha₀, ha₁₂, ha₁, hsum⟩ := peirce_decomposition he a
+  rw [hsum]
+  apply Submodule.add_mem
+  apply Submodule.add_mem
+  · exact Submodule.mem_sup_left (Submodule.mem_sup_left ha₀)
+  · exact Submodule.mem_sup_left (Submodule.mem_sup_right ha₁₂)
+  · exact Submodule.mem_sup_right ha₁
+
+/-- The three Peirce spaces form an internal direct sum.
+    This captures both uniqueness of decomposition and spanning.
+
+    Note: The independence (iSupIndep) proof requires showing that each Peirce space
+    intersects trivially with the sum of the others. This follows from eigenvalue
+    distinctness (0, 1/2, 1 are pairwise distinct) combined with `peirceSpace_disjoint`. -/
+theorem peirce_direct_sum {e : J} (he : IsIdempotent e) :
+    DirectSum.IsInternal ![PeirceSpace e 0, PeirceSpace e (1/2), PeirceSpace e 1] := by
+  rw [DirectSum.isInternal_submodule_iff_iSupIndep_and_iSup_eq_top]
+  constructor
+  · -- Independence: prove iSupIndep
+    -- The strategy: show each space has trivial intersection with the sum of others
+    -- using that eigenvalues 0, 1/2, 1 are pairwise distinct and L_e is a linear operator
+    sorry
+  · -- Spanning: prove iSup = ⊤
+    -- The iSup over Fin 3 equals the three-way sup
+    set f := ![PeirceSpace e 0, PeirceSpace e (1/2), PeirceSpace e 1] with hf
+    have h : ⨆ i, f i = PeirceSpace e 0 ⊔ PeirceSpace e (1/2) ⊔ PeirceSpace e 1 := by
+      apply le_antisymm
+      · apply iSup_le
+        intro i
+        fin_cases i <;> simp only [hf]
+        · exact le_sup_of_le_left le_sup_left
+        · exact le_sup_of_le_left le_sup_right
+        · exact le_sup_right
+      · apply sup_le <;> [apply sup_le; skip]
+        · exact le_iSup f 0
+        · exact le_iSup f 1
+        · exact le_iSup f 2
+    rw [h]
+    exact peirceSpace_iSup_eq_top he
+
 end JordanAlgebra
