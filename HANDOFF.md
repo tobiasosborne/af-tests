@@ -1,24 +1,24 @@
-# Handoff: 2026-01-31 (Session 83)
+# Handoff: 2026-01-31 (Session 84)
 
 ## Completed This Session
 
 ### Progress on af-fbx8: primitive_peirce_one_dim_one
 
-Added helper lemma and restructured proof in `Primitive.lean`:
+**Attempted** implementation of `peirce_one_quadratic_scalar` lemma - the core of H-O 2.9.4(ii).
 
-```lean
-/-- Key lemma: If x ∈ P₁(e) satisfies x² = c • e for some c ≤ 0, then x = 0.
-Uses formal reality: c < 0 contradicts sum of squares = 0, c = 0 gives x² = 0 → x = 0. -/
-theorem peirce_one_sq_nonpos_imp_zero [FormallyRealJordan J]
-    {e : J} (he : IsIdempotent e) (he_ne : e ≠ 0) {x : J} (_hx : x ∈ PeirceSpace e 1)
-    {c : ℝ} (hc : c ≤ 0) (hsq : jsq x = c • e) : x = 0
-```
+**Mathematical approach verified correct:**
+1. For x ∈ P₁(e), get quadratic x² = r·x + s·e (from finite dimension)
+2. Discriminant Δ = r² + 4s determines three cases:
+   - Δ ≤ 0: y = x - (r/2)·e satisfies y² = (Δ/4)·e ≤ 0, use `peirce_one_sq_nonpos_imp_zero`
+   - Δ = 0: Nilpotent case, formal reality
+   - Δ > 0: Lagrange idempotent f = (x - μ·e)/√Δ contradicts primitivity
 
-**Proof technique:** When c < 0, construct sum of squares `jsq x + jsq (√(-c) • e) = 0` using
-`jsq_smul_idem`. By formal reality, both terms must be zero, but `√(-c) • e ≠ 0`. Contradiction.
+**Lean implementation has errors:**
+- `ring` vs `module` tactic issues (ring doesn't work on module elements)
+- Missing/unfound `jsq_smul` lemma
+- Various calc chain issues in Δ > 0 case
 
-Also restructured `primitive_peirce_one_dim_one` with clearer proof outline using `Nat.le_antisymm`
-and `Submodule.finrank_mono`.
+**Code state:** Primitive.lean has partial proof with errors, needs cleanup.
 
 ---
 
@@ -26,72 +26,57 @@ and `Submodule.finrank_mono`.
 
 | Metric | Value |
 |--------|-------|
-| Total Sorries in Jordan/ | **26** (unchanged) |
-| Build Status | PASSING |
-| New items added | 1 proven helper lemma, proof restructuring |
+| Total Sorries in Jordan/ | ~26 (unchanged) |
+| Build Status | **FAILING** (errors in Primitive.lean) |
+| Key Progress | Math strategy verified, Lean tactics identified |
+
+---
+
+## Critical: File Needs Cleanup
+
+`AfTests/Jordan/Primitive.lean` has compilation errors from incomplete proof attempt.
+**Before next session:** Either fix errors or revert to sorry.
 
 ---
 
 ## Remaining Work for af-fbx8
 
-The main sorry is in `hle_span`:
+The main sorry is in `hle_span` (line ~350 after edits):
 
 ```lean
 have hle_span : (PeirceSpace e 1 : Submodule ℝ J) ≤ Submodule.span ℝ {e} := by
   intro x hx
   rw [Submodule.mem_span_singleton]
-  -- For any x ∈ P₁(e), we show ∃ r, x = r • e
+  -- Use peirce_one_quadratic_scalar once working
   sorry
 ```
 
-**Proof strategy** (from LEARNINGS.md):
-1. Powers of x stay in P₁(e) by `jpow_succ_mem_peirce_one`
-2. By finite dimension, x satisfies a polynomial p(x) = 0
-3. If p has complex roots → violates formal reality (construct y with y² < 0)
-4. If p has repeated roots → nilpotent contradiction
-5. If p has multiple distinct real roots → Lagrange idempotents contradict primitivity
-6. So p(t) = c(t - λ), hence x = λe
-
-**Key challenge:** Formalizing the Lagrange idempotent construction and showing it produces
-non-trivial idempotents in P₁(e).
+**Proof requires:**
+1. Working `peirce_one_quadratic_scalar` lemma
+2. Lemma to extract quadratic relation from finite dimension (linear dependence of {e, x, x²})
 
 ---
 
 ## Next Session Recommendations
 
-1. **Complete af-fbx8** by implementing the polynomial argument:
-   - Define minimal polynomial satisfaction (linear dependence of powers)
-   - Handle repeated roots via `no_nilpotent_of_formallyReal`
-   - Handle multiple distinct roots via Lagrange idempotent construction
-   - Use `primitive_idempotent_in_P1` for the contradiction
+1. **Fix or revert Primitive.lean** to get build passing
+2. **Find/prove `jsq_smul`**: `jsq (r • x) = r^2 • jsq x`
+3. **Use `module` tactic** instead of `ring` for module element manipulations
+4. **Add linear dependence lemma** to extract quadratic from finite dim
 
-   Estimated: ~50-80 LOC
+---
 
-2. **Alternative approach:** Use `peirce_one_sq_nonpos_imp_zero` more directly:
-   - For x ∈ P₁(e), consider y = x - (some scalar)·e such that y² = c·e
-   - Handle cases c ≤ 0 (use helper) and c > 0 (construct idempotent)
+## Key Learnings This Session
+
+See `docs/Jordan/LEARNINGS.md` Session 84 for:
+- Complete mathematical proof of quadratic discriminant approach
+- Lean tactic issues: `ring` vs `module`
+- Lagrange idempotent construction details
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/Primitive.lean` — Added `peirce_one_sq_nonpos_imp_zero`, restructured proof
+- `AfTests/Jordan/Primitive.lean` — Added `peirce_one_quadratic_scalar` (partial, errors)
+- `docs/Jordan/LEARNINGS.md` — Session 84 learnings
 - `HANDOFF.md` — This file
-
----
-
-## Key Learnings
-
-1. **Formal reality contradiction pattern:**
-   ```lean
-   -- To show jsq y = c•e with c < 0 is impossible:
-   have hsum : jsq x + jsq (√(-c) • e) = 0 := by
-     rw [hsq, jsq_smul_idem he, Real.sq_sqrt ..., ← add_smul, add_neg_cancel, zero_smul]
-   -- Apply FormallyRealJordan.sum_sq_eq_zero with vector ![x, √(-c) • e]
-   ```
-
-2. **Matrix vector access:** `![a, b] 1` simplifies via `Matrix.cons_val_one` to `![b] 0`,
-   then via `Matrix.cons_val_zero` to `b`.
-
-3. **Submodule finrank equality:** Use `Nat.le_antisymm` with `Submodule.finrank_mono` in
-   both directions, rather than trying to directly rewrite on the submodule.

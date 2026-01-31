@@ -1520,6 +1520,96 @@ have h2k_ge : 2 * k ≥ n + 2 := by omega
 
 ---
 
+## Session 84: Quadratic Discriminant Approach for primitive_peirce_one_scalar
+
+### The Core Proof Strategy (H-O 2.9.4(ii))
+
+For x ∈ P₁(e) with primitive e, show x ∈ ℝ·e using quadratic analysis:
+
+1. **Get quadratic relation**: Since P₁(e) is finite-dimensional, {e, x, x²} is linearly dependent.
+   Extract: x² = r·x + s·e for some r, s ∈ ℝ.
+
+2. **Discriminant analysis** on Δ = r² + 4s:
+
+   | Case | Method | Key Step |
+   |------|--------|----------|
+   | Δ ≤ 0 | Use `peirce_one_sq_nonpos_imp_zero` | y = x - (r/2)·e satisfies y² = (Δ/4)·e ≤ 0 |
+   | Δ = 0 | Nilpotent | (x - (r/2)·e)² = 0 → formal reality |
+   | Δ > 0 | Lagrange idempotent | f = (x - μ·e)/√Δ is idempotent, contradicts primitivity |
+
+### Δ ≤ 0 Case (VERIFIED CORRECT)
+
+For y = x - (r/2)·e:
+```
+y² = x² - r·(x·e) + (r²/4)·e²
+   = x² - r·x + (r²/4)·e        [since x·e = x for x ∈ P₁(e), e² = e]
+   = (r·x + s·e) - r·x + (r²/4)·e  [using x² = r·x + s·e]
+   = (s + r²/4)·e
+   = (Δ/4)·e
+```
+
+If Δ ≤ 0, then Δ/4 ≤ 0, so by `peirce_one_sq_nonpos_imp_zero`, y = 0, hence x = (r/2)·e.
+
+### Δ > 0 Case: Lagrange Idempotent Construction
+
+Roots: λ = (r + √Δ)/2, μ = (r - √Δ)/2
+
+Define f = (x - μ·e)/√Δ = (√Δ)⁻¹ · (x - μ·e)
+
+**Verify f² = f:**
+```
+f² = (√Δ)⁻² · (x - μ·e)²
+   = (√Δ)⁻² · (x² - 2μ·x + μ²·e)
+   = (√Δ)⁻² · ((r-2μ)·x + (s+μ²)·e)
+```
+
+Key algebraic facts:
+- r - 2μ = r - (r - √Δ) = √Δ
+- s + μ² = -μ·√Δ (verified algebraically)
+
+So:
+```
+f² = (√Δ)⁻² · (√Δ·x - μ·√Δ·e) = (√Δ)⁻¹ · (x - μ·e) = f ✓
+```
+
+**f ∈ P₁(e)**: f is a linear combination of x and e, both in P₁(e).
+
+**By primitivity**: f = 0 or f = e.
+- If f = 0: x - μ·e = 0, so x = μ·e ∈ ℝ·e
+- If f = e: x - μ·e = √Δ·e, so x = (μ + √Δ)·e = λ·e ∈ ℝ·e
+
+### Lean Implementation Challenges Encountered
+
+1. **`ring` doesn't work on module elements**: Use `module` tactic instead
+2. **`unfold_let` not available**: Use `set ... with h_def` then `rw [h_def]`
+3. **`λ` is reserved keyword**: Use `lam` instead of `λ'`
+4. **`jsq_smul` lemma**: Need `jsq (r • x) = r^2 • jsq x` - verify exists or prove
+5. **Scalar vs module arithmetic**: `ring` works on ℝ scalars, `module` on J elements
+
+### Lemma Dependencies for Full Proof
+
+| Lemma | Status | Notes |
+|-------|--------|-------|
+| `peirce_one_sq_nonpos_imp_zero` | ✅ Proven | Session 83 |
+| `peirce_mult_P1_P1` | ✅ Proven | Peirce.lean |
+| `jsq_smul` | ❓ Check | `jsq (r • x) = r^2 • jsq x` |
+| Linear dependence extraction | ❓ Need | Get quadratic from finite dim |
+
+### Files Modified This Session
+
+- `AfTests/Jordan/Primitive.lean` - Added `peirce_one_quadratic_scalar` (partial, has errors)
+
+### Next Steps
+
+1. Fix Lean errors in `peirce_one_quadratic_scalar`:
+   - Add/find `jsq_smul` lemma
+   - Replace `ring` with `module` for module elements
+   - Fix the Δ > 0 case calculation
+2. Add lemma to extract quadratic relation from finite dimension
+3. Complete `primitive_peirce_one_dim_one` using `peirce_one_quadratic_scalar`
+
+---
+
 ## References
 
 - Hanche-Olsen & Størmer, *Jordan Operator Algebras* (see `examples3/Jordan Operator Algebras/`)
