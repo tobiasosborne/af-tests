@@ -938,6 +938,58 @@ have h3 : (3 : ℕ) • y = y + y + y := by
 
 ---
 
+## Session 68: Spectral Theorem Structure & Primitive.lean Analysis
+
+### Key Finding: Peirce is Complete, Primitive is the Blocker
+
+**Peirce.lean has 0 sorries.** All H-O Section 2.6 material is proven:
+- `peirce_polynomial_identity` — L_e(L_e - 1/2)(L_e - 1) = 0
+- All multiplication rules: P0×P0, P1×P1, P0×P1, P1/2×P1/2, P0×P1/2, P1×P1/2
+- `peirce_decomposition` — Every element decomposes into P0 + P1/2 + P1
+- `peirce_direct_sum` — The decomposition is a direct sum
+
+### Blocking Sorries: Primitive.lean (3 sorries)
+
+| Theorem | What it says | Proof using Peirce |
+|---------|--------------|-------------------|
+| `primitive_dichotomy` | Two primitives are orthogonal or equal | If `jmul e f ≠ 0`, then `jmul e f ∈ P₁(e) ∩ P₁(f)`. By primitivity of e: `jmul e f = e`. By primitivity of f: `jmul e f = f`. Hence `e = f`. |
+| `exists_primitive_decomp` | Every idempotent = sum of primitives | Induction on dim. If e not primitive, ∃ proper idempotent f with `jmul e f = f`. Then e-f orthogonal to f. Apply induction. |
+| `csoi_refine_primitive` | CSOI can be refined to primitive CSOI | Apply `exists_primitive_decomp` to each element. |
+
+### Dependency Chain for Spectral Theory
+
+```
+Peirce.lean (0 sorries) ✅
+    │
+    ▼
+Primitive.lean (3 sorries) ← CRITICAL PATH
+    │
+    ▼
+SpectralTheorem.lean (7 sorries)
+    │
+    ▼
+Complete spectral theory
+```
+
+### SpectralTheorem.lean Structure (Session 68)
+
+Created 133 LOC file with:
+- `spectrum a` := eigenvalueSet a (eigenvalues of L_a)
+- `spectral_decomposition_exists` — needs primitive CSOI construction
+- `spectrum_eq_eigenvalueSet` — uniqueness
+- `spectral_sq` — a² has squared eigenvalues
+- `spectrum_sq_nonneg` — PROVEN (squares are non-negative)
+
+### Strategy for Filling Spectral Sorries
+
+Once Primitive.lean sorries are filled:
+1. `spectral_decomposition_exists`: Use `csoi_refine_primitive` on any CSOI containing
+   spectral projections (from eigenspace decomposition)
+2. `spectrum_eq_eigenvalueSet`: Eigenvalues of CSOI decomposition = eigenvalues of L_a
+3. `spectral_sq`: Orthogonality gives (Σ λᵢ eᵢ)² = Σ λᵢ² eᵢ
+
+---
+
 ## References
 
 - Hanche-Olsen & Størmer, *Jordan Operator Algebras* (see `examples3/Jordan Operator Algebras/`)

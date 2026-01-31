@@ -37,29 +37,47 @@ Session 67 added `trace_L_selfadjoint` axiom without concrete instances.
 
 ---
 
-## 🎯 NEXT SESSION: Sorry Elimination (af-4g40)
+## 🎯 CRITICAL FINDING: Primitive.lean is the Blocker
 
-### Spectral Theory Chain
+### Peirce Theory is COMPLETE ✅
+`Peirce.lean` has **0 sorries**. All multiplication rules and decomposition proven:
+- `peirce_polynomial_identity` ✅
+- `peirce_mult_P0_P0`, `peirce_mult_P1_P1`, `peirce_mult_P0_P1` ✅
+- `peirce_mult_P12_P12`, `peirce_mult_P0_P12`, `peirce_mult_P1_P12` ✅
+- `peirce_decomposition`, `peirce_direct_sum` ✅
+
+### Blocking Sorries in Primitive.lean (3 sorries)
+
+| Line | Theorem | Proof Strategy |
+|------|---------|----------------|
+| 82 | `primitive_dichotomy` | If `jmul e f ≠ 0`, then `jmul e f ∈ P₁(e) ∩ P₁(f)`. By primitivity: `e = f` |
+| 95 | `exists_primitive_decomp` | Dimension induction: either primitive or split into orthogonal parts |
+| 102 | `csoi_refine_primitive` | Apply `exists_primitive_decomp` to each CSOI element |
+
+### Dependency Chain
 ```
-af-nnvl (Eigenspace definition) ✅
-    └── af-9pfg (Eigenspace orthogonality) ✅
-            └── af-pyaw (Spectral theorem) ✅
-                    └── af-4g40 (Sorry elimination) ← NEXT
+Peirce.lean (0 sorries) ✅
+    └── Primitive.lean (3 sorries) ← FILL THESE FIRST
+            └── SpectralTheorem.lean (7 sorries)
+                    └── Sorry elimination complete
 ```
 
-### Key Sorries to Address
-1. `spectral_decomposition_exists` - core existence proof
-2. `spectrum_eq_eigenvalueSet` - uniqueness
-3. `spectral_sq` - square eigenvalue relationship
+---
 
-### After Spectral Theory Sorries
-Address axiom gaps (af-5zpv → af-2dzb, af-pxqu):
-- Create `JordanTrace` instance for `HermitianMatrix`
-- Prove `trace_L_selfadjoint` using trace cyclicity
+## 🎯 NEXT SESSION: Fill Primitive.lean Sorries
+
+### Priority Order
+1. **`primitive_dichotomy`** — Foundation for the others
+2. **`exists_primitive_decomp`** — Enables spectral decomposition
+3. **`csoi_refine_primitive`** — Direct consequence of #2
+
+### After Primitive Sorries
+SpectralTheorem sorries become fillable using primitive CSOI construction.
 
 ---
 
 ## Files Modified This Session
 
 - `AfTests/Jordan/SpectralTheorem.lean` — NEW: Spectral theorem structure
+- `HANDOFF.md` — Updated with Primitive.lean blocker analysis
 
