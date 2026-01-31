@@ -2,63 +2,63 @@
 
 ## Completed This Session
 
-### Formalized Hanche-Olsen Operator Identities (2.33-2.35)
+### 1. Formalized Hanche-Olsen Operator Identities (2.33-2.35)
 - **af-v6hv** ✓: Created `AfTests/Jordan/LinearizedJordan.lean`
 - 146 lines, 0 sorries
 
-**Theorems Proven:**
 | Theorem | Identity | Description |
 |---------|----------|-------------|
-| `four_variable_identity` | 2.34 | a∘((bc)∘d) + b∘((ca)∘d) + c∘((ab)∘d) = (bc)∘(ad) + (ca)∘(bd) + (ab)∘(cd) |
-| `operator_formula_apply` | 2.35 | Element form of operator composition formula |
-| `operator_formula` | 2.35 | T_a T_{bc} + T_b T_{ca} + T_c T_{ab} = T_{a(bc)} + T_b T_a T_c + T_c T_a T_b |
+| `four_variable_identity` | 2.34 | Four-variable Jordan identity |
+| `operator_formula` | 2.35 | Operator composition formula |
 | `L_L_jsq_comm` | 2.4.1 | T_a and T_{a²} commute |
 
-**Note:** Identity 2.33 was already proven as `linearized_jordan_operator` in `OperatorIdentities.lean`.
+### 2. Updated CLAUDE.md
+- Rewrote project instructions based on lemmafeld template
+- Added session protocol, deviation detection, gaps=issues policy
+- 150 LOC (under limit)
+
+### 3. Updated Learnings
+- Added Session 56 section to `docs/Jordan/LEARNINGS.md`
+- Documented proof patterns for non-commutative algebra
 
 ---
 
 ## Current State
 
 ### Jordan Module Health
-- **GNS/**: 0 sorries, all files <200 LOC ✓
-- **ArchimedeanClosure/**: 0 sorries, all files <200 LOC ✓
-- **Jordan/**: ~21 sorries (abstract theory gaps)
-- **ThreeCycle/, Primitivity/**: Legacy, not maintained
+| Component | Status | Sorries |
+|-----------|--------|---------|
+| GNS/ | Complete | 0 |
+| ArchimedeanClosure/ | Structure done | 0 |
+| Jordan/ | Active | ~21 |
 
 ### Key Sorries Remaining
-1. `FormallyReal/Def.lean:74-79` - `of_sq_eq_zero` (abstract case)
-2. `FormallyReal/Spectrum.lean:158` - `spectral_sq_eigenvalues_nonneg`
-3. `OperatorIdentities.lean:170,177` - `L_e_L_a_L_e`, `opComm_double_idempotent`
+1. `FormallyReal/Def.lean:74-79` — `of_sq_eq_zero`
+2. `FormallyReal/Spectrum.lean:158` — `spectral_sq_eigenvalues_nonneg`
+3. `OperatorIdentities.lean:170,177` — idempotent identities
 
 ---
 
-## Ready Issues (Next Priority)
+## Next Steps
 
-| Issue | Description |
-|-------|-------------|
-| af-0hav | Rewrite fundamental_formula using Jordan axiom directly |
-| af-4g40 | Jordan Spectral 7: Sorry elimination |
-| af-pyaw | Jordan Spectral 6: Spectral theorem |
-| af-8sf7 | JvNW classification |
-
----
-
-## Files Modified This Session
-
-- `AfTests/Jordan/LinearizedJordan.lean` - NEW: Identities 2.34, 2.35
-- `HANDOFF.md` - This file
+| Priority | Issue | Description |
+|----------|-------|-------------|
+| P1 | af-0hav | Rewrite fundamental_formula using Jordan axiom |
+| P2 | af-noad | Square roots in FormallyReal |
+| P2 | af-rx3g | Reversible properties |
 
 ---
 
-## Reference: Key Identities Now Formalized
+## Known Issues
 
-| Identity | Location | Status |
-|----------|----------|--------|
-| Jordan axiom (2.4.1) | `Basic.lean` | ✓ |
-| Linearized Jordan (2.33) | `OperatorIdentities.lean` | ✓ |
-| Four-variable (2.34) | `LinearizedJordan.lean` | ✓ NEW |
-| Operator formula (2.35) | `LinearizedJordan.lean` | ✓ NEW |
-| T_a, T_{a²} commute | `LinearizedJordan.lean` | ✓ NEW |
+- `docs/Jordan/LEARNINGS.md` is 388 lines (over 200 limit) — accumulation file
+- The bilinear identity is FALSE (Session 54) — documented in learnings
 
-These identities are the foundation for power associativity proofs.
+---
+
+## Files Modified
+
+- `AfTests/Jordan/LinearizedJordan.lean` — NEW: Identities 2.34, 2.35
+- `docs/Jordan/LEARNINGS.md` — Added Session 56 section
+- `CLAUDE.md` — Rewrote with session protocol
+- `HANDOFF.md` — This file
