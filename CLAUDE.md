@@ -95,6 +95,13 @@ import Mathlib.Topology.Algebra.Module.WeakDual
 import Mathlib.Geometry.Convex.Cone.Basic
 ```
 
+### Reference Books
+- **Jordan Operator Algebras** (Hanche-Olsen & Størmer, 1984)
+  - Location: `examples3/Jordan Operator Algebras/joa-m/joa-m.md`
+  - Comprehensive treatment of JB-algebras, JC-algebras, JBW-algebras
+  - Key topics: spectral theory, Peirce decomposition, type classification
+  - Creative Commons licensed (free)
+
 ### Document Everything
 When you discover something interesting:
 1. Add it to the relevant `docs/*/LEARNINGS.md`
