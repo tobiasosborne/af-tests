@@ -5,6 +5,7 @@ Authors: AF-Tests Contributors
 -/
 import AfTests.Jordan.Product
 import AfTests.Jordan.LinearizedJordan
+import AfTests.Jordan.FiniteDimensional
 
 /-!
 # Peirce Decomposition for Jordan Algebras
@@ -967,6 +968,11 @@ theorem peirceOne_mul_comm {e : J} (he : IsIdempotent e)
   ext
   simp only [peirceOne_mul_val he]
   exact jmul_comm a.val b.val
+
+/-- PeirceOne is finite-dimensional when J is. -/
+instance peirceOneFiniteDimensional {e : J} [FinDimJordanAlgebra J] :
+    FiniteDimensional ℝ (PeirceOne e) :=
+  inferInstanceAs (FiniteDimensional ℝ (PeirceSpace e 1))
 
 /-!
 ### Note on Associativity
