@@ -938,6 +938,50 @@ have h3 : (3 : ℕ) • y = y + y + y := by
 
 ---
 
+## Session 69: primitive_dichotomy Proof Strategy is WRONG
+
+### 🚨 CRITICAL FINDING
+
+**The proof strategy from Session 68 is INCORRECT.**
+
+The claim "If `jmul e f ≠ 0`, then `jmul e f ∈ P₁(e) ∩ P₁(f)`" is **FALSE**.
+
+For `jmul e f ∈ P₁(e)` we need `jmul e (jmul e f) = jmul e f`.
+But: `jmul e (jmul e f) = (1/4)f₁₂ + f₁` while `jmul e f = (1/2)f₁₂ + f₁`.
+These are equal **only if f₁₂ = 0** (f has no P₁₂(e) component).
+
+### Counterexample
+
+In 2×2 symmetric matrices over ℝ:
+- e = diag(1,0)
+- f = [[1/2,1/2],[1/2,1/2]]
+
+Both are primitive (rank-1 projections), but:
+- `jmul e f = [[1/2,1/4],[1/4,0]] ≠ 0` (not orthogonal)
+- `jmul e f ≠ e` and `jmul e f ≠ f`
+- `e ≠ f`
+
+This **violates the dichotomy** as stated!
+
+### What's Proven (3/4 cases)
+
+| Case | Status |
+|------|--------|
+| `jmul e f = 0` | ✅ Orthogonal |
+| `jmul e f = e` | ✅ e = f (primitivity of f) |
+| `jmul e f = f` | ✅ e = f (primitivity of e) |
+| `jmul e f ∉ {0,e,f}` | ❌ BLOCKED - may be impossible |
+
+### Next Step: Research H-O (af-pdw2)
+
+Read H-O Sections 2.9 and 3.1 to find the **correct** theorem statement.
+Possible correct statements:
+1. "Orthogonal or unitarily equivalent" (standard JB result)
+2. Requires additional hypotheses (same spectral family)
+3. Only holds for JB-algebras with completeness
+
+---
+
 ## Session 68: Spectral Theorem Structure & Primitive.lean Analysis
 
 ### Key Finding: Peirce is Complete, Primitive is the Blocker
@@ -948,11 +992,11 @@ have h3 : (3 : ℕ) • y = y + y + y := by
 - `peirce_decomposition` — Every element decomposes into P0 + P1/2 + P1
 - `peirce_direct_sum` — The decomposition is a direct sum
 
-### Blocking Sorries: Primitive.lean (3 sorries)
+### ~~Blocking Sorries: Primitive.lean (3 sorries)~~ (See Session 69 - strategy wrong)
 
-| Theorem | What it says | Proof using Peirce |
+| Theorem | What it says | ~~Proof using Peirce~~ |
 |---------|--------------|-------------------|
-| `primitive_dichotomy` | Two primitives are orthogonal or equal | If `jmul e f ≠ 0`, then `jmul e f ∈ P₁(e) ∩ P₁(f)`. By primitivity of e: `jmul e f = e`. By primitivity of f: `jmul e f = f`. Hence `e = f`. |
+| `primitive_dichotomy` | Two primitives are orthogonal or equal | ~~If `jmul e f ≠ 0`, then `jmul e f ∈ P₁(e) ∩ P₁(f)`.~~ **WRONG - see Session 69** |
 | `exists_primitive_decomp` | Every idempotent = sum of primitives | Induction on dim. If e not primitive, ∃ proper idempotent f with `jmul e f = f`. Then e-f orthogonal to f. Apply induction. |
 | `csoi_refine_primitive` | CSOI can be refined to primitive CSOI | Apply `exists_primitive_decomp` to each element. |
 
