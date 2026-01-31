@@ -232,6 +232,7 @@ substitution in the linearized identity.
 ### Status
 
 - **Proven**: `linearized_on_jsq`, `linearized_core`, `linearized_rearranged`
+- **Proven**: `four_variable_identity`, `operator_formula` (Session 56, see below)
 - **Needs work**: `linearized_jordan_aux` (different structure)
 - **Blocked**: `fundamental_formula` depends on `linearized_jordan_aux`
 
@@ -275,6 +276,80 @@ The operator calculus chain (af-gmzr → af-dmot → af-secn) assumed:
 ## Related Docs
 
 See also: `SPECTRAL_IMPLEMENTATION_PLAN.md`, `LEARNINGS_peirce.md`
+
+---
+
+## Hanche-Olsen Operator Identities (Session 56)
+
+### Identities Formalized in `LinearizedJordan.lean`
+
+| Identity | Reference | Lean Name | Status |
+|----------|-----------|-----------|--------|
+| Four-variable identity | H-O 2.34 | `four_variable_identity` | ✓ Proven |
+| Operator formula | H-O 2.35 | `operator_formula` | ✓ Proven |
+| T_a, T_{a²} commute | H-O 2.4.1 | `L_L_jsq_comm` | ✓ Proven |
+
+### Four-Variable Identity (2.34)
+
+```
+a ∘ ((b∘c) ∘ d) + b ∘ ((c∘a) ∘ d) + c ∘ ((a∘b) ∘ d)
+  = (b∘c) ∘ (a∘d) + (c∘a) ∘ (b∘d) + (a∘b) ∘ (c∘d)
+```
+
+**Key insight:** The RHS is symmetric in all four variables. This symmetry is
+what enables deriving identity (2.35).
+
+**Proof technique:**
+1. Apply linearized Jordan identity (2.33) to element d
+2. Extract element-wise equation by canceling the factor of 2
+3. Rearrange terms using `sub_eq_zero`
+
+### Operator Formula (2.35)
+
+```
+T_a T_{b∘c} + T_b T_{c∘a} + T_c T_{a∘b} = T_{a∘(b∘c)} + T_b T_a T_c + T_c T_a T_b
+```
+
+**Proof technique:**
+1. Use four_variable_identity with original variables (gives LHS = RHS_sym)
+2. Use four_variable_identity with a↔d swapped (gives different LHS = same RHS_sym)
+3. Conclude the two LHS expressions are equal
+4. Apply commutativity to transform one LHS to the desired form
+
+### Power Associativity (Corollary)
+
+From (2.35), setting b = a^{n-2}, c = a gives that T_{a^n} is a polynomial
+in T_a and T_{a²}. Since T_a and T_{a²} commute (proven as `L_L_jsq_comm`),
+all powers T_{a^k} commute with each other. This proves Jordan algebras are
+power associative.
+
+### Proof Patterns for Non-Commutative Algebra
+
+**Challenge:** Standard tactics like `ring` and `linarith` don't work for
+Jordan algebras because multiplication isn't associative.
+
+**Working patterns:**
+
+1. **For additive goals with differences:**
+   ```lean
+   have hsum : expr = 0 := by ...
+   have hgoal : LHS - RHS = 0 := by convert hsum using 1; abel
+   exact sub_eq_zero.mp hgoal
+   ```
+
+2. **For commutativity rewrites:**
+   ```lean
+   conv_lhs =>
+     rw [jmul_comm a b]  -- Comment what this does
+     rw [jmul_comm (jmul x y) z]  -- Outer product commutativity
+   ```
+
+3. **Canceling factor of 2:**
+   ```lean
+   have h2 : (2 : ℝ) ≠ 0 := two_ne_zero
+   have : (2 : ℕ) • expr = 0 := by ...
+   rwa [two_nsmul, ← two_smul ℝ, smul_eq_zero_iff_right h2] at this
+   ```
 
 ---
 
