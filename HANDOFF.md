@@ -1,4 +1,4 @@
-# Handoff: 2026-01-31 (Session 67)
+# Handoff: 2026-01-31 (Session 68)
 
 ## ⚠️ AXIOM GAPS (Deferred, P0 tracked)
 
@@ -15,11 +15,14 @@ Session 67 added `trace_L_selfadjoint` axiom without concrete instances.
 
 ## Completed This Session
 
-### 1. Eigenspace Orthogonality (af-9pfg) - CLOSED
-- **Files:** `AfTests/Jordan/Eigenspace.lean` (+63 LOC), `AfTests/Jordan/Trace.lean` (+12 LOC)
-- `eigenspace_orthogonal` - distinct eigenspaces are trace-orthogonal
-- `eigenvalueSet_finite` - eigenvalue sets are finite in finite dimensions
-- Added `trace_L_selfadjoint` axiom (needs instance verification later)
+### 1. Spectral Theorem Structure (af-pyaw) - CLOSED
+- **File:** `AfTests/Jordan/SpectralTheorem.lean` (+133 LOC)
+- `spectrum` - definition as eigenvalueSet
+- `spectral_decomposition_exists` - existence theorem (sorry)
+- `spectral_decomposition_finset` - Finset-indexed version (sorry)
+- `spectrum_eq_eigenvalueSet` - uniqueness result (sorry)
+- `spectral_sq` - square has squared eigenvalues (sorry)
+- `spectrum_sq_nonneg` - PROVEN: eigenvalues of a² are non-negative
 
 ---
 
@@ -27,24 +30,29 @@ Session 67 added `trace_L_selfadjoint` axiom without concrete instances.
 
 | Metric | Value |
 |--------|-------|
-| Total LOC | ~25,500 |
-| Total Sorries | 18 |
+| Total LOC | ~25,600 |
+| Total Sorries | 25 |
 | Axiom Gaps | 3 (P0, deferred) |
-| Issues Closed | 295 / 319 (92%) |
+| Issues Closed | 296 / 319 (93%) |
 
 ---
 
-## 🎯 NEXT SESSION: Spectral Theorem (af-pyaw)
+## 🎯 NEXT SESSION: Sorry Elimination (af-4g40)
 
 ### Spectral Theory Chain
 ```
 af-nnvl (Eigenspace definition) ✅
     └── af-9pfg (Eigenspace orthogonality) ✅
-            └── af-pyaw (Spectral theorem) ← NEXT
-                    └── af-4g40 (Sorry elimination)
+            └── af-pyaw (Spectral theorem) ✅
+                    └── af-4g40 (Sorry elimination) ← NEXT
 ```
 
-### After Spectral Theory
+### Key Sorries to Address
+1. `spectral_decomposition_exists` - core existence proof
+2. `spectrum_eq_eigenvalueSet` - uniqueness
+3. `spectral_sq` - square eigenvalue relationship
+
+### After Spectral Theory Sorries
 Address axiom gaps (af-5zpv → af-2dzb, af-pxqu):
 - Create `JordanTrace` instance for `HermitianMatrix`
 - Prove `trace_L_selfadjoint` using trace cyclicity
@@ -53,6 +61,5 @@ Address axiom gaps (af-5zpv → af-2dzb, af-pxqu):
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/Eigenspace.lean` — Orthogonality + finiteness
-- `AfTests/Jordan/Trace.lean` — `trace_L_selfadjoint` axiom
-- `docs/Jordan/LEARNINGS.md` — Axiom gap warning
+- `AfTests/Jordan/SpectralTheorem.lean` — NEW: Spectral theorem structure
+
