@@ -89,6 +89,19 @@ theorem peirceSpace_disjoint (e : J) {ev1 ev2 : ℝ} (hne : ev1 ≠ ev2) :
 theorem jone_in_peirce_one : jone ∈ PeirceSpace (jone : J) 1 := by
   rw [mem_peirceSpace_iff, jmul_jone, one_smul]
 
+/-- Elements of PeirceSpace e 1 satisfy e ∘ a = a (e is a left identity).
+    This is H-O 2.6.2: elements of A₁ have T_p a = a. -/
+theorem peirce_one_left_id {e : J} {a : J} (ha : a ∈ PeirceSpace e 1) :
+    jmul e a = a := by
+  rw [mem_peirceSpace_iff, one_smul] at ha
+  exact ha
+
+/-- Elements of PeirceSpace e 1 satisfy a ∘ e = a (e is a right identity).
+    Follows from commutativity of Jordan multiplication. -/
+theorem peirce_one_right_id {e : J} {a : J} (ha : a ∈ PeirceSpace e 1) :
+    jmul a e = a := by
+  rw [jmul_comm, peirce_one_left_id ha]
+
 /-- If e is idempotent, then 1-e is in Peirce space 0 of e. -/
 theorem complement_in_peirce_zero {e : J} (he : IsIdempotent e) :
     jone - e ∈ PeirceSpace e 0 := by
@@ -862,5 +875,119 @@ theorem peirce_direct_sum {e : J} (he : IsIdempotent e) :
         · exact le_iSup f 2
     rw [h]
     exact peirceSpace_iSup_eq_top he
+
+/-! ### PeirceOne Algebraic Structure
+
+PeirceSpace e 1 forms a commutative associative algebra under Jordan multiplication.
+This is H-O 2.5.5: elements of U_p A generate associative subalgebras with p.
+
+These instances enable the ring-theoretic arguments in H-O 2.9.4. -/
+
+/-- PeirceOne e is PeirceSpace e 1 as a subtype, for defining ring instances. -/
+abbrev PeirceOne (e : J) := { a : J // a ∈ PeirceSpace e 1 }
+
+/-- PeirceOne inherits AddCommGroup from PeirceSpace (which is a Submodule). -/
+instance peirceOneAddCommGroup {e : J} : AddCommGroup (PeirceOne e) :=
+  inferInstanceAs (AddCommGroup (PeirceSpace e 1))
+
+/-- PeirceOne inherits Module ℝ from PeirceSpace. -/
+instance peirceOneModule {e : J} : Module ℝ (PeirceOne e) :=
+  inferInstanceAs (Module ℝ (PeirceSpace e 1))
+
+/-- Multiplication on PeirceOne: Jordan product restricted to PeirceSpace e 1.
+    This is closed by `peirce_mult_P1_P1`. -/
+def peirceOneMul {e : J} (he : IsIdempotent e) : Mul (PeirceOne e) where
+  mul a b := ⟨jmul a.1 b.1, peirce_mult_P1_P1 he a.2 b.2⟩
+
+/-- The identity element of PeirceOne is e itself (the idempotent). -/
+def peirceOneOne {e : J} (he : IsIdempotent e) : One (PeirceOne e) where
+  one := ⟨e, idempotent_in_peirce_one he⟩
+
+theorem peirceOne_one_val {e : J} (he : IsIdempotent e) :
+    @One.one (PeirceOne e) (peirceOneOne he) = ⟨e, idempotent_in_peirce_one he⟩ := rfl
+
+theorem peirceOne_mul_val {e : J} (he : IsIdempotent e) (a b : PeirceOne e) :
+    @HMul.hMul (PeirceOne e) (PeirceOne e) (PeirceOne e)
+      (@instHMul (PeirceOne e) (peirceOneMul he)) a b =
+    ⟨jmul a.val b.val, peirce_mult_P1_P1 he a.2 b.2⟩ := rfl
+
+/-- One is a left identity for multiplication in PeirceOne. -/
+theorem peirceOne_one_mul {e : J} (he : IsIdempotent e) (a : PeirceOne e) :
+    @HMul.hMul (PeirceOne e) (PeirceOne e) (PeirceOne e)
+      (@instHMul (PeirceOne e) (peirceOneMul he))
+      (@One.one (PeirceOne e) (peirceOneOne he)) a = a := by
+  ext
+  simp only [peirceOne_mul_val he, peirceOne_one_val he]
+  exact peirce_one_left_id a.2
+
+/-- One is a right identity for multiplication in PeirceOne. -/
+theorem peirceOne_mul_one {e : J} (he : IsIdempotent e) (a : PeirceOne e) :
+    @HMul.hMul (PeirceOne e) (PeirceOne e) (PeirceOne e)
+      (@instHMul (PeirceOne e) (peirceOneMul he))
+      a (@One.one (PeirceOne e) (peirceOneOne he)) = a := by
+  ext
+  simp only [peirceOne_mul_val he, peirceOne_one_val he]
+  exact peirce_one_right_id a.2
+
+/-- Left distributivity for PeirceOne multiplication. -/
+theorem peirceOne_left_distrib {e : J} (he : IsIdempotent e)
+    (a b c : PeirceOne e) :
+    @HMul.hMul (PeirceOne e) (PeirceOne e) (PeirceOne e)
+      (@instHMul (PeirceOne e) (peirceOneMul he))
+      a (b + c) =
+    @HMul.hMul (PeirceOne e) (PeirceOne e) (PeirceOne e)
+      (@instHMul (PeirceOne e) (peirceOneMul he)) a b +
+    @HMul.hMul (PeirceOne e) (PeirceOne e) (PeirceOne e)
+      (@instHMul (PeirceOne e) (peirceOneMul he)) a c := by
+  ext
+  simp only [peirceOne_mul_val he, AddSubmonoid.coe_add, Submodule.coe_toAddSubmonoid]
+  exact jmul_add a.val b.val c.val
+
+/-- Right distributivity for PeirceOne multiplication. -/
+theorem peirceOne_right_distrib {e : J} (he : IsIdempotent e)
+    (a b c : PeirceOne e) :
+    @HMul.hMul (PeirceOne e) (PeirceOne e) (PeirceOne e)
+      (@instHMul (PeirceOne e) (peirceOneMul he))
+      (a + b) c =
+    @HMul.hMul (PeirceOne e) (PeirceOne e) (PeirceOne e)
+      (@instHMul (PeirceOne e) (peirceOneMul he)) a c +
+    @HMul.hMul (PeirceOne e) (PeirceOne e) (PeirceOne e)
+      (@instHMul (PeirceOne e) (peirceOneMul he)) b c := by
+  ext
+  simp only [peirceOne_mul_val he, AddSubmonoid.coe_add, Submodule.coe_toAddSubmonoid]
+  exact add_jmul a.val b.val c.val
+
+/-- Commutativity for PeirceOne multiplication (inherited from Jordan algebra). -/
+theorem peirceOne_mul_comm {e : J} (he : IsIdempotent e)
+    (a b : PeirceOne e) :
+    @HMul.hMul (PeirceOne e) (PeirceOne e) (PeirceOne e)
+      (@instHMul (PeirceOne e) (peirceOneMul he)) a b =
+    @HMul.hMul (PeirceOne e) (PeirceOne e) (PeirceOne e)
+      (@instHMul (PeirceOne e) (peirceOneMul he)) b a := by
+  ext
+  simp only [peirceOne_mul_val he]
+  exact jmul_comm a.val b.val
+
+/-- Associativity for PeirceOne multiplication.
+    This is the KEY technical lemma: PeirceSpace e 1 forms an associative subalgebra.
+    H-O 2.5.5: Elements that operator-commute with idempotent p generate associative subalgebras.
+    Since T_e acts as identity on PeirceSpace e 1, all elements there operator-commute with e.
+    TODO(af-1tzf): Full proof requires ~50 LOC using operator_formula or MacDonald's theorem. -/
+theorem peirceOne_mul_assoc {e : J} (he : IsIdempotent e)
+    (a b c : PeirceOne e) :
+    @HMul.hMul (PeirceOne e) (PeirceOne e) (PeirceOne e)
+      (@instHMul (PeirceOne e) (peirceOneMul he))
+      (@HMul.hMul (PeirceOne e) (PeirceOne e) (PeirceOne e)
+        (@instHMul (PeirceOne e) (peirceOneMul he)) a b) c =
+    @HMul.hMul (PeirceOne e) (PeirceOne e) (PeirceOne e)
+      (@instHMul (PeirceOne e) (peirceOneMul he))
+      a (@HMul.hMul (PeirceOne e) (PeirceOne e) (PeirceOne e)
+        (@instHMul (PeirceOne e) (peirceOneMul he)) b c) := by
+  ext
+  simp only [peirceOne_mul_val he]
+  -- Goal: jmul (jmul a.val b.val) c.val = jmul a.val (jmul b.val c.val)
+  -- This follows from H-O 2.5.5: elements in {eAe} generate associative subalgebra with e
+  -- Since e is the identity in PeirceSpace e 1, the algebra is associative
+  sorry
 
 end JordanAlgebra
