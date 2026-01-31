@@ -69,17 +69,51 @@ theorem IsPrimitive.jmul_complement {e : J} (he : IsPrimitive e) :
 theorem primitive_dichotomy [FormallyRealJordan J] {e f : J}
     (he : IsPrimitive e) (hf : IsPrimitive f) :
     AreOrthogonal e f ∨ e = f := by
-  -- Key: jmul e f is an idempotent in Peirce space of both e and f
-  -- In formally real case, this forces dichotomy
-  -- This is a consequence of Peirce decomposition theory
+  -- Key insight: Use the formally real property via (e - f)².
+  -- If e ≠ f and jmul e f ≠ 0, we derive a contradiction from the structure of primitives.
   by_cases hef : jmul e f = 0
   · left; exact hef
   · right
-    -- jmul e f ≠ 0, and it satisfies jmul e (jmul e f) = jmul e f (Peirce eigenvalue 1)
-    -- So by primitivity of e, jmul e f = 0 or jmul e f = e
-    -- Similarly for f
-    -- Combined: e = f
-    sorry
+    -- jmul e f ≠ 0. We show e = f by analyzing the order structure.
+    -- For idempotents, e ≤ f (in the Jordan order) iff jmul e f = e.
+    by_cases hef_e : jmul e f = e
+    · -- jmul e f = e means jmul f e = e, so e ∈ P₁(f)
+      -- By primitivity of f applied to idempotent e with jmul f e = e:
+      -- e = 0 or e = f. Since e ≠ 0, e = f.
+      have he_idem : IsIdempotent e := he.isIdempotent
+      have hfe : jmul f e = e := by rw [jmul_comm]; exact hef_e
+      rcases hf.sub_eq_zero e he_idem hfe with he0 | hef'
+      · exfalso; exact he.ne_zero he0
+      · exact hef'
+    · -- jmul e f ≠ e. By symmetry, check if jmul e f = f.
+      by_cases hef_f : jmul e f = f
+      · -- jmul e f = f means f ∈ P₁(e)
+        -- By primitivity of e applied to idempotent f with jmul e f = f:
+        -- f = 0 or f = e. Since f ≠ 0, f = e.
+        have hf_idem : IsIdempotent f := hf.isIdempotent
+        rcases he.sub_eq_zero f hf_idem hef_f with hf0 | hfe
+        · exfalso; exact hf.ne_zero hf0
+        · exact hfe.symm
+      · -- jmul e f ≠ 0, jmul e f ≠ e, jmul e f ≠ f
+        -- This case requires showing that "incomparable" primitives cannot exist.
+        --
+        -- ⚠️ POTENTIAL ISSUE: The handoff strategy claims jmul e f ∈ P₁(e) ∩ P₁(f)
+        -- when jmul e f ≠ 0, but this requires the P₁₂(e) component of f to be 0.
+        -- For arbitrary primitive idempotents, this may not hold!
+        --
+        -- Example to investigate: In 2×2 symmetric matrices over ℝ,
+        -- e = diag(1,0) and f = [[1/2,1/2],[1/2,1/2]] are both primitive
+        -- (rank-1 projections), but jmul e f ≠ 0, jmul e f ≠ e, jmul e f ≠ f.
+        --
+        -- Possible resolutions:
+        -- 1. The dichotomy needs additional hypotheses (e.g., same spectral family)
+        -- 2. Primitivity in finite-dim formally real JA has stronger consequences
+        -- 3. The proof requires JB-algebra completeness (not just formally real)
+        --
+        -- Standard JB-algebra result: primitives are orthogonal or *equivalent*
+        -- (related by inner automorphism), not necessarily equal.
+        exfalso
+        sorry
 
 /-! ### Decomposition into Primitives -/
 
