@@ -13,6 +13,12 @@
 - Instance `IsSimpleJordan (RealSymmetricMatrix n)` (1 sorry)
 - 85 lines, 1 sorry (ideal trichotomy)
 
+### 3. Complex Hermitian Matrices Simplicity (af-3hxp)
+- Created `AfTests/Jordan/Classification/ComplexHermitian.lean`
+- Proves `ComplexHermitianMatrix.nontrivial` (n ≥ 1)
+- Instance `IsSimpleJordan (ComplexHermitianMatrix n)` (1 sorry)
+- 80 lines, 1 sorry (ideal trichotomy)
+
 | Theorem | Status |
 |---------|--------|
 | `isPositiveSqrt_zero` | ✓ Proven |
