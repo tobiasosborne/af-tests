@@ -1,19 +1,24 @@
-# Handoff: 2026-01-31 (Session 65)
+# Handoff: 2026-01-31 (Session 66)
 
 ## Completed This Session
 
-### 1. Peirce Direct Sum Independence (af-bqjd) - COMPLETE ✅
-- **File:** `AfTests/Jordan/Peirce.lean:629-865`
-- **Theorem:** `peirce_direct_sum` - proves `DirectSum.IsInternal` for the three Peirce spaces
-- **Key technique:** For each Peirce space P_λ, show intersection with sum of others is trivial using eigenvalue analysis:
-  - If x ∈ P_λ and x = y + z from other spaces
-  - Apply L_e and L_e² to get eigenvalue equations
-  - Solve linear system to show y = z = 0
+### 1. Eigenspace Definition (af-nnvl) - COMPLETE ✅
+- **File:** `AfTests/Jordan/Eigenspace.lean` (194 LOC, 0 sorries)
+- Created eigenspace infrastructure using mathlib's `Module.End.eigenspace`
+- **Key definitions:**
+  - `eigenspace a μ` - μ-eigenspace of L_a
+  - `IsEigenvalue a μ` - μ is an eigenvalue of a
+  - `eigenvalueSet a` - set of all eigenvalues
+- **Key theorems:**
+  - `eigenspace_eq_peirceSpace` - eigenspaces match Peirce spaces
+  - `eigenvalueSet_jone = {1}` - jone has only eigenvalue 1
+  - `idempotent_eigenvalues_subset` - idempotent eigenvalues ⊆ {0, 1/2, 1}
 
 ### Key Lean Patterns Discovered
-- `fin_cases i` followed by case-specific simp to handle `![a,b,c]` indexing
-- `simp only [Fin.mk_zero]` to convert `⟨0, by decide⟩` to `(0 : Fin 3)`
-- `iSupIndep_def` expands `iSupIndep f` to `∀ i, Disjoint (f i) (⨆ (j ≠ i), f j)`
+- `Module.End.eigenspace f μ` for eigenspace (not `f.eigenspace`)
+- `omit [Inst] in` goes BEFORE docstrings
+- Operator precedence: `a * b • v` parses as `a * (b • v)`, use `((a * b)) • v`
+- `sub_eq_zero.mp` to get `a = b` from `a - b = 0`
 
 ---
 
@@ -21,44 +26,33 @@
 
 | Metric | Value |
 |--------|-------|
-| Total LOC | ~25,200 |
-| Total Sorries | 18 (down from 19) |
-| Issues Closed | 293 / 316 (93%) |
+| Total LOC | ~25,400 |
+| Total Sorries | 18 |
+| Issues Closed | 294 / 316 (93%) |
 
 ### Component Health
 | Component | LOC | Sorries | Status |
 |-----------|-----|---------|--------|
 | GNS/ | 2,455 | 0 | Complete |
 | ArchimedeanClosure/ | 4,943 | 0 | Complete |
-| Jordan/ | ~5,250 | 18 | Active |
-
-### Peirce.lean Status: COMPLETE ✅
-All theorems proven with 0 sorries:
-- `peirce_polynomial_identity` - L_e(L_e - 1/2)(L_e - 1) = 0
-- `peirce_mult_P0_P0`, `peirce_mult_P1_P1` - Diagonal rules
-- `peirce_mult_P0_P1` - Orthogonality
-- `peirce_mult_P0_P12`, `peirce_mult_P1_P12` - Mixed rules
-- `peirce_mult_P12_P12` - Half-space product
-- `peirce_decomposition` - Existence of decomposition
-- `peirceSpace_iSup_eq_top` - Spanning
-- `peirce_direct_sum` - Internal direct sum
+| Jordan/ | ~5,450 | 18 | Active |
 
 ---
 
-## 🎯 NEXT SESSION: Eigenspace Definition (af-nnvl)
+## 🎯 NEXT SESSION: Eigenspace Orthogonality (af-9pfg)
 
 ### Spectral Theory Dependency Chain
 ```
-af-bqjd (Peirce decomposition) ← COMPLETE ✅
-    └── af-nnvl (Eigenspace definition) ← READY
-            └── af-9pfg (Eigenspace orthogonality)
-                    └── af-pyaw (Spectral theorem) [P1]
+af-nnvl (Eigenspace definition) ← COMPLETE ✅
+    └── af-9pfg (Eigenspace orthogonality) ← READY
+            └── af-pyaw (Spectral theorem) [P1]
+                    └── af-4g40 (Sorry elimination) [P1]
 ```
 
 ### Next Steps
 1. Run `bd ready` to see available work
-2. `af-nnvl` is now unblocked - defines `Eigenspace a λ` as a submodule
-3. Alternatively, work on other ready P2 tasks (classification, spin factors, etc.)
+2. `af-9pfg` is now unblocked - proves eigenspaces are orthogonal/finite
+3. Alternatively: work on ready P2 tasks (spin factors, reversible, etc.)
 
 ---
 
@@ -79,6 +73,5 @@ af-bqjd (Peirce decomposition) ← COMPLETE ✅
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/Peirce.lean` — Independence proof added (~230 LOC)
-- `docs/Jordan/LEARNINGS_peirce.md` — iSupIndep proof documentation
+- `AfTests/Jordan/Eigenspace.lean` — NEW file (194 LOC)
 - `HANDOFF.md` — This file
