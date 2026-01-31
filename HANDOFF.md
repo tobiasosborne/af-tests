@@ -70,15 +70,22 @@ not operator eigenvalues. It's structural and doesn't need primitivity.
 ### 1. Prove `primitive_peirce_one_scalar` (P1) - af-lhxr
 **Still the key blocker.** Shows P₁(e) = ℝe for primitive e.
 
-**Direct proof strategy (no circularity):**
-1. {eAe} is associative commutative (Peirce theory fact)
-2. {eAe} is formally real (inherited)
-3. If dim({eAe}) > 1, take x not proportional to e
-4. Show x² = αe + βx for some α, β (finite-dim)
-5. Construct non-trivial idempotent from this equation
-6. Contradiction with primitivity
+**CANONICAL H-O PROOF (Lemma 2.9.4(ii)):**
 
-This uses spectral theory for *commutative associative* algebras, not Jordan.
+Uses **Lemma 2.9.3**: Commutative ring without nilpotents + DCC → direct sum of fields.
+
+1. {pAp} is commutative associative (Peirce theory - DONE)
+2. Has no nilpotents (formal reality)
+3. Finite-dimensional → DCC
+4. **Apply 2.9.3** → {pAp} = F₁ ⊕ ... ⊕ Fₙ (direct sum of fields)
+5. p = e₁ + ... + eₙ (sum of field identities)
+6. **Minimality** → n = 1 (else eᵢ is sub-idempotent)
+7. {pAp} is a single field F
+8. **Formally real** → F ≠ ℂ
+9. Only formally real field over ℝ is ℝ (H-O 2.2.6)
+10. Hence {pAp} = ℝp
+
+**Mathlib search needed:** Structure theorem for semisimple commutative algebras.
 
 ### 2. Complete Primitive.lean sorries → unlocks spectral theory
 

@@ -1146,6 +1146,49 @@ from spectral theory, creating a potential circular dependency.
 
 ---
 
+## Session 72: Canonical H-O Proof for primitive_peirce_one_scalar
+
+### The Theorem (H-O 2.9.4(ii))
+
+> An idempotent p is minimal (primitive) iff {pAp} = ℝp
+
+### H-O's Actual Proof Strategy
+
+**Key dependency:** Lemma 2.9.3 (ring-theoretic structure theorem)
+
+> **Lemma 2.9.3:** An Abelian ring without nilpotents satisfying DCC on ideals
+> decomposes as a direct sum of fields: R = F₁ ⊕ ... ⊕ Fₙ with orthogonal
+> identity elements e₁,...,eₙ.
+
+**Proof of 2.9.4(ii):**
+1. {pAp} is commutative associative (Peirce theory - we have this)
+2. Has no nilpotents (formal reality, H-O 2.9.4(i) - we have this)
+3. Finite-dimensional → DCC on ideals ✓
+4. **Apply 2.9.3** → {pAp} = F₁ ⊕ ... ⊕ Fₙ (direct sum of fields)
+5. Identity of {pAp} is p = e₁ + ... + eₙ
+6. **Minimality of p** → n = 1 (otherwise eᵢ would be sub-idempotent)
+7. So {pAp} is a single field F over ℝ
+8. **Formally real** → F ≠ ℂ (since i² = -1 violates formal reality)
+9. Only finite-dim formally real field over ℝ is ℝ itself (H-O 2.2.6)
+10. Hence {pAp} = ℝp ∎
+
+### What's Needed in Lean
+
+1. **Lemma 2.9.3 equivalent:** "Finite-dimensional commutative ℝ-algebra without
+   nilpotents is isomorphic to ℝⁿ" - check mathlib for this
+2. **H-O 2.9.4(i):** "Formally real Jordan algebras have no nilpotents" -
+   straightforward from definition
+3. **H-O 2.2.6:** "Only finite-dim formally real fields over ℝ are ℝ" -
+   standard result, may be in mathlib
+
+### What We Proved This Session
+
+- `spectral_sq` - structural theorem about squaring spectral decompositions
+- `jsq_sum_orthog_idem` - (∑ λᵢ eᵢ)² = ∑ λᵢ² eᵢ
+- `sum_jmul` - left multiplication distributes over sums
+
+---
+
 ## References
 
 - Hanche-Olsen & Størmer, *Jordan Operator Algebras* (see `examples3/Jordan Operator Algebras/`)
