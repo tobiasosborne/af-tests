@@ -1,24 +1,20 @@
-# Handoff: 2026-01-31 (Session 55)
+# Handoff: 2026-01-31 (Session 56)
 
 ## Completed This Session
 
-### 1. Safety Fix: Removed Dangerous Instance
-- **af-51o6** ✓: Removed `FormallyRealJordan' → FormallyRealJordan` instance
-- Location: `FormallyReal/Def.lean:104`
-- This instance used sorries and could contaminate downstream proofs
-- Concrete types already define `FormallyRealJordan` directly
+### Formalized Hanche-Olsen Operator Identities (2.33-2.35)
+- **af-v6hv** ✓: Created `AfTests/Jordan/LinearizedJordan.lean`
+- 146 lines, 0 sorries
 
-### 2. Legacy Code Cleanup
-Closed 10 ThreeCycle/Primitivity issues as legacy/irrelevant:
-- af-m4dh (file splitting)
-- af-6hl, af-268, af-ny8, af-3ht (H_contains_threecycle cases)
-- af-j5f, af-axv, af-p9e, af-5zd, af-v3z (sorry elimination)
+**Theorems Proven:**
+| Theorem | Identity | Description |
+|---------|----------|-------------|
+| `four_variable_identity` | 2.34 | a∘((bc)∘d) + b∘((ca)∘d) + c∘((ab)∘d) = (bc)∘(ad) + (ca)∘(bd) + (ab)∘(cd) |
+| `operator_formula_apply` | 2.35 | Element form of operator composition formula |
+| `operator_formula` | 2.35 | T_a T_{bc} + T_b T_{ca} + T_c T_{ab} = T_{a(bc)} + T_b T_a T_c + T_c T_a T_b |
+| `L_L_jsq_comm` | 2.4.1 | T_a and T_{a²} commute |
 
-### 3. New Infrastructure Created
-| File | Issue | Lines | Sorries | Description |
-|------|-------|-------|---------|-------------|
-| `Jordan/Simple.lean` | af-1y8e | 86 | 0 | `IsSimpleJordan` class |
-| `Jordan/Reversible/Def.lean` | af-q2jl | 60 | 0 | `IsReversible` class |
+**Note:** Identity 2.33 was already proven as `linearized_jordan_operator` in `OperatorIdentities.lean`.
 
 ---
 
@@ -33,14 +29,14 @@ Closed 10 ThreeCycle/Primitivity issues as legacy/irrelevant:
 ### Key Sorries Remaining
 1. `FormallyReal/Def.lean:74-79` - `of_sq_eq_zero` (abstract case)
 2. `FormallyReal/Spectrum.lean:158` - `spectral_sq_eigenvalues_nonneg`
+3. `OperatorIdentities.lean:170,177` - `L_e_L_a_L_e`, `opComm_double_idempotent`
 
 ---
 
-## Ready Issues (P1)
+## Ready Issues (Next Priority)
 
 | Issue | Description |
 |-------|-------------|
-| af-v6hv | Formalize Hanche-Olsen operator identities (2.33-2.35) |
 | af-0hav | Rewrite fundamental_formula using Jordan axiom directly |
 | af-4g40 | Jordan Spectral 7: Sorry elimination |
 | af-pyaw | Jordan Spectral 6: Spectral theorem |
@@ -50,30 +46,19 @@ Closed 10 ThreeCycle/Primitivity issues as legacy/irrelevant:
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/FormallyReal/Def.lean` - Removed dangerous instance
-- `AfTests/Jordan/Simple.lean` - NEW: IsSimpleJordan class
-- `AfTests/Jordan/Reversible/Def.lean` - NEW: IsReversible class
-- `examples3/Jordan Operator Algebras/` - NEW: Book (CC-licensed)
-- `examples3/joa-m.pdf` - NEW: Book PDF
-- `CLAUDE.md` - Added book reference
-- `docs/Jordan/LEARNINGS.md` - Added Simple/Reversible section
+- `AfTests/Jordan/LinearizedJordan.lean` - NEW: Identities 2.34, 2.35
 - `HANDOFF.md` - This file
 
 ---
 
-## Reference: Previous Session Findings
+## Reference: Key Identities Now Formalized
 
-### Bilinear Identity is FALSE (Session 54)
-The conjectured identity `2⋅a∘((ab)∘(ac)) = (ab)∘(a∘(ac)) + (ac)∘(a∘(ab))` is **wrong**.
-Counterexample: 2×2 Pauli matrices.
+| Identity | Location | Status |
+|----------|----------|--------|
+| Jordan axiom (2.4.1) | `Basic.lean` | ✓ |
+| Linearized Jordan (2.33) | `OperatorIdentities.lean` | ✓ |
+| Four-variable (2.34) | `LinearizedJordan.lean` | ✓ NEW |
+| Operator formula (2.35) | `LinearizedJordan.lean` | ✓ NEW |
+| T_a, T_{a²} commute | `LinearizedJordan.lean` | ✓ NEW |
 
-### Fundamental Formula IS the Jordan Axiom
-From Hanche-Olsen 2.4.2: `(a²∘b)∘a = a²∘(b∘a)` is exactly `[T_a, T_{a²}] = 0`.
-
-### Correct Operator Identities (Book Reference)
-| Identity | Section | Line |
-|----------|---------|------|
-| Jordan axiom | 2.4.1 | 967 |
-| Linearized Jordan | 2.4.3 | 995 |
-| Four-variable identity | 2.4.4 | 1004 |
-| MacDonald's theorem | 2.4.13 | 1063 |
+These identities are the foundation for power associativity proofs.
