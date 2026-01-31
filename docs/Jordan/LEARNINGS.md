@@ -938,6 +938,52 @@ have h3 : (3 : ℕ) • y = y + y + y := by
 
 ---
 
+## Session 70: Research Resolution — Correct Primitive Theory from H-O
+
+### H-O 2.9.4 — The Correct Theory
+
+**Lemma 2.9.4 (H-O)** for finite-dimensional formally real Jordan algebras:
+
+| Part | Statement |
+|------|-----------|
+| (i) | No nilpotent elements |
+| (ii) | p is minimal (primitive) iff {pAp} = ℝp |
+| (iii) | Every element lies in a maximal associative subalgebra ℝp₁ ⊕ ... ⊕ ℝpₙ with pairwise orthogonal primitives |
+| **(iv)** | **For orthogonal primitives p, q:** a ∈ {pAq} ⟹ a² = λ(p+q) with λ ≥ 0. Either {pAq} = 0 or p, q strongly connected. |
+| (v) | For primitive p and any a: {pa²p} = λp with λ ≥ 0 |
+| (vi) | a = Σαᵢpᵢ (orthogonal primitives) is a square iff all αᵢ ≥ 0 |
+
+### Key Definitions
+
+**Strongly connected (H-O 2.8.1):** Orthogonal idempotents p, q are strongly connected if
+∃v ∈ {pAq} with v² = p + q.
+
+### Why "Primitive Dichotomy" is FALSE
+
+The naive statement "two primitives are orthogonal or equal" fails because:
+1. Two distinct primitives CAN be non-orthogonal (have nontrivial product)
+2. Non-orthogonality doesn't force equality
+
+The correct statements are:
+1. In a **maximal associative subalgebra**, primitives ARE pairwise orthogonal
+2. For **orthogonal** primitives, either {pAq} = 0 or strongly connected
+3. In a **simple** algebra, all primitives in a CSOI are strongly connected
+
+### Updated Primitive.lean
+
+Replaced `primitive_dichotomy` with correct H-O theorems:
+- `IsStronglyConnected` — Definition of strongly connected
+- `orthogonal_primitive_peirce_sq` — a² = λ(p+q) for a ∈ {pAq}
+- `orthogonal_primitive_structure` — H-O 2.9.4(iv) dichotomy
+
+### Path Forward for Spectral Theory
+
+The decomposition theorems `exists_primitive_decomp` and `csoi_refine_primitive`
+are still valid goals — they produce **pairwise orthogonal** primitive families.
+These don't need the false "primitives are orthogonal or equal" statement.
+
+---
+
 ## Session 69: primitive_dichotomy Proof Strategy is WRONG
 
 ### 🚨 CRITICAL FINDING

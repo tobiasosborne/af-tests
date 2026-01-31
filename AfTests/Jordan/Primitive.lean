@@ -15,12 +15,18 @@ orthogonal idempotents. This file develops the theory of primitive idempotents.
 ## Main definitions
 
 * `IsPrimitive` - Predicate for primitive idempotents
+* `IsStronglyConnected` - Two orthogonal idempotents are strongly connected
 * `exists_primitive_decomp` - Every nonzero idempotent decomposes into primitives
 
 ## Main results
 
 * `isPrimitive_of_minimal` - Minimal idempotents are primitive
-* `primitive_dichotomy` - Two primitives are either orthogonal or equal
+* `orthogonal_primitive_structure` - H-O 2.9.4(iv): orthogonal primitives are
+  either in disjoint subalgebras or strongly connected
+
+## References
+
+* Hanche-Olsen & Størmer, *Jordan Operator Algebras*, Section 2.9
 -/
 
 open Finset BigOperators
@@ -63,57 +69,60 @@ theorem IsPrimitive.jmul_complement {e : J} (he : IsPrimitive e) :
     jmul e (jone - e) = 0 :=
   jone_sub_idempotent_orthogonal he.isIdempotent
 
-/-! ### Dichotomy for Primitive Idempotents -/
+/-! ### Strongly Connected Idempotents -/
 
-/-- Two primitive idempotents are either orthogonal or equal (needs FormallyRealJordan). -/
-theorem primitive_dichotomy [FormallyRealJordan J] {e f : J}
-    (he : IsPrimitive e) (hf : IsPrimitive f) :
-    AreOrthogonal e f ∨ e = f := by
-  -- Key insight: Use the formally real property via (e - f)².
-  -- If e ≠ f and jmul e f ≠ 0, we derive a contradiction from the structure of primitives.
-  by_cases hef : jmul e f = 0
-  · left; exact hef
-  · right
-    -- jmul e f ≠ 0. We show e = f by analyzing the order structure.
-    -- For idempotents, e ≤ f (in the Jordan order) iff jmul e f = e.
-    by_cases hef_e : jmul e f = e
-    · -- jmul e f = e means jmul f e = e, so e ∈ P₁(f)
-      -- By primitivity of f applied to idempotent e with jmul f e = e:
-      -- e = 0 or e = f. Since e ≠ 0, e = f.
-      have he_idem : IsIdempotent e := he.isIdempotent
-      have hfe : jmul f e = e := by rw [jmul_comm]; exact hef_e
-      rcases hf.sub_eq_zero e he_idem hfe with he0 | hef'
-      · exfalso; exact he.ne_zero he0
-      · exact hef'
-    · -- jmul e f ≠ e. By symmetry, check if jmul e f = f.
-      by_cases hef_f : jmul e f = f
-      · -- jmul e f = f means f ∈ P₁(e)
-        -- By primitivity of e applied to idempotent f with jmul e f = f:
-        -- f = 0 or f = e. Since f ≠ 0, f = e.
-        have hf_idem : IsIdempotent f := hf.isIdempotent
-        rcases he.sub_eq_zero f hf_idem hef_f with hf0 | hfe
-        · exfalso; exact hf.ne_zero hf0
-        · exact hfe.symm
-      · -- jmul e f ≠ 0, jmul e f ≠ e, jmul e f ≠ f
-        -- This case requires showing that "incomparable" primitives cannot exist.
-        --
-        -- ⚠️ POTENTIAL ISSUE: The handoff strategy claims jmul e f ∈ P₁(e) ∩ P₁(f)
-        -- when jmul e f ≠ 0, but this requires the P₁₂(e) component of f to be 0.
-        -- For arbitrary primitive idempotents, this may not hold!
-        --
-        -- Example to investigate: In 2×2 symmetric matrices over ℝ,
-        -- e = diag(1,0) and f = [[1/2,1/2],[1/2,1/2]] are both primitive
-        -- (rank-1 projections), but jmul e f ≠ 0, jmul e f ≠ e, jmul e f ≠ f.
-        --
-        -- Possible resolutions:
-        -- 1. The dichotomy needs additional hypotheses (e.g., same spectral family)
-        -- 2. Primitivity in finite-dim formally real JA has stronger consequences
-        -- 3. The proof requires JB-algebra completeness (not just formally real)
-        --
-        -- Standard JB-algebra result: primitives are orthogonal or *equivalent*
-        -- (related by inner automorphism), not necessarily equal.
-        exfalso
-        sorry
+/-- Two orthogonal idempotents are strongly connected if there exists v in the Peirce ½
+space between them such that v² = e + f. This is the key structure in Jordan algebras
+that enables the coordinatization theorem. (H-O Definition 2.8.1) -/
+def IsStronglyConnected (e f : J) : Prop :=
+  AreOrthogonal e f ∧ ∃ v : J,
+    jmul e v = (1 / 2 : ℝ) • v ∧ jmul f v = (1 / 2 : ℝ) • v ∧ jsq v = e + f
+
+/-! ### Structure of Orthogonal Primitives (H-O 2.9.4(iv)) -/
+
+/-- In a formally real Jordan algebra, for orthogonal minimal idempotents p, q,
+the element a² (where a ∈ {pAq}) satisfies a² = λ(p+q) for some λ ≥ 0.
+This is H-O Lemma 2.9.4(iv). -/
+theorem orthogonal_primitive_peirce_sq [FormallyRealJordan J] {e f : J}
+    (he : IsPrimitive e) (hf : IsPrimitive f) (horth : AreOrthogonal e f)
+    {a : J} (ha_peirce : jmul e a = (1 / 2 : ℝ) • a ∧ jmul f a = (1 / 2 : ℝ) • a) :
+    ∃ μ : ℝ, 0 ≤ μ ∧ jsq a = μ • (e + f) := by
+  -- By Peirce multiplication rules, a² ∈ {eAe} + {fAf} = ℝe + ℝf (primitivity)
+  -- So a² = λ₁e + λ₂f. Operator commutation with e+f shows λ₁ = λ₂.
+  -- Formal reality shows λ ≥ 0.
+  sorry
+
+/-- For orthogonal primitive idempotents in a formally real Jordan algebra,
+either their Peirce ½ space is trivial or they are strongly connected.
+This is the key dichotomy from H-O 2.9.4(iv). -/
+theorem orthogonal_primitive_structure [FormallyRealJordan J] {e f : J}
+    (he : IsPrimitive e) (hf : IsPrimitive f) (horth : AreOrthogonal e f) :
+    (∀ a : J, jmul e a = (1 / 2 : ℝ) • a → jmul f a = (1 / 2 : ℝ) • a → a = 0) ∨
+    IsStronglyConnected e f := by
+  -- If there exists nonzero a in the Peirce ½ space, then by orthogonal_primitive_peirce_sq,
+  -- a² = λ(e+f) with λ > 0 (λ = 0 would mean a² = 0, hence a = 0 by formal reality).
+  -- Then (λ^{-1/2} a)² = e + f, so e and f are strongly connected.
+  sorry
+
+/-! ### Note on "Primitive Dichotomy"
+
+The naive statement "two primitives are orthogonal or equal" is FALSE.
+
+**Counterexample (H-O 2.9.8):** In 2×2 symmetric matrices over ℝ:
+- e = diag(1,0)
+- f = [[1/2,1/2],[1/2,1/2]]
+
+Both are primitive (rank-1 projections), but:
+- jmul e f ≠ 0 (not orthogonal)
+- e ≠ f
+
+The correct theory (H-O Section 2.9):
+1. Every element lies in a maximal associative subalgebra (H-O 2.9.4(iii))
+2. Such subalgebras decompose as ℝp₁ ⊕ ... ⊕ ℝpₙ with pairwise orthogonal primitives
+3. For orthogonal primitives, either {pAq} = 0 or they're strongly connected (H-O 2.9.4(iv))
+
+The decomposition results below use *orthogonal* families of primitives.
+-/
 
 /-! ### Decomposition into Primitives -/
 
