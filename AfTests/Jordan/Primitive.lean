@@ -1064,22 +1064,23 @@ The decomposition results below use *orthogonal* families of primitives.
 
 /-! ### Decomposition into Primitives -/
 
-/-- In a finite-dimensional formally real Jordan algebra, every nonzero idempotent
-decomposes as a sum of primitive idempotents. -/
 /-- Helper: when jmul e f = f and both idempotent, e - f is idempotent. -/
 theorem sub_idempotent_of_jmul_eq {e f : J}
     (he : IsIdempotent e) (hf : IsIdempotent f) (hef : jmul e f = f) : IsIdempotent (e - f) := by
   unfold IsIdempotent at *
   rw [jsq_def, sub_jmul, jmul_sub, jmul_sub]
-  rw [he, hef, jmul_comm f e, hef, hf]
-  ring
+  -- Goal: jmul e e - jmul e f - (jmul f e - jmul f f) = e - f
+  rw [jsq_def] at he hf
+  -- Now he : jmul e e = e, hf : jmul f f = f
+  rw [he, hef, jmul_comm f e, hef, hf, sub_self, sub_zero]
 
 /-- Helper: when jmul e f = f, f and (e - f) are orthogonal. -/
 theorem orthogonal_of_jmul_eq {e f : J}
     (hf : IsIdempotent f) (hef : jmul e f = f) : AreOrthogonal f (e - f) := by
   unfold AreOrthogonal
-  rw [jmul_sub, jmul_comm f e, hef, hf]
-  ring
+  rw [jmul_sub, jmul_comm f e, hef]
+  -- Now need: f - jmul f f = 0. Use hf : jsq f = f, i.e., jmul f f = f
+  rw [← jsq_def, hf, sub_self]
 
 theorem exists_primitive_decomp [FinDimJordanAlgebra J] [FormallyRealJordan J]
     {e : J} (he : IsIdempotent e) (hne : e ≠ 0) :
@@ -1091,15 +1092,28 @@ theorem exists_primitive_decomp [FinDimJordanAlgebra J] [FormallyRealJordan J]
     use 1, ![e]
     refine ⟨?_, ?_, ?_⟩
     · intro i; fin_cases i; exact hprim
-    · exact pairwiseOrthogonal_singleton e
+    · intro i j hij; fin_cases i; fin_cases j; contradiction
     · simp
-  · -- e is not primitive: find proper sub-idempotent f with jmul e f = f
-    -- Key facts (proved above):
-    -- 1. sub_idempotent_of_jmul_eq: e - f is idempotent
-    -- 2. orthogonal_of_jmul_eq: f and (e - f) are orthogonal
-    -- 3. e = f + (e - f)
-    -- Then apply induction on finrank of PeirceSpace
-    -- TODO: Complete induction (needs finrank decreases)
+  · -- e is not primitive: extract proper sub-idempotent f
+    have hprim' : ∃ f, IsIdempotent f ∧ jmul e f = f ∧ f ≠ 0 ∧ f ≠ e := by
+      unfold IsPrimitive at hprim
+      push_neg at hprim
+      exact hprim he hne
+    obtain ⟨f, hf_idem, hef, hf_ne0, hf_nee⟩ := hprim'
+    -- e - f is idempotent by sub_idempotent_of_jmul_eq
+    have hemf_idem := sub_idempotent_of_jmul_eq he hf_idem hef
+    -- f and (e - f) are orthogonal by orthogonal_of_jmul_eq
+    have horth := orthogonal_of_jmul_eq hf_idem hef
+    -- e - f ≠ 0 since f ≠ e
+    have hemf_ne0 : e - f ≠ 0 := sub_ne_zero.mpr hf_nee.symm
+    -- e = f + (e - f)
+    have heq : e = f + (e - f) := by abel
+    -- TODO: Need induction to complete. Approach options:
+    -- 1. Strong induction on Module.finrank ℝ (PeirceSpace e 1)
+    --    Requires: converse of primitive_peirce_one_dim_one (dim 1 → primitive)
+    --    And: finrank P₁(f) < finrank P₁(e) when f is proper sub-idempotent
+    -- 2. Well-founded induction on idempotent partial order (e' ≤ e iff jmul e e' = e')
+    -- 3. Zorn's lemma for maximal orthogonal primitive families
     sorry
 
 /-- A CSOI can be refined to a primitive CSOI. -/

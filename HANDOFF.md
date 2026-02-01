@@ -1,8 +1,8 @@
-# Handoff: 2026-02-01 (Session 112)
+# Handoff: 2026-02-01 (Session 113)
 
 ## Session Summary
 
-**COMPLETED:** Proved `finrank ℝ P1PowerSubmodule = 1` (Primitive.lean:929). Added helper lemmas for idempotent decomposition.
+**PROGRESS:** Advanced `exists_primitive_decomp` proof - primitive case complete, non-primitive case setup complete, induction step remains.
 
 **Result:** Build passes. 4 sorries remain in Primitive.lean.
 
@@ -14,50 +14,54 @@
 |--------|-------|
 | Total Sorries | **4** (Primitive.lean) |
 | Build Status | **PASSING** |
-| Session Work | Eliminated finrank sorry, added decomposition helpers |
+| Session Work | Advanced exists_primitive_decomp proof structure |
 
 ---
 
-## New Helper Lemmas Added
+## Progress on exists_primitive_decomp
 
-```lean
--- When jmul e f = f and both idempotent, e - f is idempotent
-theorem sub_idempotent_of_jmul_eq
-
--- When jmul e f = f, f and (e - f) are orthogonal
-theorem orthogonal_of_jmul_eq
-```
-
-These are building blocks for `exists_primitive_decomp`.
+The proof now has:
+1. **Primitive case (DONE):** Returns `k=1, p=![e]`
+2. **Non-primitive case setup (DONE):**
+   - Extract f from `¬IsPrimitive e` (f idempotent, jmul e f = f, f ≠ 0, f ≠ e)
+   - Prove `e - f` is idempotent via `sub_idempotent_of_jmul_eq`
+   - Prove f and (e-f) orthogonal via `orthogonal_of_jmul_eq`
+   - Prove `e - f ≠ 0`
+   - Prove `e = f + (e - f)`
+3. **Induction step (TODO):** Need well-founded recursion
 
 ---
 
 ## Remaining Sorries (Primitive.lean)
 
-1. **Line ~1043** - `orthogonal_primitive_peirce_sq` (H-O 2.9.4(iv))
-2. **Line ~1055** - `orthogonal_primitive_structure`
-3. **Line ~1098** - `exists_primitive_decomp` - primitive case DONE, needs induction on finrank
-4. **Line ~1107** - `csoi_refine_primitive`
+1. **Line ~1031** - `orthogonal_primitive_peirce_sq` (H-O 2.9.4(iv))
+2. **Line ~1043** - `orthogonal_primitive_structure`
+3. **Line ~1118** - `exists_primitive_decomp` - induction step
+4. **Line ~1122** - `csoi_refine_primitive`
 
 ---
 
-## 🎯 NEXT STEP: Complete exists_primitive_decomp induction
+## 🎯 NEXT STEP: Complete induction for exists_primitive_decomp
 
-The primitive case is done. For non-primitive e:
-1. Find f with jmul e f = f, f ≠ 0, f ≠ e
-2. Use `sub_idempotent_of_jmul_eq`: e - f is idempotent
-3. Use `orthogonal_of_jmul_eq`: f and e - f are orthogonal
-4. Apply induction (need: finrank decreases when decomposing)
+Three possible approaches documented in the code:
 
-Key insight: Induction on `Module.finrank ℝ (PeirceSpace e 1)` should work since:
-- primitive_peirce_one_dim_one shows dim P₁(e) = 1 iff e is primitive
-- Non-primitive means dim P₁(e) > 1, and f, (e-f) have smaller Peirce spaces
+1. **Strong induction on finrank P₁(e):**
+   - Needs: converse of `primitive_peirce_one_dim_one` (dim 1 → primitive)
+   - Needs: proof that finrank P₁(f) < finrank P₁(e) for proper sub-idempotent f
+
+2. **Well-founded induction on idempotent partial order:**
+   - Define e' ≤ e iff jmul e e' = e'
+   - This is well-founded in finite dimensions
+
+3. **Zorn's lemma approach:**
+   - Find maximal orthogonal family of primitives
+   - Show it sums to e
 
 ---
 
-## Key Learning (Session 112)
+## Key Observation
 
-**P1PowerSubmodule is a field directly!** No need for quotient F. Chain:
-- Subsingleton MaximalSpectrum → IsLocalRing → IsField → Field
-- Prove formally real via P1PowerSubmodule_npow_eq_jpow
-- formallyReal_field_is_real → AlgEquiv to ℝ → finrank = 1
+The non-primitive case gives us f with:
+- `jmul e f = f` means f ∈ P₁(e)
+- So P₁(f) and P₁(e) are related but NOT directly comparable (different operators)
+- The induction measure needs careful design
