@@ -812,25 +812,29 @@ theorem primitive_peirce_one_dim_one [FinDimJordanAlgebra J] [FormallyRealJordan
   have hle_span : (PeirceSpace e 1 : Submodule ℝ J) ≤ Submodule.span ℝ {e} := by
     intro x hx
     rw [Submodule.mem_span_singleton]
-    -- For any x ∈ P₁(e), we show ∃ r, x = r • e using the H-O ring-theoretic argument
-    --
-    -- The key insight (H-O 2.9.4(ii)):
-    -- 1. ℝ[x] = span{e, x, x², ...} is a commutative associative subalgebra of P₁(e)
-    --    (associativity from jpow_assoc, commutativity from Jordan)
-    -- 2. ℝ[x] is finite-dimensional (subspace of finite-dim J)
-    -- 3. ℝ[x] has no nilpotents (by no_nilpotent_of_formallyReal)
-    -- 4. By artinian_reduced_is_product_of_fields: ℝ[x] ≅ F₁ ⊕ ... ⊕ Fₙ
-    -- 5. Identity e = e₁ + ... + eₙ where eᵢ are field identities
-    -- 6. Each eᵢ is an idempotent with e ∘ eᵢ = eᵢ (since eᵢ ∈ ℝ[x] ⊆ P₁(e))
-    -- 7. By primitivity: each eᵢ = 0 or eᵢ = e
-    -- 8. Since e = Σ eᵢ ≠ 0, exactly one eᵢ = e and others are 0
-    -- 9. So n = 1, ℝ[x] is a single field F
-    -- 10. F is formally real (inherited from J) and finite-dim over ℝ
-    -- 11. By formallyReal_field_is_real: F = ℝ
-    -- 12. Hence ℝ[x] = ℝ·e, so x ∈ ℝ·e
-    --
-    -- The construction of ℝ[x] as a CommRing requires packaging jpow_assoc
-    -- into a ring structure. This is the main technical work.
+    -- Set up P1PowerSubmodule with its ring structure
+    letI R := P1PowerSubmodule_commRing e x he.isIdempotent hx
+    haveI hArt : IsArtinianRing ↥(P1PowerSubmodule e x) :=
+      P1PowerSubmodule_isArtinianRing e x he.isIdempotent hx
+    haveI hRed : IsReduced ↥(P1PowerSubmodule e x) :=
+      P1PowerSubmodule_isReduced e x he.isIdempotent hx
+    -- The structure theorem gives P1PowerSubmodule ≃ ∏ fields
+    let φ := artinian_reduced_is_product_of_fields ↥(P1PowerSubmodule e x)
+    -- Key: MaximalSpectrum is finite (from IsArtinianRing)
+    haveI : Finite (MaximalSpectrum ↥(P1PowerSubmodule e x)) := inferInstance
+    -- The primitivity argument shows MaximalSpectrum has exactly one element:
+    -- For each maximal ideal I, the "indicator" element (pulling back (0,...,1_I,...,0))
+    -- is an idempotent in P₁(e), hence = 0 or = e by primitive_idempotent_in_P1.
+    -- Since e = sum of indicators and e ≠ 0, exactly one indicator = e.
+    -- TODO: formalize this indicator argument
+    have hUnique : Unique (MaximalSpectrum ↥(P1PowerSubmodule e x)) := by
+      sorry -- primitivity forces single maximal ideal
+    -- With a single factor, P1PowerSubmodule ≃ field
+    let F := ↥(P1PowerSubmodule e x) ⧸ hUnique.default.asIdeal
+    haveI : Field F := artinian_reduced_factor_field ↥(P1PowerSubmodule e x) hUnique.default
+    -- The field F is finite-dimensional over ℝ and formally real, hence = ℝ
+    -- TODO: show F is formally real (inherits from J) and apply formallyReal_field_is_real
+    -- For now, we assert x ∈ ℝ·e
     sorry
   -- Now use finrank monotonicity
   apply Nat.le_antisymm
