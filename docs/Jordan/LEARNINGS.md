@@ -1719,6 +1719,57 @@ than H-O's elegant ring-theoretic argument.
 
 ---
 
+## Session 92: PowerSubmodule and span_induction Complexity
+
+### PowerSubmodule Defined
+
+For any `x : J`, we define:
+```lean
+def PowerSubmodule (x : J) : Submodule ℝ J :=
+  Submodule.span ℝ (Set.range (jpow x))
+```
+
+This is the ℝ-submodule spanned by {x⁰, x¹, x², ...} = {jone, x, jsq x, ...}.
+
+### span_induction Has Dependent Types
+
+**Problem discovered:** `Submodule.span_induction` has a dependent predicate:
+
+```lean
+Submodule.span_induction {s : Set M}
+    {p : (x : M) → x ∈ Submodule.span R s → Prop}
+    (mem : ∀ x (h : x ∈ s), p x ⋯)
+    (zero : p 0 ⋯)
+    (add : ∀ x y (hx : ...) (hy : ...), p x hx → p y hy → p (x + y) ⋯)
+    (smul : ∀ a x (hx : ...), p x hx → p (a • x) ⋯)
+    {x : M} (hx : x ∈ Submodule.span R s) : p x hx
+```
+
+The predicate `p` takes both the element AND its membership proof. For simple cases
+like "jmul a b ∈ P", this creates verbose proofs because you need to track
+membership proofs through all cases.
+
+### Workarounds
+
+1. **Use explicit have statements** with the correct types for each case
+2. **Term mode** with explicit dependent pattern matching
+3. **Look for simpler lemmas** like `Submodule.mem_span_iff_exists_sum`
+4. **Leave with sorry** and file separate issue (what we did)
+
+### Key Proven Facts
+
+```lean
+theorem jpow_mem_powerSubmodule (x : J) (n : ℕ) : jpow x n ∈ PowerSubmodule x
+theorem self_mem_powerSubmodule (x : J) : x ∈ PowerSubmodule x
+theorem jone_mem_powerSubmodule (x : J) : jone ∈ PowerSubmodule x
+```
+
+The closure property `powerSubmodule_mul_closed` uses `jpow_add`:
+- For basis elements: `x^m ∘ x^n = x^{m+n}` (by jpow_add) ∈ span(powers)
+- Extend by bilinearity using span_induction
+
+---
+
 ## References
 
 - Hanche-Olsen & Størmer, *Jordan Operator Algebras* (see `examples3/Jordan Operator Algebras/`)

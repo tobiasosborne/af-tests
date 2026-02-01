@@ -2,7 +2,7 @@
 
 ## Completed This Session
 
-### 1. PowerSubmodule Definition (af-yok1)
+### 1. PowerSubmodule Definition (af-yok1) ✓ CLOSED
 
 Defined `PowerSubmodule` for the H-O 2.9.4(ii) proof:
 
@@ -16,8 +16,8 @@ def PowerSubmodule (x : J) : Submodule ℝ J :=
 - `self_mem_powerSubmodule` - x ∈ PowerSubmodule x
 - `jone_mem_powerSubmodule` - jone ∈ PowerSubmodule x
 
-**Left with sorry:**
-- `powerSubmodule_mul_closed` - closure under jmul (span_induction has complex dependent types)
+**Left with sorry (new issue af-qc7s):**
+- `powerSubmodule_mul_closed` - closure under jmul
 
 ---
 
@@ -25,47 +25,49 @@ def PowerSubmodule (x : J) : Submodule ℝ J :=
 
 | Metric | Value |
 |--------|-------|
-| Total Sorries | **28** (+1 from S91 - powerSubmodule_mul_closed) |
+| Total Sorries | **28** |
 | Build Status | **PASSING** |
-| Primitive.lean | PowerSubmodule defined, 1 closure sorry |
+| Primitive.lean | PowerSubmodule defined |
 
 ---
 
-## Next Steps
+## 🎯 NEXT STEP: af-643b (CommRing on PowerSubmodule)
 
-### Priority 1: Fill primitive_peirce_one_dim_one (line 270 sorry)
+**This is the critical path for H-O 2.9.4(ii).**
 
-The main H-O 2.9.4(ii) proof at line 270. Now that PowerSubmodule is defined, the structure is:
+The goal is to give `PowerSubmodule x` a `CommRing` structure:
+- Multiplication: jmul (closed by powerSubmodule_mul_closed)
+- Associativity: jpow_assoc (already proven in LinearizedJordan.lean)
+- Identity: jone (= jpow x 0)
 
-1. For x ∈ P₁(e), show x ∈ ℝ·e
-2. Use PowerSubmodule as the subalgebra ℝ[x]
-3. Show it's a CommRing (need to package jpow_assoc)
-4. Show it's Artinian + Reduced
-5. Apply `artinian_reduced_is_product_of_fields`
-6. Primitivity → single field → F = ℝ → x ∈ ℝ·e
+**Location:** `AfTests/Jordan/Primitive.lean` (add after PowerSubmodule definition)
 
-**Missing piece:** CommRing instance on PowerSubmodule (issue af-643b)
+**Approach:** Option B from issue - Subtype with ring structure
 
-### Priority 2: Fill powerSubmodule_mul_closed
+**After this:** af-6yeo (IsArtinian + IsReduced) → complete primitive_peirce_one_dim_one
 
-The span_induction proof is technical. Options:
-- Use term mode with explicit dependent types
-- Find simpler span membership lemmas in mathlib
+---
 
-### Priority 3: Other blocking issues
-- af-cnnp (P0): OperatorIdentities - may be FALSE, BLOCKED
-- af-4g40 (P1): Jordan Spectral sorry elimination
+## Dependency Chain
+
+```
+af-yok1 ✓ (PowerSubmodule)
+    ↓
+af-643b (CommRing instance) ← NEXT
+    ↓
+af-6yeo (IsArtinian + IsReduced)
+    ↓
+primitive_peirce_one_dim_one (line 270) ← MAIN GOAL
+```
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/Primitive.lean` - Added PowerSubmodule definition and basic theorems
+- `AfTests/Jordan/Primitive.lean` - Added PowerSubmodule definition (~40 LOC)
 
 ---
 
-## Key Learning
+## Issues Created This Session
 
-**span_induction has dependent types:** The predicate `p : (x : M) → x ∈ Submodule.span R s → Prop`
-requires the membership proof as a parameter. For simple membership predicates, this makes
-proofs verbose. May need to find alternative lemmas or use term mode.
+- **af-qc7s** (P2): Prove powerSubmodule_mul_closed (span_induction technicality)
