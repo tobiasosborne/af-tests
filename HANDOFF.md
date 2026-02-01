@@ -1,41 +1,26 @@
-# Handoff: 2026-02-01 (Session 88)
+# Handoff: 2026-02-01 (Session 89)
 
 ## Completed This Session
 
-### 1. Created Comprehensive Sorry Elimination Plans
+### 1. Structured `primitive_peirce_one_dim_one` Discriminant Proof
 
-Created detailed plans for all 21 actionable sorries in `docs/Jordan/`:
+Implemented the complete discriminant case analysis for the key theorem H-O 2.9.4(ii):
 
-| Document | Sorries Covered |
-|----------|-----------------|
-| `SORRY_MASTER_INDEX.md` | Master index with dependency graph |
-| `PLAN_Primitive.md` | 6 sorries |
-| `PLAN_SpectralTheorem.md` | 5 sorries |
-| `PLAN_FundamentalFormula.md` | 2 sorries |
-| `PLAN_FormallyReal.md` | 5 sorries (2 blocked) |
-| `PLAN_OperatorIdentities.md` | 3 sorries |
-| `PLAN_Classification.md` | 2 sorries |
+**Theorem**: For primitive idempotent e, `Module.finrank ℝ (PeirceSpace e 1) = 1`
 
-### 2. Registered 21 Beads Issues
+**Proof Structure Added** (~80 LOC):
 
-All sorries now have tracking issues with dependencies:
-- Phase 1 (P0): S1, S9, S10
-- Phase 2 (P1): S2, S7, S8, S11
-- Phase 3-6 (P2-P3): Remaining sorries
+| Case | Method | Status |
+|------|--------|--------|
+| Δ ≤ 0 | `peirce_one_sq_nonpos_imp_zero` on y = x - (r/2)•e | COMPLETE |
+| Δ > 0 | `lagrange_idempotent_in_peirce_one` + `primitive_idempotent_in_P1` | COMPLETE |
 
-### 3. Eliminated 2 Sorries
+**Remaining**: Only the quadratic extraction sub-lemma needs proof:
+```lean
+obtain ⟨r, s, hquad⟩ : ∃ r s : ℝ, jsq x = r • x + s • e := sorry
+```
 
-| Issue | Theorem | Action | LOC |
-|-------|---------|--------|-----|
-| **af-6cwg** [S1] | `lagrange_idempotent_in_peirce_one` coeff | Proved with field_simp + nlinarith | +5 |
-| **af-uq6x** [S7] | `linearized_jordan_aux` | Removed (unused private theorem) | -27 |
-
-### 4. Identified Correctness Issues
-
-**S9 & S10 (`opComm_double_idempotent`, `L_e_L_a_L_e`) may be INCORRECT:**
-- Not directly in H-O reference
-- Mathematical analysis shows stated identity doesn't obviously hold
-- Issues updated with research findings, marked as blocked
+This requires showing that x satisfies a quadratic relation using finite dimensionality.
 
 ---
 
@@ -43,9 +28,8 @@ All sorries now have tracking issues with dependencies:
 
 | Metric | Value |
 |--------|-------|
-| Total Sorries | **25** (was 27) |
-| Primitive.lean sorries | 5 (was 6) |
-| FundamentalFormula.lean sorries | 1 (was 2) |
+| Total Sorries | **26** (was 25, +1 sub-lemma) |
+| Primitive.lean sorries | 5 (structure improved) |
 | Build Status | **PASSING** |
 
 ---
@@ -54,7 +38,7 @@ All sorries now have tracking issues with dependencies:
 
 | File | Sorries | Key Blockers |
 |------|---------|--------------|
-| Primitive.lean | 5 | S2 unblocked (S1 done) |
+| Primitive.lean | 5 | S2 needs quadratic extraction lemma |
 | SpectralTheorem.lean | 5 | Needs S6 |
 | FundamentalFormula.lean | 1 | S8 ready |
 | OperatorIdentities.lean | 2 | S9, S10 may be incorrect |
@@ -66,47 +50,64 @@ All sorries now have tracking issues with dependencies:
 
 ## Next Steps (Priority Order)
 
-### Immediate (S2 now unblocked)
-1. **af-utz0** [S2] `primitive_peirce_one_dim_one` - P₁(e) is 1-dim for primitive e
-   - S1 dependency resolved
-   - Uses quadratic discriminant approach
-   - 60-80 LOC
+### Immediate: Complete S2 Quadratic Extraction
+
+The discriminant case analysis is done. Need to prove:
+```lean
+∃ r s : ℝ, jsq x = r • x + s • e
+```
+
+**Approaches**:
+1. **Direct finite dimension**: Since P₁(e) is finite-dim and x, x² ∈ P₁(e), some power of x is dependent on lower powers
+2. **Ring theory**: Use Artinian + reduced structure on ℝ[x] (power-associative subalgebra)
+3. **Minimal polynomial**: Find polynomial relation and factor
 
 ### High Priority
-2. **af-i8oo** [S8] `fundamental_formula` - U_{U_a(b)} = U_a U_b U_a
-   - THE central theorem
-   - 80-120 LOC, use direct calculation
+1. **af-i8oo** [S8] `fundamental_formula` - U_{U_a(b)} = U_a U_b U_a
 
 ### Independent Track
-3. **af-zi08** [S22] `RealSymmetricMatrix.isSimple`
-   - Matrix units approach
-   - No dependencies on main chain
-
-### Research Needed
-4. **af-cnnp** [S9] `opComm_double_idempotent`
-   - Verify formula correctness on concrete examples
-   - May need reformulation or removal
+2. **af-zi08** [S22] `RealSymmetricMatrix.isSimple`
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/Primitive.lean` - Eliminated S1 sorry
-- `AfTests/Jordan/FundamentalFormula.lean` - Removed unused S7 theorem
-- `docs/Jordan/SORRY_MASTER_INDEX.md` - NEW: Master index
-- `docs/Jordan/PLAN_*.md` - NEW: 6 plan documents
+- `AfTests/Jordan/Primitive.lean` - Added 80+ LOC discriminant proof structure
 
 ---
 
 ## Key Discoveries
 
-1. **S7 was dead code** - `linearized_jordan_aux` defined but never called
-2. **S9/S10 may be incorrect** - Not in H-O, mathematical analysis inconclusive
-3. **Dependency chain clear** - S1 → S2 → S3-6 → S12-16 → S19-21
+1. **Module arithmetic**: `ring_nf` doesn't work on module elements; use `module` tactic instead
+2. **Scalar conversion**: Need `smul_sub`, `smul_smul` explicitly for scalar-module algebra
+3. **Idempotent conversion**: `IsIdempotent e` gives `jsq e = e`, but `jmul e e` requires `jsq_def` conversion
 
 ---
 
-## Previous Session Context (Session 87)
+## Proof Techniques Used
 
-Created PLAN_FundamentalFormula.md. Identified that H-O proves fundamental_formula
-via Macdonald's theorem, not through linearized_jordan_aux.
+### Module Element Manipulation
+```lean
+-- Convert jmul e e to e
+have he_jmul : jmul e e = e := by rw [← jsq_def]; exact he.isIdempotent
+
+-- Distribute scalar over subtraction
+rw [smul_sub, smul_smul, h]
+
+-- Use module tactic for J-element arithmetic
+module
+```
+
+### Lagrange Idempotent Usage
+```lean
+have ⟨hf_idem, hf_in⟩ := lagrange_idempotent_in_peirce_one he.isIdempotent hx hquad hΔ_pos
+have hf_cases := primitive_idempotent_in_P1 he hf_idem hf_in
+```
+
+---
+
+## Previous Session Context (Session 88)
+
+- Eliminated S1 (`lagrange_idempotent_in_peirce_one` coefficient)
+- Removed S7 (dead code)
+- Created comprehensive sorry elimination plans
