@@ -437,6 +437,49 @@ instance powerSubmodule_isReduced [FormallyRealJordan J] (x : J) :
       no_nilpotent_of_formallyReal (Nat.one_le_iff_ne_zero.mpr (Nat.succ_ne_zero m)) hpow
     ext; exact ha_zero
 
+/-! ### P₁-Restricted Power Submodule
+
+For x ∈ P₁(e), we need a subalgebra with identity e (not jone).
+This is span{e, x, x², ...} where the powers are jpow x (n+1). -/
+
+/-- The P₁-restricted power submodule: span{e, x, x², ...}.
+For x ∈ P₁(e), this forms a commutative ring with identity e. -/
+def P1PowerSubmodule (e x : J) : Submodule ℝ J :=
+  Submodule.span ℝ (Set.insert e (Set.range fun n : ℕ => jpow x (n + 1)))
+
+theorem e_mem_P1PowerSubmodule (e x : J) : e ∈ P1PowerSubmodule e x :=
+  Submodule.subset_span (Set.mem_insert e _)
+
+theorem jpow_succ_mem_P1PowerSubmodule (e x : J) (n : ℕ) :
+    jpow x (n + 1) ∈ P1PowerSubmodule e x :=
+  Submodule.subset_span (Set.mem_insert_of_mem e ⟨n, rfl⟩)
+
+theorem self_mem_P1PowerSubmodule (e x : J) : x ∈ P1PowerSubmodule e x := by
+  convert jpow_succ_mem_P1PowerSubmodule e x 0 using 1
+  exact (jpow_one x).symm
+
+/-- P1PowerSubmodule is contained in P₁(e) when x ∈ P₁(e). -/
+theorem P1PowerSubmodule_le_peirceSpace (e x : J) (he : IsIdempotent e)
+    (hx : x ∈ PeirceSpace e 1) : P1PowerSubmodule e x ≤ PeirceSpace e 1 := by
+  apply Submodule.span_le.mpr
+  intro y hy
+  cases hy with
+  | inl hy_eq_e => rw [hy_eq_e]; exact idempotent_in_peirce_one he
+  | inr hy_pow =>
+    obtain ⟨n, rfl⟩ := hy_pow
+    exact jpow_succ_mem_peirce_one he hx n
+
+/-- P1PowerSubmodule is closed under Jordan multiplication when x ∈ P₁(e).
+Key facts: e ∘ e = e, e ∘ y = y for y ∈ P₁(e), x^m ∘ x^n = x^{m+n}. -/
+theorem P1PowerSubmodule_mul_closed (e x : J) (he : IsIdempotent e)
+    (hx : x ∈ PeirceSpace e 1) {a b : J}
+    (ha : a ∈ P1PowerSubmodule e x) (hb : b ∈ P1PowerSubmodule e x) :
+    jmul a b ∈ P1PowerSubmodule e x := by
+  -- Reduce to generators using bilinearity
+  -- Generators: e and jpow x (n+1) for n ∈ ℕ
+  -- Products: e∘e = e, e∘x^n = x^n (P₁ property), x^m∘x^n = x^{m+n} (jpow_add)
+  sorry
+
 /-- For a primitive idempotent e, the Peirce 1-space is one-dimensional.
 This is the key step for H-O 2.9.4(ii).
 

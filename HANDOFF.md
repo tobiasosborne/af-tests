@@ -1,18 +1,20 @@
-# Handoff: 2026-02-01 (Session 97)
+# Handoff: 2026-02-01 (Session 98)
 
 ## Completed This Session
 
-### af-6yeo: IsArtinian + IsReduced for PowerSubmodule - IMPLEMENTED
+### P1PowerSubmodule Infrastructure - ADDED
 
-**New instances in Primitive.lean:387-435:**
+Added infrastructure for P₁-restricted power submodules (Primitive.lean:440-485):
 
-1. `powerSubmodule_npow_eq_jpow` - Key lemma: ring power = Jordan power
-2. `powerSubmodule_isScalarTower` - ℝ-scalar tower instance
-3. `powerSubmodule_isArtinianRing` - From finite-dimensionality over ℝ
-4. `powerSubmodule_isReduced` - From no_nilpotent_of_formallyReal
+1. `P1PowerSubmodule e x` - span{e, x, x², ...} with identity e (not jone)
+2. `e_mem_P1PowerSubmodule` - e is in the submodule
+3. `jpow_succ_mem_P1PowerSubmodule` - powers x^{n+1} are in submodule
+4. `self_mem_P1PowerSubmodule` - x is in its submodule
+5. `P1PowerSubmodule_le_peirceSpace` - contained in P₁(e) when x ∈ P₁(e)
+6. `P1PowerSubmodule_mul_closed` - **sorry** - needs bilinear induction proof
 
-**Key insight:** Ring multiplication on PowerSubmodule is jmul, so ring power equals jpow.
-This lets us use `no_nilpotent_of_formallyReal` to prove IsReduced.
+**Why P1PowerSubmodule?** The original `PowerSubmodule x` has identity `jone`, but for
+the H-O 2.9.4(ii) argument we need a subalgebra of P₁(e) with identity `e`.
 
 ---
 
@@ -20,29 +22,29 @@ This lets us use `no_nilpotent_of_formallyReal` to prove IsReduced.
 
 | Metric | Value |
 |--------|-------|
-| Total Sorries | **27** (unchanged - infrastructure added) |
+| Total Sorries | **28** (+1 new: P1PowerSubmodule_mul_closed) |
 | Build Status | **PASSING** |
-| New Instances | 4 (47 LOC) |
+| New Definitions | 6 (45 LOC) |
 
 ---
 
-## 🎯 NEXT STEP: af-w3sf (Fill the sorry)
+## 🎯 NEXT STEP: Fill P1PowerSubmodule_mul_closed sorry
 
-With IsArtinian and IsReduced now available, the next step is to fill the sorry
-in `primitive_peirce_one_dim_one` (line 454) by applying:
+The sorry at line 474 needs a bilinear induction proof:
 
-```lean
-artinian_reduced_is_product_of_fields : R ≃+* ((I : MaximalSpectrum R) → R ⧸ I.asIdeal)
-```
+**Key facts for the proof:**
+- `e ∘ e = e` (idempotent)
+- `e ∘ x^n = x^n` for x^n ∈ P₁(e) (by `mem_peirceSpace_one_iff`)
+- `x^m ∘ x^n = x^{m+n}` (by `jpow_add`)
 
-### Implementation Path
+**Proof approach:**
+1. Use `Submodule.span_induction` on `ha`
+2. For each generator a', show `∀ y ∈ P1PowerSubmodule, jmul a' y ∈ P1PowerSubmodule`
+3. Use `Submodule.span_induction` on the y argument
+4. Check all generator pairs: (e,e), (e,x^n), (x^m,e), (x^m,x^n)
 
-1. For `x ∈ PeirceSpace e 1`, construct `PowerSubmodule x` with identity e
-2. Apply `artinian_reduced_is_product_of_fields`
-3. Show identity decomposes as sum of field identities
-4. Use primitivity to force single field factor
-5. Use `formallyReal_field_is_real` to get F = ℝ
-6. Conclude x ∈ ℝ·e
+Once mul_closed is proven, add CommRing instance with identity e, then apply
+`artinian_reduced_is_product_of_fields` to complete `primitive_peirce_one_dim_one`.
 
 ---
 
@@ -57,15 +59,21 @@ powerSubmodule_assoc ✓ (Session 95)
     ↓
 af-643b ✓ (CommRing instance) - Session 96
     ↓
-af-6yeo ✓ (IsArtinian + IsReduced) ← DONE (Session 97)
+af-6yeo ✓ (IsArtinian + IsReduced) - Session 97
     ↓
-af-w3sf (Apply structure theorem) ← NEXT
+P1PowerSubmodule ✓ (definitions) - Session 98
     ↓
-primitive_peirce_one_dim_one (line 454 sorry)
+P1PowerSubmodule_mul_closed (sorry) ← NEXT
+    ↓
+P1PowerSubmodule CommRing instance
+    ↓
+af-w3sf (Apply structure theorem)
+    ↓
+primitive_peirce_one_dim_one (line 497 sorry)
 ```
 
 ---
 
 ## Files Modified
 
-- `AfTests/Jordan/Primitive.lean` - Added 4 instances (lines 387-435)
+- `AfTests/Jordan/Primitive.lean` - Added P1PowerSubmodule infrastructure (lines 440-485)
