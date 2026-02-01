@@ -1,16 +1,9 @@
-# Handoff: 2026-02-01 (Session 102)
+# Handoff: 2026-02-01 (Session 103)
 
-## Completed This Session
+## Session Summary
 
-### P1PowerSubmodule_commRing - DONE
-
-Successfully added `P1PowerSubmodule_commRing` (Primitive.lean:681-706).
-
-This CommRing instance uses:
-- Identity: `e` (not `jone`)
-- Multiplication: `jmul` with `P1PowerSubmodule_mul_closed`
-- Associativity: `P1PowerSubmodule_assoc`
-- Identity laws: `peirce_one_left_id` / `peirce_one_right_id`
+Attempted to add IsScalarTower/IsArtinianRing/IsReduced for P1PowerSubmodule.
+**Result:** Reverted - typeclass threading too complex for remaining context.
 
 ---
 
@@ -20,54 +13,93 @@ This CommRing instance uses:
 |--------|-------|
 | Total Sorries | **5** (Primitive.lean) |
 | Build Status | **PASSING** |
-| Session Work | P1PowerSubmodule_commRing added |
+| Session Work | Research on instance threading |
 
 ---
 
-## 🎯 NEXT STEP: IsScalarTower + IsArtinianRing + IsReduced
+## 🎯 NEXT STEP: P1PowerSubmodule Instances
 
-Need to add instances to use `IsArtinianRing.of_finite`:
+### The Challenge
+
+`P1PowerSubmodule_commRing` is a `def` (not `instance`) because it requires:
+- `he : IsIdempotent e`
+- `hx : x ∈ PeirceSpace e 1`
+
+When defining dependent instances (IsScalarTower, IsArtinianRing, IsReduced),
+Lean can't automatically find the CommRing. Must use explicit `@` notation or `letI`.
+
+### Key Insight: Ring Power vs Jordan Power
+
+For `a ∈ P1PowerSubmodule e x` with ring identity `e`:
+- Ring `a^0 = e` (NOT `jone`)
+- Ring `a^n = jpow a.val n` for n ≥ 1
+
+Need lemma `P1PowerSubmodule_npow_eq_jpow` relating these.
+
+### Required Lemmas (in order)
 
 ```lean
--- 1. IsScalarTower for ℝ acting on P1PowerSubmodule
+-- 1. Power relationship (needed for IsReduced)
+theorem P1PowerSubmodule_npow_eq_jpow (e x : J) (he : IsIdempotent e)
+    (hx : x ∈ PeirceSpace e 1) (a : ↥(P1PowerSubmodule e x)) (n : ℕ) (hn : n ≥ 1) :
+    letI := P1PowerSubmodule_commRing e x he hx
+    (a ^ n).val = jpow a.val n
+
+-- 2. Scalar tower (needed for of_finite)
 def P1PowerSubmodule_isScalarTower (e x : J) (he : IsIdempotent e)
     (hx : x ∈ PeirceSpace e 1) :
-    @IsScalarTower ℝ ↥(P1PowerSubmodule e x) ↥(P1PowerSubmodule e x) ... where
-  smul_assoc r a b := ... -- uses jmul_smul
+    letI := P1PowerSubmodule_commRing e x he hx
+    IsScalarTower ℝ ↥(P1PowerSubmodule e x) ↥(P1PowerSubmodule e x)
 
--- 2. IsArtinianRing via of_finite
-def P1PowerSubmodule_isArtinianRing [FinDimJordanAlgebra J] ...
+-- 3. Artinian (uses of_finite)
+def P1PowerSubmodule_isArtinianRing [FinDimJordanAlgebra J] (e x : J) ...
 
--- 3. IsReduced (no nilpotents)
-def P1PowerSubmodule_isReduced [FormallyRealJordan J] ...
+-- 4. Reduced (uses npow_eq_jpow + no_nilpotent_of_formallyReal)
+def P1PowerSubmodule_isReduced [FormallyRealJordan J] (e x : J) ...
 ```
 
-**Challenge:** Threading explicit typeclass instances with `@` notation.
-See `powerSubmodule_isScalarTower` (lines 400-410) for pattern.
+### Pattern from PowerSubmodule
 
-Then fill sorry in `primitive_peirce_one_dim_one` (line 722).
+See lines 400-438 for working pattern. Key differences:
+- PowerSubmodule uses `instance` (no constraints)
+- P1PowerSubmodule needs `def` with explicit constraints
+- Must use `letI := P1PowerSubmodule_commRing e x he hx` in proofs
+
+### Issue: SMul Instance Threading
+
+The `IsScalarTower` definition requires explicit SMul instances:
+```lean
+@IsScalarTower ℝ S S inst_R_S inst_S_S
+```
+
+For P1PowerSubmodule:
+- `inst_R_S` comes from Submodule.module (automatic)
+- `inst_S_S` must come from CommRing multiplication
+
+The `Algebra.toSMul` path didn't work (`Submodule.algebra'` doesn't exist).
+Try `instSMulOfMul` instead (deprecated warning showed this).
 
 ---
 
 ## Dependency Chain
 
 ```
-P1PowerSubmodule_mul_closed ✓ - Session 99
+P1PowerSubmodule_commRing    ✓ - Session 102
     ↓
-P1PowerSubmodule_assoc       ✓ - Session 101
+P1PowerSubmodule_npow_eq_jpow  ← NEXT (for IsReduced)
     ↓
-P1PowerSubmodule CommRing    ✓ - Session 102 (THIS SESSION)
+P1PowerSubmodule_isScalarTower ← NEXT (for of_finite)
     ↓
-IsScalarTower + IsArtinian + IsReduced  ← NEXT
+P1PowerSubmodule_isArtinianRing
     ↓
-af-w3sf (Apply structure theorem)
+P1PowerSubmodule_isReduced
     ↓
 primitive_peirce_one_dim_one (line 722 sorry)
 ```
 
 ---
 
-## Files Modified
+## Files
 
-- `AfTests/Jordan/Primitive.lean` - Added P1PowerSubmodule_commRing (~26 LOC)
+- `AfTests/Jordan/Primitive.lean` - No changes this session
 
