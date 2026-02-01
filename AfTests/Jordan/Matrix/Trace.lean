@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: AF-Tests Contributors
 -/
 import AfTests.Jordan.Matrix.Instance
+import AfTests.Jordan.Trace
 import Mathlib.LinearAlgebra.Matrix.Trace
 import Mathlib.LinearAlgebra.Matrix.PosDef
 import Mathlib.Analysis.Matrix.Order
@@ -185,4 +186,88 @@ theorem traceInnerReal_self_eq_zero (A : HermitianMatrix n 𝕜) :
   · intro h
     simp [h, traceInner_zero_left]
 
+/-! ### JordanTrace Instance -/
+
+/-- The trace functional for Hermitian matrices as a real number.
+For Hermitian matrices, Tr(A) is always real since A = A*. -/
+def traceReal (A : HermitianMatrix n 𝕜) : ℝ := RCLike.re A.val.trace
+
+omit [DecidableEq n] in
+theorem traceReal_def (A : HermitianMatrix n 𝕜) :
+    traceReal A = RCLike.re A.val.trace := rfl
+
+omit [DecidableEq n] in
+/-- The trace of a Hermitian matrix is real (imaginary part is zero). -/
+theorem trace_im_zero (A : HermitianMatrix n 𝕜) :
+    RCLike.im A.val.trace = 0 := by
+  have h : A.val.trace = star A.val.trace := by
+    rw [← trace_conjTranspose, A.prop.isHermitian.eq]
+  rw [← RCLike.conj_eq_iff_im]
+  exact h.symm
+
+omit [DecidableEq n] in
+/-- For Hermitian matrices, trace equals its real part as an element of 𝕜. -/
+theorem trace_eq_re (A : HermitianMatrix n 𝕜) :
+    A.val.trace = (traceReal A : 𝕜) := by
+  rw [traceReal_def, ← RCLike.re_add_im A.val.trace, trace_im_zero A]
+  simp
+
+omit [DecidableEq n] in
+theorem traceReal_add (A B : HermitianMatrix n 𝕜) :
+    traceReal (A + B) = traceReal A + traceReal B := by
+  simp only [traceReal_def, AddSubgroup.coe_add, trace_add, map_add]
+
+theorem traceReal_smul [Algebra ℝ 𝕜] [StarModule ℝ 𝕜] (r : ℝ) (A : HermitianMatrix n 𝕜) :
+    traceReal (r • A) = r * traceReal A := by
+  simp only [traceReal_def]
+  -- Goal: RCLike.re ((r • A).val).trace = r * RCLike.re A.val.trace
+  -- Follows from: trace_smul + RCLike.re (r • x) = r * RCLike.re x for r : ℝ
+  sorry
+
+theorem traceReal_jmul_comm (A B : HermitianMatrix n 𝕜) :
+    traceReal (jmul A B) = traceReal (jmul B A) := by
+  rw [jmul_comm]
+
+/-- The key self-adjointness property: Tr((A∘V)∘W) = Tr(V∘(A∘W)).
+This follows from the cyclicity of the trace: Tr(XYZ) = Tr(YZX) = Tr(ZXY).
+
+Both sides expand to sums of traces of products AVW, VAW, VWA, AWV, WAV, WVA.
+By trace cyclicity, cyclic permutations have equal traces, so both sides are equal.
+
+PROOF SKETCH:
+- jmul (jmul A V) W = ((A∘V)∘W) = (((AV+VA)/2)*W + W*((AV+VA)/2))/2
+- After expansion: (AVW + VAW + WAV + WVA)/4
+- Similarly jmul V (jmul A W) = (V*(AW+WA)/2 + (AW+WA)/2*V)/2
+- After expansion: (VAW + VWA + AWV + WAV)/4
+- By trace cyclicity: Tr(AVW)=Tr(VWA)=Tr(WAV), Tr(VAW)=Tr(AWV)=Tr(WVA)
+- Both sums equal 2*Tr(AVW) + 2*Tr(VAW) after applying cyclicity.
+-/
+theorem traceReal_L_selfadjoint [Algebra ℝ 𝕜] [StarModule ℝ 𝕜]
+    (A V W : HermitianMatrix n 𝕜) :
+    traceReal (jmul (jmul A V) W) = traceReal (jmul V (jmul A W)) := by
+  -- Mathematically verified: both sides equal (Tr(AVW) + Tr(VAW))/2 after trace cyclicity.
+  -- The full Lean proof requires careful manipulation of the 8 terms.
+  sorry
+
+theorem traceReal_jone_pos [Nonempty n] :
+    0 < traceReal (HermitianMatrix.one : HermitianMatrix n 𝕜) := by
+  simp only [traceReal_def, HermitianMatrix.one_val, trace_one]
+  have h : (Fintype.card n : 𝕜) = ((Fintype.card n : ℕ) : 𝕜) := rfl
+  rw [h]
+  simp only [RCLike.natCast_re]
+  exact Nat.cast_pos.mpr (Fintype.card_pos)
+
 end HermitianMatrix
+
+/-! ### JordanTrace Instance for Hermitian Matrices -/
+
+/-- Hermitian matrices with the Jordan product have a trace satisfying the JordanTrace axioms. -/
+instance jordanTraceHermitianMatrix {n : Type*} [DecidableEq n] [Fintype n] [Nonempty n]
+    {𝕜 : Type*} [RCLike 𝕜] [Algebra ℝ 𝕜] [StarModule ℝ 𝕜] :
+    JordanAlgebra.JordanTrace (HermitianMatrix n 𝕜) where
+  trace := HermitianMatrix.traceReal
+  trace_add := HermitianMatrix.traceReal_add
+  trace_smul := HermitianMatrix.traceReal_smul
+  trace_jmul_comm := HermitianMatrix.traceReal_jmul_comm
+  trace_L_selfadjoint := HermitianMatrix.traceReal_L_selfadjoint
+  trace_jone_pos := HermitianMatrix.traceReal_jone_pos
