@@ -1004,13 +1004,39 @@ theorem primitive_peirce_one_dim_one [FinDimJordanAlgebra J] [FormallyRealJordan
         IsArtinianRing.isField_of_isReduced_of_isLocalRing ↥(P1PowerSubmodule e x)
       -- Step 3: Get Field instance
       letI hField : Field ↥(P1PowerSubmodule e x) := hIsField.toField
-      -- SESSION 115: Instance diamond between Algebra.toModule and Submodule.module
-      -- blocks applying formallyReal_field_is_real. Need to either:
-      -- (a) Prove the two module structures are defeq, or
-      -- (b) Use a different finrank argument (e.g., show φ : P1PowerSubmodule ≃+* ℝ directly)
-      -- New lemmas added: P1PowerSubmodule_formallyReal, P1PowerSubmodule_algebra,
-      -- P1PowerSubmodule_finiteDimensional
-      sorry
+      -- P1PowerSubmodule is a finite-dimensional formally real field over ℝ,
+      -- hence isomorphic to ℝ (not ℂ, since ℂ is not formally real).
+      -- We use Real.nonempty_algEquiv_or with explicit instance management.
+      letI hAlg : Algebra ℝ ↥(P1PowerSubmodule e x) := P1PowerSubmodule_algebra e x he.isIdempotent hx
+      haveI hFD : FiniteDimensional ℝ ↥(P1PowerSubmodule e x) :=
+        P1PowerSubmodule_finiteDimensional e x he.isIdempotent hx
+      -- Algebra.ofModule reuses the existing module structure, so hFD applies
+      cases Real.nonempty_algEquiv_or ↥(P1PowerSubmodule e x) with
+      | inl hR =>
+        -- P1PowerSubmodule ≃ₐ[ℝ] ℝ, so finrank = 1
+        obtain ⟨eqv⟩ := hR
+        calc Module.finrank ℝ ↥(P1PowerSubmodule e x)
+            = Module.finrank ℝ ℝ := eqv.toLinearEquiv.finrank_eq
+          _ = 1 := Module.finrank_self ℝ
+      | inr hC =>
+        -- P1PowerSubmodule ≃ₐ[ℝ] ℂ, contradiction with formal reality
+        exfalso
+        obtain ⟨eqv⟩ := hC
+        -- ℂ is not formally real: i² + 1² = 0 but i ≠ 0
+        obtain ⟨n, a, hsum, i, hi⟩ := complex_not_formally_real
+        -- Transfer to P1PowerSubmodule via the isomorphism
+        let a' : Fin n → ↥(P1PowerSubmodule e x) := fun j => eqv.symm (a j)
+        have hsum' : ∑ j, a' j ^ 2 = 0 := by
+          have heq : eqv (∑ j, a' j ^ 2) = 0 := by
+            simp only [map_sum, map_pow, a', AlgEquiv.apply_symm_apply, hsum]
+          exact eqv.injective (by simp [heq])
+        have ha'i : a' i ≠ 0 := by
+          intro h
+          apply hi
+          have : eqv (a' i) = 0 := by simp only [h, map_zero]
+          simp only [a', AlgEquiv.apply_symm_apply] at this
+          exact this
+        exact ha'i (P1PowerSubmodule_formallyReal e x he.isIdempotent hx n a' hsum' i)
     have h_eq : ∀ w : ↥(P1PowerSubmodule e x), ∃ c : ℝ, c • (⟨e, e_mem_P1PowerSubmodule e x⟩ : ↥(P1PowerSubmodule e x)) = w := by
       have he_ne' : (⟨e, e_mem_P1PowerSubmodule e x⟩ : ↥(P1PowerSubmodule e x)) ≠ 0 := by
         intro h

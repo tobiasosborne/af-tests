@@ -1,15 +1,17 @@
-# Handoff: 2026-02-01 (Session 115)
+# Handoff: 2026-02-01 (Session 116)
 
 ## Session Summary
 
-**PROGRESS:** Added three new helper lemmas to support h_finrank_one proof:
-- `P1PowerSubmodule_formallyReal` - proves formal reality using CommRing
-- `P1PowerSubmodule_algebra` - defines ℝ-algebra structure
-- `P1PowerSubmodule_finiteDimensional` - finite dimensionality
+**PROGRESS:** Fixed the instance diamond in `h_finrank_one` (Primitive.lean:~1007).
 
-**Blocker:** Instance diamond between `Algebra.toModule` and `Submodule.module` prevents applying `formallyReal_field_is_real`.
+**Solution:** Used `Real.nonempty_algEquiv_or` directly with explicit instance management:
+- `letI hAlg := P1PowerSubmodule_algebra` brings in algebra structure
+- `haveI hFD := P1PowerSubmodule_finiteDimensional` provides finite-dimensionality
+- Case split on whether P1PowerSubmodule ≃ₐ[ℝ] ℝ or ≃ₐ[ℝ] ℂ
+- ℂ case excluded by `P1PowerSubmodule_formallyReal`
+- ℝ case gives finrank = 1 via `eqv.toLinearEquiv.finrank_eq`
 
-**Result:** Build passes. 5 sorries in Primitive.lean.
+**Result:** Build passes. 4 sorries remain in Primitive.lean (down from 5).
 
 ---
 
@@ -17,114 +19,66 @@
 
 | Metric | Value |
 |--------|-------|
-| Total Sorries | **5** (Primitive.lean) |
+| Total Sorries | **4** (Primitive.lean) |
 | Build Status | **PASSING** |
-| Blocker | Module instance diamond in h_finrank_one |
+| Key Fix | Instance diamond resolved via explicit instances |
 
 ---
 
-## The Instance Diamond Problem (Session 115 Update)
+## Remaining Sorries in Primitive.lean
 
-### New Lemmas Added (all compile ✅)
-
-1. **`P1PowerSubmodule_formallyReal`** (line ~791)
-   - Proves: `∀ m a, (∑ i, a i ^ 2) = 0 → ∀ i, a i = 0`
-   - Uses ONLY CommRing R, avoids Field diamond
-   - Key: `(a ^ 2).val = jsq a.val` via `P1PowerSubmodule_npow_eq_jpow` + `jpow_two`
-
-2. **`P1PowerSubmodule_algebra`** (line ~754)
-   - Defines: `Algebra ℝ ↥(P1PowerSubmodule e x)`
-   - Uses `Algebra.ofModule` with `jmul_smul` and `smul_jmul`
-
-3. **`P1PowerSubmodule_finiteDimensional`** (line ~778)
-   - Proves: `FiniteDimensional ℝ ↥(P1PowerSubmodule e x)`
-   - Simple: submodule of finite-dimensional space
-
-### The Remaining Block
-
-When calling `formallyReal_field_is_real`:
-```
-Application type mismatch:
-  hFD has type FiniteDimensional ... (P1PowerSubmodule e x).module
-  but expected    FiniteDimensional ... Algebra.toModule
-```
-
-The two module structures:
-- `(P1PowerSubmodule e x).module` - inherited from J as submodule
-- `Algebra.toModule` - derived from `P1PowerSubmodule_algebra`
-
-**They are mathematically equal** (both give `r • x` for scalar `r` and element `x`), but Lean can't unify them.
+| Line | Name | Goal | Blocker |
+|------|------|------|---------|
+| 1119 | `orthogonal_primitive_peirce_sq` | `∃ μ, 0 ≤ μ ∧ jsq a = μ • (e + f)` | Algebraic computation |
+| 1131 | `orthogonal_primitive_structure` | Dichotomy: trivial 1/2-space or strongly connected | Needs line 1119 |
+| 1205 | `exists_primitive_decomp` | Induction case for primitive decomposition | Design decision |
+| 1212 | `csoi_refine_primitive` | Refine CSOI to primitives | Needs line 1205 |
 
 ---
 
-## Fix Approaches for Next Agent
+## Key Fix Details (Session 116)
 
-### Approach A: Prove Module Structures are Defeq
-Show that `Algebra.toModule = Submodule.module` for P1PowerSubmodule:
+### The Problem
+When calling `formallyReal_field_is_real`, Lean couldn't unify:
+- `FiniteDimensional` proved with `(P1PowerSubmodule e x).module`
+- `FiniteDimensional` required by theorem with `Algebra.toModule`
+
+### The Solution
+Instead of using the existing `formallyReal_field_is_real`, we replicate its logic inline:
+
 ```lean
-theorem P1PowerSubmodule_module_eq (e x : J) (he : IsIdempotent e) (hx : x ∈ PeirceSpace e 1) :
-    letI := P1PowerSubmodule_commRing e x he hx
-    letI := P1PowerSubmodule_algebra e x he hx
-    @Algebra.toModule ℝ _ _ _ (P1PowerSubmodule_algebra e x he hx) =
-      (P1PowerSubmodule e x).module := rfl  -- May need proof
+letI hAlg : Algebra ℝ ↥(P1PowerSubmodule e x) := P1PowerSubmodule_algebra e x he.isIdempotent hx
+haveI hFD : FiniteDimensional ℝ ↥(P1PowerSubmodule e x) :=
+  P1PowerSubmodule_finiteDimensional e x he.isIdempotent hx
+cases Real.nonempty_algEquiv_or ↥(P1PowerSubmodule e x) with
+| inl hR => -- Use eqv.toLinearEquiv.finrank_eq to get finrank = 1
+| inr hC => -- Contradiction via P1PowerSubmodule_formallyReal
 ```
 
-### Approach B: Direct φ : P1PowerSubmodule ≃+* ℝ
-Since hUnique gives a single maximal ideal, use φ directly:
-```lean
--- φ : P1PowerSubmodule ≃+* ((I : MaximalSpectrum) → P1PowerSubmodule/I)
--- With Unique MaximalSpectrum, this is P1PowerSubmodule ≃+* F for single field F
--- F is formally real → F ≅ ℝ → compose to get P1PowerSubmodule ≃+* ℝ
-```
-
-### Approach C: Alternative Finrank Argument
-Use the quotient F directly:
-```lean
--- F = P1PowerSubmodule / maximalIdeal
--- But for a local field, maximalIdeal = {0}
--- So P1PowerSubmodule ≅ F as rings
--- F formally real + finite-dim over ℝ → F = ℝ
--- finrank ↥(P1PowerSubmodule) = finrank F = 1
-```
+Key insight: `Algebra.ofModule` (used by `P1PowerSubmodule_algebra`) reuses the existing module structure, so `FiniteDimensional` transfers correctly.
 
 ---
 
-## Proof Structure of `primitive_peirce_one_dim_one` (Primitive.lean:836)
+## For Next Agent
 
-### What's WORKING (lines 847-963):
+### Easiest Target: Line 1119 (`orthogonal_primitive_peirce_sq`)
+Given:
+- `c₁e = r₁ • e` (from `primitive_peirce_one_scalar`)
+- `c₁f = r₂ • f` (from `primitive_peirce_one_scalar`)
+- `c₀e + c₁e = jmul a a` and `c₀f + c₁f = jmul a a`
+- `e, f` orthogonal primitives
 
-```
-hle_span : PeirceSpace e 1 ≤ span{e}
-├── letI R := P1PowerSubmodule_commRing    [line 851] ✓
-├── haveI hArt : IsArtinianRing            [line 852] ✓
-├── haveI hRed : IsReduced                 [line 854] ✓
-├── let φ := artinian_reduced_is_product_of_fields  [line 857] ✓
-├── hUnique : Unique (MaximalSpectrum P1PowerSubmodule)  [lines 865-955] ✓
-├── hLocal : IsLocalRing (from hUnique)    [line 998] ✓
-└── hIsField : IsField (Artinian+Reduced+Local)  [line 1004] ✓
-```
+Need to show: `∃ μ, 0 ≤ μ ∧ jsq a = μ • (e + f)`
 
-### What's BLOCKED (line ~1009):
+Strategy:
+1. Show `r₁ = r₂` (call it `μ`) using orthogonality
+2. Show `c₀e = μ • f` and `c₀f = μ • e` (cross terms)
+3. Combine: `jsq a = μ • e + μ • f = μ • (e + f)`
+4. Non-negativity from formal reality (`jsq a ≥ 0` implies `μ ≥ 0`)
 
-```lean
-have h_finrank_one : Module.finrank ℝ ↥(P1PowerSubmodule e x) = 1 := by
-  -- Have: hIsField, hField (Field instance)
-  -- Have: P1PowerSubmodule_formallyReal, P1PowerSubmodule_algebra
-  -- Block: Module instance mismatch when calling formallyReal_field_is_real
-  sorry
-```
-
----
-
-## Other Sorries in Primitive.lean
-
-| Line | Name | Status |
-|------|------|--------|
-| ~1009 | `h_finrank_one` | BLOCKED by module instance diamond |
-| ~1053 | `orthogonal_primitive_peirce_sq` | Needs `primitive_peirce_one_scalar` |
-| ~1080 | `orthogonal_primitive_structure` | Needs above |
-| ~1129 | `exists_primitive_decomp` | Needs induction design |
-| ~1164 | `csoi_refine_primitive` | Needs `exists_primitive_decomp` |
+### Medium: Line 1205 (`exists_primitive_decomp`)
+Strong induction on dimension. The base case and non-primitive case are set up;
+just need to apply inductive hypothesis to `f` and `e - f`.
 
 ---
 
@@ -132,20 +86,16 @@ have h_finrank_one : Module.finrank ℝ ↥(P1PowerSubmodule e x) = 1 := by
 
 | Item | Location |
 |------|----------|
-| `primitive_peirce_one_dim_one` | Primitive.lean:836 |
-| `h_finrank_one` sorry | Primitive.lean:~1009 |
-| `P1PowerSubmodule_commRing` | Primitive.lean:690 |
-| `P1PowerSubmodule_formallyReal` | Primitive.lean:791 |
-| `P1PowerSubmodule_algebra` | Primitive.lean:754 |
-| `formallyReal_field_is_real` | Primitive.lean:101 |
+| `primitive_peirce_one_dim_one` | Primitive.lean:864 |
+| `h_finrank_one` (FILLED) | Primitive.lean:~1007 |
+| `orthogonal_primitive_peirce_sq` | Primitive.lean:1097 |
+| `exists_primitive_decomp` | Primitive.lean:1173 |
 
 ---
 
-## For Next Agent: Step-by-Step
+## Session Close Checklist
 
-1. **Read** the new lemmas at lines 754-822 to understand what's been built
-2. **Try Approach A**: Check if the module structures are definitionally equal
-3. **If not defeq**, try Approach B or C
-4. **Max 3 attempts** on any single approach, then checkpoint
-
-**DO NOT** delete the new lemmas. They compile and represent progress.
+- [x] BUILD PASSES
+- [x] HANDOFF.MD UPDATED
+- [ ] bd close → bd sync
+- [ ] git commit → git push
