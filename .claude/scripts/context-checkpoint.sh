@@ -20,63 +20,80 @@ emit_warning() {
 EOF
 }
 
-# 35% - STOP and evaluate
+# 35% - Evaluate and decide (agent decides, no user prompt)
 if [ "$PCT" -ge 35 ] && [ "$PCT" -lt 50 ]; then
     if [ ! -f "$FLAG_DIR/warn35" ]; then
         touch "$FLAG_DIR/warn35"
-        emit_warning "🚨🚨🚨 MANDATORY CHECKPOINT - CONTEXT AT 35% 🚨🚨🚨
+        emit_warning "🚨 CHECKPOINT - CONTEXT AT 35% 🚨
 
-YOU MUST STOP AND RESPOND TO THE USER WITH THIS EXACT QUESTION:
+EVALUATE NOW: Can current task complete in remaining context?
 
-'We are at 35% context. I need to checkpoint. Should I: (A) Commit current work and end session, or (B) Continue if task is nearly complete?'
+IF NO → Checkpoint immediately:
+1. Commit what compiles
+2. Update HANDOFF.md
+3. Create follow-up issues (bd create)
+4. End session. This IS success.
 
-DO NOT CONTINUE WORKING UNTIL USER RESPONDS.
-DO NOT 'SIMPLIFY' OR 'CLEAN UP' CODE - THIS IS FORBIDDEN.
-DO NOT REWRITE OR REFACTOR - THIS IS FORBIDDEN.
+IF YES → Continue, but these actions are FORBIDDEN:
+- 'Simplifying' code
+- 'Cleaning up' code
+- Rewriting or refactoring
+- Any changes not directly required for current task
 
 The urge to simplify IS YOUR SIGNAL TO STOP."
     elif [ "$PCT" -ge 42 ] && [ ! -f "$FLAG_DIR/remind42" ]; then
         touch "$FLAG_DIR/remind42"
-        emit_warning "🚨 CHECKPOINT REMINDER - 42% - Did you ask the user about checkpointing? If not, ASK NOW. DO NOT SIMPLIFY CODE."
+        emit_warning "🚨 42% - Remember: NO simplification. NO cleanup. Stay focused on current task only."
     fi
 fi
 
-# 50% - HARD STOP
-if [ "$PCT" -ge 50 ] && [ "$PCT" -lt 65 ]; then
+# 50% - Strong warning
+if [ "$PCT" -ge 50 ] && [ "$PCT" -lt 60 ]; then
     if [ ! -f "$FLAG_DIR/warn50" ]; then
         touch "$FLAG_DIR/warn50"
-        emit_warning "🛑🛑🛑 MANDATORY STOP - CONTEXT AT 50% 🛑🛑🛑
+        emit_warning "🛑 CONTEXT AT 50% - CHECKPOINT STRONGLY RECOMMENDED 🛑
 
-STOP ALL PROOF/CODE WORK IMMEDIATELY.
-
-Execute this sequence NOW:
-1. git add [files] && git commit -m 'WIP: [state]'
-2. Update HANDOFF.md
-3. Tell user: 'Context at 50%. I have committed current work. Session should end.'
+You should checkpoint now unless task is nearly complete.
 
 FORBIDDEN ACTIONS:
-- Writing more code
+- Writing new features
 - 'Simplifying' anything
-- 'One more try'
-- Any refactoring"
-    elif [ "$PCT" -ge 58 ] && [ ! -f "$FLAG_DIR/remind58" ]; then
-        touch "$FLAG_DIR/remind58"
-        emit_warning "🛑 58% - WHY ARE YOU STILL WORKING? Execute checkpoint protocol NOW. No exceptions."
+- 'One more try' on stuck problems
+- Any refactoring
+
+If stuck on current approach for 3+ attempts, STOP and checkpoint."
     fi
 fi
 
-# 65% - ABSOLUTE STOP
-if [ "$PCT" -ge 65 ]; then
-    if [ ! -f "$FLAG_DIR/warn65" ]; then
-        touch "$FLAG_DIR/warn65"
-        emit_warning "🚫🚫🚫 CRITICAL - 65% - ABSOLUTE STOP 🚫🚫🚫
+# 60% - MUST ASK USER
+if [ "$PCT" -ge 60 ] && [ "$PCT" -lt 70 ]; then
+    if [ ! -f "$FLAG_DIR/warn60" ]; then
+        touch "$FLAG_DIR/warn60"
+        emit_warning "🛑🛑🛑 MANDATORY USER CHECK - CONTEXT AT 60% 🛑🛑🛑
 
-YOU ARE FORBIDDEN FROM ANY FURTHER CODE CHANGES.
+YOU MUST STOP AND ASK THE USER THIS EXACT QUESTION:
 
-ONLY ALLOWED ACTIONS:
-- git commit (existing work only)
-- Tell user session must end
+'We are at 60% context. Should I: (A) Commit current work and end session, or (B) Continue with current task?'
 
-ANY other action violates your instructions."
+DO NOT CONTINUE WORKING UNTIL USER RESPONDS.
+DO NOT 'SIMPLIFY' OR 'CLEAN UP' CODE.
+DO NOT MAKE THIS DECISION YOURSELF - ASK THE USER."
+    fi
+fi
+
+# 70% - HARD STOP
+if [ "$PCT" -ge 70 ]; then
+    if [ ! -f "$FLAG_DIR/warn70" ]; then
+        touch "$FLAG_DIR/warn70"
+        emit_warning "🚫🚫🚫 CRITICAL - 70% - HARD STOP 🚫🚫🚫
+
+STOP ALL CODE WORK IMMEDIATELY.
+
+Execute now:
+1. git commit current work
+2. Update HANDOFF.md
+3. Tell user: 'Context at 70%. Session must end.'
+
+ANY further code changes are FORBIDDEN."
     fi
 fi
