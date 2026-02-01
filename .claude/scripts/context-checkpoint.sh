@@ -1,9 +1,6 @@
 #!/bin/bash
 # Context checkpoint hook - injects reminders at thresholds
-# Reads percentage from file written by statusLine (PostToolUse doesn't get context data)
-#
-# IMPORTANT: This hook requires the statusLine to write context percentage to
-# /tmp/claude-context-pct. See statusline-template.txt for the required config.
+# Outputs JSON with additionalContext so warnings appear in Claude's context
 
 # File where statusLine writes current context percentage
 PCT_FILE="/tmp/claude-context-pct"
@@ -14,19 +11,25 @@ PCT=$(cat "$PCT_FILE" 2>/dev/null)
 # Exit if no percentage available
 [ -z "$PCT" ] || [ "$PCT" = "0" ] && exit 0
 
-# Session-specific flag directory - read session ID from file written by statusLine
+# Session-specific flag directory
 SESSION_ID=$(cat /tmp/claude-session-id 2>/dev/null)
 [ -z "$SESSION_ID" ] && SESSION_ID="default"
 FLAG_DIR="/tmp/claude-checkpoint-flags-${SESSION_ID}"
 mkdir -p "$FLAG_DIR"
 
+# Function to output JSON with additionalContext
+emit_warning() {
+    local msg="$1"
+    # Escape for JSON
+    msg=$(echo "$msg" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g')
+    echo "{\"additionalContext\": \"$msg\"}"
+}
+
 # Threshold 1: 35% - First warning
 if [ "$PCT" -ge 35 ] && [ "$PCT" -lt 50 ]; then
     if [ ! -f "$FLAG_DIR/warn35" ]; then
         touch "$FLAG_DIR/warn35"
-        cat << 'EOF'
-<context-checkpoint level="notice">
-CONTEXT ~35% — Checkpoint Evaluation
+        emit_warning "⚠️ CONTEXT ~35% — Checkpoint Evaluation
 
 Ask yourself: Can current task complete in remaining context?
 
@@ -37,18 +40,11 @@ IF NO → Checkpoint now:
   4. Session complete. This IS success.
 
 IF YES → Continue, but:
-  - No "simplification" or rewrites
-  - The urge to simplify IS your stop signal
-</context-checkpoint>
-EOF
+  - No 'simplification' or rewrites
+  - The urge to simplify IS your stop signal"
     elif [ "$PCT" -ge 42 ] && [ ! -f "$FLAG_DIR/remind42" ]; then
-        # One reminder at 42%
         touch "$FLAG_DIR/remind42"
-        cat << 'EOF'
-<context-checkpoint level="reminder">
-Context 42% — Still on track? No simplification urges?
-</context-checkpoint>
-EOF
+        emit_warning "⚠️ Context 42% — Still on track? No simplification urges?"
     fi
 fi
 
@@ -56,29 +52,21 @@ fi
 if [ "$PCT" -ge 50 ] && [ "$PCT" -lt 65 ]; then
     if [ ! -f "$FLAG_DIR/warn50" ]; then
         touch "$FLAG_DIR/warn50"
-        cat << 'EOF'
-<context-checkpoint level="warning">
-CONTEXT 50% — CHECKPOINT NOW
+        emit_warning "🛑 CONTEXT 50% — CHECKPOINT NOW
 
 STOP proof work. Execute immediately:
   1. lake build (capture current state)
-  2. git commit -m "WIP: [description]"
+  2. git commit -m 'WIP: [description]'
   3. Update HANDOFF.md with goal state
-  4. bd create --title="Continue: [task]" --priority=1
+  4. bd create --title='Continue: [task]' --priority=1
   5. bd sync
 
 Incomplete documented work > thrashing to finish.
-Do NOT attempt "one more approach".
-Do NOT "simplify" or "clean up".
-</context-checkpoint>
-EOF
+Do NOT attempt 'one more approach'.
+Do NOT 'simplify' or 'clean up'."
     elif [ "$PCT" -ge 58 ] && [ ! -f "$FLAG_DIR/remind58" ]; then
         touch "$FLAG_DIR/remind58"
-        cat << 'EOF'
-<context-checkpoint level="warning">
-Context 58% — Why are you still working? Checkpoint protocol NOW.
-</context-checkpoint>
-EOF
+        emit_warning "🛑 Context 58% — Why are you still working? Checkpoint protocol NOW."
     fi
 fi
 
@@ -86,13 +74,11 @@ fi
 if [ "$PCT" -ge 65 ]; then
     if [ ! -f "$FLAG_DIR/warn65" ]; then
         touch "$FLAG_DIR/warn65"
-        cat << 'EOF'
-<context-checkpoint level="critical">
-CONTEXT 65% — HARD STOP
+        emit_warning "🚨 CONTEXT 65% — HARD STOP
 
 You are past safe working context. Further proof work risks:
 - Lost progress from compaction
-- Thrashing and destructive "simplification"
+- Thrashing and destructive 'simplification'
 
 ONLY allowed actions:
 - Commit existing work (git add && git commit)
@@ -101,8 +87,6 @@ ONLY allowed actions:
 - bd sync
 - End session
 
-ANY proof modification now is forbidden.
-</context-checkpoint>
-EOF
+ANY proof modification now is forbidden."
     fi
 fi
