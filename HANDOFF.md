@@ -1,8 +1,13 @@
-# Handoff: 2026-02-01 (Session 114)
+# Handoff: 2026-02-01 (Session 115)
 
 ## Session Summary
 
-**PROGRESS:** Diagnosed instance diamond issue in `primitive_peirce_one_dim_one`. The proof structure up to `hUnique` is COMPLETE and WORKING. Only the final `h_finrank_one` step is blocked.
+**PROGRESS:** Added three new helper lemmas to support h_finrank_one proof:
+- `P1PowerSubmodule_formallyReal` - proves formal reality using CommRing
+- `P1PowerSubmodule_algebra` - defines ℝ-algebra structure
+- `P1PowerSubmodule_finiteDimensional` - finite dimensionality
+
+**Blocker:** Instance diamond between `Algebra.toModule` and `Submodule.module` prevents applying `formallyReal_field_is_real`.
 
 **Result:** Build passes. 5 sorries in Primitive.lean.
 
@@ -14,155 +19,100 @@
 |--------|-------|
 | Total Sorries | **5** (Primitive.lean) |
 | Build Status | **PASSING** |
-| Blocker | Instance diamond in h_finrank_one |
+| Blocker | Module instance diamond in h_finrank_one |
 
 ---
 
-## Proof Structure of `primitive_peirce_one_dim_one` (Primitive.lean:804)
+## The Instance Diamond Problem (Session 115 Update)
 
-The theorem proves: For primitive e, `finrank ℝ (PeirceSpace e 1) = 1`.
+### New Lemmas Added (all compile ✅)
 
-### What's WORKING (lines 815-923):
+1. **`P1PowerSubmodule_formallyReal`** (line ~791)
+   - Proves: `∀ m a, (∑ i, a i ^ 2) = 0 → ∀ i, a i = 0`
+   - Uses ONLY CommRing R, avoids Field diamond
+   - Key: `(a ^ 2).val = jsq a.val` via `P1PowerSubmodule_npow_eq_jpow` + `jpow_two`
+
+2. **`P1PowerSubmodule_algebra`** (line ~754)
+   - Defines: `Algebra ℝ ↥(P1PowerSubmodule e x)`
+   - Uses `Algebra.ofModule` with `jmul_smul` and `smul_jmul`
+
+3. **`P1PowerSubmodule_finiteDimensional`** (line ~778)
+   - Proves: `FiniteDimensional ℝ ↥(P1PowerSubmodule e x)`
+   - Simple: submodule of finite-dimensional space
+
+### The Remaining Block
+
+When calling `formallyReal_field_is_real`:
+```
+Application type mismatch:
+  hFD has type FiniteDimensional ... (P1PowerSubmodule e x).module
+  but expected    FiniteDimensional ... Algebra.toModule
+```
+
+The two module structures:
+- `(P1PowerSubmodule e x).module` - inherited from J as submodule
+- `Algebra.toModule` - derived from `P1PowerSubmodule_algebra`
+
+**They are mathematically equal** (both give `r • x` for scalar `r` and element `x`), but Lean can't unify them.
+
+---
+
+## Fix Approaches for Next Agent
+
+### Approach A: Prove Module Structures are Defeq
+Show that `Algebra.toModule = Submodule.module` for P1PowerSubmodule:
+```lean
+theorem P1PowerSubmodule_module_eq (e x : J) (he : IsIdempotent e) (hx : x ∈ PeirceSpace e 1) :
+    letI := P1PowerSubmodule_commRing e x he hx
+    letI := P1PowerSubmodule_algebra e x he hx
+    @Algebra.toModule ℝ _ _ _ (P1PowerSubmodule_algebra e x he hx) =
+      (P1PowerSubmodule e x).module := rfl  -- May need proof
+```
+
+### Approach B: Direct φ : P1PowerSubmodule ≃+* ℝ
+Since hUnique gives a single maximal ideal, use φ directly:
+```lean
+-- φ : P1PowerSubmodule ≃+* ((I : MaximalSpectrum) → P1PowerSubmodule/I)
+-- With Unique MaximalSpectrum, this is P1PowerSubmodule ≃+* F for single field F
+-- F is formally real → F ≅ ℝ → compose to get P1PowerSubmodule ≃+* ℝ
+```
+
+### Approach C: Alternative Finrank Argument
+Use the quotient F directly:
+```lean
+-- F = P1PowerSubmodule / maximalIdeal
+-- But for a local field, maximalIdeal = {0}
+-- So P1PowerSubmodule ≅ F as rings
+-- F formally real + finite-dim over ℝ → F = ℝ
+-- finrank ↥(P1PowerSubmodule) = finrank F = 1
+```
+
+---
+
+## Proof Structure of `primitive_peirce_one_dim_one` (Primitive.lean:836)
+
+### What's WORKING (lines 847-963):
 
 ```
 hle_span : PeirceSpace e 1 ≤ span{e}
-├── letI R := P1PowerSubmodule_commRing    [line 819] ✓
-├── haveI hArt : IsArtinianRing            [line 820] ✓
-├── haveI hRed : IsReduced                 [line 822] ✓
-├── let φ := artinian_reduced_is_product_of_fields  [line 825] ✓
-└── hUnique : Unique (MaximalSpectrum P1PowerSubmodule)  [lines 833-923] ✓
-    ├── Indicators ind I := φ⁻¹(Pi.single I 1)
-    ├── Each ind I is Jordan-idempotent
-    ├── By primitivity: (ind I).val = 0 or = e
-    ├── Since ind I ≠ 0 (φ is iso): (ind I).val = e for all I
-    ├── Orthogonality: ind I * ind J = 0 for I ≠ J
-    └── If I ≠ J exist → jmul e e = 0, contradiction → Subsingleton
+├── letI R := P1PowerSubmodule_commRing    [line 851] ✓
+├── haveI hArt : IsArtinianRing            [line 852] ✓
+├── haveI hRed : IsReduced                 [line 854] ✓
+├── let φ := artinian_reduced_is_product_of_fields  [line 857] ✓
+├── hUnique : Unique (MaximalSpectrum P1PowerSubmodule)  [lines 865-955] ✓
+├── hLocal : IsLocalRing (from hUnique)    [line 998] ✓
+└── hIsField : IsField (Artinian+Reduced+Local)  [line 1004] ✓
 ```
 
-### What's BLOCKED (lines 929-934):
+### What's BLOCKED (line ~1009):
 
 ```lean
 have h_finrank_one : Module.finrank ℝ ↥(P1PowerSubmodule e x) = 1 := by
-  sorry  -- INSTANCE DIAMOND HERE
+  -- Have: hIsField, hField (Field instance)
+  -- Have: P1PowerSubmodule_formallyReal, P1PowerSubmodule_algebra
+  -- Block: Module instance mismatch when calling formallyReal_field_is_real
+  sorry
 ```
-
----
-
-## The Instance Diamond Problem (DETAILED)
-
-### The Setup
-
-At line 819: `letI R := P1PowerSubmodule_commRing e x he.isIdempotent hx`
-- This defines ring multiplication as `jmul` (see line 692)
-- `letI` means it's a local definition, NOT automatically in typeclass search
-
-### The Original Broken Code (before I sorried it)
-
-```lean
-have h_finrank_one : Module.finrank ℝ ↥(P1PowerSubmodule e x) = 1 := by
-  haveI : Subsingleton (MaximalSpectrum ...) := inferInstance  -- Uses hUnique
-  haveI hLocal : IsLocalRing := ...
-  haveI hFieldI : IsField := ...
-  haveI hField : Field := hFieldI.toField  -- ⚠️ CREATES NEW RING INSTANCE
-
-  have hFR_P1 : ∀ m a, (∑ i, a i ^ 2) = 0 → ∀ i, a i = 0 := by
-    intro m a hsum i
-    -- Need: (a j ^ 2).val = jsq (a j).val
-    -- But a j ^ 2 uses hField's multiplication!
-    -- P1PowerSubmodule_npow_eq_jpow expects R's multiplication!
-    ...
-```
-
-### The Type Error
-
-```
-Type mismatch:
-  jmul ↑(a j) ↑(a j) = ↑(@HMul.hMul ... CommRing.toMul ... (a j) (a j))
-but expected:
-  jmul ↑(a j) ↑(a j) = ↑(@HMul.hMul ... Field.toMul ... (a j) (a j))
-```
-
-The multiplication from `CommRing R` and `Field hField` are **definitionally different** even though they compute the same thing.
-
----
-
-## 🎯 CONCRETE FIX: Extract Formal Reality Lemma
-
-### Approach 1: Prove formal reality BEFORE introducing Field
-
-Create a standalone lemma that proves P1PowerSubmodule is formally real using ONLY the CommRing R:
-
-```lean
-/-- P1PowerSubmodule of a primitive idempotent is formally real. -/
-lemma P1PowerSubmodule_formallyReal [FinDimJordanAlgebra J] [FormallyRealJordan J]
-    {e : J} (he : IsPrimitive e) {x : J} (hx : x ∈ PeirceSpace e 1) :
-    letI := P1PowerSubmodule_commRing e x he.isIdempotent hx
-    ∀ (m : ℕ) (a : Fin m → ↥(P1PowerSubmodule e x)),
-      (∑ i, a i ^ 2) = 0 → ∀ i, a i = 0 := by
-  letI := P1PowerSubmodule_commRing e x he.isIdempotent hx
-  intro m a hsum i
-  -- Ring mul.val = jmul by definition
-  have hmul_val : ∀ (b c : ↥(P1PowerSubmodule e x)), (b * c).val = jmul b.val c.val :=
-    fun _ _ => rfl
-  have hsum_val : ∑ j, jsq (a j).val = (0 : J) := by
-    have h1 : (∑ j, a j ^ 2).val = 0 := by
-      simp only [Submodule.coe_sum, ZeroMemClass.coe_zero]
-      convert congrArg Subtype.val hsum
-      apply Finset.sum_congr rfl
-      intro j _
-      rw [sq, hmul_val, jsq_def]
-    exact h1
-  exact Subtype.ext (FormallyRealJordan.sum_sq_eq_zero m (fun j => (a j).val) hsum_val i)
-```
-
-Then in `h_finrank_one`:
-```lean
-have h_finrank_one : Module.finrank ℝ ↥(P1PowerSubmodule e x) = 1 := by
-  have hFR := P1PowerSubmodule_formallyReal he hx
-  -- Now hFR uses the SAME CommRing instance as the rest of the proof
-  haveI : Subsingleton (MaximalSpectrum ...) := inferInstance
-  haveI hLocal : IsLocalRing := ...
-  haveI hFieldI : IsField := ...
-  -- DON'T use haveI for Field! Use the existing CommRing.
-  obtain ⟨φ⟩ := formallyReal_field_is_real_commRing ↥(P1PowerSubmodule e x) hFR
-  ...
-```
-
-### Approach 2: Use `@` to force instance
-
-```lean
-have hpow_eq : ∀ j, (@HPow.hPow _ _ _ (@instHPow _ _ (@Monoid.toNatPow _
-    (@CommRing.toCommMonoid _ R))) (a j) 2).val = jsq (a j).val := ...
-```
-
-This is uglier but forces the correct instance.
-
-### Approach 3: Change `letI R` to `haveI`
-
-Line 819: Change `letI R := ...` to `haveI : CommRing ... := ...`
-This puts R in typeclass search, so it might be preferred over the Field instance.
-
----
-
-## Key Lemmas Needed
-
-1. **`formallyReal_field_is_real`** (line 947 reference) - Check if this requires `Algebra ℝ` instance
-   - Error showed: `failed to synthesize Algebra ℝ ↥(P1PowerSubmodule e x)`
-   - May need to also prove P1PowerSubmodule has an ℝ-algebra structure
-
-2. **`P1PowerSubmodule_npow_eq_jpow`** (line 714) - Already exists, connects ring power to jpow
-
----
-
-## File Locations
-
-| Item | Location |
-|------|----------|
-| `primitive_peirce_one_dim_one` | Primitive.lean:804 |
-| `h_finrank_one` sorry | Primitive.lean:933 |
-| `P1PowerSubmodule_commRing` | Primitive.lean:690 |
-| `P1PowerSubmodule_npow_eq_jpow` | Primitive.lean:714 |
-| `formallyReal_field_is_real` | FormallyReal/Properties.lean (search for it) |
 
 ---
 
@@ -170,31 +120,32 @@ This puts R in typeclass search, so it might be preferred over the Field instanc
 
 | Line | Name | Status |
 |------|------|--------|
-| ~934 | `h_finrank_one` | BLOCKED by instance diamond |
-| ~992 | `orthogonal_primitive_peirce_sq` | Needs `primitive_peirce_one_scalar` |
-| ~1019 | `orthogonal_primitive_structure` | Needs above |
-| ~1068 | `exists_primitive_decomp` | Needs induction design |
-| ~1103 | `csoi_refine_primitive` | Needs `exists_primitive_decomp` |
+| ~1009 | `h_finrank_one` | BLOCKED by module instance diamond |
+| ~1053 | `orthogonal_primitive_peirce_sq` | Needs `primitive_peirce_one_scalar` |
+| ~1080 | `orthogonal_primitive_structure` | Needs above |
+| ~1129 | `exists_primitive_decomp` | Needs induction design |
+| ~1164 | `csoi_refine_primitive` | Needs `exists_primitive_decomp` |
 
 ---
 
-## Session Commands Run
+## File Locations
 
-```bash
-lake build           # Passes
-git add ... && git commit -m "..."
-bd create --title="Fix instance diamond in h_finrank_one proof" --type=bug --priority=1
-bd sync && git push
-```
+| Item | Location |
+|------|----------|
+| `primitive_peirce_one_dim_one` | Primitive.lean:836 |
+| `h_finrank_one` sorry | Primitive.lean:~1009 |
+| `P1PowerSubmodule_commRing` | Primitive.lean:690 |
+| `P1PowerSubmodule_formallyReal` | Primitive.lean:791 |
+| `P1PowerSubmodule_algebra` | Primitive.lean:754 |
+| `formallyReal_field_is_real` | Primitive.lean:101 |
 
 ---
 
 ## For Next Agent: Step-by-Step
 
-1. **Read** Primitive.lean:690-750 to understand P1PowerSubmodule ring structure
-2. **Search** for `formallyReal_field_is_real` to understand its signature and requirements
-3. **Try Approach 1**: Create `P1PowerSubmodule_formallyReal` lemma OUTSIDE the main proof
-4. **Test** if the instance diamond is resolved
-5. If stuck on Algebra instance, check if P1PowerSubmodule needs explicit ℝ-algebra structure
+1. **Read** the new lemmas at lines 754-822 to understand what's been built
+2. **Try Approach A**: Check if the module structures are definitionally equal
+3. **If not defeq**, try Approach B or C
+4. **Max 3 attempts** on any single approach, then checkpoint
 
-**DO NOT** spend more than 3 attempts on the same approach. Document and move on.
+**DO NOT** delete the new lemmas. They compile and represent progress.

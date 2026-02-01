@@ -750,6 +750,35 @@ theorem P1PowerSubmodule_isScalarTower (e x : J) (he : IsIdempotent e)
   simp only [Submodule.coe_smul]
   exact jmul_smul r a.val b.val
 
+/-- P1PowerSubmodule forms an ℝ-algebra with its CommRing structure.
+The algebra map sends r to r • e (where e is the ring identity).
+This is needed for formallyReal_field_is_real. -/
+noncomputable def P1PowerSubmodule_algebra (e x : J) (he : IsIdempotent e)
+    (hx : x ∈ PeirceSpace e 1) :
+    letI := P1PowerSubmodule_commRing e x he hx
+    Algebra ℝ ↥(P1PowerSubmodule e x) := by
+  letI := P1PowerSubmodule_commRing e x he hx
+  exact Algebra.ofModule
+    (fun r a b => by
+      -- Need: r • a * b = r • (a * b)
+      ext
+      simp only [Submodule.coe_smul]
+      -- (r • a * b).val = jmul (r • a.val) b.val = r • jmul a.val b.val
+      -- r • (a * b).val = r • jmul a.val b.val
+      exact jmul_smul r a.val b.val)
+    (fun r a b => by
+      -- Need: a * r • b = r • (a * b)
+      ext
+      simp only [Submodule.coe_smul]
+      -- (a * r • b).val = jmul a.val (r • b.val) = r • jmul a.val b.val
+      -- r • (a * b).val = r • jmul a.val b.val
+      exact smul_jmul r a.val b.val)
+
+/-- P1PowerSubmodule is finite-dimensional over ℝ. -/
+theorem P1PowerSubmodule_finiteDimensional [FinDimJordanAlgebra J] (e x : J) (he : IsIdempotent e)
+    (hx : x ∈ PeirceSpace e 1) : FiniteDimensional ℝ ↥(P1PowerSubmodule e x) :=
+  FiniteDimensional.finiteDimensional_submodule (P1PowerSubmodule e x)
+
 /-- P1PowerSubmodule is Artinian as a ring.
 Follows from: ℝ is Artinian (field) and P1PowerSubmodule is finite-dimensional over ℝ. -/
 theorem P1PowerSubmodule_isArtinianRing [FinDimJordanAlgebra J] (e x : J) (he : IsIdempotent e)
@@ -786,6 +815,37 @@ theorem P1PowerSubmodule_isReduced [FormallyRealJordan J] (e x : J) (he : IsIdem
     have ha_zero : a.val = 0 :=
       no_nilpotent_of_formallyReal (Nat.one_le_iff_ne_zero.mpr (Nat.succ_ne_zero m)) hpow
     ext; exact ha_zero
+
+/-- P1PowerSubmodule inherits formal reality from J.
+This proves the formal reality property using ONLY the CommRing instance (not Field).
+Key: ring multiplication IS jmul, so ring square = jsq. -/
+theorem P1PowerSubmodule_formallyReal [FormallyRealJordan J] (e x : J) (he : IsIdempotent e)
+    (hx : x ∈ PeirceSpace e 1) :
+    letI := P1PowerSubmodule_commRing e x he hx
+    ∀ (m : ℕ) (a : Fin m → ↥(P1PowerSubmodule e x)),
+      (∑ i, a i ^ 2) = 0 → ∀ i, a i = 0 := by
+  letI := P1PowerSubmodule_commRing e x he hx
+  intro m a hsum i
+  -- Ring multiplication is jmul by definition of P1PowerSubmodule_commRing
+  -- So (a j)^2 in the ring equals jsq (a j).val in the Jordan algebra
+  have hpow_eq : ∀ j, (a j ^ 2 : ↥(P1PowerSubmodule e x)).val = jsq (a j).val := by
+    intro j
+    have h2ge1 : 2 ≥ 1 := by norm_num
+    rw [P1PowerSubmodule_npow_eq_jpow e x he hx (a j) 2 h2ge1]
+    exact jpow_two (a j).val
+  -- The sum of squares in P1PowerSubmodule corresponds to sum of jsq in J
+  have hsum_val : ∑ j, jsq (a j).val = (0 : J) := by
+    have h1 : (∑ j, a j ^ 2).val = (0 : ↥(P1PowerSubmodule e x)).val := congrArg Subtype.val hsum
+    simp only [ZeroMemClass.coe_zero] at h1
+    rw [← h1]
+    simp only [Submodule.coe_sum]
+    apply Finset.sum_congr rfl
+    intro j _
+    exact (hpow_eq j).symm
+  -- Apply FormallyRealJordan to get (a i).val = 0
+  have hai_zero : (a i).val = 0 := FormallyRealJordan.sum_sq_eq_zero m (fun j => (a j).val) hsum_val i
+  ext
+  exact hai_zero
 
 /-- For a primitive idempotent e, the Peirce 1-space is one-dimensional.
 This is the key step for H-O 2.9.4(ii).
@@ -931,6 +991,25 @@ theorem primitive_peirce_one_dim_one [FinDimJordanAlgebra J] [FormallyRealJordan
     -- than the CommRing R, causing type mismatches when proving formal reality.
     -- See Session 114 LEARNINGS for details.
     have h_finrank_one : Module.finrank ℝ ↥(P1PowerSubmodule e x) = 1 := by
+      -- Step 1: P1PowerSubmodule is a local ring (unique maximal ideal)
+      haveI hLocal : IsLocalRing ↥(P1PowerSubmodule e x) := by
+        apply IsLocalRing.of_unique_max_ideal
+        use hUnique.default.asIdeal
+        refine ⟨hUnique.default.isMaximal, ?_⟩
+        intro I hI
+        have : ⟨I, hI⟩ = hUnique.default := hUnique.uniq ⟨I, hI⟩
+        exact congrArg MaximalSpectrum.asIdeal this
+      -- Step 2: Local + Artinian + Reduced → IsField
+      have hIsField : IsField ↥(P1PowerSubmodule e x) :=
+        IsArtinianRing.isField_of_isReduced_of_isLocalRing ↥(P1PowerSubmodule e x)
+      -- Step 3: Get Field instance
+      letI hField : Field ↥(P1PowerSubmodule e x) := hIsField.toField
+      -- SESSION 115: Instance diamond between Algebra.toModule and Submodule.module
+      -- blocks applying formallyReal_field_is_real. Need to either:
+      -- (a) Prove the two module structures are defeq, or
+      -- (b) Use a different finrank argument (e.g., show φ : P1PowerSubmodule ≃+* ℝ directly)
+      -- New lemmas added: P1PowerSubmodule_formallyReal, P1PowerSubmodule_algebra,
+      -- P1PowerSubmodule_finiteDimensional
       sorry
     have h_eq : ∀ w : ↥(P1PowerSubmodule e x), ∃ c : ℝ, c • (⟨e, e_mem_P1PowerSubmodule e x⟩ : ↥(P1PowerSubmodule e x)) = w := by
       have he_ne' : (⟨e, e_mem_P1PowerSubmodule e x⟩ : ↥(P1PowerSubmodule e x)) ≠ 0 := by
