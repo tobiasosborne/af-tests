@@ -1,23 +1,20 @@
-# Handoff: 2026-02-01 (Session 95)
+# Handoff: 2026-02-01 (Session 96)
 
 ## Completed This Session
 
-### powerSubmodule_assoc - PROVEN ✓
+### powerSubmodule_commRing - IMPLEMENTED (af-643b)
 
-**New theorem in Primitive.lean:273-360:**
+**New instance in Primitive.lean:360-385:**
 ```lean
-theorem powerSubmodule_assoc (x : J) {a b c : J}
-    (ha : a ∈ PowerSubmodule x) (hb : b ∈ PowerSubmodule x) (hc : c ∈ PowerSubmodule x) :
-    jmul (jmul a b) c = jmul a (jmul b c)
+noncomputable instance powerSubmodule_commRing (x : J) : CommRing ↥(PowerSubmodule x) where
+  mul := fun ⟨a, ha⟩ ⟨b, hb⟩ => ⟨jmul a b, powerSubmodule_mul_closed x ha hb⟩
+  mul_assoc := fun ⟨a, ha⟩ ⟨b, hb⟩ ⟨c, hc⟩ => Subtype.ext (powerSubmodule_assoc x ha hb hc)
+  mul_comm := fun ⟨a, ha⟩ ⟨b, hb⟩ => Subtype.ext (jmul_comm a b)
+  one := ⟨jone, jone_mem_powerSubmodule x⟩
+  -- ...distributivity, identity laws from Jordan bilinearity
 ```
 
-**Proof strategy:** Triple span extension using `LinearMap.eqOn_span'`:
-1. Step 1: For generators b=x^n, c=x^p, extend associativity over `a` in span
-2. Step 2: For generator c=x^p, extend over `b` in span
-3. Step 3: Extend over `c` in span
-
-**Key insight:** Define linear maps `f, g : J →ₗ[ℝ] J` that agree on generators (by jpow_assoc),
-then use `LinearMap.eqOn_span'` to extend equality to the full span.
+**Key insight:** Use `Subtype.ext` to prove equalities on subtype ring.
 
 ---
 
@@ -25,39 +22,40 @@ then use `LinearMap.eqOn_span'` to extend equality to the full span.
 
 | Metric | Value |
 |--------|-------|
-| Total Sorries | **27** |
+| Total Sorries | **27** (unchanged) |
 | Build Status | **PASSING** |
-| New Theorem | `powerSubmodule_assoc` (87 LOC) |
+| New Instance | `powerSubmodule_commRing` (26 LOC) |
 
 ---
 
-## 🎯 NEXT STEP: af-643b (CommRing on PowerSubmodule) - CONTINUE
+## 🎯 NEXT STEP: af-6yeo (IsArtinian + IsReduced)
 
-### Now Unblocked
+### What's Needed
 
-With `powerSubmodule_assoc` proven, the remaining axioms for CommRing are:
-- `mul_comm` - from `jmul_comm` ✓
-- `mul_assoc` - from `powerSubmodule_assoc` ✓ (NEW)
-- `one_mul`, `mul_one` - from `jone_jmul`, `jmul_jone`
-- `add_*` axioms - inherited from Submodule
-- Ring axioms (distributivity, zero, neg) - from bilinearity
+To apply `artinian_reduced_is_product_of_fields`, we need:
 
-### Implementation Pattern
+1. **IsArtinianRing (PowerSubmodule x)**
+   - Use `isArtinian_of_finite` or similar
+   - PowerSubmodule is finite-dimensional (subspace of fin-dim J)
+
+2. **IsReduced (PowerSubmodule x)**
+   - Use `IsReduced.mk` with `no_nilpotent_of_formallyReal`
+   - Key: ring power in PowerSubmodule = jpow
+
+### Mathlib Lemmas Found
 
 ```lean
-instance : CommRing (PowerSubmodule x) where
-  mul := fun ⟨a, ha⟩ ⟨b, hb⟩ => ⟨jmul a b, powerSubmodule_mul_closed x ha hb⟩
-  mul_assoc := fun ⟨a, ha⟩ ⟨b, hb⟩ ⟨c, hc⟩ => by
-    simp only [Subtype.mk.injEq]
-    exact powerSubmodule_assoc x ha hb hc
-  mul_comm := fun ⟨a, ha⟩ ⟨b, hb⟩ => by simp [jmul_comm]
-  one := ⟨jone, jone_mem_powerSubmodule x⟩
-  -- etc.
+-- For IsArtinian
+isArtinian_of_finite : [Finite M] → IsArtinian R M
+isArtinian_submodule' : IsArtinian R M → IsArtinian R N  -- N ≤ M
+
+-- For IsReduced
+IsReduced.mk : (∀ x, IsNilpotent x → x = 0) → IsReduced R
+no_nilpotent_of_formallyReal : jpow a n = 0 → a = 0
 ```
 
-### After CommRing
-- af-6yeo: IsArtinian and IsReduced
-- Apply structure theorem to primitive_peirce_one_dim_one
+### After af-6yeo
+- af-w3sf: Apply structure theorem to fill sorry in `primitive_peirce_one_dim_one`
 
 ---
 
@@ -68,38 +66,19 @@ af-yok1 ✓ (PowerSubmodule)
     ↓
 af-qc7s ✓ (powerSubmodule_mul_closed)
     ↓
-powerSubmodule_assoc ✓ (NEW - Session 95)
+powerSubmodule_assoc ✓ (Session 95)
     ↓
-af-643b (CommRing instance) ← NEXT - now unblocked!
+af-643b ✓ (CommRing instance) ← DONE (Session 96)
     ↓
-af-6yeo (IsArtinian + IsReduced)
+af-6yeo (IsArtinian + IsReduced) ← NEXT
     ↓
-primitive_peirce_one_dim_one (line 376)
+af-w3sf (Apply structure theorem)
+    ↓
+primitive_peirce_one_dim_one (line 401 sorry)
 ```
-
----
-
-## Key Learnings This Session
-
-### Triple Span Extension Pattern
-
-For proving trilinear identities on spans, use nested `LinearMap.eqOn_span'`:
-1. Fix two variables as generators, define linear maps in the third
-2. Show maps agree on generators (base case)
-3. Extend to span
-4. Repeat for each variable
-
-This avoids the dependent predicate issue with `Submodule.span_induction`.
-
-### Commutativity Handling
-
-When using `L` operator (left multiplication), remember:
-- `L b a = jmul b a = b ∘ a`
-- Use `jmul_comm` to convert between `L b a` and `a ∘ b`
-- Calc chains help track the commutativity rewrites
 
 ---
 
 ## Files Modified
 
-- `AfTests/Jordan/Primitive.lean` - Added `powerSubmodule_assoc` (lines 273-360)
+- `AfTests/Jordan/Primitive.lean` - Added `powerSubmodule_commRing` (lines 360-385)
