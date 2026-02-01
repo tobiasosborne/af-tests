@@ -1110,12 +1110,19 @@ theorem orthogonal_primitive_peirce_sq [FinDimJordanAlgebra J] [FormallyRealJord
   -- Step 3: By primitivity, c₁e = r₁ • e and c₁f = r₂ • f
   obtain ⟨r₁, hr₁⟩ := primitive_peirce_one_scalar he hc₁e
   obtain ⟨r₂, hr₂⟩ := primitive_peirce_one_scalar hf hc₁f
-  -- Step 4: Show r₁ = r₂ using symmetry of the setup
-  -- Key observation: e and f are symmetric in the hypotheses, so the coefficients must be equal
-  -- This follows from examining: jmul e (jsq a) vs jmul f (jsq a)
-  -- Step 5: Show c₀e = r₂ • f and c₀f = r₁ • e
-  -- Since e ∈ P₀(f) and f ∈ P₀(e), we need orthogonality analysis
-  -- The full proof requires showing that the cross-terms align
+  -- PROOF SKETCH (Session 117):
+  -- Step 4: Key orthogonality: jmul e f = 0 = jmul f e, so f ∈ P₀(e), e ∈ P₀(f)
+  -- Step 5: jmul f (jsq a) = jmul f c₀e (from e-decomp) = r₂ • f (from f-decomp)
+  -- Step 6: jmul e (jsq a) = jmul e c₀f (from f-decomp) = r₁ • e (from e-decomp)
+  -- Step 7: e + f is idempotent (orthogonal sum)
+  -- Step 8: a ∈ P₁(e+f) since jmul (e+f) a = (1/2)a + (1/2)a = a
+  -- Step 9: jsq a ∈ P₁(e+f) by peirce_mult_P1_P1
+  -- Step 10: P₀(e) ∩ P₀(f) ⊆ P₀(e+f), and P₁(e+f) ∩ P₀(e+f) = {0}
+  --          Therefore jsq a = r₁•e + r₂•f (no P₀(e)∩P₀(f) component)
+  -- Step 11: r₁ = r₂ by symmetry of hypotheses OR by fundamental formula:
+  --          U_a(e) = r₂•f, U_a(f) = r₁•e, U_a(U_a(e)) = r₁r₂•e = U_{jsq a}(e) = r₁²•e
+  --          So r₁r₂ = r₁², similarly r₁r₂ = r₂², hence r₁ = r₂ (both ≥ 0)
+  -- Step 12: r₁ ≥ 0 by formal reality: jsq a is a square, H-O 2.9.4(vi) says coefs ≥ 0
   sorry
 
 /-- For orthogonal primitive idempotents in a formally real Jordan algebra,
