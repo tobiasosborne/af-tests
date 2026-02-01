@@ -8,6 +8,7 @@ import AfTests.Jordan.Trace
 import AfTests.Jordan.Peirce
 import Mathlib.Analysis.Complex.Polynomial.Basic
 import Mathlib.RingTheory.Artinian.Module
+import Mathlib.RingTheory.Idempotents
 import Mathlib.LinearAlgebra.FiniteDimensional.Basic
 import Mathlib.LinearAlgebra.Span.Basic
 
@@ -828,7 +829,96 @@ theorem primitive_peirce_one_dim_one [FinDimJordanAlgebra J] [FormallyRealJordan
     -- Since e = sum of indicators and e ≠ 0, exactly one indicator = e.
     -- TODO: formalize this indicator argument
     have hUnique : Unique (MaximalSpectrum ↥(P1PowerSubmodule e x)) := by
-      sorry -- primitivity forces single maximal ideal
+      classical
+      haveI : Fintype (MaximalSpectrum ↥(P1PowerSubmodule e x)) := Fintype.ofFinite _
+      -- Define indicator idempotents: eᵢ = φ⁻¹(Pi.single I 1)
+      let ind := fun I : MaximalSpectrum ↥(P1PowerSubmodule e x) =>
+        φ.symm (Pi.single I (1 : ↥(P1PowerSubmodule e x) ⧸ I.asIdeal))
+      -- Each indicator is a ring-idempotent in P1PowerSubmodule
+      have h_idem : ∀ I, IsIdempotentElem (ind I) := by
+        intro I
+        have hcoi := CompleteOrthogonalIdempotents.single
+          (fun J : MaximalSpectrum ↥(P1PowerSubmodule e x) => ↥(P1PowerSubmodule e x) ⧸ J.asIdeal)
+        rw [IsIdempotentElem]
+        have hmul : φ.symm (Pi.single I 1) * φ.symm (Pi.single I 1)
+             = φ.symm (Pi.single I 1 * Pi.single I 1) := (φ.symm.map_mul _ _).symm
+        rw [hmul]
+        congr 1
+        exact hcoi.toOrthogonalIdempotents.idem I
+      -- Ring multiplication in P1PowerSubmodule IS Jordan multiplication
+      -- So ring-idempotent means Jordan-idempotent
+      have h_jordan_idem : ∀ I, IsIdempotent (ind I).val := by
+        intro I
+        have hidem := h_idem I
+        rw [IsIdempotentElem] at hidem
+        -- Ring mul is jmul by definition of P1PowerSubmodule_commRing
+        -- hidem : ind I * ind I = ind I (ring multiplication)
+        -- Need: jsq (ind I).val = (ind I).val, i.e., jmul ... = ...
+        unfold IsIdempotent jsq
+        have := congrArg Subtype.val hidem
+        simp only at this
+        exact this
+      -- Each indicator.val is in P₁(e) (since P1PowerSubmodule ⊆ P₁(e))
+      have h_in_P1 : ∀ I, (ind I).val ∈ PeirceSpace e 1 := by
+        intro I
+        exact P1PowerSubmodule_le_peirceSpace e x he.isIdempotent hx (ind I).property
+      -- By primitivity: each indicator.val = 0 or = e
+      have h_01 : ∀ I, (ind I).val = 0 ∨ (ind I).val = e := by
+        intro I
+        exact primitive_idempotent_in_P1 he (h_jordan_idem I) (h_in_P1 I)
+      -- Each indicator is nonzero (since φ is an isomorphism)
+      have h_ne0 : ∀ I, ind I ≠ 0 := by
+        intro I h
+        have := congrArg φ h
+        rw [map_zero, φ.apply_symm_apply] at this
+        have hne : (Pi.single I (1 : ↥(P1PowerSubmodule e x) ⧸ I.asIdeal) :
+            (J : MaximalSpectrum ↥(P1PowerSubmodule e x)) → ↥(P1PowerSubmodule e x) ⧸ J.asIdeal) I ≠ 0 := by
+          simp
+        rw [this] at hne
+        exact hne rfl
+      -- So each indicator.val = e (since ≠ 0)
+      have h_eq_e : ∀ I, (ind I).val = e := by
+        intro I
+        cases h_01 I with
+        | inl h0 => exfalso; apply h_ne0 I; ext; exact h0
+        | inr he => exact he
+      -- Indicators are pairwise orthogonal: ind I * ind J = 0 for I ≠ J
+      -- If two distinct I, J exist: (ind I).val = (ind J).val = e
+      -- But ind I * ind J = 0 means jmul e e = 0, contradicting e ≠ 0
+      have h_subsingleton : Subsingleton (MaximalSpectrum ↥(P1PowerSubmodule e x)) := by
+        constructor
+        intro I J
+        by_contra hIJ
+        have hcoi := CompleteOrthogonalIdempotents.single
+          (fun K : MaximalSpectrum ↥(P1PowerSubmodule e x) => ↥(P1PowerSubmodule e x) ⧸ K.asIdeal)
+        have hortho := hcoi.toOrthogonalIdempotents.ortho hIJ
+        -- ind I * ind J = 0 in the ring
+        have h0 : ind I * ind J = 0 := by
+          have hmul : φ.symm (Pi.single I 1) * φ.symm (Pi.single J 1)
+               = φ.symm (Pi.single I 1 * Pi.single J 1) := (φ.symm.map_mul _ _).symm
+          rw [hmul, hortho, map_zero]
+        -- This means jmul (ind I).val (ind J).val = 0
+        have h0_val : jmul (ind I).val (ind J).val = 0 := congrArg Subtype.val h0
+        -- But (ind I).val = (ind J).val = e, so jmul e e = 0
+        rw [h_eq_e I, h_eq_e J] at h0_val
+        -- e² = e ≠ 0, contradiction
+        have : jmul e e = e := he.isIdempotent
+        rw [this] at h0_val
+        exact he_ne h0_val
+      -- MaximalSpectrum is nonempty (Artinian nontrivial ring)
+      -- P1PowerSubmodule is nontrivial since 1 = e ≠ 0
+      haveI : Nontrivial ↥(P1PowerSubmodule e x) := by
+        constructor
+        use 0, 1
+        intro h
+        have : (0 : ↥(P1PowerSubmodule e x)).val = (1 : ↥(P1PowerSubmodule e x)).val := congrArg Subtype.val h
+        simp only [ZeroMemClass.coe_zero] at this
+        -- 1 in P1PowerSubmodule is ⟨e, _⟩
+        have hone : (1 : ↥(P1PowerSubmodule e x)).val = e := rfl
+        rw [hone] at this
+        exact he_ne this.symm
+      haveI : Nonempty (MaximalSpectrum ↥(P1PowerSubmodule e x)) := inferInstance
+      exact uniqueOfSubsingleton (Classical.arbitrary _)
     -- With a single factor, P1PowerSubmodule ≃ field
     let F := ↥(P1PowerSubmodule e x) ⧸ hUnique.default.asIdeal
     haveI : Field F := artinian_reduced_factor_field ↥(P1PowerSubmodule e x) hUnique.default

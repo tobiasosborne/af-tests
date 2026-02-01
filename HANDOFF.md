@@ -1,10 +1,10 @@
-# Handoff: 2026-02-01 (Session 105)
+# Handoff: 2026-02-01 (Session 106)
 
 ## Session Summary
 
-Added `P1PowerSubmodule_isArtinianRing` and `P1PowerSubmodule_isReduced`.
-Restructured the main sorry with incremental progress.
-**Result:** Build passes. Proof structure in place with 2 focused sub-sorries.
+Proved `Unique (MaximalSpectrum P1PowerSubmodule)` using complete orthogonal idempotents.
+This eliminates one of the two sub-sorries in `primitive_peirce_one_dim_one`.
+**Result:** Build passes. One sub-sorry remains.
 
 ---
 
@@ -12,15 +12,15 @@ Restructured the main sorry with incremental progress.
 
 | Metric | Value |
 |--------|-------|
-| Total Sorries | **6** (Primitive.lean) |
+| Total Sorries | **5** (Primitive.lean) |
 | Build Status | **PASSING** |
-| Session Work | ~50 LOC (instances + proof structure) |
+| Session Work | ~70 LOC (Unique MaximalSpectrum proof) |
 
 ---
 
-## 🎯 NEXT STEP: Fill the two sub-sorries at lines 829 and 837
+## 🎯 NEXT STEP: Fill the remaining sorry at line 928
 
-### Proof Structure Now in Place (line 812-837)
+### Proof Structure (line 812-928)
 
 ```lean
 -- Set up instances (DONE)
@@ -31,33 +31,33 @@ haveI hRed : IsReduced ...
 -- Structure theorem (DONE)
 let φ := artinian_reduced_is_product_of_fields ...
 
--- SUB-SORRY 1 (line 829): Primitivity forces single maximal ideal
-have hUnique : Unique (MaximalSpectrum ...) := sorry
+-- Unique MaximalSpectrum (DONE ✅ - Session 106)
+have hUnique : Unique (MaximalSpectrum ...) := by
+  -- Uses CompleteOrthogonalIdempotents + primitivity argument
 
--- SUB-SORRY 2 (line 837): Conclude x ∈ ℝ·e from single field
+-- REMAINING SORRY (line 928): Conclude x ∈ ℝ·e from single field
 sorry
 ```
 
-### How to Fill Sub-Sorry 1 (Unique MaximalSpectrum)
+### How to Fill the Remaining Sorry
 
-The primitivity argument:
-1. For each maximal ideal I, define indicator eᵢ = φ⁻¹((0,...,1,...,0))
-2. Each eᵢ is ring-idempotent, hence Jordan-idempotent (since ring mul = jmul)
-3. Each eᵢ ∈ P1PowerSubmodule ⊆ P₁(e)
-4. By `primitive_idempotent_in_P1`: each eᵢ = 0 or eᵢ = e
-5. Since e = Σ eᵢ ≠ 0, exactly one eᵢ = e → single ideal
+Goal: `∃ a, a • e = x` (x is a scalar multiple of e)
 
-### How to Fill Sub-Sorry 2 (x ∈ ℝ·e)
+1. With `Unique MaximalSpectrum`, `P1PowerSubmodule ≃ F` (single field via `RingEquiv.piUnique`)
+2. Show F is finite-dimensional over ℝ (inherits from J)
+3. Show F is formally real (no sum of squares = 0 except trivially)
+4. Apply `formallyReal_field_is_real`: F ≅ ℝ
+5. Therefore `P1PowerSubmodule = ℝ·e`, so `x ∈ ℝ·e`
 
-1. With Unique MaximalSpectrum, use `RingEquiv.piUnique`
-2. P1PowerSubmodule ≃ single field F
-3. Show F is formally real (inherits from J via inclusion)
-4. Apply `formallyReal_field_is_real`: F = ℝ
-5. P1PowerSubmodule = ℝ·e, hence x ∈ ℝ·e
+### Key Lemmas Needed
+
+- `RingEquiv.piUnique` - product over Unique type is the single factor
+- `formallyReal_field_is_real` (already in Primitive.lean:103-122)
+- Need: formally real property passes from J to the quotient field
 
 ---
 
-## Dependency Chain (COMPLETE for instances)
+## Dependency Chain
 
 ```
 P1PowerSubmodule_commRing       ✓
@@ -65,13 +65,31 @@ P1PowerSubmodule_npow_eq_jpow   ✓
 P1PowerSubmodule_isScalarTower  ✓
 P1PowerSubmodule_isArtinianRing ✓
 P1PowerSubmodule_isReduced      ✓
+Unique MaximalSpectrum          ✓ (Session 106)
     ↓
-primitive_peirce_one_dim_one    (structure in place, 2 sub-sorries)
+primitive_peirce_one_dim_one    (1 sorry remaining)
 ```
+
+---
+
+## Key Insight from Session 106
+
+The `Unique MaximalSpectrum` proof uses:
+1. `CompleteOrthogonalIdempotents.single` - `Pi.single I 1` are complete orthogonal idempotents
+2. Pull back via φ.symm to get idempotents in P1PowerSubmodule
+3. Ring multiplication = Jordan multiplication in P1PowerSubmodule
+4. By primitivity: each indicator = 0 or = e
+5. Each indicator ≠ 0 (φ is isomorphism)
+6. So each indicator = e, but they're pairwise orthogonal → at most one → unique
 
 ---
 
 ## Files Modified
 
-- `AfTests/Jordan/Primitive.lean` - Instances + proof structure
+- `AfTests/Jordan/Primitive.lean` - Added `Mathlib.RingTheory.Idempotents` import, filled first sub-sorry
 
+---
+
+## Issues
+
+- `af-w3sf` - Still in progress (one sorry remaining)
