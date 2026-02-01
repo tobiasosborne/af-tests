@@ -271,6 +271,93 @@ theorem powerSubmodule_mul_closed (x : J) {a b : J}
     (Set.range (jpow x)) (Set.range (jpow x))
     jmulBilin hbasis a b ha hb
 
+/-- Associativity for PowerSubmodule: (a ∘ b) ∘ c = a ∘ (b ∘ c).
+This extends jpow_assoc from generators to the full span using trilinearity. -/
+theorem powerSubmodule_assoc (x : J) {a b c : J}
+    (ha : a ∈ PowerSubmodule x) (hb : b ∈ PowerSubmodule x) (hc : c ∈ PowerSubmodule x) :
+    jmul (jmul a b) c = jmul a (jmul b c) := by
+  rw [mem_powerSubmodule_iff] at ha hb hc
+  -- Strategy: use LinearMap.eqOn_span' three times, once for each variable
+  -- First extend over a (with b, c fixed as generators), then over b, then over c
+
+  -- Step 1: For fixed generators b = x^n, c = x^p, the maps f(a) = (a ∘ b) ∘ c and
+  -- g(a) = a ∘ (b ∘ c) are linear and agree on generators by jpow_assoc
+  have step1 : ∀ n p, ∀ a ∈ Submodule.span ℝ (Set.range (jpow x)),
+      jmul (jmul a (jpow x n)) (jpow x p) = jmul a (jmul (jpow x n) (jpow x p)) := by
+    intro n p a ha'
+    -- Define the two linear maps (note: L b a = b ∘ a, so we need to account for commutativity)
+    -- We want f(a) = (a ∘ x^n) ∘ x^p and g(a) = a ∘ (x^n ∘ x^p)
+    -- Using commutativity: (a ∘ x^n) ∘ x^p = x^p ∘ (a ∘ x^n) = x^p ∘ (x^n ∘ a)
+    -- So f = (L x^p) ∘ (L x^n) gives f(a) = x^p ∘ (x^n ∘ a)
+    -- And g = L (x^n ∘ x^p) gives g(a) = (x^n ∘ x^p) ∘ a
+    let f : J →ₗ[ℝ] J := (L (jpow x p)).comp (L (jpow x n))
+    let g : J →ₗ[ℝ] J := L (jmul (jpow x n) (jpow x p))
+    -- They agree on generators: f(x^m) = x^p ∘ (x^n ∘ x^m), g(x^m) = (x^n ∘ x^p) ∘ x^m
+    -- By commutativity and jpow_assoc: both equal x^{m+n+p}
+    have heq : Set.EqOn f g (Set.range (jpow x)) := by
+      intro y hy
+      obtain ⟨m, hm⟩ := hy
+      simp only [f, g, LinearMap.comp_apply, L_apply, ← hm]
+      -- x^p ∘ (x^n ∘ x^m) = (x^n ∘ x^p) ∘ x^m
+      rw [jpow_add, jpow_add, jpow_add, jpow_add]
+      ring
+    -- Use eqOn_span' to extend
+    have h := LinearMap.eqOn_span' heq ha'
+    simp only [f, g, LinearMap.comp_apply, L_apply] at h
+    -- h says: x^p ∘ (x^n ∘ a) = (x^n ∘ x^p) ∘ a
+    -- We need: (a ∘ x^n) ∘ x^p = a ∘ (x^n ∘ x^p)
+    -- By commutativity, both sides are equal to what h provides
+    calc jmul (jmul a (jpow x n)) (jpow x p)
+        = jmul (jpow x p) (jmul a (jpow x n)) := jmul_comm _ _
+      _ = jmul (jpow x p) (jmul (jpow x n) a) := by rw [jmul_comm a]
+      _ = jmul (jmul (jpow x n) (jpow x p)) a := h
+      _ = jmul a (jmul (jpow x n) (jpow x p)) := jmul_comm _ _
+  -- Step 2: For fixed generator c = x^p, and any a, b in span,
+  -- (a ∘ b) ∘ c = a ∘ (b ∘ c)
+  have step2 : ∀ p, ∀ a ∈ Submodule.span ℝ (Set.range (jpow x)),
+      ∀ b ∈ Submodule.span ℝ (Set.range (jpow x)),
+      jmul (jmul a b) (jpow x p) = jmul a (jmul b (jpow x p)) := by
+    intro p a ha' b hb'
+    -- For fixed a and c = x^p, we vary b
+    -- f(b) = (a ∘ b) ∘ x^p = x^p ∘ (a ∘ b) = x^p ∘ (b ∘ a) by comm
+    -- g(b) = a ∘ (b ∘ x^p) = a ∘ (x^p ∘ b) by comm = (x^p ∘ b) ∘ a by comm
+    -- These involve nested commutativity - use bilinear approach
+    let f : J →ₗ[ℝ] J := (L (jpow x p)).comp (jmulBilin a)
+    let g : J →ₗ[ℝ] J := (jmulBilin a).comp (L (jpow x p))
+    -- f(b) = x^p ∘ (a ∘ b), g(b) = a ∘ (x^p ∘ b)
+    -- On generator b = x^n: f(x^n) = x^p ∘ (a ∘ x^n), g(x^n) = a ∘ (x^p ∘ x^n)
+    have heq : Set.EqOn f g (Set.range (jpow x)) := by
+      intro y hy
+      obtain ⟨n, hn⟩ := hy
+      simp only [f, g, LinearMap.comp_apply, L_apply, jmulBilin_apply, ← hn]
+      -- x^p ∘ (a ∘ x^n) = a ∘ (x^p ∘ x^n)
+      -- By commutativity: x^p ∘ (a ∘ x^n) = (a ∘ x^n) ∘ x^p and x^p ∘ x^n = x^n ∘ x^p
+      calc jmul (jpow x p) (jmul a (jpow x n))
+          = jmul (jmul a (jpow x n)) (jpow x p) := jmul_comm _ _
+        _ = jmul a (jmul (jpow x n) (jpow x p)) := step1 n p a ha'
+        _ = jmul a (jmul (jpow x p) (jpow x n)) := by rw [jmul_comm (jpow x n)]
+    have h := LinearMap.eqOn_span' heq hb'
+    simp only [f, g, LinearMap.comp_apply, L_apply, jmulBilin_apply] at h
+    -- h: x^p ∘ (a ∘ b) = a ∘ (x^p ∘ b)
+    calc jmul (jmul a b) (jpow x p)
+        = jmul (jpow x p) (jmul a b) := jmul_comm _ _
+      _ = jmul a (jmul (jpow x p) b) := h
+      _ = jmul a (jmul b (jpow x p)) := by rw [jmul_comm (jpow x p)]
+  -- Step 3: For any a, b, c in span, (a ∘ b) ∘ c = a ∘ (b ∘ c)
+  -- For fixed a, b, we vary c
+  let f : J →ₗ[ℝ] J := L (jmul a b)
+  let g : J →ₗ[ℝ] J := (jmulBilin a).comp (jmulBilin b)
+  -- f(c) = (a ∘ b) ∘ c, g(c) = a ∘ (b ∘ c)
+  have heq : Set.EqOn f g (Set.range (jpow x)) := by
+    intro y hy
+    obtain ⟨p, hp⟩ := hy
+    simp only [f, g, LinearMap.comp_apply, jmulBilin_apply, L_apply, ← hp]
+    -- step2 gives us exactly: (a ∘ b) ∘ x^p = a ∘ (b ∘ x^p)
+    exact step2 p a ha b hb
+  have h := LinearMap.eqOn_span' heq hc
+  simp only [f, g, LinearMap.comp_apply, jmulBilin_apply, L_apply] at h
+  exact h
+
 /-- For a primitive idempotent e, the Peirce 1-space is one-dimensional.
 This is the key step for H-O 2.9.4(ii).
 
