@@ -705,6 +705,48 @@ noncomputable def P1PowerSubmodule_commRing (e x : J) (he : IsIdempotent e)
   mul_zero := fun ⟨a, ha⟩ =>
     Subtype.ext (jmul_zero a)
 
+/-- Ring power on P1PowerSubmodule equals Jordan power for n ≥ 1.
+Note: For n = 0, ring power gives e (the ring identity), NOT jone.
+This connects the CommRing structure to Jordan algebra power associativity. -/
+theorem P1PowerSubmodule_npow_eq_jpow (e x : J) (he : IsIdempotent e)
+    (hx : x ∈ PeirceSpace e 1) (a : ↥(P1PowerSubmodule e x)) (n : ℕ) (hn : n ≥ 1) :
+    letI := P1PowerSubmodule_commRing e x he hx
+    (a ^ n : ↥(P1PowerSubmodule e x)).val = jpow a.val n := by
+  letI := P1PowerSubmodule_commRing e x he hx
+  cases n with
+  | zero => omega
+  | succ m =>
+    induction m with
+    | zero =>
+      -- n = 1: a^1 = a, jpow a 1 = a
+      rw [pow_one, jpow_one]
+    | succ k ih =>
+      -- n = k+2: a^(k+2) = a^(k+1) * a
+      have hk1 : k + 1 ≥ 1 := by omega
+      have hmul : (a ^ (k + 2)).val = (a ^ (k + 1) * a).val := by ring_nf
+      rw [hmul]
+      change jmul (a ^ (k + 1)).val a.val = jpow a.val (k + 2)
+      rw [ih hk1, jmul_comm, ← jpow_succ]
+
+/-- P1PowerSubmodule forms an ℝ-scalar tower with its ring multiplication.
+This is needed for IsArtinianRing.of_finite. -/
+theorem P1PowerSubmodule_isScalarTower (e x : J) (he : IsIdempotent e)
+    (hx : x ∈ PeirceSpace e 1) :
+    letI := P1PowerSubmodule_commRing e x he hx
+    IsScalarTower ℝ ↥(P1PowerSubmodule e x) ↥(P1PowerSubmodule e x) := by
+  letI := P1PowerSubmodule_commRing e x he hx
+  constructor
+  intro r a b
+  -- a • b = a * b (ring multiplication induced from SMul)
+  have h1 : (a : ↥(P1PowerSubmodule e x)) • b = a * b := rfl
+  -- (r • a) • b = (r • a) * b
+  have h2 : (r • a) • b = (r • a) * b := rfl
+  rw [h1, h2]
+  ext
+  -- Goal: ((r • a) * b).val = (r • (a * b)).val
+  simp only [Submodule.coe_smul]
+  exact jmul_smul r a.val b.val
+
 /-- For a primitive idempotent e, the Peirce 1-space is one-dimensional.
 This is the key step for H-O 2.9.4(ii).
 
