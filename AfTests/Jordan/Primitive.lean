@@ -358,6 +358,32 @@ theorem powerSubmodule_assoc (x : J) {a b c : J}
   simp only [f, g, LinearMap.comp_apply, jmulBilin_apply, L_apply] at h
   exact h
 
+/-- PowerSubmodule x forms a commutative ring under Jordan multiplication.
+The key ingredients are:
+- Associativity: `powerSubmodule_assoc`
+- Commutativity: `jmul_comm`
+- Identity: `jone ∈ PowerSubmodule x`
+- Closure: `powerSubmodule_mul_closed` -/
+noncomputable instance powerSubmodule_commRing (x : J) : CommRing ↥(PowerSubmodule x) where
+  mul := fun ⟨a, ha⟩ ⟨b, hb⟩ => ⟨jmul a b, powerSubmodule_mul_closed x ha hb⟩
+  mul_assoc := fun ⟨a, ha⟩ ⟨b, hb⟩ ⟨c, hc⟩ =>
+    Subtype.ext (powerSubmodule_assoc x ha hb hc)
+  mul_comm := fun ⟨a, ha⟩ ⟨b, hb⟩ =>
+    Subtype.ext (jmul_comm a b)
+  one := ⟨jone, jone_mem_powerSubmodule x⟩
+  one_mul := fun ⟨a, ha⟩ =>
+    Subtype.ext (jone_jmul a)
+  mul_one := fun ⟨a, ha⟩ =>
+    Subtype.ext (jmul_jone a)
+  left_distrib := fun ⟨a, ha⟩ ⟨b, hb⟩ ⟨c, hc⟩ =>
+    Subtype.ext (jmul_add a b c)
+  right_distrib := fun ⟨a, ha⟩ ⟨b, hb⟩ ⟨c, hc⟩ =>
+    Subtype.ext (add_jmul a b c)
+  zero_mul := fun ⟨a, ha⟩ =>
+    Subtype.ext (zero_jmul a)
+  mul_zero := fun ⟨a, ha⟩ =>
+    Subtype.ext (jmul_zero a)
+
 /-- For a primitive idempotent e, the Peirce 1-space is one-dimensional.
 This is the key step for H-O 2.9.4(ii).
 
