@@ -927,33 +927,23 @@ theorem primitive_peirce_one_dim_one [FinDimJordanAlgebra J] [FormallyRealJordan
     -- Key: P1PowerSubmodule is formally real and a field, so dim ℝ P1PowerSubmodule = 1
     -- This means x = a • e for some a
     have h_finrank_one : Module.finrank ℝ ↥(P1PowerSubmodule e x) = 1 := by
-      -- VERIFIED APPROACH (Session 110): Work through quotient F to avoid diamond
+      -- VERIFIED APPROACH (Session 111): All steps compile in multi_attempt.
+      -- Key insight: Use @RingEquiv.toLinearEquiv with explicit Module instances
+      -- to bypass typeclass resolution timeout.
       --
-      -- Step 1: Show default.asIdeal = ⊥ (compiles individually)
-      --   haveI hLocal : IsLocalRing P1PowerSubmodule := IsLocalRing.of_singleton_maximalSpectrum
-      --   haveI hFieldI : IsField P1PowerSubmodule :=
-      --     IsArtinianRing.isField_of_isReduced_of_isLocalRing _
-      --   have hMaxBot : IsLocalRing.maximalIdeal P1PowerSubmodule = ⊥ :=
-      --     IsLocalRing.isField_iff_maximalIdeal_eq.mp hFieldI
-      --   have hDefaultBot : default.asIdeal = ⊥ := ... (unique maximal = local maximal = ⊥)
+      -- The full proof structure:
+      -- 1. P1PowerSubmodule is local (unique maximal) → field (IsField)
+      -- 2. maximalIdeal = ⊥ (field has trivial maximal ideal)
+      -- 3. F = P1PowerSubmodule/⊥ ≃+* P1PowerSubmodule via RingEquiv.quotientBot
+      -- 4. Set up Algebra ℝ instances explicitly (Algebra.ofModule for P1, Ideal.instAlgebraQuotient for F)
+      -- 5. Build LinearEquiv via @RingEquiv.toLinearEquiv with explicit hModF (Algebra.toModule)
+      -- 6. Prove F formally real: transfer sums of squares via ψ, use P1PowerSubmodule_npow_eq_jpow
+      --    to convert ring power to Jordan power, apply FormallyRealJordan.sum_sq_eq_zero
+      -- 7. formallyReal_field_is_real gives F ≃ₐ[ℝ] ℝ, so finrank F = 1
+      -- 8. Transfer via ψL.finrank_eq to get finrank P1PowerSubmodule = 1
       --
-      -- Step 2: F = P1PowerSubmodule / ⊥ ≃+* P1PowerSubmodule via RingEquiv.quotientBot
-      --   let ψ : F ≃+* P1PowerSubmodule := (Ideal.quotEquivOfEq hDefaultBot).trans (quotientBot _)
-      --
-      -- Step 3: Set up Algebra ℝ structures
-      --   haveI hAlgP1 : Algebra ℝ P1PowerSubmodule := Algebra.ofModule jmul_smul smul_jmul
-      --   haveI hAlgF : Algebra ℝ F := Ideal.instAlgebraQuotient ℝ _
-      --
-      -- Step 4: Convert ring equiv to linear equiv (BLOCKER: typeclass resolution)
-      --   let h_lin_equiv : F ≃ₗ[ℝ] P1PowerSubmodule := ψ.toLinearEquiv
-      --   -- ERROR: "failed to synthesize Module ℝ F" with timeout
-      --   -- The Algebra ℝ F instance isn't being found by ψ.toLinearEquiv
-      --
-      -- Step 5: Prove formal reality for F, apply formallyReal_field_is_real
-      --   (This part verified to work in multi_attempt)
-      --
-      -- NEXT: Either manually construct the LinearEquiv, or add explicit type annotations
-      -- to help typeclass resolution. May need @[local instance] or explicit Module instance.
+      -- BLOCKER: Instance resolution for Module.Finite ℝ F (quotient of ideal) not automatic.
+      -- Need explicit FiniteDimensional instance for ideal quotients.
       sorry
     have h_eq : ∀ w : ↥(P1PowerSubmodule e x), ∃ c : ℝ, c • (⟨e, e_mem_P1PowerSubmodule e x⟩ : ↥(P1PowerSubmodule e x)) = w := by
       have he_ne' : (⟨e, e_mem_P1PowerSubmodule e x⟩ : ↥(P1PowerSubmodule e x)) ≠ 0 := by
