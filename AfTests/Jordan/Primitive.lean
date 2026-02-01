@@ -212,15 +212,66 @@ theorem lagrange_idempotent_in_peirce_one [FormallyRealJordan J]
   have hxe : jmul e x = x := by rw [mem_peirceSpace_iff] at hx; simp [hx]
   constructor
   · -- Show f is idempotent: f² = f
-    -- Key: (x - μe)² = √Δ • (x - μe), so f² = (1/√Δ)² • √Δ • (x-μe) = (1/√Δ) • (x-μe) = f
     unfold IsIdempotent
-    show jsq f = f
-    -- Algebraic computation - the key steps are:
-    -- 1. Expand (x - μe)² using quadratic relation x² = rx + se
-    -- 2. Use r - 2μ = √Δ and s + μ² = -μ√Δ
-    -- 3. Get (x - μe)² = √Δ(x - μe)
-    -- 4. Scale by (1/√Δ)² to get f² = f
-    sorry
+    -- Factor out scalar square: f² = (1/√Δ)² • (x - μe)² = (1/Δ) • (x - μe)²
+    have h_scalar_sq : jsq f = (1 / Δ) • jsq (x - μ • e) := by
+      dsimp only [f]
+      rw [jsq_def, smul_jmul, jmul_smul, smul_smul, ←pow_two, one_div_pow, Real.sq_sqrt hΔ_nonneg]
+      rfl
+    rw [h_scalar_sq]
+
+    -- Expand (x - μe)² = x² - 2μx + μ²e
+    have h_sq_expansion : jsq (x - μ • e) = (r - 2 * μ) • x + (s + μ ^ 2) • e := by
+      rw [jsq_def, sub_jmul, jmul_sub, jmul_sub]
+      -- jmul x x is jsq x, use hquad
+      rw [← jsq_def, hquad]
+      -- Handle cross terms: x(μe) = μx, (μe)x = μx
+      -- Use commutativity: jmul x e = jmul e x = x
+      have hxe' : jmul x e = x := by rw [jmul_comm, hxe]
+      simp only [jmul_smul, smul_jmul, hxe, hxe']
+      -- Handle last term: jmul e e = jsq e = e (idempotent), then μ • μ = μ²
+      rw [← jsq_def, he, smul_smul, ←pow_two]
+      -- Goal: r • x + s • e - μ • x - (μ • x - μ² • e) = (r - 2 * μ) • x + (s + μ²) • e
+      -- Both sides equal when coefficients match: use module tactic
+      module
+    rw [h_sq_expansion, smul_add, smul_smul, smul_smul]
+
+    -- Simplify coefficients
+    -- Coeff of x: (1/Δ)(r - 2μ) = 1/√Δ
+    have h_coeff_x : (1 / Δ) * (r - 2 * μ) = 1 / Real.sqrt Δ := by
+      dsimp only [μ]
+      have num : r - 2 * ((r - Real.sqrt Δ) / 2) = Real.sqrt Δ := by ring
+      rw [num]
+      -- Goal: 1 / Δ * √Δ = 1 / √Δ, i.e., √Δ / Δ = 1 / √Δ
+      have hΔ_ne : Δ ≠ 0 := ne_of_gt hΔ_pos
+      field_simp [hΔ_ne, hsqrt_ne]
+      -- Goal: √Δ * √Δ = Δ
+      exact Real.sq_sqrt hΔ_nonneg
+
+    -- Coeff of e: (1/Δ)(s + μ²) = -μ/√Δ
+    have h_coeff_e : (1 / Δ) * (s + μ ^ 2) = -(1 / Real.sqrt Δ) * μ := by
+      dsimp only [μ]
+      have hΔ_ne : Δ ≠ 0 := ne_of_gt hΔ_pos
+      -- Algebraic verification:
+      -- μ = (r - √Δ)/2, μ² = (r² - 2r√Δ + Δ)/4
+      -- s + μ² = s + (r² - 2r√Δ + Δ)/4 = (4s + r² + Δ - 2r√Δ)/4 = (2Δ - 2r√Δ)/4
+      -- (1/Δ)(s + μ²) = (Δ - r√Δ)/(2Δ) = 1/2 - r/(2√Δ)
+      -- -μ/√Δ = -(r - √Δ)/(2√Δ) = -r/(2√Δ) + 1/2
+      -- TODO: Complete algebraic computation
+      sorry
+
+    -- Final assembly
+    rw [h_coeff_x, h_coeff_e]
+    -- Target is f = (1/√Δ)x - (μ/√Δ)e
+    dsimp only [f]
+    rw [smul_sub, smul_smul]
+    -- Goal: (1/√Δ) • x + (-(1/√Δ) * μ) • e = (1/√Δ) • x - (1/√Δ * μ) • e
+    -- Convert RHS subtraction: a - b•e = a + (-b)•e
+    rw [sub_eq_add_neg, ← neg_smul]
+    -- Goal: (1/√Δ) • x + (-(1/√Δ) * μ) • e = (1/√Δ) • x + (-(1/√Δ * μ)) • e
+    congr 2
+    -- Goal: -(1/√Δ) * μ = -(1/√Δ * μ)
+    ring
   · -- Show f ∈ PeirceSpace e 1: f is a linear combination of x and e, both in P₁(e)
     show (1 / Real.sqrt Δ) • (x - μ • e) ∈ PeirceSpace e 1
     have he_in : e ∈ PeirceSpace e 1 := idempotent_in_peirce_one he
