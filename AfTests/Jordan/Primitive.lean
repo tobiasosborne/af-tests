@@ -925,11 +925,26 @@ theorem primitive_peirce_one_dim_one [FinDimJordanAlgebra J] [FormallyRealJordan
     -- Key: P1PowerSubmodule is formally real and a field, so dim ℝ P1PowerSubmodule = 1
     -- This means x = a • e for some a
     have h_finrank_one : Module.finrank ℝ ↥(P1PowerSubmodule e x) = 1 := by
-      -- P1PowerSubmodule ≃+* F (single field via Unique MaximalSpectrum)
-      -- F is formally real (inherits from J) and finite-dimensional over ℝ
-      -- By classification of finite extensions of ℝ: F = ℝ or F = ℂ
-      -- ℂ is not formally real, so F = ℝ, hence finrank = 1
-      -- TODO: formalize the Algebra ℝ structure on P1PowerSubmodule and apply formallyReal_field_is_real
+      -- PROOF STRATEGY (verified to typecheck in isolation via multi_attempt):
+      --
+      -- 1. IsLocalRing.of_singleton_maximalSpectrum: Unique MaxSpec → IsLocalRing
+      -- 2. IsArtinianRing.isField_of_isReduced_of_isLocalRing: → IsField P1PowerSubmodule
+      -- 3. IsField.toField: get Field instance
+      -- 4. Algebra.ofModule: define Algebra ℝ using jmul_smul/smul_jmul
+      -- 5. Submodule.finiteDimensional: get FiniteDimensional ℝ
+      -- 6. Formal reality: P1PowerSubmodule_npow_eq_jpow + FormallyRealJordan.sum_sq_eq_zero
+      -- 7. formallyReal_field_is_real: → P1PowerSubmodule ≃ₐ ℝ
+      -- 8. LinearEquiv.finrank_eq + Module.finrank_self: → finrank = 1
+      --
+      -- BLOCKER: Diamond problem with ring instances.
+      -- When IsField.toField creates a new Field instance, it conflicts with the
+      -- existing P1PowerSubmodule_commRing. This causes P1PowerSubmodule_npow_eq_jpow
+      -- to not apply (different ring structures).
+      --
+      -- POSSIBLE FIX: Work with the quotient F directly (already has Field),
+      -- construct LinearEquiv between P1PowerSubmodule and F, transfer finrank.
+      -- Needs: import Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
+      --        import Mathlib.RingTheory.Artinian.Ring
       sorry
     have h_eq : ∀ w : ↥(P1PowerSubmodule e x), ∃ c : ℝ, c • (⟨e, e_mem_P1PowerSubmodule e x⟩ : ↥(P1PowerSubmodule e x)) = w := by
       have he_ne' : (⟨e, e_mem_P1PowerSubmodule e x⟩ : ↥(P1PowerSubmodule e x)) ≠ 0 := by
