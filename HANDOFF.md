@@ -1,19 +1,29 @@
-# Handoff: 2026-02-01 (Session 99)
+# Handoff: 2026-02-01 (Session 100)
 
-## Completed This Session
+## Attempted This Session
 
-### P1PowerSubmodule_mul_closed - FILLED
+### P1PowerSubmodule_assoc - IN PROGRESS
 
-Filled the sorry at Primitive.lean:474 using the bilinear induction pattern from `powerSubmodule_mul_closed`:
+Attempted to prove `P1PowerSubmodule_assoc` for the CommRing instance. Key learnings:
 
-**Proof approach:**
-1. Define generator set `S = {e} ∪ {x^{n+1} | n ∈ ℕ}`
-2. Show all generator pairs produce elements in span:
-   - `e ∘ e = e` (idempotent via `jsq_def` + `he`)
-   - `e ∘ x^{n+1} = x^{n+1}` (by `peirce_one_left_id`)
-   - `x^{m+1} ∘ e = x^{m+1}` (by `jmul_comm` + above)
-   - `x^{m+1} ∘ x^{n+1} = x^{m+n+2}` (by `jpow_add`)
-3. Apply `LinearMap.BilinMap.apply_apply_mem_of_mem_span`
+**Approach:**
+- Follow `powerSubmodule_assoc` trilinear extension pattern
+- Generator set: `S = {e} ∪ {x^{n+1} | n ∈ ℕ}`
+- Verify associativity on all 8 generator triples, then extend via `LinearMap.eqOn_span'`
+
+**Key insight:** For P1PowerSubmodule, `e` acts as identity (not `jone`):
+- `peirce_one_left_id`: `e ∘ a = a` for `a ∈ P₁(e)`
+- `peirce_one_right_id`: `a ∘ e = a` for `a ∈ P₁(e)`
+
+**Problem encountered:**
+- `rcases` with `rfl` causes variable shadowing when the original variable is `e`
+- When `rcases hy with rfl | ⟨m, rfl⟩` matches `rfl`, the variable `e` gets renamed
+- This breaks references to `he`, `he_id`, `hpow_P1` which depend on `e`
+
+**Fix needed:**
+- Use explicit case analysis with named hypotheses instead of `rcases ... with rfl`
+- Or use `obtain` with explicit variable names
+- Pattern: `cases hy; · subst ...; · obtain ⟨m, hm⟩ := hy; subst hm; ...`
 
 ---
 
@@ -23,42 +33,32 @@ Filled the sorry at Primitive.lean:474 using the bilinear induction pattern from
 |--------|-------|
 | Total Sorries | **15** (Jordan/) |
 | Build Status | **PASSING** |
-| Sorries Eliminated | 1 (P1PowerSubmodule_mul_closed) |
+| Session Work | Research only (reverted broken code) |
 
 ---
 
-## 🎯 NEXT STEP: Add P1PowerSubmodule CommRing Instance
+## 🎯 NEXT STEP: Add P1PowerSubmodule_assoc
 
-The mul_closed theorem is now proven. Next:
+Continue the associativity proof with proper case handling:
 
-1. **Add CommRing instance** for `P1PowerSubmodule e x` (similar to `powerSubmodule_commRing`)
-   - Identity: `e` (not `jone`)
-   - Need associativity proof analogous to `powerSubmodule_assoc`
+1. **Fix variable shadowing** - avoid `rcases ... with rfl`, use explicit case analysis
+2. **Complete hgen proof** - verify all 8 generator triple cases
+3. **Complete trilinear extension** - step1, step2, final extension
 
-2. **Add IsArtinian + IsReduced instances** (follow `powerSubmodule` pattern)
-
-3. **Apply structure theorem** (af-w3sf) to complete `primitive_peirce_one_dim_one`
+Then proceed to CommRing instance.
 
 ---
 
 ## Dependency Chain
 
 ```
-af-yok1 ✓ (PowerSubmodule)
+P1PowerSubmodule_mul_closed ✓ - Session 99
     ↓
-af-qc7s ✓ (powerSubmodule_mul_closed)
+P1PowerSubmodule_assoc       ← IN PROGRESS (Session 100)
     ↓
-powerSubmodule_assoc ✓ (Session 95)
+P1PowerSubmodule CommRing    ← NEXT
     ↓
-af-643b ✓ (CommRing instance) - Session 96
-    ↓
-af-6yeo ✓ (IsArtinian + IsReduced) - Session 97
-    ↓
-P1PowerSubmodule ✓ (definitions) - Session 98
-    ↓
-P1PowerSubmodule_mul_closed ✓ - Session 99  ← DONE
-    ↓
-P1PowerSubmodule CommRing + associativity   ← NEXT
+IsArtinian + IsReduced
     ↓
 af-w3sf (Apply structure theorem)
     ↓
@@ -69,4 +69,5 @@ primitive_peirce_one_dim_one (line 532 sorry)
 
 ## Files Modified
 
-- `AfTests/Jordan/Primitive.lean` - Filled P1PowerSubmodule_mul_closed sorry
+- None (reverted attempted changes)
+
