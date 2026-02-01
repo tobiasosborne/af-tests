@@ -747,6 +747,43 @@ theorem P1PowerSubmodule_isScalarTower (e x : J) (he : IsIdempotent e)
   simp only [Submodule.coe_smul]
   exact jmul_smul r a.val b.val
 
+/-- P1PowerSubmodule is Artinian as a ring.
+Follows from: ℝ is Artinian (field) and P1PowerSubmodule is finite-dimensional over ℝ. -/
+theorem P1PowerSubmodule_isArtinianRing [FinDimJordanAlgebra J] (e x : J) (he : IsIdempotent e)
+    (hx : x ∈ PeirceSpace e 1) :
+    letI := P1PowerSubmodule_commRing e x he hx
+    IsArtinianRing ↥(P1PowerSubmodule e x) := by
+  letI := P1PowerSubmodule_commRing e x he hx
+  haveI : IsScalarTower ℝ ↥(P1PowerSubmodule e x) ↥(P1PowerSubmodule e x) :=
+    P1PowerSubmodule_isScalarTower e x he hx
+  exact IsArtinianRing.of_finite ℝ ↥(P1PowerSubmodule e x)
+
+/-- P1PowerSubmodule is reduced (no nilpotent elements).
+This follows from formal reality: if a^n = 0 then a = 0. -/
+theorem P1PowerSubmodule_isReduced [FormallyRealJordan J] (e x : J) (he : IsIdempotent e)
+    (hx : x ∈ PeirceSpace e 1) :
+    letI := P1PowerSubmodule_commRing e x he hx
+    IsReduced ↥(P1PowerSubmodule e x) := by
+  letI := P1PowerSubmodule_commRing e x he hx
+  apply IsReduced.mk
+  intro a hnil
+  obtain ⟨n, hn⟩ := hnil
+  cases n with
+  | zero =>
+    -- a^0 = 1 = 0 means the ring is trivial
+    have h1eq0 : (1 : ↥(P1PowerSubmodule e x)) = 0 := hn
+    calc a = a * 1 := (mul_one a).symm
+      _ = a * 0 := by rw [h1eq0]
+      _ = 0 := mul_zero a
+  | succ m =>
+    have hpow : jpow a.val (m + 1) = 0 := by
+      have hge1 : m + 1 ≥ 1 := Nat.one_le_iff_ne_zero.mpr (Nat.succ_ne_zero m)
+      have := P1PowerSubmodule_npow_eq_jpow e x he hx a (m + 1) hge1
+      rw [hn] at this; simp at this; exact this.symm
+    have ha_zero : a.val = 0 :=
+      no_nilpotent_of_formallyReal (Nat.one_le_iff_ne_zero.mpr (Nat.succ_ne_zero m)) hpow
+    ext; exact ha_zero
+
 /-- For a primitive idempotent e, the Peirce 1-space is one-dimensional.
 This is the key step for H-O 2.9.4(ii).
 
