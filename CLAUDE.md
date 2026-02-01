@@ -1,150 +1,114 @@
-# CLAUDE.md — AF-Tests Lean 4 Formalization
-
-## Project Overview
+# CLAUDE.md — AF-Tests Lean 4
 
 Lean 4 formalization for operator algebras and Jordan algebras.
-
-```
-af-tests/
-├── AfTests/
-│   ├── GNS/                  # COMPLETE (0 sorries)
-│   ├── ArchimedeanClosure/   # Structure done (0 sorries)
-│   └── Jordan/               # Active (~21 sorries)
-├── docs/*/LEARNINGS*.md      # Technical discoveries
-└── examples3/                # Reference books
-```
 
 ---
 
 ## GOLDEN RULES
 
-> **OUTPUT IS LEAN CODE.** Every issue = Lean file created/modified.
-> **ERRORS are NOT failures.** Document learnings. That is success.
-> **Incomplete work IS success.** STOP before "simplifying."
-> **Small deltas.** Target ≤50 LOC per session.
-> **Mathlib first.** Always search before implementing.
+> **OUTPUT = LEAN CODE.** Every issue = Lean file modified.
+> **ERRORS ≠ FAILURES.** Document learnings. That is success.
+> **INCOMPLETE = SUCCESS.** A sorry with notes > broken proof.
+> **SMALL DELTAS.** Target ≤50 LOC. Max 200 LOC/file.
+> **MATHLIB FIRST.** Search before implementing.
 
 ---
 
-## Session Protocol
+## The Simplification Trap
 
-### Phase 1: Orient
+When context fills and proofs aren't working, you will feel the urge to "simplify" or "clean up" the code.
+
+**THIS IS THE TRAP.**
+
+This urge is your signal to STOP, not to delete.
+
+| Correct | Wrong |
+|---------|-------|
+| Checkpoint, document, create issue | Delete "unnecessary" code |
+| Commit what compiles | Rewrite approach |
+| Update HANDOFF.md | "One more try" |
+| Session complete | Simplify for "clarity" |
+
+---
+
+## NEVER (session failure)
+
+- Delete working code to "simplify"
+- Rewrite proof approach after 3 failed attempts
+- Remove structure "for clarity"
+- Add types/docstrings to unchanged code
+- Refactor adjacent code
+- Continue past checkpoint warnings
+
+---
+
+## Success Criteria
+
+✓ sorry with documented goal state + approach
+✓ Proof attempt that reveals why approach fails
+✓ Discovery that lemma doesn't exist in mathlib
+✓ 10 LOC that compiles
+✓ Incomplete work with HANDOFF.md update
+
+✗ 50 LOC that doesn't compile
+✗ "Simplified" proof that deleted working parts
+✗ Thrashing through multiple approaches
+
+---
+
+## Session Flow
+
+### Start
 1. Read HANDOFF.md
-2. `bd ready` — check issues
-3. Select ONE issue (smallest unblocked P0/P1/P2)
+2. `bd ready` → select ONE issue (smallest P0/P1/P2)
 
-### Phase 2: Execute
-- Target ≤50 LOC, max 200 LOC/file
-- Search mathlib first: `lean_loogle`, `lean_leansearch`
-- Build: `lake build` — **MUST COMPILE**
-- Update learnings
+### Execute
+- Search mathlib: `lean_loogle`, `lean_leansearch`, `lean_local_search`
+- Build often: `lake build`
+- Stop at 3 failed attempts on same approach
 
-### Phase 3: Outcome
-**Success:** Update HANDOFF, close issue, → Phase 4
-**Problem:** Document attempt in learnings, create follow-up issues, → Phase 4
+### Checkpoint (at 35%+ context OR when stuck)
+1. `lake build` — capture state
+2. Commit: `git commit -m "WIP: [state]"`
+3. Update HANDOFF.md
+4. `bd create` for remaining work
+5. `bd sync`
+6. **Done. This is success.**
 
-### Phase 4: Land the Plane
+### Close
 ```
-[ ] BUILD PASSING
-[ ] LEARNINGS UPDATED
+[ ] BUILD PASSES
 [ ] HANDOFF.MD UPDATED
-[ ] ISSUES CLOSED — bd close, bd sync
-[ ] COMMITTED AND PUSHED
+[ ] bd close → bd sync
+[ ] git commit → git push
 ```
 
 ---
 
-## 🚨 GAPS = ISSUES 🚨
+## GAPS = ISSUES
 
-Trigger words requiring `bd create`:
-- "not in mathlib", "needs implementation", "TODO", "sorry", "~N LOC"
+When you discover: "not in mathlib", "needs N LOC", "TODO", "sorry"
 
-**Documentation without issues = LOST WORK.**
+→ `bd create --title="..." --type=task --priority=2`
 
----
-
-## Current Projects
-
-### Jordan Algebras (Active)
-**Code:** `AfTests/Jordan/` | **Sorries:** ~21
-**Reference:** Hanche-Olsen & Størmer (1984) → `examples3/Jordan Operator Algebras/`
-
-Key sorries:
-- `FormallyReal/Def.lean` — `of_sq_eq_zero`
-- `FormallyReal/Spectrum.lean` — spectral theory
-- `OperatorIdentities.lean` — idempotent identities
-
-### GNS Construction (Complete)
-`AfTests/GNS/` — 2,455 LOC, 0 sorries
-Theorems: `State.gns_theorem`, `State.gns_uniqueness`
-
-### Archimedean Closure (Structure Done)
-`AfTests/ArchimedeanClosure/` — 0 sorries
+**Undocumented gaps = lost work.**
 
 ---
 
-## Mathlib First
+## Stop Signals
 
-```bash
-lean_loogle "Type pattern"      # Type signature
-lean_leansearch "description"   # Natural language
-lean_local_search "name"        # Verify exists
-```
-
-Key imports:
-```lean
-import Mathlib.Algebra.Jordan.Basic
-import Mathlib.Algebra.Star.Basic
-import Mathlib.Analysis.Matrix.Spectrum
-import Mathlib.Analysis.Convex.Cone.Extension
-```
+If you notice any of these, checkpoint immediately:
+- Considering "simplifying" existing code
+- Third attempt at same approach
+- Tempted to delete and restart
+- Thinking "if I just clean this up..."
+- Same error message repeating
+- Context checkpoint warning appeared
 
 ---
 
-## Commands
+## References
 
-```bash
-lake build                      # Build all
-grep -rn "sorry" AfTests/Jordan --include="*.lean"  # Find sorries
-
-bd ready              # Available work
-bd close <id>         # Close issue
-bd sync               # Sync with git
-```
-
----
-
-## Issue Tracking
-
-| Priority | Meaning |
-|----------|---------|
-| P0 | Blocking (build broken) |
-| P1 | High (sorry elimination) |
-| P2 | Medium (improvements) |
-| P3 | Low (docs, style) |
-
----
-
-## Deviation Detection
-
-Red flags → STOP and document:
-- Solving problem not in selected issue
-- Changing unmentioned files
-- Delta approaching 50 LOC, not done
-- "Refactoring" unrelated code
-
----
-
-## Handoff Template
-
-```markdown
-# Handoff: [Date] (Session N)
-
-## Completed This Session
-- <issue-id>: <summary>
-
-## Current State
-## Next Steps
-## Known Issues
-## Files Modified
-```
+- **Code:** `AfTests/Jordan/` (active), `AfTests/GNS/` (complete)
+- **Books:** `examples3/Jordan Operator Algebras/`
+- **Learnings:** `docs/*/LEARNINGS*.md`
