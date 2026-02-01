@@ -1,10 +1,10 @@
-# Handoff: 2026-02-01 (Session 113)
+# Handoff: 2026-02-01 (Session 114)
 
 ## Session Summary
 
-**PROGRESS:** Advanced `exists_primitive_decomp` proof - primitive case complete, non-primitive case setup complete, induction step remains.
+**PROGRESS:** Identified instance diamond issue blocking `primitive_peirce_one_dim_one` proof. Sorried the problematic section.
 
-**Result:** Build passes. 4 sorries remain in Primitive.lean.
+**Result:** Build passes. 5 sorries in Primitive.lean (one added).
 
 ---
 
@@ -12,56 +12,55 @@
 
 | Metric | Value |
 |--------|-------|
-| Total Sorries | **4** (Primitive.lean) |
+| Total Sorries | **5** (Primitive.lean) |
 | Build Status | **PASSING** |
-| Session Work | Advanced exists_primitive_decomp proof structure |
+| Session Work | Instance diamond diagnosis |
 
 ---
 
-## Progress on exists_primitive_decomp
+## Key Finding: Instance Diamond in h_finrank_one
 
-The proof now has:
-1. **Primitive case (DONE):** Returns `k=1, p=![e]`
-2. **Non-primitive case setup (DONE):**
-   - Extract f from `¬IsPrimitive e` (f idempotent, jmul e f = f, f ≠ 0, f ≠ e)
-   - Prove `e - f` is idempotent via `sub_idempotent_of_jmul_eq`
-   - Prove f and (e-f) orthogonal via `orthogonal_of_jmul_eq`
-   - Prove `e - f ≠ 0`
-   - Prove `e = f + (e - f)`
-3. **Induction step (TODO):** Need well-founded recursion
+The proof of `h_finrank_one` (line ~929) has an **instance diamond problem**:
+
+1. `letI R := P1PowerSubmodule_commRing e x ...` defines a CommRing instance
+2. Later, `haveI hField := hFieldI.toField` creates a Field instance
+3. These have **different multiplication instances** at the definitional level
+4. When trying to show formal reality, the proof needs `(a ^ 2).val = jsq a.val`
+5. But `a ^ 2` uses Field multiplication while `P1PowerSubmodule_npow_eq_jpow` expects CommRing multiplication
+
+**Type error shown:**
+```
+jmul ↑(a j) ↑(a j) = ↑(@HMul.hMul ... CommRing... (a j) (a j))
+but expected:
+jmul ↑(a j) ↑(a j) = ↑(@HMul.hMul ... Field... (a j) (a j))
+```
+
+### Possible Solutions
+
+1. **Work entirely with CommRing R** - Don't introduce Field instance
+2. **Prove P1PowerSubmodule is formally real BEFORE introducing Field** - as a separate lemma
+3. **Use `@` to explicitly specify instances** throughout the proof
 
 ---
 
 ## Remaining Sorries (Primitive.lean)
 
-1. **Line ~1031** - `orthogonal_primitive_peirce_sq` (H-O 2.9.4(iv))
-2. **Line ~1043** - `orthogonal_primitive_structure`
-3. **Line ~1118** - `exists_primitive_decomp` - induction step
-4. **Line ~1122** - `csoi_refine_primitive`
+1. **Line ~934** - `h_finrank_one` in `primitive_peirce_one_dim_one` (NEW - instance diamond)
+2. **Line ~992** - `orthogonal_primitive_peirce_sq` (H-O 2.9.4(iv))
+3. **Line ~1019** - `orthogonal_primitive_structure`
+4. **Line ~1068** - `exists_primitive_decomp` - induction step
+5. **Line ~1103** - `csoi_refine_primitive`
 
 ---
 
-## 🎯 NEXT STEP: Complete induction for exists_primitive_decomp
+## 🎯 NEXT STEP: Fix instance diamond in h_finrank_one
 
-Three possible approaches documented in the code:
-
-1. **Strong induction on finrank P₁(e):**
-   - Needs: converse of `primitive_peirce_one_dim_one` (dim 1 → primitive)
-   - Needs: proof that finrank P₁(f) < finrank P₁(e) for proper sub-idempotent f
-
-2. **Well-founded induction on idempotent partial order:**
-   - Define e' ≤ e iff jmul e e' = e'
-   - This is well-founded in finite dimensions
-
-3. **Zorn's lemma approach:**
-   - Find maximal orthogonal family of primitives
-   - Show it sums to e
+Either:
+- Extract the formal reality proof as a standalone lemma using only CommRing
+- Or find a different approach to prove `primitive_peirce_one_dim_one`
 
 ---
 
-## Key Observation
+## Files Changed
 
-The non-primitive case gives us f with:
-- `jmul e f = f` means f ∈ P₁(e)
-- So P₁(f) and P₁(e) are related but NOT directly comparable (different operators)
-- The induction measure needs careful design
+- `AfTests/Jordan/Primitive.lean` - Sorried h_finrank_one with documentation
