@@ -8,7 +8,9 @@ import AfTests.Jordan.Trace
 import AfTests.Jordan.Peirce
 import Mathlib.Analysis.Complex.Polynomial.Basic
 import Mathlib.RingTheory.Artinian.Module
+import Mathlib.RingTheory.Artinian.Ring
 import Mathlib.RingTheory.Idempotents
+import Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
 import Mathlib.LinearAlgebra.FiniteDimensional.Basic
 import Mathlib.LinearAlgebra.Span.Basic
 
@@ -925,26 +927,33 @@ theorem primitive_peirce_one_dim_one [FinDimJordanAlgebra J] [FormallyRealJordan
     -- Key: P1PowerSubmodule is formally real and a field, so dim ℝ P1PowerSubmodule = 1
     -- This means x = a • e for some a
     have h_finrank_one : Module.finrank ℝ ↥(P1PowerSubmodule e x) = 1 := by
-      -- PROOF STRATEGY (verified to typecheck in isolation via multi_attempt):
+      -- VERIFIED APPROACH (Session 110): Work through quotient F to avoid diamond
       --
-      -- 1. IsLocalRing.of_singleton_maximalSpectrum: Unique MaxSpec → IsLocalRing
-      -- 2. IsArtinianRing.isField_of_isReduced_of_isLocalRing: → IsField P1PowerSubmodule
-      -- 3. IsField.toField: get Field instance
-      -- 4. Algebra.ofModule: define Algebra ℝ using jmul_smul/smul_jmul
-      -- 5. Submodule.finiteDimensional: get FiniteDimensional ℝ
-      -- 6. Formal reality: P1PowerSubmodule_npow_eq_jpow + FormallyRealJordan.sum_sq_eq_zero
-      -- 7. formallyReal_field_is_real: → P1PowerSubmodule ≃ₐ ℝ
-      -- 8. LinearEquiv.finrank_eq + Module.finrank_self: → finrank = 1
+      -- Step 1: Show default.asIdeal = ⊥ (compiles individually)
+      --   haveI hLocal : IsLocalRing P1PowerSubmodule := IsLocalRing.of_singleton_maximalSpectrum
+      --   haveI hFieldI : IsField P1PowerSubmodule :=
+      --     IsArtinianRing.isField_of_isReduced_of_isLocalRing _
+      --   have hMaxBot : IsLocalRing.maximalIdeal P1PowerSubmodule = ⊥ :=
+      --     IsLocalRing.isField_iff_maximalIdeal_eq.mp hFieldI
+      --   have hDefaultBot : default.asIdeal = ⊥ := ... (unique maximal = local maximal = ⊥)
       --
-      -- BLOCKER: Diamond problem with ring instances.
-      -- When IsField.toField creates a new Field instance, it conflicts with the
-      -- existing P1PowerSubmodule_commRing. This causes P1PowerSubmodule_npow_eq_jpow
-      -- to not apply (different ring structures).
+      -- Step 2: F = P1PowerSubmodule / ⊥ ≃+* P1PowerSubmodule via RingEquiv.quotientBot
+      --   let ψ : F ≃+* P1PowerSubmodule := (Ideal.quotEquivOfEq hDefaultBot).trans (quotientBot _)
       --
-      -- POSSIBLE FIX: Work with the quotient F directly (already has Field),
-      -- construct LinearEquiv between P1PowerSubmodule and F, transfer finrank.
-      -- Needs: import Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
-      --        import Mathlib.RingTheory.Artinian.Ring
+      -- Step 3: Set up Algebra ℝ structures
+      --   haveI hAlgP1 : Algebra ℝ P1PowerSubmodule := Algebra.ofModule jmul_smul smul_jmul
+      --   haveI hAlgF : Algebra ℝ F := Ideal.instAlgebraQuotient ℝ _
+      --
+      -- Step 4: Convert ring equiv to linear equiv (BLOCKER: typeclass resolution)
+      --   let h_lin_equiv : F ≃ₗ[ℝ] P1PowerSubmodule := ψ.toLinearEquiv
+      --   -- ERROR: "failed to synthesize Module ℝ F" with timeout
+      --   -- The Algebra ℝ F instance isn't being found by ψ.toLinearEquiv
+      --
+      -- Step 5: Prove formal reality for F, apply formallyReal_field_is_real
+      --   (This part verified to work in multi_attempt)
+      --
+      -- NEXT: Either manually construct the LinearEquiv, or add explicit type annotations
+      -- to help typeclass resolution. May need @[local instance] or explicit Module instance.
       sorry
     have h_eq : ∀ w : ↥(P1PowerSubmodule e x), ∃ c : ℝ, c • (⟨e, e_mem_P1PowerSubmodule e x⟩ : ↥(P1PowerSubmodule e x)) = w := by
       have he_ne' : (⟨e, e_mem_P1PowerSubmodule e x⟩ : ↥(P1PowerSubmodule e x)) ≠ 0 := by
