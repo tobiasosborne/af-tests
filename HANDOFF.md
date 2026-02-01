@@ -1,20 +1,19 @@
-# Handoff: 2026-02-01 (Session 98)
+# Handoff: 2026-02-01 (Session 99)
 
 ## Completed This Session
 
-### P1PowerSubmodule Infrastructure - ADDED
+### P1PowerSubmodule_mul_closed - FILLED
 
-Added infrastructure for P₁-restricted power submodules (Primitive.lean:440-485):
+Filled the sorry at Primitive.lean:474 using the bilinear induction pattern from `powerSubmodule_mul_closed`:
 
-1. `P1PowerSubmodule e x` - span{e, x, x², ...} with identity e (not jone)
-2. `e_mem_P1PowerSubmodule` - e is in the submodule
-3. `jpow_succ_mem_P1PowerSubmodule` - powers x^{n+1} are in submodule
-4. `self_mem_P1PowerSubmodule` - x is in its submodule
-5. `P1PowerSubmodule_le_peirceSpace` - contained in P₁(e) when x ∈ P₁(e)
-6. `P1PowerSubmodule_mul_closed` - **sorry** - needs bilinear induction proof
-
-**Why P1PowerSubmodule?** The original `PowerSubmodule x` has identity `jone`, but for
-the H-O 2.9.4(ii) argument we need a subalgebra of P₁(e) with identity `e`.
+**Proof approach:**
+1. Define generator set `S = {e} ∪ {x^{n+1} | n ∈ ℕ}`
+2. Show all generator pairs produce elements in span:
+   - `e ∘ e = e` (idempotent via `jsq_def` + `he`)
+   - `e ∘ x^{n+1} = x^{n+1}` (by `peirce_one_left_id`)
+   - `x^{m+1} ∘ e = x^{m+1}` (by `jmul_comm` + above)
+   - `x^{m+1} ∘ x^{n+1} = x^{m+n+2}` (by `jpow_add`)
+3. Apply `LinearMap.BilinMap.apply_apply_mem_of_mem_span`
 
 ---
 
@@ -22,29 +21,23 @@ the H-O 2.9.4(ii) argument we need a subalgebra of P₁(e) with identity `e`.
 
 | Metric | Value |
 |--------|-------|
-| Total Sorries | **28** (+1 new: P1PowerSubmodule_mul_closed) |
+| Total Sorries | **15** (Jordan/) |
 | Build Status | **PASSING** |
-| New Definitions | 6 (45 LOC) |
+| Sorries Eliminated | 1 (P1PowerSubmodule_mul_closed) |
 
 ---
 
-## 🎯 NEXT STEP: Fill P1PowerSubmodule_mul_closed sorry
+## 🎯 NEXT STEP: Add P1PowerSubmodule CommRing Instance
 
-The sorry at line 474 needs a bilinear induction proof:
+The mul_closed theorem is now proven. Next:
 
-**Key facts for the proof:**
-- `e ∘ e = e` (idempotent)
-- `e ∘ x^n = x^n` for x^n ∈ P₁(e) (by `mem_peirceSpace_one_iff`)
-- `x^m ∘ x^n = x^{m+n}` (by `jpow_add`)
+1. **Add CommRing instance** for `P1PowerSubmodule e x` (similar to `powerSubmodule_commRing`)
+   - Identity: `e` (not `jone`)
+   - Need associativity proof analogous to `powerSubmodule_assoc`
 
-**Proof approach:**
-1. Use `Submodule.span_induction` on `ha`
-2. For each generator a', show `∀ y ∈ P1PowerSubmodule, jmul a' y ∈ P1PowerSubmodule`
-3. Use `Submodule.span_induction` on the y argument
-4. Check all generator pairs: (e,e), (e,x^n), (x^m,e), (x^m,x^n)
+2. **Add IsArtinian + IsReduced instances** (follow `powerSubmodule` pattern)
 
-Once mul_closed is proven, add CommRing instance with identity e, then apply
-`artinian_reduced_is_product_of_fields` to complete `primitive_peirce_one_dim_one`.
+3. **Apply structure theorem** (af-w3sf) to complete `primitive_peirce_one_dim_one`
 
 ---
 
@@ -63,17 +56,17 @@ af-6yeo ✓ (IsArtinian + IsReduced) - Session 97
     ↓
 P1PowerSubmodule ✓ (definitions) - Session 98
     ↓
-P1PowerSubmodule_mul_closed (sorry) ← NEXT
+P1PowerSubmodule_mul_closed ✓ - Session 99  ← DONE
     ↓
-P1PowerSubmodule CommRing instance
+P1PowerSubmodule CommRing + associativity   ← NEXT
     ↓
 af-w3sf (Apply structure theorem)
     ↓
-primitive_peirce_one_dim_one (line 497 sorry)
+primitive_peirce_one_dim_one (line 532 sorry)
 ```
 
 ---
 
 ## Files Modified
 
-- `AfTests/Jordan/Primitive.lean` - Added P1PowerSubmodule infrastructure (lines 440-485)
+- `AfTests/Jordan/Primitive.lean` - Filled P1PowerSubmodule_mul_closed sorry

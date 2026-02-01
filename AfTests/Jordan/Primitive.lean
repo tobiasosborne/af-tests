@@ -475,10 +475,45 @@ theorem P1PowerSubmodule_mul_closed (e x : J) (he : IsIdempotent e)
     (hx : x ∈ PeirceSpace e 1) {a b : J}
     (ha : a ∈ P1PowerSubmodule e x) (hb : b ∈ P1PowerSubmodule e x) :
     jmul a b ∈ P1PowerSubmodule e x := by
-  -- Reduce to generators using bilinearity
-  -- Generators: e and jpow x (n+1) for n ∈ ℕ
-  -- Products: e∘e = e, e∘x^n = x^n (P₁ property), x^m∘x^n = x^{m+n} (jpow_add)
-  sorry
+  -- The generator set S = {e} ∪ {x^{n+1} | n ∈ ℕ}
+  let S := Set.insert e (Set.range fun n : ℕ => jpow x (n + 1))
+  -- Key: for basis elements, their products are in the span
+  have hbasis : ∀ y ∈ S, ∀ z ∈ S, jmulBilin y z ∈ Submodule.span ℝ S := by
+    intro y hy z hz
+    simp only [jmulBilin_apply]
+    cases hy with
+    | inl hy_e =>
+      -- y = e
+      rw [hy_e]
+      cases hz with
+      | inl hz_e =>
+        -- z = e: e ∘ e = e
+        rw [hz_e, ← jsq_def, he]  -- he : jsq e = e
+        exact Submodule.subset_span (Set.mem_insert e _)
+      | inr hz_pow =>
+        -- z = x^{n+1}: e ∘ x^{n+1} = x^{n+1} (by peirce_one_left_id)
+        obtain ⟨n, hn⟩ := hz_pow
+        rw [← hn, peirce_one_left_id (jpow_succ_mem_peirce_one he hx n)]
+        exact Submodule.subset_span (Set.mem_insert_of_mem e ⟨n, rfl⟩)
+    | inr hy_pow =>
+      -- y = x^{m+1}
+      obtain ⟨m, hm⟩ := hy_pow
+      cases hz with
+      | inl hz_e =>
+        -- z = e: x^{m+1} ∘ e = e ∘ x^{m+1} = x^{m+1}
+        rw [hz_e, jmul_comm, ← hm, peirce_one_left_id (jpow_succ_mem_peirce_one he hx m)]
+        exact Submodule.subset_span (Set.mem_insert_of_mem e ⟨m, rfl⟩)
+      | inr hz_pow =>
+        -- z = x^{n+1}: x^{m+1} ∘ x^{n+1} = x^{m+n+2}
+        obtain ⟨n, hn⟩ := hz_pow
+        rw [← hm, ← hn, jpow_add]
+        -- m+1 + n+1 = (m+n+1) + 1
+        have heq : m + 1 + (n + 1) = (m + n + 1) + 1 := by omega
+        rw [heq]
+        exact Submodule.subset_span (Set.mem_insert_of_mem e ⟨m + n + 1, rfl⟩)
+  -- Apply the bilinear induction lemma
+  exact LinearMap.BilinMap.apply_apply_mem_of_mem_span
+    (Submodule.span ℝ S) S S jmulBilin hbasis a b ha hb
 
 /-- For a primitive idempotent e, the Peirce 1-space is one-dimensional.
 This is the key step for H-O 2.9.4(ii).
