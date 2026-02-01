@@ -1,0 +1,26 @@
+StatusLine Configuration for Context Checkpoint Hook
+====================================================
+
+The context checkpoint hook requires the statusLine to write context percentage
+to /tmp/claude-context-pct. PostToolUse hooks do NOT receive context_window data.
+
+Add this to your ~/.claude/settings.json:
+
+"statusLine": {
+  "type": "command",
+  "command": "input=$(cat); user=$(whoami); host=$(hostname -s); dir=$(pwd); usage=$(echo \"$input\" | jq '.context_window.current_usage'); if [ \"$usage\" != \"null\" ]; then current=$(echo \"$usage\" | jq '.input_tokens + .cache_creation_input_tokens + .cache_read_input_tokens'); size=$(echo \"$input\" | jq '.context_window.context_window_size'); pct=$((current * 100 / size)); echo \"$pct\" > /tmp/claude-context-pct; sid=$(echo \"$input\" | jq -r '.session_id // empty'); [ -n \"$sid\" ] && echo \"$sid\" > /tmp/claude-session-id; filled=$((pct / 5)); empty=$((20 - filled)); bar=''; i=0; while [ $i -lt $filled ]; do bar=\"${bar}█\"; i=$((i + 1)); done; i=0; while [ $i -lt $empty ]; do bar=\"${bar}░\"; i=$((i + 1)); done; printf '\\033[01;32m%s@%s\\033[00m:\\033[01;34m%s\\033[00m \\033[2m[\\033[00m%s \\033[01;33m%d%%\\033[00m\\033[2m]\\033[00m' \"$user\" \"$host\" \"$dir\" \"$bar\" \"$pct\"; else printf '\\033[01;32m%s@%s\\033[00m:\\033[01;34m%s\\033[00m' \"$user\" \"$host\" \"$dir\"; fi"
+}
+
+What this does:
+- Shows: user@host:dir [████████████░░░░░░░░ 60%]
+- Writes percentage to /tmp/claude-context-pct (for PostToolUse hook)
+- Writes session_id to /tmp/claude-session-id (for per-session flag tracking)
+
+The key additions vs a basic statusLine are:
+  echo "$pct" > /tmp/claude-context-pct
+  sid=$(echo "$input" | jq -r '.session_id // empty'); [ -n "$sid" ] && echo "$sid" > /tmp/claude-session-id
+
+Why this is needed:
+- PostToolUse hooks do NOT receive context_window data
+- Only statusLine receives the full context_window object
+- So statusLine writes data to files, and PostToolUse hook reads from those files

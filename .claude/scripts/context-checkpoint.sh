@@ -1,27 +1,24 @@
 #!/bin/bash
 # Context checkpoint hook - injects reminders at thresholds
-# Only emits once per threshold crossing (with one reminder 5% later)
+# Reads percentage from file written by statusLine (PostToolUse doesn't get context data)
+#
+# IMPORTANT: This hook requires the statusLine to write context percentage to
+# /tmp/claude-context-pct. See statusline-template.txt for the required config.
 
-INPUT=$(cat)
+# File where statusLine writes current context percentage
+PCT_FILE="/tmp/claude-context-pct"
 
-# Session-specific flag directory using parent PID (Claude Code process)
-# Falls back to hash of pwd+date if PPID not useful
-SESSION_ID="${PPID:-$(echo "$(pwd)$(date +%Y%m%d)" | md5sum | cut -c1-8)}"
+# Read percentage from file (written by statusLine)
+PCT=$(cat "$PCT_FILE" 2>/dev/null)
+
+# Exit if no percentage available
+[ -z "$PCT" ] || [ "$PCT" = "0" ] && exit 0
+
+# Session-specific flag directory - read session ID from file written by statusLine
+SESSION_ID=$(cat /tmp/claude-session-id 2>/dev/null)
+[ -z "$SESSION_ID" ] && SESSION_ID="default"
 FLAG_DIR="/tmp/claude-checkpoint-flags-${SESSION_ID}"
 mkdir -p "$FLAG_DIR"
-
-# Extract context percentage (same logic as statusLine)
-PCT=$(echo "$INPUT" | jq -r '
-  if .context_window.current_usage then
-    ((.context_window.current_usage.input_tokens +
-      .context_window.current_usage.cache_creation_input_tokens +
-      .context_window.current_usage.cache_read_input_tokens) * 100 /
-      .context_window.context_window_size)
-  else 0 end
-' 2>/dev/null)
-
-# Exit silently if we couldn't get percentage
-[ -z "$PCT" ] || [ "$PCT" = "null" ] || [ "$PCT" = "0" ] && exit 0
 
 # Threshold 1: 35% - First warning
 if [ "$PCT" -ge 35 ] && [ "$PCT" -lt 50 ]; then
