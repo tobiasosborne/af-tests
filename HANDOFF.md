@@ -1,34 +1,23 @@
-# Handoff: 2026-02-01 (Session 94)
+# Handoff: 2026-02-01 (Session 95)
 
-## Attempted This Session
+## Completed This Session
 
-### af-643b (CommRing on PowerSubmodule) - IN PROGRESS
+### powerSubmodule_assoc - PROVEN ✓
 
-Attempted to add CommRing instance on PowerSubmodule. Key progress:
-- Added `Mul` and `One` instances (straightforward)
-- Added commutativity and identity lemmas (straightforward)
-- **Blocked on associativity proof**
-
-### Technical Challenge: Associativity via span_induction
-
-The associativity proof requires showing that for all `a, b, c ∈ PowerSubmodule x`:
-```
-(a ∘ b) ∘ c = a ∘ (b ∘ c)
+**New theorem in Primitive.lean:273-360:**
+```lean
+theorem powerSubmodule_assoc (x : J) {a b c : J}
+    (ha : a ∈ PowerSubmodule x) (hb : b ∈ PowerSubmodule x) (hc : c ∈ PowerSubmodule x) :
+    jmul (jmul a b) c = jmul a (jmul b c)
 ```
 
-**What works:**
-- For generators (powers): `jpow_assoc` gives `(xᵐ ∘ xⁿ) ∘ xᵖ = xᵐ ∘ (xⁿ ∘ xᵖ)`
+**Proof strategy:** Triple span extension using `LinearMap.eqOn_span'`:
+1. Step 1: For generators b=x^n, c=x^p, extend associativity over `a` in span
+2. Step 2: For generator c=x^p, extend over `b` in span
+3. Step 3: Extend over `c` in span
 
-**What's hard:**
-- Extending to the full span requires triple span_induction
-- `Submodule.span_induction` has a **dependent predicate** that makes nested induction complex
-- Tried defining a trilinear `jordanAssociator`, but the API doesn't match well
-
-**Approaches attempted:**
-1. Define `jordanAssociator : J →ₗ[ℝ] J →ₗ[ℝ] J →ₗ[ℝ] J` and use trilinearity - got stuck on dependent types
-2. Direct triple nested span_induction - API issues with clearing variables
-
-**Reverted changes** to keep build passing.
+**Key insight:** Define linear maps `f, g : J →ₗ[ℝ] J` that agree on generators (by jpow_assoc),
+then use `LinearMap.eqOn_span'` to extend equality to the full span.
 
 ---
 
@@ -38,32 +27,37 @@ The associativity proof requires showing that for all `a, b, c ∈ PowerSubmodul
 |--------|-------|
 | Total Sorries | **27** |
 | Build Status | **PASSING** |
-| Primitive.lean | PowerSubmodule defined, mul_closed proven |
+| New Theorem | `powerSubmodule_assoc` (87 LOC) |
 
 ---
 
 ## 🎯 NEXT STEP: af-643b (CommRing on PowerSubmodule) - CONTINUE
 
-### Recommended Approach (not yet tried)
+### Now Unblocked
 
-**Option 1: Simpler span lemma**
-Look for a mathlib lemma like `Submodule.span_eq_iSup_of_singleton_spans` or similar that allows proving properties on span from generators without dependent types.
+With `powerSubmodule_assoc` proven, the remaining axioms for CommRing are:
+- `mul_comm` - from `jmul_comm` ✓
+- `mul_assoc` - from `powerSubmodule_assoc` ✓ (NEW)
+- `one_mul`, `mul_one` - from `jone_jmul`, `jmul_jone`
+- `add_*` axioms - inherited from Submodule
+- Ring axioms (distributivity, zero, neg) - from bilinearity
 
-**Option 2: Polynomial quotient approach**
+### Implementation Pattern
+
 ```lean
--- Define evaluation: Polynomial ℝ → J
-def polyEval (x : J) : Polynomial ℝ →+* ???
--- PowerSubmodule x = image of polyEval
--- Inherit ring structure from Polynomial ℝ
+instance : CommRing (PowerSubmodule x) where
+  mul := fun ⟨a, ha⟩ ⟨b, hb⟩ => ⟨jmul a b, powerSubmodule_mul_closed x ha hb⟩
+  mul_assoc := fun ⟨a, ha⟩ ⟨b, hb⟩ ⟨c, hc⟩ => by
+    simp only [Subtype.mk.injEq]
+    exact powerSubmodule_assoc x ha hb hc
+  mul_comm := fun ⟨a, ha⟩ ⟨b, hb⟩ => by simp [jmul_comm]
+  one := ⟨jone, jone_mem_powerSubmodule x⟩
+  -- etc.
 ```
-
-**Option 3: Manual term-mode proof**
-Write explicit term-mode proof of associativity using `Submodule.span_induction` with careful handling of the dependent predicate.
 
 ### After CommRing
 - af-6yeo: IsArtinian and IsReduced
-- Apply structure theorem
-- Complete primitive_peirce_one_dim_one
+- Apply structure theorem to primitive_peirce_one_dim_one
 
 ---
 
@@ -74,46 +68,38 @@ af-yok1 ✓ (PowerSubmodule)
     ↓
 af-qc7s ✓ (powerSubmodule_mul_closed)
     ↓
-af-643b (CommRing instance) ← CURRENT - blocked on associativity
+powerSubmodule_assoc ✓ (NEW - Session 95)
+    ↓
+af-643b (CommRing instance) ← NEXT - now unblocked!
     ↓
 af-6yeo (IsArtinian + IsReduced)
     ↓
-primitive_peirce_one_dim_one (line 288)
+primitive_peirce_one_dim_one (line 376)
 ```
 
 ---
 
 ## Key Learnings This Session
 
-### span_induction Dependent Predicate Issue
+### Triple Span Extension Pattern
 
-`Submodule.span_induction` has signature:
-```lean
-Submodule.span_induction {p : (x : M) → x ∈ Submodule.span R s → Prop} ...
-```
+For proving trilinear identities on spans, use nested `LinearMap.eqOn_span'`:
+1. Fix two variables as generators, define linear maps in the third
+2. Show maps agree on generators (base case)
+3. Extend to span
+4. Repeat for each variable
 
-The predicate `p` depends on BOTH the element AND its membership proof. This makes triple induction hard because:
-1. Can't easily `clear` variables that appear in the goal
-2. Nested inductions create complex dependent type obligations
+This avoids the dependent predicate issue with `Submodule.span_induction`.
 
-### Trilinear Extension Pattern
+### Commutativity Handling
 
-For proving `f(a,b,c) = 0` on a span when it's zero on generators:
-1. Define `f` as trilinear map
-2. Show `f = 0` on generators
-3. Use trilinearity to extend
-
-This is conceptually correct but the Lean API makes it tricky.
+When using `L` operator (left multiplication), remember:
+- `L b a = jmul b a = b ∘ a`
+- Use `jmul_comm` to convert between `L b a` and `a ∘ b`
+- Calc chains help track the commutativity rewrites
 
 ---
 
-## Files NOT Modified (reverted)
+## Files Modified
 
-- `AfTests/Jordan/Primitive.lean` - reverted to working state
-
----
-
-## Known Issues
-
-- af-643b blocked on associativity proof approach
-- See LEARNINGS.md Session 94 for technical details
+- `AfTests/Jordan/Primitive.lean` - Added `powerSubmodule_assoc` (lines 273-360)
