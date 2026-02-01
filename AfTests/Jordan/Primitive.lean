@@ -384,6 +384,59 @@ noncomputable instance powerSubmodule_commRing (x : J) : CommRing ↥(PowerSubmo
   mul_zero := fun ⟨a, ha⟩ =>
     Subtype.ext (jmul_zero a)
 
+/-- Ring power on PowerSubmodule equals Jordan power.
+This connects the CommRing structure to Jordan algebra power associativity. -/
+theorem powerSubmodule_npow_eq_jpow (x : J) (a : ↥(PowerSubmodule x)) (n : ℕ) :
+    (a ^ n : ↥(PowerSubmodule x)).val = jpow a.val n := by
+  induction n with
+  | zero => simp only [pow_zero, jpow_zero]; rfl
+  | succ n ih =>
+    change (a ^ n * a).val = jpow a.val (n + 1)
+    have hmul : (a ^ n * a).val = jmul (a ^ n).val a.val := rfl
+    rw [hmul, ih, jpow_succ, jmul_comm]
+
+/-- PowerSubmodule forms an ℝ-scalar tower with its ring multiplication.
+This is needed for IsArtinianRing.of_finite. -/
+instance powerSubmodule_isScalarTower (x : J) :
+    IsScalarTower ℝ ↥(PowerSubmodule x) ↥(PowerSubmodule x) where
+  smul_assoc r a b := by
+    have h1 : (a : ↥(PowerSubmodule x)) • b = a * b := rfl
+    have h2 : (r • a) • b = (r • a) * b := rfl
+    rw [h1, h2]
+    ext
+    -- Goal: ((r • a) * b).val = (r • (a * b)).val
+    -- i.e., jmul (r • a.val) b.val = r • jmul a.val b.val
+    simp only [Submodule.coe_smul]
+    exact jmul_smul r a.val b.val
+
+/-- PowerSubmodule is Artinian as a ring.
+Follows from: ℝ is Artinian (field) and PowerSubmodule is finite-dimensional over ℝ. -/
+instance powerSubmodule_isArtinianRing [FinDimJordanAlgebra J] (x : J) :
+    IsArtinianRing ↥(PowerSubmodule x) :=
+  IsArtinianRing.of_finite ℝ ↥(PowerSubmodule x)
+
+/-- PowerSubmodule is reduced (no nilpotent elements).
+This follows from formal reality: if a^n = 0 then a = 0. -/
+instance powerSubmodule_isReduced [FormallyRealJordan J] (x : J) :
+    IsReduced ↥(PowerSubmodule x) := by
+  apply IsReduced.mk
+  intro a hnil
+  obtain ⟨n, hn⟩ := hnil
+  cases n with
+  | zero =>
+    -- a^0 = 1 = 0 means the ring is trivial
+    have h1eq0 : (1 : ↥(PowerSubmodule x)) = 0 := hn
+    calc a = a * 1 := (mul_one a).symm
+      _ = a * 0 := by rw [h1eq0]
+      _ = 0 := mul_zero a
+  | succ m =>
+    have hpow : jpow a.val (m + 1) = 0 := by
+      have := powerSubmodule_npow_eq_jpow x a (m + 1)
+      rw [hn] at this; simp at this; exact this.symm
+    have ha_zero : a.val = 0 :=
+      no_nilpotent_of_formallyReal (Nat.one_le_iff_ne_zero.mpr (Nat.succ_ne_zero m)) hpow
+    ext; exact ha_zero
+
 /-- For a primitive idempotent e, the Peirce 1-space is one-dimensional.
 This is the key step for H-O 2.9.4(ii).
 

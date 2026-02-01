@@ -1,20 +1,18 @@
-# Handoff: 2026-02-01 (Session 96)
+# Handoff: 2026-02-01 (Session 97)
 
 ## Completed This Session
 
-### powerSubmodule_commRing - IMPLEMENTED (af-643b)
+### af-6yeo: IsArtinian + IsReduced for PowerSubmodule - IMPLEMENTED
 
-**New instance in Primitive.lean:360-385:**
-```lean
-noncomputable instance powerSubmodule_commRing (x : J) : CommRing ↥(PowerSubmodule x) where
-  mul := fun ⟨a, ha⟩ ⟨b, hb⟩ => ⟨jmul a b, powerSubmodule_mul_closed x ha hb⟩
-  mul_assoc := fun ⟨a, ha⟩ ⟨b, hb⟩ ⟨c, hc⟩ => Subtype.ext (powerSubmodule_assoc x ha hb hc)
-  mul_comm := fun ⟨a, ha⟩ ⟨b, hb⟩ => Subtype.ext (jmul_comm a b)
-  one := ⟨jone, jone_mem_powerSubmodule x⟩
-  -- ...distributivity, identity laws from Jordan bilinearity
-```
+**New instances in Primitive.lean:387-435:**
 
-**Key insight:** Use `Subtype.ext` to prove equalities on subtype ring.
+1. `powerSubmodule_npow_eq_jpow` - Key lemma: ring power = Jordan power
+2. `powerSubmodule_isScalarTower` - ℝ-scalar tower instance
+3. `powerSubmodule_isArtinianRing` - From finite-dimensionality over ℝ
+4. `powerSubmodule_isReduced` - From no_nilpotent_of_formallyReal
+
+**Key insight:** Ring multiplication on PowerSubmodule is jmul, so ring power equals jpow.
+This lets us use `no_nilpotent_of_formallyReal` to prove IsReduced.
 
 ---
 
@@ -22,40 +20,29 @@ noncomputable instance powerSubmodule_commRing (x : J) : CommRing ↥(PowerSubmo
 
 | Metric | Value |
 |--------|-------|
-| Total Sorries | **27** (unchanged) |
+| Total Sorries | **27** (unchanged - infrastructure added) |
 | Build Status | **PASSING** |
-| New Instance | `powerSubmodule_commRing` (26 LOC) |
+| New Instances | 4 (47 LOC) |
 
 ---
 
-## 🎯 NEXT STEP: af-6yeo (IsArtinian + IsReduced)
+## 🎯 NEXT STEP: af-w3sf (Fill the sorry)
 
-### What's Needed
-
-To apply `artinian_reduced_is_product_of_fields`, we need:
-
-1. **IsArtinianRing (PowerSubmodule x)**
-   - Use `isArtinian_of_finite` or similar
-   - PowerSubmodule is finite-dimensional (subspace of fin-dim J)
-
-2. **IsReduced (PowerSubmodule x)**
-   - Use `IsReduced.mk` with `no_nilpotent_of_formallyReal`
-   - Key: ring power in PowerSubmodule = jpow
-
-### Mathlib Lemmas Found
+With IsArtinian and IsReduced now available, the next step is to fill the sorry
+in `primitive_peirce_one_dim_one` (line 454) by applying:
 
 ```lean
--- For IsArtinian
-isArtinian_of_finite : [Finite M] → IsArtinian R M
-isArtinian_submodule' : IsArtinian R M → IsArtinian R N  -- N ≤ M
-
--- For IsReduced
-IsReduced.mk : (∀ x, IsNilpotent x → x = 0) → IsReduced R
-no_nilpotent_of_formallyReal : jpow a n = 0 → a = 0
+artinian_reduced_is_product_of_fields : R ≃+* ((I : MaximalSpectrum R) → R ⧸ I.asIdeal)
 ```
 
-### After af-6yeo
-- af-w3sf: Apply structure theorem to fill sorry in `primitive_peirce_one_dim_one`
+### Implementation Path
+
+1. For `x ∈ PeirceSpace e 1`, construct `PowerSubmodule x` with identity e
+2. Apply `artinian_reduced_is_product_of_fields`
+3. Show identity decomposes as sum of field identities
+4. Use primitivity to force single field factor
+5. Use `formallyReal_field_is_real` to get F = ℝ
+6. Conclude x ∈ ℝ·e
 
 ---
 
@@ -68,17 +55,17 @@ af-qc7s ✓ (powerSubmodule_mul_closed)
     ↓
 powerSubmodule_assoc ✓ (Session 95)
     ↓
-af-643b ✓ (CommRing instance) ← DONE (Session 96)
+af-643b ✓ (CommRing instance) - Session 96
     ↓
-af-6yeo (IsArtinian + IsReduced) ← NEXT
+af-6yeo ✓ (IsArtinian + IsReduced) ← DONE (Session 97)
     ↓
-af-w3sf (Apply structure theorem)
+af-w3sf (Apply structure theorem) ← NEXT
     ↓
-primitive_peirce_one_dim_one (line 401 sorry)
+primitive_peirce_one_dim_one (line 454 sorry)
 ```
 
 ---
 
 ## Files Modified
 
-- `AfTests/Jordan/Primitive.lean` - Added `powerSubmodule_commRing` (lines 360-385)
+- `AfTests/Jordan/Primitive.lean` - Added 4 instances (lines 387-435)
