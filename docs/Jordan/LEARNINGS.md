@@ -4,6 +4,60 @@ Research findings from formalizing Jordan algebras in Lean 4.
 
 ---
 
+## Session 88: Operator Identity Correctness Issues
+
+### 🚨 WARNING: S9/S10 May Be Incorrect
+
+**Theorems in question:**
+- `opComm_double_idempotent` (OperatorIdentities.lean:179)
+- `L_e_L_a_L_e` (OperatorIdentities.lean:172)
+
+**Finding:** These identities are NOT in H-O and mathematical analysis suggests they may be FALSE.
+
+### Mathematical Analysis
+
+The double commutator expands to:
+```
+⟦L e, ⟦L e, L a⟧⟧ = L e ∘ L a + L a ∘ L e - 2 L e ∘ L a ∘ L e   (for e² = e)
+```
+
+The stated RHS is:
+```
+2 • L e ∘ₗ L a ∘ₗ L e - 2 • L (jmul e (jmul a e))
+```
+
+For equality, we'd need:
+```
+L e ∘ L a + L a ∘ L e = 4 L e ∘ L a ∘ L e - 2 L(e(ae))
+```
+
+This is NOT an obvious Jordan identity.
+
+### Action Taken
+
+- Issues af-cnnp (S9) and af-j60a (S10) marked as BLOCKED
+- Need concrete verification (e.g., 2×2 symmetric matrices) before proceeding
+- May need to reformulate or remove these theorems
+
+### Lesson Learned
+
+**Always verify unfamiliar operator identities on concrete examples before attempting proofs.**
+
+---
+
+## Session 88: Dead Code Elimination
+
+### `linearized_jordan_aux` Was Unused
+
+The private theorem `linearized_jordan_aux` in FundamentalFormula.lean was:
+- Defined with a sorry
+- Never called by any other theorem
+- Removed (saved 27 lines)
+
+**Lesson:** Check if sorry'd theorems are actually used before attempting proofs.
+
+---
+
 ## 🚨 CRITICAL: AXIOM GAPS (Session 67)
 
 **AXIOMS ARE EXTREME GAPS!** Adding axioms to typeclasses without concrete instances

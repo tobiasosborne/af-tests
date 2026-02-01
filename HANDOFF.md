@@ -1,19 +1,41 @@
-# Handoff: 2026-02-01 (Session 86)
+# Handoff: 2026-02-01 (Session 88)
 
 ## Completed This Session
 
-### Fixed Compilation Errors in `lagrange_idempotent_in_peirce_one`
+### 1. Created Comprehensive Sorry Elimination Plans
 
-Session 85 claimed "Build PASSES" but there were **4 compilation errors**. Fixed:
+Created detailed plans for all 21 actionable sorries in `docs/Jordan/`:
 
-1. **Line 226**: Added `← jsq_def` before `hquad` to match `jmul x x` to `jsq x`
-2. **Lines 229-231**: Added `hxe'` helper for `jmul x e = x` and used `simp only` for cross terms
-3. **Line 233**: Used `← jsq_def, he` instead of invalid `he.eq` for idempotent
-4. **Lines 234-236**: Changed `ring_nf; abel` to `module` for module equation
-5. **Lines 241-249**: Fixed `h_coeff_x` proof using `field_simp` + `Real.sq_sqrt`
-6. **Lines 263-275**: Fixed final assembly using `sub_eq_add_neg, ← neg_smul, congr 2, ring`
+| Document | Sorries Covered |
+|----------|-----------------|
+| `SORRY_MASTER_INDEX.md` | Master index with dependency graph |
+| `PLAN_Primitive.md` | 6 sorries |
+| `PLAN_SpectralTheorem.md` | 5 sorries |
+| `PLAN_FundamentalFormula.md` | 2 sorries |
+| `PLAN_FormallyReal.md` | 5 sorries (2 blocked) |
+| `PLAN_OperatorIdentities.md` | 3 sorries |
+| `PLAN_Classification.md` | 2 sorries |
 
-**Build now actually PASSES.**
+### 2. Registered 21 Beads Issues
+
+All sorries now have tracking issues with dependencies:
+- Phase 1 (P0): S1, S9, S10
+- Phase 2 (P1): S2, S7, S8, S11
+- Phase 3-6 (P2-P3): Remaining sorries
+
+### 3. Eliminated 2 Sorries
+
+| Issue | Theorem | Action | LOC |
+|-------|---------|--------|-----|
+| **af-6cwg** [S1] | `lagrange_idempotent_in_peirce_one` coeff | Proved with field_simp + nlinarith | +5 |
+| **af-uq6x** [S7] | `linearized_jordan_aux` | Removed (unused private theorem) | -27 |
+
+### 4. Identified Correctness Issues
+
+**S9 & S10 (`opComm_double_idempotent`, `L_e_L_a_L_e`) may be INCORRECT:**
+- Not directly in H-O reference
+- Mathematical analysis shows stated identity doesn't obviously hold
+- Issues updated with research findings, marked as blocked
 
 ---
 
@@ -21,71 +43,70 @@ Session 85 claimed "Build PASSES" but there were **4 compilation errors**. Fixed
 
 | Metric | Value |
 |--------|-------|
-| Total Sorries in Primitive.lean | 6 |
+| Total Sorries | **25** (was 27) |
+| Primitive.lean sorries | 5 (was 6) |
+| FundamentalFormula.lean sorries | 1 (was 2) |
 | Build Status | **PASSING** |
-| Key Fix | Compilation errors resolved |
 
 ---
 
-## Remaining Sorry in `lagrange_idempotent_in_peirce_one`
+## Sorry Status by File
 
-**Line 261**: `h_coeff_e` proof (algebraic computation)
-
-Need to prove: `(1/Δ)(s + μ²) = -(1/√Δ) * μ` where `μ = (r - √Δ)/2`
-
-**Algebraic verification** (correct but needs Lean proof):
-- μ² = (r² - 2r√Δ + Δ)/4
-- s + μ² = (4s + r² + Δ - 2r√Δ)/4 = (2Δ - 2r√Δ)/4 (using Δ = r² + 4s)
-- (1/Δ)(s + μ²) = (Δ - r√Δ)/(2Δ) = 1/2 - r/(2√Δ)
-- -μ/√Δ = -(r - √Δ)/(2√Δ) = -r/(2√Δ) + 1/2 ✓
-
-**Challenge**: `field_simp` introduces nested `√(√Δ²)` terms that `ring` can't handle.
+| File | Sorries | Key Blockers |
+|------|---------|--------------|
+| Primitive.lean | 5 | S2 unblocked (S1 done) |
+| SpectralTheorem.lean | 5 | Needs S6 |
+| FundamentalFormula.lean | 1 | S8 ready |
+| OperatorIdentities.lean | 2 | S9, S10 may be incorrect |
+| Quadratic.lean | 1 | Needs S8 |
+| FormallyReal/*.lean | 5 | 2 blocked (circular), 3 need spectral |
+| Classification/*.lean | 2 | Independent track |
 
 ---
 
-## Theorem Status in Primitive.lean
+## Next Steps (Priority Order)
 
-| Theorem | Status | Notes |
-|---------|--------|-------|
-| `lagrange_idempotent_in_peirce_one` | **1 sorry** | h_coeff_e algebraic computation |
-| `primitive_peirce_one_dim_one` | 1 sorry | Needs quadratic relation extraction |
-| `orthogonal_primitive_peirce_sq` | 1 sorry | |
-| `orthogonal_primitive_structure` | 1 sorry | |
-| `exists_primitive_decomp` | 1 sorry | |
-| `csoi_refine_primitive` | 1 sorry | |
+### Immediate (S2 now unblocked)
+1. **af-utz0** [S2] `primitive_peirce_one_dim_one` - P₁(e) is 1-dim for primitive e
+   - S1 dependency resolved
+   - Uses quadratic discriminant approach
+   - 60-80 LOC
 
----
+### High Priority
+2. **af-i8oo** [S8] `fundamental_formula` - U_{U_a(b)} = U_a U_b U_a
+   - THE central theorem
+   - 80-120 LOC, use direct calculation
 
-## Learnings
+### Independent Track
+3. **af-zi08** [S22] `RealSymmetricMatrix.isSimple`
+   - Matrix units approach
+   - No dependencies on main chain
 
-### Lean Patterns for Module/Scalar Algebra
-
-1. **Module equations**: Use `module` tactic, not `ring` or `abel`
-2. **Subtraction to addition**: `sub_eq_add_neg` then `← neg_smul`
-3. **Congr for smul**: `congr 2` to separate scalar and element
-4. **Square root simplification**: `field_simp` + `Real.sq_sqrt` for `√Δ * √Δ = Δ`
-5. **Nested sqrt issue**: `field_simp` introduces `√(√Δ²)` which `ring` can't handle
-
-### Idempotent Pattern
-```lean
--- For he : IsIdempotent e (which is jsq e = e):
-rw [← jsq_def, he]  -- converts jmul e e → jsq e → e
-```
-
----
-
-## Next Session Recommendations
-
-1. **Fill h_coeff_e sorry**: Try direct calculation without field_simp:
-   - Expand μ² manually
-   - Use `Real.sq_sqrt` to replace √Δ² = Δ before ring
-
-2. **Add quadratic relation lemma** for `primitive_peirce_one_dim_one`:
-   - `exists_quadratic_relation`: For x ∈ P₁(e), ∃ r s, jsq x = r • x + s • e
+### Research Needed
+4. **af-cnnp** [S9] `opComm_double_idempotent`
+   - Verify formula correctness on concrete examples
+   - May need reformulation or removal
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/Primitive.lean` — Fixed 4 compilation errors, 1 sorry remains in algebraic computation
+- `AfTests/Jordan/Primitive.lean` - Eliminated S1 sorry
+- `AfTests/Jordan/FundamentalFormula.lean` - Removed unused S7 theorem
+- `docs/Jordan/SORRY_MASTER_INDEX.md` - NEW: Master index
+- `docs/Jordan/PLAN_*.md` - NEW: 6 plan documents
 
+---
+
+## Key Discoveries
+
+1. **S7 was dead code** - `linearized_jordan_aux` defined but never called
+2. **S9/S10 may be incorrect** - Not in H-O, mathematical analysis inconclusive
+3. **Dependency chain clear** - S1 → S2 → S3-6 → S12-16 → S19-21
+
+---
+
+## Previous Session Context (Session 87)
+
+Created PLAN_FundamentalFormula.md. Identified that H-O proves fundamental_formula
+via Macdonald's theorem, not through linearized_jordan_aux.
