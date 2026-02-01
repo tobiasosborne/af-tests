@@ -70,11 +70,19 @@ Given:
 
 Need to show: `∃ μ, 0 ≤ μ ∧ jsq a = μ • (e + f)`
 
-Strategy:
-1. Show `r₁ = r₂` (call it `μ`) using orthogonality
-2. Show `c₀e = μ • f` and `c₀f = μ • e` (cross terms)
-3. Combine: `jsq a = μ • e + μ • f = μ • (e + f)`
-4. Non-negativity from formal reality (`jsq a ≥ 0` implies `μ ≥ 0`)
+**Proof sketch (Session 116 analysis):**
+1. `e + f` is idempotent (need lemma: `orthogonal_sum_isIdempotent`)
+2. `a ∈ P₁(e+f)` since `jmul (e+f) a = (1/2)a + (1/2)a = a`
+3. `jsq a ∈ P₁(e+f)` by Peirce rule P₁×P₁⊆P₁
+4. P₀(e)∩P₀(f) ⊆ P₀(e+f), disjoint from P₁(e+f)
+5. Therefore `jsq a = r₁ • e + r₂ • f` (no P₀∩P₀ component)
+6. **Key:** By symmetry of hypotheses in e↔f, also `jsq a = r₂ • e + r₁ • f`
+7. Comparing: `(r₁-r₂)(e-f) = 0`, and e,f linearly independent ⟹ `r₁ = r₂`
+8. **Non-negativity:** If `μ < 0`, form sum `jsq a + |μ|•e + |μ|•f = 0`, contradicting formal reality
+
+**Missing lemmas needed:**
+- `orthogonal_sum_isIdempotent : AreOrthogonal e f → IsIdempotent e → IsIdempotent f → IsIdempotent (e+f)`
+- `jmul_add_left : jmul (a + b) c = jmul a c + jmul b c` (or use L_add)
 
 ### Medium: Line 1205 (`exists_primitive_decomp`)
 Strong induction on dimension. The base case and non-primitive case are set up;
