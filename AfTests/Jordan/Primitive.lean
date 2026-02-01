@@ -257,8 +257,13 @@ theorem lagrange_idempotent_in_peirce_one [FormallyRealJordan J]
       -- s + μ² = s + (r² - 2r√Δ + Δ)/4 = (4s + r² + Δ - 2r√Δ)/4 = (2Δ - 2r√Δ)/4
       -- (1/Δ)(s + μ²) = (Δ - r√Δ)/(2Δ) = 1/2 - r/(2√Δ)
       -- -μ/√Δ = -(r - √Δ)/(2√Δ) = -r/(2√Δ) + 1/2
-      -- TODO: Complete algebraic computation
-      sorry
+      -- Key: √Δ ^ 2 = Δ
+      have hsq : Real.sqrt Δ ^ 2 = Δ := Real.sq_sqrt hΔ_nonneg
+      -- Clear denominators and verify algebraically
+      field_simp [hΔ_ne, hsqrt_ne]
+      -- Goal after field_simp: algebraic identity in √Δ, r, s, Δ
+      -- Use Δ = r² + 4s and √Δ² = Δ
+      nlinarith [sq_nonneg r, sq_nonneg (Real.sqrt Δ), hsq]
 
     -- Final assembly
     rw [h_coeff_x, h_coeff_e]
