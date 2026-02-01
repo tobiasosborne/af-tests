@@ -1,20 +1,25 @@
 #!/bin/bash
 # Context checkpoint hook - injects reminders at thresholds
 # Outputs JSON with additionalContext so warnings appear in Claude's context
+# Supports parallel sessions via session-specific temp files
 
-# File where statusLine writes current context percentage
-PCT_FILE="/tmp/claude-context-pct"
+# Read hook input (contains session_id)
+INPUT=$(cat)
 
-# Read percentage from file (written by statusLine)
+# Extract session_id from hook input (PostToolUse provides this!)
+SESSION_ID=$(echo "$INPUT" | jq -r '.session_id // empty' 2>/dev/null)
+[ -z "$SESSION_ID" ] && exit 0  # Can't work without session ID
+
+# Session-specific files (written by statusLine)
+PCT_FILE="/tmp/claude-context-pct-${SESSION_ID}"
+FLAG_DIR="/tmp/claude-checkpoint-flags-${SESSION_ID}"
+
+# Read percentage from session-specific file
 PCT=$(cat "$PCT_FILE" 2>/dev/null)
 
 # Exit if no percentage available
 [ -z "$PCT" ] || [ "$PCT" = "0" ] && exit 0
 
-# Session-specific flag directory
-SESSION_ID=$(cat /tmp/claude-session-id 2>/dev/null)
-[ -z "$SESSION_ID" ] && SESSION_ID="default"
-FLAG_DIR="/tmp/claude-checkpoint-flags-${SESSION_ID}"
 mkdir -p "$FLAG_DIR"
 
 # Function to output JSON with additionalContext

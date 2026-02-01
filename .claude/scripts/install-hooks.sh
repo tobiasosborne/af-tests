@@ -2,9 +2,10 @@
 # Install Claude Code hooks for af-tests project
 # Run this on each device to set up context checkpoint warnings
 #
-# IMPORTANT: The checkpoint hook requires a special statusLine that writes
-# context percentage to /tmp/claude-context-pct. PostToolUse hooks do NOT
-# receive context_window data - only statusLine does.
+# Architecture:
+# - statusLine writes context % to /tmp/claude-context-pct-{session_id}
+# - PostToolUse hook reads session_id from stdin, reads % from session-specific file
+# - This supports parallel Claude Code sessions without collision
 
 set -e
 
@@ -43,7 +44,7 @@ if [ ! -f "$SETTINGS_FILE" ]; then
   },
   "statusLine": {
     "type": "command",
-    "command": "input=$(cat); user=$(whoami); host=$(hostname -s); dir=$(pwd); usage=$(echo \"$input\" | jq '.context_window.current_usage'); if [ \"$usage\" != \"null\" ]; then current=$(echo \"$usage\" | jq '.input_tokens + .cache_creation_input_tokens + .cache_read_input_tokens'); size=$(echo \"$input\" | jq '.context_window.context_window_size'); pct=$((current * 100 / size)); echo \"$pct\" > /tmp/claude-context-pct; sid=$(echo \"$input\" | jq -r '.session_id // empty'); [ -n \"$sid\" ] && echo \"$sid\" > /tmp/claude-session-id; filled=$((pct / 5)); empty=$((20 - filled)); bar=''; i=0; while [ $i -lt $filled ]; do bar=\"${bar}█\"; i=$((i + 1)); done; i=0; while [ $i -lt $empty ]; do bar=\"${bar}░\"; i=$((i + 1)); done; printf '\\033[01;32m%s@%s\\033[00m:\\033[01;34m%s\\033[00m \\033[2m[\\033[00m%s \\033[01;33m%d%%\\033[00m\\033[2m]\\033[00m' \"$user\" \"$host\" \"$dir\" \"$bar\" \"$pct\"; else printf '\\033[01;32m%s@%s\\033[00m:\\033[01;34m%s\\033[00m' \"$user\" \"$host\" \"$dir\"; fi"
+    "command": "input=$(cat); user=$(whoami); host=$(hostname -s); dir=$(pwd); sid=$(echo \"$input\" | jq -r '.session_id // empty'); usage=$(echo \"$input\" | jq '.context_window.current_usage'); if [ \"$usage\" != \"null\" ]; then current=$(echo \"$usage\" | jq '.input_tokens + .cache_creation_input_tokens + .cache_read_input_tokens'); size=$(echo \"$input\" | jq '.context_window.context_window_size'); pct=$((current * 100 / size)); [ -n \"$sid\" ] && echo \"$pct\" > \"/tmp/claude-context-pct-${sid}\"; filled=$((pct / 5)); empty=$((20 - filled)); bar=''; i=0; while [ $i -lt $filled ]; do bar=\"${bar}█\"; i=$((i + 1)); done; i=0; while [ $i -lt $empty ]; do bar=\"${bar}░\"; i=$((i + 1)); done; printf '\\033[01;32m%s@%s\\033[00m:\\033[01;34m%s\\033[00m \\033[2m[\\033[00m%s \\033[01;33m%d%%\\033[00m\\033[2m]\\033[00m' \"$user\" \"$host\" \"$dir\" \"$bar\" \"$pct\"; else printf '\\033[01;32m%s@%s\\033[00m:\\033[01;34m%s\\033[00m' \"$user\" \"$host\" \"$dir\"; fi"
   }
 }
 SETTINGS
@@ -68,8 +69,7 @@ else
     ]
 EOF
     echo ""
-    echo "2. CRITICAL: Add/update statusLine to write context % to file:"
-    echo "   (The checkpoint hook reads from /tmp/claude-context-pct)"
+    echo "2. CRITICAL: Add/update statusLine to write context % to session-specific file:"
     echo ""
     echo "   See .claude/scripts/statusline-template.txt for the required command."
     echo ""
