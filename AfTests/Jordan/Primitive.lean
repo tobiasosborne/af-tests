@@ -1066,14 +1066,41 @@ The decomposition results below use *orthogonal* families of primitives.
 
 /-- In a finite-dimensional formally real Jordan algebra, every nonzero idempotent
 decomposes as a sum of primitive idempotents. -/
+/-- Helper: when jmul e f = f and both idempotent, e - f is idempotent. -/
+theorem sub_idempotent_of_jmul_eq {e f : J}
+    (he : IsIdempotent e) (hf : IsIdempotent f) (hef : jmul e f = f) : IsIdempotent (e - f) := by
+  unfold IsIdempotent at *
+  rw [jsq_def, sub_jmul, jmul_sub, jmul_sub]
+  rw [he, hef, jmul_comm f e, hef, hf]
+  ring
+
+/-- Helper: when jmul e f = f, f and (e - f) are orthogonal. -/
+theorem orthogonal_of_jmul_eq {e f : J}
+    (hf : IsIdempotent f) (hef : jmul e f = f) : AreOrthogonal f (e - f) := by
+  unfold AreOrthogonal
+  rw [jmul_sub, jmul_comm f e, hef, hf]
+  ring
+
 theorem exists_primitive_decomp [FinDimJordanAlgebra J] [FormallyRealJordan J]
     {e : J} (he : IsIdempotent e) (hne : e ≠ 0) :
     ∃ (k : ℕ) (p : Fin k → J),
       (∀ i, IsPrimitive (p i)) ∧ PairwiseOrthogonal p ∧ e = ∑ i, p i := by
-  -- Proof by strong induction on dimension:
-  -- Either e is primitive, or it decomposes as e = f + g with f, g orthogonal idempotents
-  -- In the latter case, apply induction to f and g
-  sorry
+  -- Base check: is e primitive?
+  by_cases hprim : IsPrimitive e
+  · -- e is primitive, done with k=1
+    use 1, ![e]
+    refine ⟨?_, ?_, ?_⟩
+    · intro i; fin_cases i; exact hprim
+    · exact pairwiseOrthogonal_singleton e
+    · simp
+  · -- e is not primitive: find proper sub-idempotent f with jmul e f = f
+    -- Key facts (proved above):
+    -- 1. sub_idempotent_of_jmul_eq: e - f is idempotent
+    -- 2. orthogonal_of_jmul_eq: f and (e - f) are orthogonal
+    -- 3. e = f + (e - f)
+    -- Then apply induction on finrank of PeirceSpace
+    -- TODO: Complete induction (needs finrank decreases)
+    sorry
 
 /-- A CSOI can be refined to a primitive CSOI. -/
 theorem csoi_refine_primitive [FinDimJordanAlgebra J] [FormallyRealJordan J]

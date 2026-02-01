@@ -2,9 +2,9 @@
 
 ## Session Summary
 
-**COMPLETED:** Proved `finrank ℝ P1PowerSubmodule = 1` (Primitive.lean:929). Key breakthrough: P1PowerSubmodule IS a field directly (skip F quotient entirely!). The unique maximal ideal → local ring → IsField → Field → prove formally real → AlgEquiv to ℝ → finrank = 1.
+**COMPLETED:** Proved `finrank ℝ P1PowerSubmodule = 1` (Primitive.lean:929). Added helper lemmas for idempotent decomposition.
 
-**Result:** Build passes. 4 sorries remain in Primitive.lean (down from 5).
+**Result:** Build passes. 4 sorries remain in Primitive.lean.
 
 ---
 
@@ -14,43 +14,50 @@
 |--------|-------|
 | Total Sorries | **4** (Primitive.lean) |
 | Build Status | **PASSING** |
-| Session Work | Eliminated finrank sorry, simpler than documented approach |
+| Session Work | Eliminated finrank sorry, added decomposition helpers |
+
+---
+
+## New Helper Lemmas Added
+
+```lean
+-- When jmul e f = f and both idempotent, e - f is idempotent
+theorem sub_idempotent_of_jmul_eq
+
+-- When jmul e f = f, f and (e - f) are orthogonal
+theorem orthogonal_of_jmul_eq
+```
+
+These are building blocks for `exists_primitive_decomp`.
 
 ---
 
 ## Remaining Sorries (Primitive.lean)
 
-1. **Line 1031** - `orthogonal_primitive_peirce_sq` (H-O 2.9.4(iv))
-2. **Line 1043** - `orthogonal_primitive_peirce_sq` (another goal)
-3. **Line 1076** - `exists_primitive_decomp` (primitive decomposition)
-4. **Line 1083** - `exists_primitive_decomp` (another goal)
+1. **Line ~1043** - `orthogonal_primitive_peirce_sq` (H-O 2.9.4(iv))
+2. **Line ~1055** - `orthogonal_primitive_structure`
+3. **Line ~1098** - `exists_primitive_decomp` - primitive case DONE, needs induction on finrank
+4. **Line ~1107** - `csoi_refine_primitive`
 
 ---
 
-## 🎯 NEXT STEP: Choose from
+## 🎯 NEXT STEP: Complete exists_primitive_decomp induction
 
-1. **af-lhxr** - `orthogonal_primitive_peirce_sq` (P1, lines 1031/1043)
-2. **af-hbnj** - `exists_primitive_decomp` (P1, lines 1076/1083)
+The primitive case is done. For non-primitive e:
+1. Find f with jmul e f = f, f ≠ 0, f ≠ e
+2. Use `sub_idempotent_of_jmul_eq`: e - f is idempotent
+3. Use `orthogonal_of_jmul_eq`: f and e - f are orthogonal
+4. Apply induction (need: finrank decreases when decomposing)
+
+Key insight: Induction on `Module.finrank ℝ (PeirceSpace e 1)` should work since:
+- primitive_peirce_one_dim_one shows dim P₁(e) = 1 iff e is primitive
+- Non-primitive means dim P₁(e) > 1, and f, (e-f) have smaller Peirce spaces
 
 ---
 
 ## Key Learning (Session 112)
 
-**Simpler approach:** Previous sessions tried going through F = P1PowerSubmodule ⧸ Ideal with complex explicit instances. But P1PowerSubmodule with unique maximal spectrum is already a local ring → field! Skip F entirely:
-
-```lean
-haveI : Subsingleton (MaximalSpectrum ↥(P1PowerSubmodule e x)) := hUnique.toSubsingleton
-haveI hLocal : IsLocalRing ↥(P1PowerSubmodule e x) := IsLocalRing.of_singleton_maximalSpectrum
-haveI hFieldI : IsField ↥(P1PowerSubmodule e x) := IsArtinianRing.isField_of_isReduced_of_isLocalRing _
-haveI hField : Field ↥(P1PowerSubmodule e x) := hFieldI.toField
--- Then prove formally real directly on P1PowerSubmodule
-```
-
----
-
-## Issues
-
-- `af-ipa0` - **CLOSED** (finrank proved)
-- `af-w3sf` - Unblocked (was blocked by af-ipa0)
-- `af-lhxr` - Ready (orthogonal_primitive_peirce_sq)
-- `af-hbnj` - Ready (exists_primitive_decomp)
+**P1PowerSubmodule is a field directly!** No need for quotient F. Chain:
+- Subsingleton MaximalSpectrum → IsLocalRing → IsField → Field
+- Prove formally real via P1PowerSubmodule_npow_eq_jpow
+- formallyReal_field_is_real → AlgEquiv to ℝ → finrank = 1
