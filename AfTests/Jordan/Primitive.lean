@@ -678,6 +678,33 @@ theorem P1PowerSubmodule_assoc (e x : J) (he : IsIdempotent e)
   simp only [f, g, LinearMap.comp_apply, jmulBilin_apply, L_apply] at h
   exact h
 
+/-- P1PowerSubmodule forms a commutative ring with identity e (not jone).
+The key ingredients are:
+- Associativity: `P1PowerSubmodule_assoc`
+- Commutativity: `jmul_comm`
+- Identity: e ∈ P1PowerSubmodule and e acts as identity on P₁(e)
+- Closure: `P1PowerSubmodule_mul_closed` -/
+noncomputable def P1PowerSubmodule_commRing (e x : J) (he : IsIdempotent e)
+    (hx : x ∈ PeirceSpace e 1) : CommRing ↥(P1PowerSubmodule e x) where
+  mul := fun ⟨a, ha⟩ ⟨b, hb⟩ => ⟨jmul a b, P1PowerSubmodule_mul_closed e x he hx ha hb⟩
+  mul_assoc := fun ⟨a, ha⟩ ⟨b, hb⟩ ⟨c, hc⟩ =>
+    Subtype.ext (P1PowerSubmodule_assoc e x he hx ha hb hc)
+  mul_comm := fun ⟨a, ha⟩ ⟨b, hb⟩ =>
+    Subtype.ext (jmul_comm a b)
+  one := ⟨e, e_mem_P1PowerSubmodule e x⟩
+  one_mul := fun ⟨a, ha⟩ =>
+    Subtype.ext (peirce_one_left_id (P1PowerSubmodule_le_peirceSpace e x he hx ha))
+  mul_one := fun ⟨a, ha⟩ =>
+    Subtype.ext (peirce_one_right_id (P1PowerSubmodule_le_peirceSpace e x he hx ha))
+  left_distrib := fun ⟨a, ha⟩ ⟨b, hb⟩ ⟨c, hc⟩ =>
+    Subtype.ext (jmul_add a b c)
+  right_distrib := fun ⟨a, ha⟩ ⟨b, hb⟩ ⟨c, hc⟩ =>
+    Subtype.ext (add_jmul a b c)
+  zero_mul := fun ⟨a, ha⟩ =>
+    Subtype.ext (zero_jmul a)
+  mul_zero := fun ⟨a, ha⟩ =>
+    Subtype.ext (jmul_zero a)
+
 /-- For a primitive idempotent e, the Peirce 1-space is one-dimensional.
 This is the key step for H-O 2.9.4(ii).
 
