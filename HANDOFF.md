@@ -1,23 +1,21 @@
-# Handoff: 2026-02-01 (Session 92)
+# Handoff: 2026-02-01 (Session 93)
 
 ## Completed This Session
 
-### 1. PowerSubmodule Definition (af-yok1) ✓ CLOSED
+### 1. powerSubmodule_mul_closed (af-qc7s) ✓ CLOSED
 
-Defined `PowerSubmodule` for the H-O 2.9.4(ii) proof:
+Proved the closure property using `LinearMap.BilinMap.apply_apply_mem_of_mem_span`:
+
+**Key insight:** Define `jmulBilin : J →ₗ[ℝ] J →ₗ[ℝ] J` as a bilinear map, then use mathlib's bilinear induction lemma to handle the span_induction technicalities.
 
 ```lean
-def PowerSubmodule (x : J) : Submodule ℝ J :=
-  Submodule.span ℝ (Set.range (jpow x))
+def jmulBilin : J →ₗ[ℝ] J →ₗ[ℝ] J where
+  toFun a := L a
+  map_add' a b := by ext c; simp only [L_apply, add_jmul, LinearMap.add_apply]
+  map_smul' r a := by ext c; simp only [L_apply, jmul_smul, LinearMap.smul_apply, RingHom.id_apply]
 ```
 
-**Theorems proven:**
-- `jpow_mem_powerSubmodule` - x^n ∈ PowerSubmodule x
-- `self_mem_powerSubmodule` - x ∈ PowerSubmodule x
-- `jone_mem_powerSubmodule` - jone ∈ PowerSubmodule x
-
-**Left with sorry (new issue af-qc7s):**
-- `powerSubmodule_mul_closed` - closure under jmul
+**Proof pattern:** For bilinear functions on spans, use `LinearMap.BilinMap.apply_apply_mem_of_mem_span`.
 
 ---
 
@@ -25,9 +23,9 @@ def PowerSubmodule (x : J) : Submodule ℝ J :=
 
 | Metric | Value |
 |--------|-------|
-| Total Sorries | **28** |
+| Total Sorries | **27** |
 | Build Status | **PASSING** |
-| Primitive.lean | PowerSubmodule defined |
+| Primitive.lean | PowerSubmodule closure proven |
 
 ---
 
@@ -35,16 +33,18 @@ def PowerSubmodule (x : J) : Submodule ℝ J :=
 
 **This is the critical path for H-O 2.9.4(ii).**
 
-The goal is to give `PowerSubmodule x` a `CommRing` structure:
-- Multiplication: jmul (closed by powerSubmodule_mul_closed)
-- Associativity: jpow_assoc (already proven in LinearizedJordan.lean)
-- Identity: jone (= jpow x 0)
+Now that `powerSubmodule_mul_closed` is proven, the next step is giving `PowerSubmodule x` a `CommRing` structure:
 
-**Location:** `AfTests/Jordan/Primitive.lean` (add after PowerSubmodule definition)
+- **Multiplication**: jmul (closed by `powerSubmodule_mul_closed`)
+- **Associativity**: `jpow_assoc` (proven in LinearizedJordan.lean)
+- **Identity**: jone (= jpow x 0)
+- **Commutativity**: `jmul_comm`
 
-**Approach:** Option B from issue - Subtype with ring structure
+**Approach options:**
+1. **Option B (Subtype):** Define mul on `↥(PowerSubmodule x)` using `powerSubmodule_mul_closed`
+2. **Option C (Polynomial):** Map `Polynomial ℝ → J` via aeval, use power-associativity
 
-**After this:** af-6yeo (IsArtinian + IsReduced) → complete primitive_peirce_one_dim_one
+**After CommRing:** af-6yeo (IsArtinian + IsReduced) → `primitive_peirce_one_dim_one`
 
 ---
 
@@ -53,21 +53,44 @@ The goal is to give `PowerSubmodule x` a `CommRing` structure:
 ```
 af-yok1 ✓ (PowerSubmodule)
     ↓
+af-qc7s ✓ (powerSubmodule_mul_closed)
+    ↓
 af-643b (CommRing instance) ← NEXT
     ↓
 af-6yeo (IsArtinian + IsReduced)
     ↓
-primitive_peirce_one_dim_one (line 270) ← MAIN GOAL
+primitive_peirce_one_dim_one (line 288) ← MAIN GOAL
 ```
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/Primitive.lean` - Added PowerSubmodule definition (~40 LOC)
+- `AfTests/Jordan/Primitive.lean`
+  - Added `import Mathlib.LinearAlgebra.Span.Basic`
+  - Added `jmulBilin` definition and simp lemma (~10 LOC)
+  - Proved `powerSubmodule_mul_closed` (~15 LOC)
 
 ---
 
-## Issues Created This Session
+## Key Learnings
 
-- **af-qc7s** (P2): Prove powerSubmodule_mul_closed (span_induction technicality)
+### Bilinear Closure Pattern
+
+For proving closure of spans under bilinear operations:
+
+```lean
+-- 1. Define the bilinear map
+def jmulBilin : J →ₗ[ℝ] J →ₗ[ℝ] J where
+  toFun a := L a
+  map_add' := ...
+  map_smul' := ...
+
+-- 2. Prove closure on generators
+have hbasis : ∀ y ∈ S, ∀ z ∈ S, jmulBilin y z ∈ span S := ...
+
+-- 3. Apply mathlib lemma
+exact LinearMap.BilinMap.apply_apply_mem_of_mem_span P S S jmulBilin hbasis a b ha hb
+```
+
+This avoids the dependent type issues with `Submodule.span_induction`.
