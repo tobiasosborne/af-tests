@@ -515,6 +515,169 @@ theorem P1PowerSubmodule_mul_closed (e x : J) (he : IsIdempotent e)
   exact LinearMap.BilinMap.apply_apply_mem_of_mem_span
     (Submodule.span ℝ S) S S jmulBilin hbasis a b ha hb
 
+/-- Associativity for P1PowerSubmodule: (a ∘ b) ∘ c = a ∘ (b ∘ c).
+This extends from generators {e} ∪ {x^{n+1}} using trilinearity and the fact
+that e acts as identity on P₁(e). -/
+theorem P1PowerSubmodule_assoc (e x : J) (he : IsIdempotent e)
+    (hx : x ∈ PeirceSpace e 1) {a b c : J}
+    (ha : a ∈ P1PowerSubmodule e x) (hb : b ∈ P1PowerSubmodule e x)
+    (hc : c ∈ P1PowerSubmodule e x) :
+    jmul (jmul a b) c = jmul a (jmul b c) := by
+  -- Generator set S = {e} ∪ {x^{n+1} | n ∈ ℕ}
+  let S := Set.insert e (Set.range fun n : ℕ => jpow x (n + 1))
+  have ha' : a ∈ Submodule.span ℝ S := ha
+  have hb' : b ∈ Submodule.span ℝ S := hb
+  have hc' : c ∈ Submodule.span ℝ S := hc
+  -- Key facts: e is identity on P₁(e), powers compose via jpow_add
+  have hgen_P1 : ∀ y ∈ S, y ∈ PeirceSpace e 1 := by
+    intro y hy
+    cases hy with
+    | inl h => rw [h]; exact idempotent_in_peirce_one he
+    | inr h => obtain ⟨n, hn⟩ := h; rw [← hn]; exact jpow_succ_mem_peirce_one he hx n
+  -- Associativity on generators: for y, z, w ∈ S, (y ∘ z) ∘ w = y ∘ (z ∘ w)
+  have hgen : ∀ y ∈ S, ∀ z ∈ S, ∀ w ∈ S,
+      jmul (jmul y z) w = jmul y (jmul z w) := by
+    intro y hy z hz w hw
+    -- Case analysis on y, z, w ∈ S
+    cases hy with
+    | inl hy_e =>
+      -- y = e: (e ∘ z) ∘ w = e ∘ (z ∘ w), and e acts as identity
+      rw [hy_e]
+      have hz_P1 := hgen_P1 z hz
+      have hw_P1 := hgen_P1 w hw
+      have hzw_P1 := peirce_mult_P1_P1 he hz_P1 hw_P1
+      rw [peirce_one_left_id hz_P1, peirce_one_left_id hzw_P1]
+    | inr hy_pow =>
+      -- y = x^{m+1}
+      obtain ⟨m, hm⟩ := hy_pow
+      rw [← hm]
+      cases hz with
+      | inl hz_e =>
+        -- z = e: (x^{m+1} ∘ e) ∘ w = x^{m+1} ∘ (e ∘ w)
+        rw [hz_e]
+        have hm_P1 := jpow_succ_mem_peirce_one he hx m
+        have hw_P1 := hgen_P1 w hw
+        rw [peirce_one_right_id hm_P1, peirce_one_left_id hw_P1]
+      | inr hz_pow =>
+        -- z = x^{n+1}
+        obtain ⟨n, hn⟩ := hz_pow
+        rw [← hn]
+        cases hw with
+        | inl hw_e =>
+          -- w = e: (x^{m+1} ∘ x^{n+1}) ∘ e = x^{m+1} ∘ (x^{n+1} ∘ e)
+          rw [hw_e]
+          have hmn_P1 : jmul (jpow x (m + 1)) (jpow x (n + 1)) ∈ PeirceSpace e 1 :=
+            peirce_mult_P1_P1 he (jpow_succ_mem_peirce_one he hx m)
+              (jpow_succ_mem_peirce_one he hx n)
+          have hn_P1 := jpow_succ_mem_peirce_one he hx n
+          rw [peirce_one_right_id hmn_P1, peirce_one_right_id hn_P1]
+        | inr hw_pow =>
+          -- w = x^{p+1}: (x^{m+1} ∘ x^{n+1}) ∘ x^{p+1} = x^{m+1} ∘ (x^{n+1} ∘ x^{p+1})
+          obtain ⟨p, hp⟩ := hw_pow
+          rw [← hp, jpow_add, jpow_add, jpow_add, jpow_add]
+          ring_nf
+  -- Step 1: For fixed generators z', w' ∈ S, prove ∀ y' ∈ span, assoc holds
+  have step1 : ∀ n p, ∀ y' ∈ Submodule.span ℝ S,
+      jmul (jmul y' (jpow x (n + 1))) (jpow x (p + 1)) =
+      jmul y' (jmul (jpow x (n + 1)) (jpow x (p + 1))) := by
+    intro n p y' hy'
+    -- Define linear maps f(y') = (y' ∘ x^{n+1}) ∘ x^{p+1} and g(y') = y' ∘ (x^{n+1} ∘ x^{p+1})
+    -- Using L and commutativity: f = L(x^{p+1}) ∘ L(x^{n+1}), g = L(x^{n+1} ∘ x^{p+1})
+    let f : J →ₗ[ℝ] J := (L (jpow x (p + 1))).comp (L (jpow x (n + 1)))
+    let g : J →ₗ[ℝ] J := L (jmul (jpow x (n + 1)) (jpow x (p + 1)))
+    have heq : Set.EqOn f g S := by
+      intro w hw
+      simp only [f, g, LinearMap.comp_apply, L_apply]
+      -- LHS: x^{p+1} ∘ (x^{n+1} ∘ w), RHS: (x^{n+1} ∘ x^{p+1}) ∘ w
+      -- By commutativity and hgen: both = w ∘ x^{n+1} ∘ x^{p+1}
+      calc jmul (jpow x (p + 1)) (jmul (jpow x (n + 1)) w)
+          = jmul (jmul (jpow x (n + 1)) w) (jpow x (p + 1)) := jmul_comm _ _
+        _ = jmul (jmul w (jpow x (n + 1))) (jpow x (p + 1)) := by rw [jmul_comm (jpow x (n + 1)) w]
+        _ = jmul w (jmul (jpow x (n + 1)) (jpow x (p + 1))) := by
+            exact hgen w hw (jpow x (n + 1)) (Set.mem_insert_of_mem e ⟨n, rfl⟩)
+              (jpow x (p + 1)) (Set.mem_insert_of_mem e ⟨p, rfl⟩)
+        _ = jmul (jmul (jpow x (n + 1)) (jpow x (p + 1))) w := jmul_comm _ _
+    have h := LinearMap.eqOn_span' heq hy'
+    simp only [f, g, LinearMap.comp_apply, L_apply] at h
+    calc jmul (jmul y' (jpow x (n + 1))) (jpow x (p + 1))
+        = jmul (jpow x (p + 1)) (jmul y' (jpow x (n + 1))) := jmul_comm _ _
+      _ = jmul (jpow x (p + 1)) (jmul (jpow x (n + 1)) y') := by rw [jmul_comm y']
+      _ = jmul (jmul (jpow x (n + 1)) (jpow x (p + 1))) y' := h
+      _ = jmul y' (jmul (jpow x (n + 1)) (jpow x (p + 1))) := jmul_comm _ _
+  -- Step 1': Same but with e as second or third argument
+  have step1_e_z : ∀ p, ∀ y' ∈ Submodule.span ℝ S,
+      jmul (jmul y' e) (jpow x (p + 1)) = jmul y' (jmul e (jpow x (p + 1))) := by
+    intro p y' hy'
+    have hp_P1 := jpow_succ_mem_peirce_one he hx p
+    rw [peirce_one_left_id hp_P1]
+    -- Need: (y' ∘ e) ∘ x^{p+1} = y' ∘ x^{p+1}
+    -- y' ∈ span S ⊆ P₁(e), so y' ∘ e = y'
+    have hy'_P1 : y' ∈ PeirceSpace e 1 :=
+      P1PowerSubmodule_le_peirceSpace e x he hx hy'
+    rw [peirce_one_right_id hy'_P1]
+  have step1_z_e : ∀ n, ∀ y' ∈ Submodule.span ℝ S,
+      jmul (jmul y' (jpow x (n + 1))) e = jmul y' (jmul (jpow x (n + 1)) e) := by
+    intro n y' hy'
+    have hn_P1 := jpow_succ_mem_peirce_one he hx n
+    rw [peirce_one_right_id hn_P1]
+    have hyn_P1 : jmul y' (jpow x (n + 1)) ∈ PeirceSpace e 1 := by
+      have hy'_P1 := P1PowerSubmodule_le_peirceSpace e x he hx hy'
+      exact peirce_mult_P1_P1 he hy'_P1 hn_P1
+    rw [peirce_one_right_id hyn_P1]
+  have step1_e_e : ∀ y' ∈ Submodule.span ℝ S,
+      jmul (jmul y' e) e = jmul y' (jmul e e) := by
+    intro y' hy'
+    have hy'_P1 := P1PowerSubmodule_le_peirceSpace e x he hx hy'
+    rw [peirce_one_right_id hy'_P1, ← jsq_def, he, peirce_one_right_id hy'_P1]
+  -- Step 1 general: covers all combinations of second and third arguments
+  have step1_gen : ∀ z ∈ S, ∀ w ∈ S, ∀ y' ∈ Submodule.span ℝ S,
+      jmul (jmul y' z) w = jmul y' (jmul z w) := by
+    intro z hz w hw y' hy'
+    cases hz with
+    | inl hz_e =>
+      rw [hz_e]
+      cases hw with
+      | inl hw_e => rw [hw_e]; exact step1_e_e y' hy'
+      | inr hw_pow => obtain ⟨p, hp⟩ := hw_pow; rw [← hp]; exact step1_e_z p y' hy'
+    | inr hz_pow =>
+      obtain ⟨n, hn⟩ := hz_pow
+      rw [← hn]
+      cases hw with
+      | inl hw_e => rw [hw_e]; exact step1_z_e n y' hy'
+      | inr hw_pow => obtain ⟨p, hp⟩ := hw_pow; rw [← hp]; exact step1 n p y' hy'
+  -- Step 2: For fixed w ∈ S, prove ∀ y', z' ∈ span, assoc holds
+  have step2 : ∀ w ∈ S, ∀ y' ∈ Submodule.span ℝ S, ∀ z' ∈ Submodule.span ℝ S,
+      jmul (jmul y' z') w = jmul y' (jmul z' w) := by
+    intro w hw y' hy' z' hz'
+    -- Fix y' and w, vary z'
+    let f : J →ₗ[ℝ] J := (L w).comp (jmulBilin y')
+    let g : J →ₗ[ℝ] J := (jmulBilin y').comp (L w)
+    have heq : Set.EqOn f g S := by
+      intro z hz
+      simp only [f, g, LinearMap.comp_apply, L_apply, jmulBilin_apply]
+      -- Need: w ∘ (y' ∘ z) = y' ∘ (w ∘ z)
+      -- By commutativity: (y' ∘ z) ∘ w = y' ∘ (z ∘ w), which is step1_gen
+      calc jmul w (jmul y' z)
+          = jmul (jmul y' z) w := jmul_comm _ _
+        _ = jmul y' (jmul z w) := step1_gen z hz w hw y' hy'
+        _ = jmul y' (jmul w z) := by rw [jmul_comm z w]
+    have h := LinearMap.eqOn_span' heq hz'
+    simp only [f, g, LinearMap.comp_apply, L_apply, jmulBilin_apply] at h
+    calc jmul (jmul y' z') w
+        = jmul w (jmul y' z') := jmul_comm _ _
+      _ = jmul y' (jmul w z') := h
+      _ = jmul y' (jmul z' w) := by rw [jmul_comm w z']
+  -- Step 3: For any y', z', w' ∈ span, assoc holds
+  let f : J →ₗ[ℝ] J := L (jmul a b)
+  let g : J →ₗ[ℝ] J := (jmulBilin a).comp (jmulBilin b)
+  have heq : Set.EqOn f g S := by
+    intro w hw
+    simp only [f, g, LinearMap.comp_apply, jmulBilin_apply, L_apply]
+    exact step2 w hw a ha' b hb'
+  have h := LinearMap.eqOn_span' heq hc'
+  simp only [f, g, LinearMap.comp_apply, jmulBilin_apply, L_apply] at h
+  exact h
+
 /-- For a primitive idempotent e, the Peirce 1-space is one-dimensional.
 This is the key step for H-O 2.9.4(ii).
 
