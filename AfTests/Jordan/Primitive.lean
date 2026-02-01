@@ -927,24 +927,28 @@ theorem primitive_peirce_one_dim_one [FinDimJordanAlgebra J] [FormallyRealJordan
     -- Key: P1PowerSubmodule is formally real and a field, so dim ℝ P1PowerSubmodule = 1
     -- This means x = a • e for some a
     have h_finrank_one : Module.finrank ℝ ↥(P1PowerSubmodule e x) = 1 := by
-      -- VERIFIED APPROACH (Session 111): All steps compile in multi_attempt.
-      -- Key insight: Use @RingEquiv.toLinearEquiv with explicit Module instances
-      -- to bypass typeclass resolution timeout.
-      --
-      -- The full proof structure:
-      -- 1. P1PowerSubmodule is local (unique maximal) → field (IsField)
-      -- 2. maximalIdeal = ⊥ (field has trivial maximal ideal)
-      -- 3. F = P1PowerSubmodule/⊥ ≃+* P1PowerSubmodule via RingEquiv.quotientBot
-      -- 4. Set up Algebra ℝ instances explicitly (Algebra.ofModule for P1, Ideal.instAlgebraQuotient for F)
-      -- 5. Build LinearEquiv via @RingEquiv.toLinearEquiv with explicit hModF (Algebra.toModule)
-      -- 6. Prove F formally real: transfer sums of squares via ψ, use P1PowerSubmodule_npow_eq_jpow
-      --    to convert ring power to Jordan power, apply FormallyRealJordan.sum_sq_eq_zero
-      -- 7. formallyReal_field_is_real gives F ≃ₐ[ℝ] ℝ, so finrank F = 1
-      -- 8. Transfer via ψL.finrank_eq to get finrank P1PowerSubmodule = 1
-      --
-      -- BLOCKER: Instance resolution for Module.Finite ℝ F (quotient of ideal) not automatic.
-      -- Need explicit FiniteDimensional instance for ideal quotients.
-      sorry
+      -- P1PowerSubmodule IS a field! Skip the F quotient entirely.
+      haveI : Subsingleton (MaximalSpectrum ↥(P1PowerSubmodule e x)) := hUnique.toSubsingleton
+      haveI hLocal : IsLocalRing ↥(P1PowerSubmodule e x) := IsLocalRing.of_singleton_maximalSpectrum
+      haveI hFieldI : IsField ↥(P1PowerSubmodule e x) :=
+        IsArtinianRing.isField_of_isReduced_of_isLocalRing _
+      haveI hField : Field ↥(P1PowerSubmodule e x) := hFieldI.toField
+      -- P1PowerSubmodule is formally real
+      have hFR_P1 : ∀ (m : ℕ) (a : Fin m → ↥(P1PowerSubmodule e x)),
+          (∑ i, a i ^ 2) = 0 → ∀ i, a i = 0 := by
+        intro m a hsum i
+        have hsum_val : (∑ j, (a j) ^ 2).val = 0 := by rw [hsum]; rfl
+        simp only [Submodule.coe_sum] at hsum_val
+        conv at hsum_val => lhs; arg 2; ext j
+          rw [P1PowerSubmodule_npow_eq_jpow e x he.isIdempotent hx (a j) 2 (by norm_num : 2 ≥ 1)]
+        have hall := FormallyRealJordan.sum_sq_eq_zero m (fun j => (a j).val) hsum_val
+        exact Subtype.ext (hall i)
+      -- Get the AlgEquiv to ℝ
+      obtain ⟨φ⟩ := formallyReal_field_is_real ↥(P1PowerSubmodule e x) hFR_P1
+      -- Use the AlgEquiv to get finrank = 1
+      have := φ.toLinearEquiv.finrank_eq
+      simp only [Module.finrank_self] at this
+      exact this.symm
     have h_eq : ∀ w : ↥(P1PowerSubmodule e x), ∃ c : ℝ, c • (⟨e, e_mem_P1PowerSubmodule e x⟩ : ↥(P1PowerSubmodule e x)) = w := by
       have he_ne' : (⟨e, e_mem_P1PowerSubmodule e x⟩ : ↥(P1PowerSubmodule e x)) ≠ 0 := by
         intro h
