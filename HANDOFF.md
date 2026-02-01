@@ -1,21 +1,34 @@
-# Handoff: 2026-02-01 (Session 93)
+# Handoff: 2026-02-01 (Session 94)
 
-## Completed This Session
+## Attempted This Session
 
-### 1. powerSubmodule_mul_closed (af-qc7s) ✓ CLOSED
+### af-643b (CommRing on PowerSubmodule) - IN PROGRESS
 
-Proved the closure property using `LinearMap.BilinMap.apply_apply_mem_of_mem_span`:
+Attempted to add CommRing instance on PowerSubmodule. Key progress:
+- Added `Mul` and `One` instances (straightforward)
+- Added commutativity and identity lemmas (straightforward)
+- **Blocked on associativity proof**
 
-**Key insight:** Define `jmulBilin : J →ₗ[ℝ] J →ₗ[ℝ] J` as a bilinear map, then use mathlib's bilinear induction lemma to handle the span_induction technicalities.
+### Technical Challenge: Associativity via span_induction
 
-```lean
-def jmulBilin : J →ₗ[ℝ] J →ₗ[ℝ] J where
-  toFun a := L a
-  map_add' a b := by ext c; simp only [L_apply, add_jmul, LinearMap.add_apply]
-  map_smul' r a := by ext c; simp only [L_apply, jmul_smul, LinearMap.smul_apply, RingHom.id_apply]
+The associativity proof requires showing that for all `a, b, c ∈ PowerSubmodule x`:
+```
+(a ∘ b) ∘ c = a ∘ (b ∘ c)
 ```
 
-**Proof pattern:** For bilinear functions on spans, use `LinearMap.BilinMap.apply_apply_mem_of_mem_span`.
+**What works:**
+- For generators (powers): `jpow_assoc` gives `(xᵐ ∘ xⁿ) ∘ xᵖ = xᵐ ∘ (xⁿ ∘ xᵖ)`
+
+**What's hard:**
+- Extending to the full span requires triple span_induction
+- `Submodule.span_induction` has a **dependent predicate** that makes nested induction complex
+- Tried defining a trilinear `jordanAssociator`, but the API doesn't match well
+
+**Approaches attempted:**
+1. Define `jordanAssociator : J →ₗ[ℝ] J →ₗ[ℝ] J →ₗ[ℝ] J` and use trilinearity - got stuck on dependent types
+2. Direct triple nested span_induction - API issues with clearing variables
+
+**Reverted changes** to keep build passing.
 
 ---
 
@@ -25,26 +38,32 @@ def jmulBilin : J →ₗ[ℝ] J →ₗ[ℝ] J where
 |--------|-------|
 | Total Sorries | **27** |
 | Build Status | **PASSING** |
-| Primitive.lean | PowerSubmodule closure proven |
+| Primitive.lean | PowerSubmodule defined, mul_closed proven |
 
 ---
 
-## 🎯 NEXT STEP: af-643b (CommRing on PowerSubmodule)
+## 🎯 NEXT STEP: af-643b (CommRing on PowerSubmodule) - CONTINUE
 
-**This is the critical path for H-O 2.9.4(ii).**
+### Recommended Approach (not yet tried)
 
-Now that `powerSubmodule_mul_closed` is proven, the next step is giving `PowerSubmodule x` a `CommRing` structure:
+**Option 1: Simpler span lemma**
+Look for a mathlib lemma like `Submodule.span_eq_iSup_of_singleton_spans` or similar that allows proving properties on span from generators without dependent types.
 
-- **Multiplication**: jmul (closed by `powerSubmodule_mul_closed`)
-- **Associativity**: `jpow_assoc` (proven in LinearizedJordan.lean)
-- **Identity**: jone (= jpow x 0)
-- **Commutativity**: `jmul_comm`
+**Option 2: Polynomial quotient approach**
+```lean
+-- Define evaluation: Polynomial ℝ → J
+def polyEval (x : J) : Polynomial ℝ →+* ???
+-- PowerSubmodule x = image of polyEval
+-- Inherit ring structure from Polynomial ℝ
+```
 
-**Approach options:**
-1. **Option B (Subtype):** Define mul on `↥(PowerSubmodule x)` using `powerSubmodule_mul_closed`
-2. **Option C (Polynomial):** Map `Polynomial ℝ → J` via aeval, use power-associativity
+**Option 3: Manual term-mode proof**
+Write explicit term-mode proof of associativity using `Submodule.span_induction` with careful handling of the dependent predicate.
 
-**After CommRing:** af-6yeo (IsArtinian + IsReduced) → `primitive_peirce_one_dim_one`
+### After CommRing
+- af-6yeo: IsArtinian and IsReduced
+- Apply structure theorem
+- Complete primitive_peirce_one_dim_one
 
 ---
 
@@ -55,42 +74,46 @@ af-yok1 ✓ (PowerSubmodule)
     ↓
 af-qc7s ✓ (powerSubmodule_mul_closed)
     ↓
-af-643b (CommRing instance) ← NEXT
+af-643b (CommRing instance) ← CURRENT - blocked on associativity
     ↓
 af-6yeo (IsArtinian + IsReduced)
     ↓
-primitive_peirce_one_dim_one (line 288) ← MAIN GOAL
+primitive_peirce_one_dim_one (line 288)
 ```
 
 ---
 
-## Files Modified This Session
+## Key Learnings This Session
 
-- `AfTests/Jordan/Primitive.lean`
-  - Added `import Mathlib.LinearAlgebra.Span.Basic`
-  - Added `jmulBilin` definition and simp lemma (~10 LOC)
-  - Proved `powerSubmodule_mul_closed` (~15 LOC)
+### span_induction Dependent Predicate Issue
 
----
-
-## Key Learnings
-
-### Bilinear Closure Pattern
-
-For proving closure of spans under bilinear operations:
-
+`Submodule.span_induction` has signature:
 ```lean
--- 1. Define the bilinear map
-def jmulBilin : J →ₗ[ℝ] J →ₗ[ℝ] J where
-  toFun a := L a
-  map_add' := ...
-  map_smul' := ...
-
--- 2. Prove closure on generators
-have hbasis : ∀ y ∈ S, ∀ z ∈ S, jmulBilin y z ∈ span S := ...
-
--- 3. Apply mathlib lemma
-exact LinearMap.BilinMap.apply_apply_mem_of_mem_span P S S jmulBilin hbasis a b ha hb
+Submodule.span_induction {p : (x : M) → x ∈ Submodule.span R s → Prop} ...
 ```
 
-This avoids the dependent type issues with `Submodule.span_induction`.
+The predicate `p` depends on BOTH the element AND its membership proof. This makes triple induction hard because:
+1. Can't easily `clear` variables that appear in the goal
+2. Nested inductions create complex dependent type obligations
+
+### Trilinear Extension Pattern
+
+For proving `f(a,b,c) = 0` on a span when it's zero on generators:
+1. Define `f` as trilinear map
+2. Show `f = 0` on generators
+3. Use trilinearity to extend
+
+This is conceptually correct but the Lean API makes it tricky.
+
+---
+
+## Files NOT Modified (reverted)
+
+- `AfTests/Jordan/Primitive.lean` - reverted to working state
+
+---
+
+## Known Issues
+
+- af-643b blocked on associativity proof approach
+- See LEARNINGS.md Session 94 for technical details

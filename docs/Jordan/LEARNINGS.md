@@ -1770,6 +1770,80 @@ The closure property `powerSubmodule_mul_closed` uses `jpow_add`:
 
 ---
 
+## Session 94: CommRing on PowerSubmodule - span_induction Challenges
+
+### Goal
+
+Give PowerSubmodule a CommRing structure for H-O 2.9.4(ii) proof.
+
+### What's Easy
+
+- `Mul` instance: `⟨a, ha⟩ * ⟨b, hb⟩ := ⟨jmul a b, powerSubmodule_mul_closed x ha hb⟩`
+- `One` instance: `⟨jone, jone_mem_powerSubmodule x⟩`
+- Commutativity: `jmul_comm`
+- Identity laws: `jone_jmul`
+
+### What's Hard: Associativity
+
+Need to prove for all `a, b, c ∈ PowerSubmodule x`:
+```
+(a ∘ b) ∘ c = a ∘ (b ∘ c)
+```
+
+On generators this is `jpow_assoc`. Extending to span is the challenge.
+
+### span_induction Dependent Predicate Problem
+
+`Submodule.span_induction` has type:
+```lean
+Submodule.span_induction {p : (x : M) → x ∈ Submodule.span R s → Prop}
+    (mem : ∀ x (h : x ∈ s), p x ⋯)
+    (zero : p 0 ⋯)
+    (add : ∀ x y hx hy, p x hx → p y hy → p (x + y) ⋯)
+    (smul : ∀ r x hx, p x hx → p (r • x) ⋯)
+    {x : M} (hx : x ∈ Submodule.span R s) : p x hx
+```
+
+The predicate `p` takes BOTH element AND membership proof. This creates problems:
+1. Cannot `clear` the original variables (goal depends on them)
+2. Nested inductions create complex dependent type goals
+3. Goals like `⊢ Type ?u` or `⊢ Semiring sorry` appear
+
+### Attempted Approaches
+
+**1. Trilinear jordanAssociator:**
+```lean
+def jordanAssociator : J →ₗ[ℝ] J →ₗ[ℝ] J →ₗ[ℝ] J where
+  toFun a b c := jmul (jmul a b) c - jmul a (jmul b c)
+  ...
+```
+Then show it's zero on all triples from span. Got stuck on nested induction API.
+
+**2. Direct triple span_induction:**
+Tried nesting three span_induction calls. Same dependent type issues.
+
+### Recommended Approach (for next session)
+
+**Option A: Find simpler span lemma**
+Look for mathlib lemmas that don't have dependent predicates, or use `Submodule.span_le` style arguments.
+
+**Option B: Polynomial quotient**
+Map `Polynomial ℝ → J` via evaluation at x. PowerSubmodule = image. Ring structure inherited.
+
+**Option C: Manual term-mode proof**
+Carefully construct proof term avoiding tactic-mode issues with `refine`.
+
+### Key Insight
+
+The bilinear closure proof (`powerSubmodule_mul_closed`) uses:
+```lean
+LinearMap.BilinMap.apply_apply_mem_of_mem_span
+```
+
+A similar trilinear version might exist or could be proven. This would directly give associativity extension from generators to span.
+
+---
+
 ## References
 
 - Hanche-Olsen & Størmer, *Jordan Operator Algebras* (see `examples3/Jordan Operator Algebras/`)
