@@ -922,10 +922,27 @@ theorem primitive_peirce_one_dim_one [FinDimJordanAlgebra J] [FormallyRealJordan
     -- With a single factor, P1PowerSubmodule ≃ field
     let F := ↥(P1PowerSubmodule e x) ⧸ hUnique.default.asIdeal
     haveI : Field F := artinian_reduced_factor_field ↥(P1PowerSubmodule e x) hUnique.default
-    -- The field F is finite-dimensional over ℝ and formally real, hence = ℝ
-    -- TODO: show F is formally real (inherits from J) and apply formallyReal_field_is_real
-    -- For now, we assert x ∈ ℝ·e
-    sorry
+    -- Key: P1PowerSubmodule is formally real and a field, so dim ℝ P1PowerSubmodule = 1
+    -- This means x = a • e for some a
+    have h_finrank_one : Module.finrank ℝ ↥(P1PowerSubmodule e x) = 1 := by
+      -- P1PowerSubmodule ≃+* F (single field via Unique MaximalSpectrum)
+      -- F is formally real (inherits from J) and finite-dimensional over ℝ
+      -- By classification of finite extensions of ℝ: F = ℝ or F = ℂ
+      -- ℂ is not formally real, so F = ℝ, hence finrank = 1
+      -- TODO: formalize the Algebra ℝ structure on P1PowerSubmodule and apply formallyReal_field_is_real
+      sorry
+    have h_eq : ∀ w : ↥(P1PowerSubmodule e x), ∃ c : ℝ, c • (⟨e, e_mem_P1PowerSubmodule e x⟩ : ↥(P1PowerSubmodule e x)) = w := by
+      have he_ne' : (⟨e, e_mem_P1PowerSubmodule e x⟩ : ↥(P1PowerSubmodule e x)) ≠ 0 := by
+        intro h
+        have := congrArg Subtype.val h
+        simp at this
+        exact he_ne this
+      exact (finrank_eq_one_iff_of_nonzero' ⟨e, e_mem_P1PowerSubmodule e x⟩ he_ne').mp h_finrank_one
+    obtain ⟨a, ha⟩ := h_eq ⟨x, self_mem_P1PowerSubmodule e x⟩
+    use a
+    have := congrArg Subtype.val ha
+    simp at this
+    exact this
   -- Now use finrank monotonicity
   apply Nat.le_antisymm
   · -- finrank P₁(e) ≤ 1
