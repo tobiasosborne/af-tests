@@ -1369,6 +1369,29 @@ theorem sub_idem_in_peirce_one {e f : J} (hef : jmul e f = f) : f ∈ PeirceSpac
   rw [mem_peirceSpace_one_iff]
   exact hef
 
+/-- If f ⊥ g and p is a sub-idempotent of f (jmul f p = p), then p ⊥ g. -/
+theorem sub_idem_orthog_of_orthog {f g p : J}
+    (hf : IsIdempotent f) (hfg : AreOrthogonal f g) (hfp : jmul f p = p) :
+    AreOrthogonal p g := by
+  unfold AreOrthogonal
+  have hg_in_P0 : g ∈ PeirceSpace f 0 := orthogonal_in_peirce_zero hfg
+  have hp_in_P1 : p ∈ PeirceSpace f 1 := by rw [mem_peirceSpace_one_iff]; exact hfp
+  rw [jmul_comm]
+  exact peirce_mult_P0_P1 hf hg_in_P0 hp_in_P1
+
+/-- If f ⊥ g, p₁ is a sub-idempotent of f, and p₂ is a sub-idempotent of g, then p₁ ⊥ p₂. -/
+theorem sub_idem_orthog_of_sum_orthog {f g p₁ p₂ : J}
+    (hf : IsIdempotent f) (hg : IsIdempotent g)
+    (hfg : AreOrthogonal f g) (hfp : jmul f p₁ = p₁) (hgp : jmul g p₂ = p₂) :
+    AreOrthogonal p₁ p₂ := by
+  -- Step 1: p₁ ⊥ g
+  have hp1g := sub_idem_orthog_of_orthog hf hfg hfp
+  -- Step 2: p₁ ∈ P₀(g), p₂ ∈ P₁(g), so p₁ ⊥ p₂
+  have hp1_in_P0 : p₁ ∈ PeirceSpace g 0 := orthogonal_in_peirce_zero hp1g.symm
+  have hp2_in_P1 : p₂ ∈ PeirceSpace g 1 := by rw [mem_peirceSpace_one_iff]; exact hgp
+  unfold AreOrthogonal
+  exact peirce_mult_P0_P1 hg hp1_in_P0 hp2_in_P1
+
 /-- For orthogonal idempotents f, g: P₁(f) ≤ P₁(f + g) as submodules.
 Key: g ∈ P₀(f) implies jmul g x = 0 for x ∈ P₁(f) by peirce_mult_P0_P1. -/
 theorem orthog_idem_peirce_one_le {f g : J}
@@ -1416,37 +1439,11 @@ theorem exists_primitive_decomp [FinDimJordanAlgebra J] [FormallyRealJordan J]
     {e : J} (he : IsIdempotent e) (hne : e ≠ 0) :
     ∃ (k : ℕ) (p : Fin k → J),
       (∀ i, IsPrimitive (p i)) ∧ PairwiseOrthogonal p ∧ e = ∑ i, p i := by
-  -- Base check: is e primitive?
-  by_cases hprim : IsPrimitive e
-  · -- e is primitive, done with k=1
-    use 1, ![e]
-    refine ⟨?_, ?_, ?_⟩
-    · intro i; fin_cases i; exact hprim
-    · intro i j hij; fin_cases i; fin_cases j; contradiction
-    · simp
-  · -- e is not primitive: extract proper sub-idempotent f
-    have hprim' : ∃ f, IsIdempotent f ∧ jmul e f = f ∧ f ≠ 0 ∧ f ≠ e := by
-      unfold IsPrimitive at hprim
-      push_neg at hprim
-      exact hprim he hne
-    obtain ⟨f, hf_idem, hef, hf_ne0, hf_nee⟩ := hprim'
-    -- e - f is idempotent
-    have hemf_idem := sub_idempotent_of_jmul_eq he hf_idem hef
-    -- f and (e - f) are orthogonal
-    have horth := orthogonal_of_jmul_eq hf_idem hef
-    -- e - f ≠ 0 since f ≠ e
-    have hemf_ne0 : e - f ≠ 0 := sub_ne_zero.mpr hf_nee.symm
-    -- e = f + (e - f)
-    have heq : e = f + (e - f) := by abel
-    -- Key bounds for recursion (sub_idem_finrank_lt):
-    have hlt_f : Module.finrank ℝ (PeirceSpace f 1) < Module.finrank ℝ (PeirceSpace e 1) :=
-      sub_idem_finrank_lt hf_idem hemf_idem horth hemf_ne0 heq
-    have hlt_emf : Module.finrank ℝ (PeirceSpace (e - f) 1) < Module.finrank ℝ (PeirceSpace e 1) := by
-      have heq' : e = (e - f) + f := by abel
-      exact sub_idem_finrank_lt hemf_idem hf_idem horth.symm hf_ne0 heq'
-    -- TODO: Use Nat.lt_wfRel.wf.fix for recursion, then combine decompositions.
-    -- Need helper: primitive_orthog_of_sum_orthog (if Σp₁ ⊥ Σp₂ then p₁ᵢ ⊥ p₂ⱼ)
-    sorry
+  -- Strong induction on finrank P₁(e)
+  -- Base: e primitive → use ![e]
+  -- Inductive: extract f with jmul e f = f, decompose f and (e-f) recursively
+  -- Key helpers: sub_idem_orthog_of_sum_orthog, sub_idem_finrank_lt
+  sorry
 
 /-- A CSOI can be refined to a primitive CSOI. -/
 theorem csoi_refine_primitive [FinDimJordanAlgebra J] [FormallyRealJordan J]

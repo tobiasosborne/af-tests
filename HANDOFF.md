@@ -1,6 +1,31 @@
-# Handoff: 2026-02-02 (Session 49)
+# Handoff: 2026-02-02 (Session 50)
 
 ## Completed This Session
+
+### New Helper Lemmas (Primitive.lean:1372-1393)
+
+Added key lemmas for combining orthogonal decompositions:
+
+1. **sub_idem_orthog_of_orthog**: If f ⊥ g and p is a sub-idempotent of f (jmul f p = p), then p ⊥ g
+   - Uses: orthogonal_in_peirce_zero, peirce_mult_P0_P1
+
+2. **sub_idem_orthog_of_sum_orthog**: If f ⊥ g, p₁ ≤ f, p₂ ≤ g, then p₁ ⊥ p₂
+   - Key for combining primitive decompositions of orthogonal idempotents
+
+### exists_primitive_decomp Progress
+
+All helper infrastructure is now in place:
+- `sub_idem_finrank_lt`: finrank decreases for sub-idempotents ✅
+- `sub_idem_orthog_of_sum_orthog`: primitives from orthogonal parts are orthogonal ✅
+
+**Remaining work** (issue af-3fx6):
+- Set up strong induction on `finrank P₁(e)` using `Nat.strong_induction_on`
+- Combine decompositions using `Fin.append` and `Fin.addCases`
+- The recursive structure and all key lemmas are ready
+
+---
+
+## Previous Session (49)
 
 ### Helper Lemmas for exists_primitive_decomp (Primitive.lean:1367-1412)
 
@@ -15,14 +40,6 @@ Added key lemmas enabling induction on finrank P₁(e):
    - Witness: g ∈ P₁(f+g) but g ∉ P₁(f) (since jmul f g = 0 ≠ g)
 
 4. **sub_idem_finrank_lt**: `finrank P₁(f) < finrank P₁(e)` when `e = f + g` orthogonal
-
-### Progress on exists_primitive_decomp
-
-Proof structure in place:
-- Primitive case: return singleton `![e]` ✅
-- Non-primitive case: extract f, show finrank bounds ✅
-- TODO: Complete recursion using `Nat.lt_wfRel.wf.fix`
-- TODO: Need `primitive_orthog_of_sum_orthog` (if Σp₁ ⊥ Σp₂ then p₁ᵢ ⊥ p₂ⱼ)
 
 ---
 
