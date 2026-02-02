@@ -1,6 +1,29 @@
-# Handoff: 2026-02-02 (Session 42)
+# Handoff: 2026-02-02 (Session 43)
 
 ## Completed This Session
+
+### ✅ orthogonal_primitive_peirce_sq COMPLETE
+
+**Completed** Step 12 (final step) in `Primitive.lean:1213-1244`:
+
+- **Step 12**: `0 ≤ r₁` (non-negativity via formal reality)
+  - Strategy: prove by contradiction using `FormallyRealJordan.sum_sq_eq_zero`
+  - If `r₁ < 0`: form `jsq a + jsq (√(-r₁) • (e+f)) = 0` using `jsq_smul_idem hef_idem`
+  - By formal reality, both summands are zero
+  - `√(-r₁) • (e+f) = 0` with `√(-r₁) ≠ 0` implies `e + f = 0`
+  - But `e + f = 0` contradicts orthogonality (would need `jmul e (-e) = 0`, i.e., `e = 0`)
+
+**Key lemmas used**:
+- `jsq_smul_idem he : jsq (r • e) = r² • e` (for idempotent e)
+- `Real.sq_sqrt` - `(√x)² = x` for x ≥ 0
+- `FormallyRealJordan.sum_sq_eq_zero` - formal reality property
+- `smul_eq_zero`, `eq_neg_of_add_eq_zero_left`
+
+**The theorem is now fully proven (12/12 steps, no sorry)!**
+
+---
+
+## Previous Session (42)
 
 ### Step 11: orthogonal_primitive_peirce_sq (r₁ = r₂)
 
@@ -19,10 +42,6 @@
 - `smul_comm` - commutativity of scalar multiplication
 - `smul_right_injective J h12ne` - injectivity when scalar ≠ 0
 - `smul_eq_zero` - r • x = 0 ↔ r = 0 ∨ x = 0
-
-**Remaining Step** (12):
-- Step 12: Show r₁ ≥ 0 (non-negativity via formal reality)
-- Issue: `af-ogj1`
 
 ---
 

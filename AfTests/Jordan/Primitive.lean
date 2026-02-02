@@ -1210,9 +1210,40 @@ theorem orthogonal_primitive_peirce_sq [FinDimJordanAlgebra J] [FormallyRealJord
           _ = 0 := jmul_zero f
       have hr2 : r₂ = 0 := (smul_eq_zero.mp hrf).resolve_right hf.ne_zero
       rw [hr1, hr2]
-  -- Step 12: r₁ ≥ 0 by formal reality
-  -- TODO: Needs formally_real_nonneg_of_sq or similar
-  sorry
+  -- Step 12: Provide witness r₁ and prove both 0 ≤ r₁ and jsq a = r₁ • (e + f)
+  -- First establish jsq a = r₁ • (e + f)
+  have hsq_ef : jsq a = r₁ • (e + f) := by
+    rw [hsq_decomp, hr_eq, smul_add]
+  -- Now provide the witness
+  refine ⟨r₁, ?hr_nonneg, hsq_ef⟩
+  -- Prove r₁ ≥ 0 by contraposition: if r₁ < 0, derive contradiction via formal reality
+  by_contra hr_neg
+  push_neg at hr_neg
+  have habs : -r₁ > 0 := neg_pos.mpr hr_neg
+  -- Form the sum: jsq a + jsq (√(-r₁) • (e+f)) = 0
+  have hsqrt_ne : Real.sqrt (-r₁) ≠ 0 := ne_of_gt (Real.sqrt_pos.mpr habs)
+  have hsum : jsq a + jsq (Real.sqrt (-r₁) • (e + f)) = 0 := by
+    rw [hsq_ef, jsq_smul_idem hef_idem, Real.sq_sqrt (le_of_lt habs)]
+    rw [← add_smul, add_neg_cancel, zero_smul]
+  -- By formal reality, both are zero
+  have h := FormallyRealJordan.sum_sq_eq_zero 2 ![a, Real.sqrt (-r₁) • (e + f)]
+  simp only [Fin.sum_univ_two, Matrix.cons_val_zero, Matrix.cons_val_one] at h
+  have hcontra := h hsum 1
+  simp only [Matrix.cons_val_one, Matrix.cons_val_zero, Fin.isValue] at hcontra
+  -- hcontra : √(-r₁) • (e + f) = 0, but √(-r₁) ≠ 0 and e + f ≠ 0
+  rw [smul_eq_zero] at hcontra
+  rcases hcontra with hsqrt_zero | hef_zero
+  · exact hsqrt_ne hsqrt_zero
+  · -- e + f = 0 contradicts e ≠ 0 with orthogonality
+    have he_ne : e ≠ 0 := he.ne_zero
+    have : e = 0 := by
+      rw [add_comm] at hef_zero
+      have hf_eq : f = -e := eq_neg_of_add_eq_zero_left hef_zero
+      rw [hf_eq] at horth
+      unfold AreOrthogonal at horth
+      rw [jmul_neg, neg_eq_zero, ← jsq_def, he.isIdempotent] at horth
+      exact horth
+    exact he_ne this
 
 /-- For orthogonal primitive idempotents in a formally real Jordan algebra,
 either their Peirce ½ space is trivial or they are strongly connected.
