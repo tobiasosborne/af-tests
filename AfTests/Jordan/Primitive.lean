@@ -1116,13 +1116,20 @@ theorem orthogonal_primitive_peirce_sq [FinDimJordanAlgebra J] [FormallyRealJord
   -- Step 5: jmul f (jsq a) = r₂ • f (from f-decomposition)
   have hc₀f_zero : jmul f c₀f = 0 := by rw [mem_peirceSpace_iff, zero_smul] at hc₀f; exact hc₀f
   have hjmul_f_sq : jmul f (jsq a) = r₂ • f := by
-    calc jmul f (jsq a) = jmul f (c₀f + c₁f) := by rw [heq_f]
+    calc jmul f (jsq a) = jmul f (c₀f + c₁f) := by simp only [heq_f, jsq_def]
       _ = jmul f c₀f + jmul f c₁f := jmul_add f c₀f c₁f
       _ = 0 + jmul f (r₂ • f) := by rw [hc₀f_zero, hr₂]
       _ = r₂ • jmul f f := by rw [zero_add, smul_jmul]
-      _ = r₂ • f := by rw [hf.isIdempotent]
+      _ = r₂ • f := by rw [← jsq_def, hf.isIdempotent]
+  -- Step 6: jmul e (jsq a) = r₁ • e (from e-decomposition)
+  have hc₀e_zero : jmul e c₀e = 0 := by rw [mem_peirceSpace_iff, zero_smul] at hc₀e; exact hc₀e
+  have hjmul_e_sq : jmul e (jsq a) = r₁ • e := by
+    calc jmul e (jsq a) = jmul e (c₀e + c₁e) := by simp only [heq_e, jsq_def]
+      _ = jmul e c₀e + jmul e c₁e := jmul_add e c₀e c₁e
+      _ = 0 + jmul e (r₁ • e) := by rw [hc₀e_zero, hr₁]
+      _ = r₁ • jmul e e := by rw [zero_add, smul_jmul]
+      _ = r₁ • e := by rw [← jsq_def, he.isIdempotent]
   -- PROOF SKETCH (Session 117):
-  -- Step 6: jmul e (jsq a) = jmul e c₀f (from f-decomp) = r₁ • e (from e-decomp)
   -- Step 7: e + f is idempotent (orthogonal sum)
   -- Step 8: a ∈ P₁(e+f) since jmul (e+f) a = (1/2)a + (1/2)a = a
   -- Step 9: jsq a ∈ P₁(e+f) by peirce_mult_P1_P1

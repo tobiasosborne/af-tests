@@ -1,6 +1,24 @@
-# Handoff: 2026-02-02 (Session 39)
+# Handoff: 2026-02-02 (Session 40)
 
 ## Completed This Session
+
+### Step 6: orthogonal_primitive_peirce_sq
+
+**Added** Step 6 to `orthogonal_primitive_peirce_sq` in `Primitive.lean:1124-1131`:
+- `hc₀e_zero : jmul e c₀e = 0` (c₀e ∈ P₀(e))
+- `hjmul_e_sq : jmul e (jsq a) = r₁ • e` (symmetric to Step 5, using e-decomposition)
+
+**Fixed** Step 5 calc chain - now uses explicit `jsq_def` rewrites:
+- Changed `rw [heq_f]` to `simp only [heq_f, jsq_def]`
+- Changed `rw [hf.isIdempotent]` to `rw [← jsq_def, hf.isIdempotent]`
+- Same pattern applied to Step 6
+
+**Technique Note**: When rewriting with `IsIdempotent` (which is `jsq e = e`), need
+to first convert `jmul e e` to `jsq e` using `← jsq_def` since `rw` doesn't unfold definitions.
+
+---
+
+## Previous Session (39)
 
 ### Helper Lemma: orthogonal_sum_isIdempotent
 
