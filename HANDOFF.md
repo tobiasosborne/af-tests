@@ -1,6 +1,24 @@
-# Handoff: 2026-02-02 (Session 43)
+# Handoff: 2026-02-02 (Session 44)
 
 ## Completed This Session
+
+### ✅ JordanTrace Instance Complete (Matrix/Trace.lean)
+
+**Filled** two sorries in `AfTests/Jordan/Matrix/Trace.lean`:
+
+1. **traceReal_smul** (line 220): `traceReal (r • A) = r * traceReal A`
+   - Proof: Expand via `trace_smul` + `RCLike.smul_re`
+   - Key fix: Removed redundant `[Algebra ℝ 𝕜] [StarModule ℝ 𝕜]` constraints (RCLike provides these)
+
+2. **traceReal_L_selfadjoint** (line 252): `Tr((A∘V)∘W) = Tr(V∘(A∘W))`
+   - Proof: Expand Jordan products, use trace cyclicity (`trace_mul_cycle'`)
+   - Key insight: Both sides equal `(Tr(AVW) + Tr(VAW))/2` after applying cyclicity
+
+**Result**: `jordanTraceHermitianMatrix` instance has no sorries.
+
+---
+
+## Previous Session (43)
 
 ### ✅ orthogonal_primitive_peirce_sq COMPLETE
 
