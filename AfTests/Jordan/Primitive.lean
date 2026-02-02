@@ -1110,8 +1110,10 @@ theorem orthogonal_primitive_peirce_sq [FinDimJordanAlgebra J] [FormallyRealJord
   -- Step 3: By primitivity, c₁e = r₁ • e and c₁f = r₂ • f
   obtain ⟨r₁, hr₁⟩ := primitive_peirce_one_scalar he hc₁e
   obtain ⟨r₂, hr₂⟩ := primitive_peirce_one_scalar hf hc₁f
-  -- PROOF SKETCH (Session 117):
   -- Step 4: Key orthogonality: jmul e f = 0 = jmul f e, so f ∈ P₀(e), e ∈ P₀(f)
+  have hf_in_P0_e : f ∈ PeirceSpace e 0 := orthogonal_in_peirce_zero horth
+  have he_in_P0_f : e ∈ PeirceSpace f 0 := orthogonal_in_peirce_zero horth.symm
+  -- PROOF SKETCH (Session 117):
   -- Step 5: jmul f (jsq a) = jmul f c₀e (from e-decomp) = r₂ • f (from f-decomp)
   -- Step 6: jmul e (jsq a) = jmul e c₀f (from f-decomp) = r₁ • e (from e-decomp)
   -- Step 7: e + f is idempotent (orthogonal sum)
