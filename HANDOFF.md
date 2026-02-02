@@ -8,6 +8,10 @@
 - `orthogonal_sum_isIdempotent` - sum of orthogonal idempotents is idempotent
 - Required for Step 7 of `orthogonal_primitive_peirce_sq` proof
 
+**Added** Step 4 to `orthogonal_primitive_peirce_sq` in `Primitive.lean:1113-1114`:
+- `hf_in_P0_e : f ∈ PeirceSpace e 0` using `orthogonal_in_peirce_zero`
+- `he_in_P0_f : e ∈ PeirceSpace f 0` using `orthogonal_in_peirce_zero horth.symm`
+
 ---
 
 ## Previous Session (38)
