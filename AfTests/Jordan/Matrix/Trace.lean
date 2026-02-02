@@ -217,12 +217,19 @@ theorem traceReal_add (A B : HermitianMatrix n 𝕜) :
     traceReal (A + B) = traceReal A + traceReal B := by
   simp only [traceReal_def, AddSubgroup.coe_add, trace_add, map_add]
 
-theorem traceReal_smul [Algebra ℝ 𝕜] [StarModule ℝ 𝕜] (r : ℝ) (A : HermitianMatrix n 𝕜) :
+omit [DecidableEq n] in
+theorem traceReal_smul (r : ℝ) (A : HermitianMatrix n 𝕜) :
     traceReal (r • A) = r * traceReal A := by
   simp only [traceReal_def]
-  -- Goal: RCLike.re ((r • A).val).trace = r * RCLike.re A.val.trace
-  -- Follows from: trace_smul + RCLike.re (r • x) = r * RCLike.re x for r : ℝ
-  sorry
+  show RCLike.re ((r • A).val).trace = r * RCLike.re A.val.trace
+  have h : (r • A).val = r • A.val := rfl
+  rw [h]
+  unfold trace
+  simp only [diag_smul, Pi.smul_apply, map_sum]
+  rw [Finset.mul_sum]
+  apply Finset.sum_congr rfl
+  intro x _
+  exact RCLike.smul_re r (A.val x x)
 
 theorem traceReal_jmul_comm (A B : HermitianMatrix n 𝕜) :
     traceReal (jmul A B) = traceReal (jmul B A) := by
@@ -242,12 +249,22 @@ PROOF SKETCH:
 - By trace cyclicity: Tr(AVW)=Tr(VWA)=Tr(WAV), Tr(VAW)=Tr(AWV)=Tr(WVA)
 - Both sums equal 2*Tr(AVW) + 2*Tr(VAW) after applying cyclicity.
 -/
-theorem traceReal_L_selfadjoint [Algebra ℝ 𝕜] [StarModule ℝ 𝕜]
-    (A V W : HermitianMatrix n 𝕜) :
+theorem traceReal_L_selfadjoint (A V W : HermitianMatrix n 𝕜) :
     traceReal (jmul (jmul A V) W) = traceReal (jmul V (jmul A W)) := by
-  -- Mathematically verified: both sides equal (Tr(AVW) + Tr(VAW))/2 after trace cyclicity.
-  -- The full Lean proof requires careful manipulation of the 8 terms.
-  sorry
+  simp only [traceReal_def, jmul_val, jordanMul_def]
+  simp only [smul_add, mul_add, add_mul, trace_add, trace_smul]
+  simp only [mul_smul_comm, smul_mul_assoc]
+  simp only [trace_smul, Matrix.mul_assoc]
+  congr 1
+  -- Use trace cyclicity: trace_mul_cycle' A B C : (A*(B*C)).trace = (C*(A*B)).trace
+  have h1 : (A.val * (V.val * W.val)).trace = (V.val * (W.val * A.val)).trace := by
+    have step1 := trace_mul_cycle' A.val V.val W.val
+    have step2 := trace_mul_cycle' W.val A.val V.val
+    rw [step1, step2]
+  have h2 : (W.val * (V.val * A.val)).trace = (A.val * (W.val * V.val)).trace :=
+    trace_mul_cycle' W.val V.val A.val
+  rw [h1, h2]
+  ring
 
 theorem traceReal_jone_pos [Nonempty n] :
     0 < traceReal (HermitianMatrix.one : HermitianMatrix n 𝕜) := by
@@ -263,8 +280,7 @@ end HermitianMatrix
 
 /-- Hermitian matrices with the Jordan product have a trace satisfying the JordanTrace axioms. -/
 instance jordanTraceHermitianMatrix {n : Type*} [DecidableEq n] [Fintype n] [Nonempty n]
-    {𝕜 : Type*} [RCLike 𝕜] [Algebra ℝ 𝕜] [StarModule ℝ 𝕜] :
-    JordanAlgebra.JordanTrace (HermitianMatrix n 𝕜) where
+    {𝕜 : Type*} [RCLike 𝕜] : JordanAlgebra.JordanTrace (HermitianMatrix n 𝕜) where
   trace := HermitianMatrix.traceReal
   trace_add := HermitianMatrix.traceReal_add
   trace_smul := HermitianMatrix.traceReal_smul
