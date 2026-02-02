@@ -1,6 +1,44 @@
-# Handoff: 2026-02-02 (Session 50)
+# Handoff: 2026-02-02 (Session 51)
 
 ## Completed This Session
+
+### exists_primitive_decomp Proof Structure (Primitive.lean:1438-1446)
+
+Developed complete proof structure for `exists_primitive_decomp`. The proof compiles
+but needs one more helper lemma.
+
+**Proof structure** (strong induction on finrank P₁(e)):
+
+1. **Helper lemma needed**: `peirce_one_finrank_pos`
+   - If e is idempotent and e ≠ 0, then `0 < finrank P₁(e)`
+   - Proof: e ∈ P₁(e) and e ≠ 0, so P₁(e) ≠ ⊥, so finrank ≥ 1
+   - Use `Submodule.one_le_finrank_iff` (needs `[StrongRankCondition ℝ]`, `[NoZeroSMulDivisors ℝ J]`)
+
+2. **Base case** (finrank = 1): e is primitive by `isPrimitive_of_peirce_one_dim_one`
+   - Return `![e]`
+
+3. **Inductive case** (finrank > 1): e not primitive
+   - Extract f with `IsIdempotent f`, `jmul e f = f`, `f ≠ 0`, `f ≠ e`
+   - Set `g = e - f` (idempotent by `sub_idempotent_of_jmul_eq`)
+   - f ⊥ g by `orthogonal_of_jmul_eq`
+   - Recurse on f and g (finrank decreases by `sub_idem_finrank_lt`)
+   - Combine with `Fin.append`
+
+4. **Remaining gap**: Need lemma `primitive_sum_sub_idem`
+   - If `p : Fin k → J` with all `IsPrimitive (p i)`, `PairwiseOrthogonal p`, `f = ∑ i, p i`
+   - Then `jmul f (p j) = p j` for all j
+   - Proof sketch: `jmul f (p j) = jmul (∑ i, p i) (p j) = ∑ i, jmul (p i) (p j)`
+     - When i = j: `jmul (p j) (p j) = p j` (idempotent)
+     - When i ≠ j: `jmul (p i) (p j) = 0` (orthogonal)
+   - So `jmul f (p j) = p j`
+
+**Key syntax notes**:
+- Use `| _ n ih =>` not `| ind n ih =>` for `Nat.strong_induction_on`
+- Use `Nat.lt_or_eq_of_le` or `le_iff_lt_or_eq` not `Nat.eq_or_gt_of_le`
+
+---
+
+## Previous Session (50)
 
 ### New Helper Lemmas (Primitive.lean:1372-1393)
 
@@ -11,17 +49,6 @@ Added key lemmas for combining orthogonal decompositions:
 
 2. **sub_idem_orthog_of_sum_orthog**: If f ⊥ g, p₁ ≤ f, p₂ ≤ g, then p₁ ⊥ p₂
    - Key for combining primitive decompositions of orthogonal idempotents
-
-### exists_primitive_decomp Progress
-
-All helper infrastructure is now in place:
-- `sub_idem_finrank_lt`: finrank decreases for sub-idempotents ✅
-- `sub_idem_orthog_of_sum_orthog`: primitives from orthogonal parts are orthogonal ✅
-
-**Remaining work** (issue af-3fx6):
-- Set up strong induction on `finrank P₁(e)` using `Nat.strong_induction_on`
-- Combine decompositions using `Fin.append` and `Fin.addCases`
-- The recursive structure and all key lemmas are ready
 
 ---
 
