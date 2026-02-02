@@ -1,6 +1,21 @@
-# Handoff: 2026-02-02 (Session 45)
+# Handoff: 2026-02-02 (Session 46)
 
 ## Completed This Session
+
+### ✅ Peirce Space Convenience Lemmas (Peirce.lean:47-53)
+
+Added simp lemmas to simplify Peirce membership for eigenvalues 0 and 1:
+- `mem_peirceSpace_zero_iff`: `a ∈ PeirceSpace e 0 ↔ jmul e a = 0`
+- `mem_peirceSpace_one_iff`: `a ∈ PeirceSpace e 1 ↔ jmul e a = a`
+
+These eliminate the need for manual `zero_smul` and `one_smul` rewrites throughout.
+
+### Closed Issues
+- `af-0ysg`: Fix Peirce space eigenvalue form
+
+---
+
+## Previous Session (45)
 
 ### ✅ FormallyRealTrace Instance (Matrix/Trace.lean)
 

@@ -44,6 +44,14 @@ def PeirceSpace (e : J) (ev : ℝ) : Submodule ℝ J where
 theorem mem_peirceSpace_iff (e : J) (ev : ℝ) (a : J) :
     a ∈ PeirceSpace e ev ↔ jmul e a = ev • a := Iff.rfl
 
+@[simp]
+theorem mem_peirceSpace_zero_iff (e : J) (a : J) :
+    a ∈ PeirceSpace e 0 ↔ jmul e a = 0 := by simp [mem_peirceSpace_iff]
+
+@[simp]
+theorem mem_peirceSpace_one_iff (e : J) (a : J) :
+    a ∈ PeirceSpace e 1 ↔ jmul e a = a := by simp [mem_peirceSpace_iff]
+
 /-- Notation for common Peirce spaces. -/
 abbrev PeirceSpace₀ (e : J) := PeirceSpace e 0
 noncomputable abbrev PeirceSpace₁₂ (e : J) := PeirceSpace e (1 / 2)
