@@ -1,6 +1,16 @@
-# Handoff: 2026-02-02 (Session 38)
+# Handoff: 2026-02-02 (Session 39)
 
 ## Completed This Session
+
+### Helper Lemma: orthogonal_sum_isIdempotent
+
+**Added** to `AfTests/Jordan/FormallyReal/Spectrum.lean:99-107`:
+- `orthogonal_sum_isIdempotent` - sum of orthogonal idempotents is idempotent
+- Required for Step 7 of `orthogonal_primitive_peirce_sq` proof
+
+---
+
+## Previous Session (38)
 
 ### JordanAlgebra Instance: Matrix/Instance.lean
 
