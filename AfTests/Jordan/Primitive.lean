@@ -1063,6 +1063,42 @@ theorem primitive_peirce_one_dim_one [FinDimJordanAlgebra J] [FormallyRealJordan
       _ ≤ Module.finrank ℝ (PeirceSpace e 1) := by
           apply Submodule.finrank_mono hspan_le
 
+/-- Converse of primitive_peirce_one_dim_one: if P₁(e) is 1-dimensional, then e is primitive.
+The proof: P₁(e) = ℝ·e. If f is a sub-idempotent (jmul e f = f), then f ∈ P₁(e) = ℝ·e,
+so f = r • e. Then jsq f = f gives r² = r, so r ∈ {0, 1}, hence f ∈ {0, e}. -/
+theorem isPrimitive_of_peirce_one_dim_one [FinDimJordanAlgebra J] [FormallyRealJordan J]
+    {e : J} (he : IsIdempotent e) (hne : e ≠ 0)
+    (hdim : Module.finrank ℝ (PeirceSpace e 1) = 1) : IsPrimitive e := by
+  -- P₁(e) = span{e} since dim = 1 and e ∈ P₁(e)
+  have he_in : e ∈ PeirceSpace e 1 := idempotent_in_peirce_one he
+  have hspan_eq : (PeirceSpace e 1 : Submodule ℝ J) = Submodule.span ℝ {e} := by
+    have hle : Submodule.span ℝ {e} ≤ PeirceSpace e 1 := by
+      rw [Submodule.span_le, Set.singleton_subset_iff]
+      exact he_in
+    symm
+    apply Submodule.eq_of_le_of_finrank_eq hle
+    rw [finrank_span_singleton hne, hdim]
+  -- Show e is primitive: any sub-idempotent f is 0 or e
+  refine ⟨he, hne, fun f hf_idem hef => ?_⟩
+  -- f ∈ P₁(e) since jmul e f = f
+  have hf_in : f ∈ PeirceSpace e 1 := by
+    rw [mem_peirceSpace_one_iff]; exact hef
+  -- f ∈ span{e}, so f = r • e for some r
+  rw [hspan_eq, Submodule.mem_span_singleton] at hf_in
+  obtain ⟨r, hr⟩ := hf_in
+  -- jsq f = f means (r • e)² = r • e
+  have hfsq : jsq f = f := hf_idem
+  rw [← hr, jsq_smul_idem he r] at hfsq
+  -- r² • e = r • e means (r² - r) • e = 0
+  have hsub : (r ^ 2 - r) • e = 0 := by
+    rw [sub_smul]; exact sub_eq_zero.mpr hfsq
+  -- Since e ≠ 0, we have r² - r = 0, i.e., r(r-1) = 0
+  have hr01 : r ^ 2 - r = 0 := (smul_eq_zero.mp hsub).resolve_right hne
+  have : r * (r - 1) = 0 := by ring_nf; linarith
+  rcases mul_eq_zero.mp this with hr0 | hr1
+  · left; rw [← hr, hr0, zero_smul]
+  · right; rw [← hr, sub_eq_zero.mp hr1, one_smul]
+
 /-- For a primitive idempotent e, every element x in PeirceSpace e 1 satisfies x = r • e.
 This is H-O 2.9.4(ii): primitivity is equivalent to {eAe} = ℝe.
 

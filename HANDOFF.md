@@ -1,20 +1,32 @@
-# Handoff: 2026-02-02 (Session 46)
+# Handoff: 2026-02-02 (Session 47)
 
 ## Completed This Session
+
+### ✅ isPrimitive_of_peirce_one_dim_one (Primitive.lean:1069-1100)
+
+Added converse of `primitive_peirce_one_dim_one`:
+```lean
+theorem isPrimitive_of_peirce_one_dim_one {e : J} (he : IsIdempotent e) (hne : e ≠ 0)
+    (hdim : Module.finrank ℝ (PeirceSpace e 1) = 1) : IsPrimitive e
+```
+
+**Key insight**: P₁(e) = ℝ·e when dim = 1. Any sub-idempotent f ∈ P₁(e) satisfies f = r • e.
+Then jsq f = f gives r² = r, so r ∈ {0, 1}, hence f = 0 or f = e → e is primitive.
+
+**Combined with `primitive_peirce_one_dim_one`**: Now have bidirectional characterization:
+- `e primitive ⟺ finrank P₁(e) = 1`
+
+This unblocks the induction approach for `exists_primitive_decomp`.
+
+---
+
+## Previous Session (46)
 
 ### ✅ Peirce Space Convenience Lemmas (Peirce.lean:47-53)
 
 Added simp lemmas to simplify Peirce membership for eigenvalues 0 and 1:
 - `mem_peirceSpace_zero_iff`: `a ∈ PeirceSpace e 0 ↔ jmul e a = 0`
 - `mem_peirceSpace_one_iff`: `a ∈ PeirceSpace e 1 ↔ jmul e a = a`
-
-These eliminate the need for manual `zero_smul` and `one_smul` rewrites throughout.
-
-### ✅ Linter Warning Fixes (Peirce.lean)
-
-Removed unused simp arguments:
-- `LinearMap.neg_apply` at line 485
-- `neg_neg` at line 569
 
 ### Closed Issues
 - `af-0ysg`: Fix Peirce space eigenvalue form
