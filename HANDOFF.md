@@ -10,6 +10,12 @@ Added simp lemmas to simplify Peirce membership for eigenvalues 0 and 1:
 
 These eliminate the need for manual `zero_smul` and `one_smul` rewrites throughout.
 
+### ✅ Linter Warning Fixes (Peirce.lean)
+
+Removed unused simp arguments:
+- `LinearMap.neg_apply` at line 485
+- `neg_neg` at line 569
+
 ### Closed Issues
 - `af-0ysg`: Fix Peirce space eigenvalue form
 
