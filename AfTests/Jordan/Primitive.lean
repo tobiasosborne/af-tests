@@ -6,6 +6,7 @@ Authors: AF-Tests Contributors
 import AfTests.Jordan.FiniteDimensional
 import AfTests.Jordan.Trace
 import AfTests.Jordan.Peirce
+import AfTests.Jordan.FormallyReal.Spectrum
 import Mathlib.Analysis.Complex.Polynomial.Basic
 import Mathlib.RingTheory.Artinian.Module
 import Mathlib.RingTheory.Artinian.Ring
@@ -1129,10 +1130,19 @@ theorem orthogonal_primitive_peirce_sq [FinDimJordanAlgebra J] [FormallyRealJord
       _ = 0 + jmul e (r₁ • e) := by rw [hc₀e_zero, hr₁]
       _ = r₁ • jmul e e := by rw [zero_add, smul_jmul]
       _ = r₁ • e := by rw [← jsq_def, he.isIdempotent]
-  -- PROOF SKETCH (Session 117):
   -- Step 7: e + f is idempotent (orthogonal sum)
+  have hef_idem : IsIdempotent (e + f) :=
+    orthogonal_sum_isIdempotent he.isIdempotent hf.isIdempotent horth
   -- Step 8: a ∈ P₁(e+f) since jmul (e+f) a = (1/2)a + (1/2)a = a
+  have ha_in_P1_ef : a ∈ PeirceSpace (e + f) 1 := by
+    rw [mem_peirceSpace_iff, one_smul, add_jmul, ha_peirce.1, ha_peirce.2]
+    simp only [← two_smul ℝ, smul_smul]
+    norm_num
   -- Step 9: jsq a ∈ P₁(e+f) by peirce_mult_P1_P1
+  have hsq_in_P1_ef : jsq a ∈ PeirceSpace (e + f) 1 := by
+    rw [jsq_def]
+    exact peirce_mult_P1_P1 hef_idem ha_in_P1_ef ha_in_P1_ef
+  -- PROOF SKETCH (remaining steps):
   -- Step 10: P₀(e) ∩ P₀(f) ⊆ P₀(e+f), and P₁(e+f) ∩ P₀(e+f) = {0}
   --          Therefore jsq a = r₁•e + r₂•f (no P₀(e)∩P₀(f) component)
   -- Step 11: r₁ = r₂ by symmetry of hypotheses OR by fundamental formula:

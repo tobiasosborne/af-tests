@@ -1,17 +1,36 @@
-# Handoff: 2026-02-02 (Session 40)
+# Handoff: 2026-02-02 (Session 41)
 
 ## Completed This Session
+
+### Steps 7-9: orthogonal_primitive_peirce_sq
+
+**Added** Steps 7-9 to `orthogonal_primitive_peirce_sq` in `Primitive.lean:1133-1145`:
+
+- **Step 7**: `hef_idem : IsIdempotent (e + f)`
+  - Uses `orthogonal_sum_isIdempotent he.isIdempotent hf.isIdempotent horth`
+  - Required import: `AfTests.Jordan.FormallyReal.Spectrum`
+
+- **Step 8**: `ha_in_P1_ef : a ∈ PeirceSpace (e + f) 1`
+  - Calculation: `jmul (e+f) a = (1/2)a + (1/2)a = a`
+  - Uses `add_jmul`, `ha_peirce.1`, `ha_peirce.2`, `norm_num`
+
+- **Step 9**: `hsq_in_P1_ef : jsq a ∈ PeirceSpace (e + f) 1`
+  - Uses `peirce_mult_P1_P1 hef_idem ha_in_P1_ef ha_in_P1_ef`
+
+**Remaining Steps** (10-12):
+- Step 10: Show P₀(e) ∩ P₀(f) component is zero (disjoint from P₁(e+f))
+- Step 11: Show r₁ = r₂ (coefficient equality via symmetry or fundamental formula)
+- Step 12: Show r₁ ≥ 0 (non-negativity via formal reality)
+
+---
+
+## Previous Session (40)
 
 ### Step 6: orthogonal_primitive_peirce_sq
 
 **Added** Step 6 to `orthogonal_primitive_peirce_sq` in `Primitive.lean:1124-1131`:
 - `hc₀e_zero : jmul e c₀e = 0` (c₀e ∈ P₀(e))
 - `hjmul_e_sq : jmul e (jsq a) = r₁ • e` (symmetric to Step 5, using e-decomposition)
-
-**Fixed** Step 5 calc chain - now uses explicit `jsq_def` rewrites:
-- Changed `rw [heq_f]` to `simp only [heq_f, jsq_def]`
-- Changed `rw [hf.isIdempotent]` to `rw [← jsq_def, hf.isIdempotent]`
-- Same pattern applied to Step 6
 
 **Technique Note**: When rewriting with `IsIdempotent` (which is `jsq e = e`), need
 to first convert `jmul e e` to `jsq e` using `← jsq_def` since `rw` doesn't unfold definitions.
