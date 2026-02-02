@@ -1150,9 +1150,68 @@ theorem orthogonal_primitive_peirce_sq [FinDimJordanAlgebra J] [FormallyRealJord
     rw [mem_peirceSpace_iff, one_smul] at hsq_in_P1_ef
     rw [add_jmul, hjmul_e_sq, hjmul_f_sq] at hsq_in_P1_ef
     exact hsq_in_P1_ef.symm
-  -- PROOF SKETCH (remaining steps):
-  -- Step 11: r₁ = r₂ by symmetry of hypotheses OR by fundamental formula
+  -- Step 11: r₁ = r₂ via Jordan identity
+  -- From jordan_identity' a e: jmul (jmul a e) (jsq a) = jmul a (jmul e (jsq a))
+  -- Substituting: (1/2) • jmul a (jsq a) = r₁ • (1/2) • a
+  -- Hence jmul a (jsq a) = r₁ • a (and similarly = r₂ • a)
+  have hjordan_e : jmul a (jsq a) = r₁ • a := by
+    -- jordan_identity' a e : jmul (jmul a e) (jsq a) = jmul a (jmul e (jsq a))
+    have hlhs : jmul (jmul a e) (jsq a) = (1/2 : ℝ) • jmul a (jsq a) := by
+      rw [jmul_comm a e, ha_peirce.1, jmul_smul]
+    have hrhs : jmul a (jmul e (jsq a)) = (1/2 : ℝ) • (r₁ • a) := by
+      calc jmul a (jmul e (jsq a)) = jmul a (r₁ • e) := by rw [hjmul_e_sq]
+        _ = r₁ • jmul a e := smul_jmul r₁ a e
+        _ = r₁ • jmul e a := by rw [jmul_comm]
+        _ = r₁ • ((1/2 : ℝ) • a) := by rw [ha_peirce.1]
+        _ = (1/2 : ℝ) • (r₁ • a) := smul_comm r₁ (1/2 : ℝ) a
+    have hji := jordan_identity' a e
+    rw [hlhs, hrhs] at hji
+    have h12ne : (1/2 : ℝ) ≠ 0 := by norm_num
+    exact smul_right_injective J h12ne hji
+  have hjordan_f : jmul a (jsq a) = r₂ • a := by
+    -- jordan_identity' a f : jmul (jmul a f) (jsq a) = jmul a (jmul f (jsq a))
+    have hlhs : jmul (jmul a f) (jsq a) = (1/2 : ℝ) • jmul a (jsq a) := by
+      rw [jmul_comm a f, ha_peirce.2, jmul_smul]
+    have hrhs : jmul a (jmul f (jsq a)) = (1/2 : ℝ) • (r₂ • a) := by
+      calc jmul a (jmul f (jsq a)) = jmul a (r₂ • f) := by rw [hjmul_f_sq]
+        _ = r₂ • jmul a f := smul_jmul r₂ a f
+        _ = r₂ • jmul f a := by rw [jmul_comm]
+        _ = r₂ • ((1/2 : ℝ) • a) := by rw [ha_peirce.2]
+        _ = (1/2 : ℝ) • (r₂ • a) := smul_comm r₂ (1/2 : ℝ) a
+    have hji := jordan_identity' a f
+    rw [hlhs, hrhs] at hji
+    have h12ne : (1/2 : ℝ) ≠ 0 := by norm_num
+    exact smul_right_injective J h12ne hji
+  -- From these: r₁ • a = r₂ • a, so (r₁ - r₂) • a = 0
+  have heq_ra : r₁ • a = r₂ • a := hjordan_e.symm.trans hjordan_f
+  have hdiff : (r₁ - r₂) • a = 0 := by rw [sub_smul, heq_ra, sub_self]
+  have hr_eq : r₁ = r₂ := by
+    rw [smul_eq_zero] at hdiff
+    cases hdiff with
+    | inl h => linarith
+    | inr ha_eq =>
+      -- a = 0 implies jsq a = 0
+      have hsq_zero : jsq a = 0 := by rw [ha_eq, jsq_def, jmul_zero]
+      -- From hsq_decomp: 0 = r₁ • e + r₂ • f
+      rw [hsq_zero] at hsq_decomp
+      -- Apply jmul e to get r₁ = 0, apply jmul f to get r₂ = 0
+      have hre : r₁ • e = 0 := by
+        calc r₁ • e = jmul e (r₁ • e + r₂ • f) := by
+              rw [jmul_add, smul_jmul, smul_jmul, ← jsq_def, he.isIdempotent,
+                  horth, smul_zero, add_zero]
+          _ = jmul e 0 := by rw [← hsq_decomp]
+          _ = 0 := jmul_zero e
+      have hr1 : r₁ = 0 := (smul_eq_zero.mp hre).resolve_right he.ne_zero
+      have hrf : r₂ • f = 0 := by
+        calc r₂ • f = jmul f (r₁ • e + r₂ • f) := by
+              rw [jmul_add, smul_jmul, smul_jmul, ← jsq_def, hf.isIdempotent,
+                  jmul_comm f e, horth, smul_zero, zero_add]
+          _ = jmul f 0 := by rw [← hsq_decomp]
+          _ = 0 := jmul_zero f
+      have hr2 : r₂ = 0 := (smul_eq_zero.mp hrf).resolve_right hf.ne_zero
+      rw [hr1, hr2]
   -- Step 12: r₁ ≥ 0 by formal reality
+  -- TODO: Needs formally_real_nonneg_of_sq or similar
   sorry
 
 /-- For orthogonal primitive idempotents in a formally real Jordan algebra,

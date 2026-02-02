@@ -1,29 +1,41 @@
-# Handoff: 2026-02-02 (Session 41)
+# Handoff: 2026-02-02 (Session 42)
 
 ## Completed This Session
+
+### Step 11: orthogonal_primitive_peirce_sq (r₁ = r₂)
+
+**Added** Step 11 to `orthogonal_primitive_peirce_sq` in `Primitive.lean:1153-1212`:
+
+- **Step 11**: `hr_eq : r₁ = r₂` (coefficient equality)
+  - Key technique: Use Jordan identity `jordan_identity' a e` (and `jordan_identity' a f`)
+  - Derive `jmul a (jsq a) = r₁ • a` and `jmul a (jsq a) = r₂ • a`
+  - Conclude `(r₁ - r₂) • a = 0`, use `smul_eq_zero` to case split
+  - If `a ≠ 0`: direct `linarith`
+  - If `a = 0`: show `r₁ = r₂ = 0` via linear independence of orthogonal primitives
+
+**Key lemmas used**:
+- `jordan_identity' a e : jmul (jmul a e) (jsq a) = jmul a (jmul e (jsq a))`
+- `jmul_smul`, `smul_jmul` - scalar pulling for Jordan product
+- `smul_comm` - commutativity of scalar multiplication
+- `smul_right_injective J h12ne` - injectivity when scalar ≠ 0
+- `smul_eq_zero` - r • x = 0 ↔ r = 0 ∨ x = 0
+
+**Remaining Step** (12):
+- Step 12: Show r₁ ≥ 0 (non-negativity via formal reality)
+- Issue: `af-ogj1`
+
+---
+
+## Previous Session (41)
 
 ### Steps 7-10: orthogonal_primitive_peirce_sq
 
 **Added** Steps 7-10 to `orthogonal_primitive_peirce_sq` in `Primitive.lean:1133-1153`:
 
 - **Step 7**: `hef_idem : IsIdempotent (e + f)`
-  - Uses `orthogonal_sum_isIdempotent he.isIdempotent hf.isIdempotent horth`
-  - Required import: `AfTests.Jordan.FormallyReal.Spectrum`
-
 - **Step 8**: `ha_in_P1_ef : a ∈ PeirceSpace (e + f) 1`
-  - Calculation: `jmul (e+f) a = (1/2)a + (1/2)a = a`
-  - Uses `add_jmul`, `ha_peirce.1`, `ha_peirce.2`, `norm_num`
-
 - **Step 9**: `hsq_in_P1_ef : jsq a ∈ PeirceSpace (e + f) 1`
-  - Uses `peirce_mult_P1_P1 hef_idem ha_in_P1_ef ha_in_P1_ef`
-
 - **Step 10**: `hsq_decomp : jsq a = r₁ • e + r₂ • f`
-  - Key insight: `jsq a ∈ P₁(e+f)` means `jmul (e+f) (jsq a) = jsq a`
-  - Expanding with `add_jmul` and using Steps 5-6 gives decomposition directly
-
-**Remaining Steps** (11-12):
-- Step 11: Show r₁ = r₂ (coefficient equality - may need fundamental formula or linear independence)
-- Step 12: Show r₁ ≥ 0 (non-negativity via formal reality)
 
 ---
 
