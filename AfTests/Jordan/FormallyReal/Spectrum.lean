@@ -95,6 +95,16 @@ def jordanSpectrum (a : J) (sd : SpectralDecomp a) : Set ℝ :=
 
 /-! ### Properties of Orthogonal Idempotents -/
 
+/-- The sum of orthogonal idempotents is idempotent. -/
+theorem orthogonal_sum_isIdempotent {e f : J}
+    (he : IsIdempotent e) (hf : IsIdempotent f) (horth : AreOrthogonal e f) :
+    IsIdempotent (e + f) := by
+  unfold IsIdempotent jsq at *
+  -- Goal: jmul (e + f) (e + f) = e + f
+  rw [add_jmul, jmul_add, jmul_add, he, hf]
+  -- Now: e + jmul e f + (jmul f e + f) = e + f
+  rw [jmul_comm f e, horth, add_zero, zero_add]
+
 /-- Product of orthogonal idempotents with scalars. -/
 theorem jmul_orthog_idem {e f : J}
     (horth : AreOrthogonal e f) (r s : ℝ) :
