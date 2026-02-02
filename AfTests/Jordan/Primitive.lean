@@ -1113,8 +1113,15 @@ theorem orthogonal_primitive_peirce_sq [FinDimJordanAlgebra J] [FormallyRealJord
   -- Step 4: Key orthogonality: jmul e f = 0 = jmul f e, so f ∈ P₀(e), e ∈ P₀(f)
   have hf_in_P0_e : f ∈ PeirceSpace e 0 := orthogonal_in_peirce_zero horth
   have he_in_P0_f : e ∈ PeirceSpace f 0 := orthogonal_in_peirce_zero horth.symm
+  -- Step 5: jmul f (jsq a) = r₂ • f (from f-decomposition)
+  have hc₀f_zero : jmul f c₀f = 0 := by rw [mem_peirceSpace_iff, zero_smul] at hc₀f; exact hc₀f
+  have hjmul_f_sq : jmul f (jsq a) = r₂ • f := by
+    calc jmul f (jsq a) = jmul f (c₀f + c₁f) := by rw [heq_f]
+      _ = jmul f c₀f + jmul f c₁f := jmul_add f c₀f c₁f
+      _ = 0 + jmul f (r₂ • f) := by rw [hc₀f_zero, hr₂]
+      _ = r₂ • jmul f f := by rw [zero_add, smul_jmul]
+      _ = r₂ • f := by rw [hf.isIdempotent]
   -- PROOF SKETCH (Session 117):
-  -- Step 5: jmul f (jsq a) = jmul f c₀e (from e-decomp) = r₂ • f (from f-decomp)
   -- Step 6: jmul e (jsq a) = jmul e c₀f (from f-decomp) = r₁ • e (from e-decomp)
   -- Step 7: e + f is idempotent (orthogonal sum)
   -- Step 8: a ∈ P₁(e+f) since jmul (e+f) a = (1/2)a + (1/2)a = a
