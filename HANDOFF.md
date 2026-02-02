@@ -1,98 +1,103 @@
-# Handoff: 2026-02-01 (Session 117)
+# Handoff: 2026-02-02 (Session 38)
 
-## Session Summary
+## Completed This Session
 
-**PROGRESS:** Added detailed 12-step proof sketch for `orthogonal_primitive_peirce_sq`.
+### JordanAlgebra Instance: Matrix/Instance.lean
 
-**Key insight:** The proof requires showing that for orthogonal primitives e, f and a ∈ P₁₂(e) ∩ P₁₂(f):
-1. jsq a ∈ P₁(e+f) (since jmul (e+f) a = a)
-2. jsq a = r₁•e + r₂•f (no P₀(e)∩P₀(f) component)
-3. r₁ = r₂ (via fundamental formula: U_a(U_a(e)) = r₁r₂•e = r₁²•e)
-4. r₁ ≥ 0 (by formal reality, H-O 2.9.4(vi))
+**Created** `AfTests/Jordan/Matrix/Instance.lean` (126 LOC) with:
+- `RealSymmetricMatrix` type alias for `selfAdjoint (Matrix n n ℝ)`
+- `JordanAlgebra (RealSymmetricMatrix n)` instance
 
-**Result:** Build passes. 4 sorries remain but proof strategy is complete.
+**Also added to JordanProduct.lean:**
+- `jordanMul_add` - bilinearity (right)
+- `add_jordanMul` - bilinearity (left)
+- `smul_jordanMul` - scalar multiplication (left)
+- `jordanMul_smul` - scalar multiplication (right)
+- `jordan_identity` - the Jordan identity for matrices
+
+**Key proof technique for Jordan identity:**
+```lean
+simp only [smul_add, mul_add, add_mul, smul_mul_assoc, mul_smul_comm, smul_smul]
+conv_lhs => simp only [Matrix.mul_assoc]
+conv_rhs => simp only [Matrix.mul_assoc]
+ring_nf; abel
+```
 
 ---
 
 ## Current State
 
-| Metric | Value |
-|--------|-------|
-| Total Sorries | **4** (Primitive.lean) |
-| Build Status | **PASSING** |
-| Key Progress | Complete proof sketch for line 1119 |
+### Jordan Algebra Project
+- 9 files, ~870 LOC total
+- **1 sorry remaining:**
+  - `FormallyReal/Def.lean` - `of_sq_eq_zero` (requires spectral theory)
+- Matrix Jordan algebra now has full instance
+
+### Archimedean Closure Project: COMPLETE
+- 44 files, 4,943 LOC, 0 sorries
 
 ---
 
-## Remaining Sorries in Primitive.lean
+## Next Steps
 
-| Line | Name | Goal | Status |
-|------|------|------|--------|
-| 1131 | `orthogonal_primitive_peirce_sq` | `∃ μ, 0 ≤ μ ∧ jsq a = μ • (e + f)` | **Proof sketch complete** |
-| 1147 | `orthogonal_primitive_structure` | Dichotomy: trivial 1/2-space or strongly connected | Needs line 1131 |
-| 1221 | `exists_primitive_decomp` | Induction case for primitive decomposition | Design decision |
-| 1228 | `csoi_refine_primitive` | Refine CSOI to primitives | Needs line 1221 |
+### Immediate (unblocked tasks)
+1. `af-j4dq`: Jordan/FormallyReal/Spectrum.lean - Spectral properties
+2. `af-dc2h`: Jordan/Matrix/RealHermitian.lean - Additional properties
+3. `af-noad`: Jordan/FormallyReal/Square.lean - Square roots
 
----
-
-## Proof Sketch for `orthogonal_primitive_peirce_sq` (Line 1131)
-
-The 12-step proof is documented in the code. Key steps:
-
-### Part A: Structure (Steps 4-10)
-- f ∈ P₀(e), e ∈ P₀(f) (orthogonality)
-- jmul f (jsq a) = jmul f c₀e = r₂ • f
-- jmul e (jsq a) = jmul e c₀f = r₁ • e
-- e + f is idempotent (orthogonal sum)
-- a ∈ P₁(e+f) since jmul (e+f) a = a
-- jsq a ∈ P₁(e+f) by peirce_mult_P1_P1
-- P₀(e) ∩ P₀(f) ⊆ P₀(e+f), so jsq a = r₁•e + r₂•f
-
-### Part B: Equality r₁ = r₂ (Step 11)
-- U_a(e) = {a,e,a} = 2 jmul a (jmul e a) - jmul (jsq a) e = jsq a - r₁•e = r₂•f
-- U_a(f) = r₁•e (by symmetry)
-- Fundamental formula: U_a(U_a(e)) = U_{jsq a}(e)
-- LHS: U_a(r₂•f) = r₂ U_a(f) = r₁r₂•e
-- RHS: U_{r₁e+r₂f}(e) = r₁²•e (after computation)
-- Therefore r₁r₂ = r₁², and similarly r₁r₂ = r₂²
-- Hence r₁ = r₂ (both ≥ 0)
-
-### Part C: Non-negativity (Step 12)
-- jsq a is a square, so by H-O 2.9.4(vi), coefficients ≥ 0
-- Alternatively: if r₁ < 0, then jsq a + |r₁|•(e+f) = 0 contradicts formal reality
-
-### Missing Lemmas Needed
-1. `orthogonal_sum_isIdempotent` - sum of orthogonal idempotents is idempotent
-2. `IsIdempotent.jmul_self` or equivalent accessor
-3. Peirce space membership simplifications (`0 • x = 0`, `1 • x = x`)
-4. Fundamental formula (has sorry in FundamentalFormula.lean:56)
+### Deferred
+- `af-0xrg`: of_sq_eq_zero - needs architectural decision (spectral theory vs axioms)
+- `af-tpm2`: Spectral theory development (P3)
 
 ---
 
-## For Next Agent
+## Files Modified This Session
 
-**Recommended approach:**
-1. First prove helper lemma `orthogonal_sum_isIdempotent`
-2. Fix the Peirce space membership issues (eigenvalues use `λ • x` form)
-3. Implement the proof step by step, testing each step
-
-**Alternative:** The fundamental formula has a sorry - could use a direct symmetry argument instead.
+- `AfTests/Jordan/Matrix/JordanProduct.lean` (added bilinearity, Jordan identity)
+- `AfTests/Jordan/Matrix/Instance.lean` (NEW - JordanAlgebra instance)
+- `HANDOFF.md` (updated)
 
 ---
 
-## File Locations
+## Sorries
 
-| Item | Location |
-|------|----------|
-| `orthogonal_primitive_peirce_sq` | Primitive.lean:1097 |
-| `fundamental_formula` (sorry) | FundamentalFormula.lean:56 |
-| Peirce multiplication rules | Peirce.lean |
+1. `AfTests/Jordan/FormallyReal/Def.lean:58-68` - `of_sq_eq_zero`
+   - Proving: single-element property implies sum-of-squares property
+   - Status: **Requires spectral theory or ordering axioms**
+   - See: Faraut-Korányi "Analysis on Symmetric Cones"
 
 ---
 
-## Session Close Checklist
+## Technical Notes
 
-- [x] BUILD PASSES
-- [x] HANDOFF.MD UPDATED
-- [ ] bd close → bd sync
-- [ ] git commit → git push
+### Jordan Identity Proof Pattern
+The Jordan identity `(A ∘ B) ∘ A² = A ∘ (B ∘ A²)` for matrices:
+1. Expand using `jordanMul_def` and `jordanMul_self`
+2. Pull scalars through with `smul_mul_assoc`, `mul_smul_comm`
+3. Apply `Matrix.mul_assoc` using `conv` to both sides
+4. Terms become identical after `ring_nf; abel`
+
+### HermitianMatrix vs RealSymmetricMatrix
+- `HermitianMatrix n R` works for general `[Field R] [StarRing R]`
+- `RealSymmetricMatrix n` = `selfAdjoint (Matrix n n ℝ)` has `Module ℝ` automatically
+- Only RealSymmetricMatrix gets JordanAlgebra instance (over ℝ)
+
+---
+
+## Beads Summary
+
+- 1 task closed this session: `af-dcxu` (JordanAlgebra instance)
+
+---
+
+## Previous Sessions
+
+### Session 37 (2026-01-30)
+- Eliminated IsHermitian.jordanMul sorry
+- Documented of_sq_eq_zero limitation
+
+### Session 36 (2026-01-30)
+- Jordan FormallyReal properties, cone, matrix product (3 files, 269 LOC)
+
+### Session 35 (2026-01-30)
+- Jordan algebra core infrastructure (5 files, 460 LOC)
