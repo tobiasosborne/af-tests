@@ -12,6 +12,10 @@
 - `hf_in_P0_e : f ∈ PeirceSpace e 0` using `orthogonal_in_peirce_zero`
 - `he_in_P0_f : e ∈ PeirceSpace f 0` using `orthogonal_in_peirce_zero horth.symm`
 
+**Added** Step 5 to `orthogonal_primitive_peirce_sq` in `Primitive.lean:1116-1122`:
+- `hjmul_f_sq : jmul f (jsq a) = r₂ • f`
+- Uses f-decomposition and `c₀f ∈ P₀(f)` implies `jmul f c₀f = 0`
+
 ---
 
 ## Previous Session (38)
