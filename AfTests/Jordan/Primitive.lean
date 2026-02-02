@@ -1142,13 +1142,17 @@ theorem orthogonal_primitive_peirce_sq [FinDimJordanAlgebra J] [FormallyRealJord
   have hsq_in_P1_ef : jsq a ∈ PeirceSpace (e + f) 1 := by
     rw [jsq_def]
     exact peirce_mult_P1_P1 hef_idem ha_in_P1_ef ha_in_P1_ef
+  -- Step 10: jsq a = r₁•e + r₂•f (from P₁(e+f) membership and Steps 5-6)
+  -- Since jsq a ∈ P₁(e+f), we have jmul (e+f) (jsq a) = jsq a
+  -- Expanding: jmul e (jsq a) + jmul f (jsq a) = jsq a
+  -- By Steps 5-6: r₁•e + r₂•f = jsq a
+  have hsq_decomp : jsq a = r₁ • e + r₂ • f := by
+    rw [mem_peirceSpace_iff, one_smul] at hsq_in_P1_ef
+    rw [add_jmul, hjmul_e_sq, hjmul_f_sq] at hsq_in_P1_ef
+    exact hsq_in_P1_ef.symm
   -- PROOF SKETCH (remaining steps):
-  -- Step 10: P₀(e) ∩ P₀(f) ⊆ P₀(e+f), and P₁(e+f) ∩ P₀(e+f) = {0}
-  --          Therefore jsq a = r₁•e + r₂•f (no P₀(e)∩P₀(f) component)
-  -- Step 11: r₁ = r₂ by symmetry of hypotheses OR by fundamental formula:
-  --          U_a(e) = r₂•f, U_a(f) = r₁•e, U_a(U_a(e)) = r₁r₂•e = U_{jsq a}(e) = r₁²•e
-  --          So r₁r₂ = r₁², similarly r₁r₂ = r₂², hence r₁ = r₂ (both ≥ 0)
-  -- Step 12: r₁ ≥ 0 by formal reality: jsq a is a square, H-O 2.9.4(vi) says coefs ≥ 0
+  -- Step 11: r₁ = r₂ by symmetry of hypotheses OR by fundamental formula
+  -- Step 12: r₁ ≥ 0 by formal reality
   sorry
 
 /-- For orthogonal primitive idempotents in a formally real Jordan algebra,

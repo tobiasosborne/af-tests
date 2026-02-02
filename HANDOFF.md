@@ -2,9 +2,9 @@
 
 ## Completed This Session
 
-### Steps 7-9: orthogonal_primitive_peirce_sq
+### Steps 7-10: orthogonal_primitive_peirce_sq
 
-**Added** Steps 7-9 to `orthogonal_primitive_peirce_sq` in `Primitive.lean:1133-1145`:
+**Added** Steps 7-10 to `orthogonal_primitive_peirce_sq` in `Primitive.lean:1133-1153`:
 
 - **Step 7**: `hef_idem : IsIdempotent (e + f)`
   - Uses `orthogonal_sum_isIdempotent he.isIdempotent hf.isIdempotent horth`
@@ -17,9 +17,12 @@
 - **Step 9**: `hsq_in_P1_ef : jsq a ∈ PeirceSpace (e + f) 1`
   - Uses `peirce_mult_P1_P1 hef_idem ha_in_P1_ef ha_in_P1_ef`
 
-**Remaining Steps** (10-12):
-- Step 10: Show P₀(e) ∩ P₀(f) component is zero (disjoint from P₁(e+f))
-- Step 11: Show r₁ = r₂ (coefficient equality via symmetry or fundamental formula)
+- **Step 10**: `hsq_decomp : jsq a = r₁ • e + r₂ • f`
+  - Key insight: `jsq a ∈ P₁(e+f)` means `jmul (e+f) (jsq a) = jsq a`
+  - Expanding with `add_jmul` and using Steps 5-6 gives decomposition directly
+
+**Remaining Steps** (11-12):
+- Step 11: Show r₁ = r₂ (coefficient equality - may need fundamental formula or linear independence)
 - Step 12: Show r₁ ≥ 0 (non-negativity via formal reality)
 
 ---
