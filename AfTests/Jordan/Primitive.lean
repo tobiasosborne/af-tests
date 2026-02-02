@@ -1364,6 +1364,54 @@ theorem orthogonal_of_jmul_eq {e f : J}
   -- Now need: f - jmul f f = 0. Use hf : jsq f = f, i.e., jmul f f = f
   rw [← jsq_def, hf, sub_self]
 
+/-- If jmul e f = f, then f ∈ P₁(e). -/
+theorem sub_idem_in_peirce_one {e f : J} (hef : jmul e f = f) : f ∈ PeirceSpace e 1 := by
+  rw [mem_peirceSpace_one_iff]
+  exact hef
+
+/-- For orthogonal idempotents f, g: P₁(f) ≤ P₁(f + g) as submodules.
+Key: g ∈ P₀(f) implies jmul g x = 0 for x ∈ P₁(f) by peirce_mult_P0_P1. -/
+theorem orthog_idem_peirce_one_le {f g : J}
+    (hf : IsIdempotent f) (horth : AreOrthogonal f g) :
+    PeirceSpace f 1 ≤ PeirceSpace (f + g) 1 := by
+  intro x hx
+  rw [mem_peirceSpace_one_iff] at hx ⊢
+  -- jmul (f + g) x = jmul f x + jmul g x = x + jmul g x
+  rw [add_jmul, hx]
+  -- Need: jmul g x = 0. g ∈ P₀(f) by orthogonality
+  have hg_in_P0 : g ∈ PeirceSpace f 0 := orthogonal_in_peirce_zero horth
+  have hx_in_P1 : x ∈ PeirceSpace f 1 := by rw [mem_peirceSpace_one_iff]; exact hx
+  rw [peirce_mult_P0_P1 hf hg_in_P0 hx_in_P1, add_zero]
+
+/-- For orthogonal idempotents f, g with g ≠ 0: P₁(f) < P₁(f + g) as submodules.
+The witness is g itself: g ∈ P₁(f + g) but g ∉ P₁(f). -/
+theorem orthog_idem_peirce_one_lt {f g : J}
+    (hf : IsIdempotent f) (hg : IsIdempotent g) (horth : AreOrthogonal f g) (hgne : g ≠ 0) :
+    PeirceSpace f 1 < PeirceSpace (f + g) 1 := by
+  rw [SetLike.lt_iff_le_and_exists]
+  constructor
+  · exact orthog_idem_peirce_one_le hf horth
+  · -- Witness: g ∈ P₁(f + g) but g ∉ P₁(f)
+    use g
+    constructor
+    · -- g ∈ P₁(f + g): need jmul (f+g) g = g
+      rw [mem_peirceSpace_one_iff, add_jmul, horth, zero_add, ← jsq_def, hg]
+    · -- g ∉ P₁(f): jmul f g = 0 ≠ g
+      rw [mem_peirceSpace_one_iff]
+      intro hcontra
+      -- hcontra : jmul f g = g, horth : jmul f g = 0
+      rw [horth] at hcontra
+      exact hgne hcontra.symm
+
+/-- When f is a proper orthogonal summand of e (i.e., e = f + g with orthogonal g ≠ 0),
+finrank P₁(f) < finrank P₁(e). -/
+theorem sub_idem_finrank_lt [FinDimJordanAlgebra J] {e f g : J}
+    (hf : IsIdempotent f) (hg : IsIdempotent g)
+    (horth : AreOrthogonal f g) (hgne : g ≠ 0) (heq : e = f + g) :
+    Module.finrank ℝ (PeirceSpace f 1) < Module.finrank ℝ (PeirceSpace e 1) := by
+  rw [heq]
+  exact Submodule.finrank_lt_finrank_of_lt (orthog_idem_peirce_one_lt hf hg horth hgne)
+
 theorem exists_primitive_decomp [FinDimJordanAlgebra J] [FormallyRealJordan J]
     {e : J} (he : IsIdempotent e) (hne : e ≠ 0) :
     ∃ (k : ℕ) (p : Fin k → J),
@@ -1382,20 +1430,22 @@ theorem exists_primitive_decomp [FinDimJordanAlgebra J] [FormallyRealJordan J]
       push_neg at hprim
       exact hprim he hne
     obtain ⟨f, hf_idem, hef, hf_ne0, hf_nee⟩ := hprim'
-    -- e - f is idempotent by sub_idempotent_of_jmul_eq
+    -- e - f is idempotent
     have hemf_idem := sub_idempotent_of_jmul_eq he hf_idem hef
-    -- f and (e - f) are orthogonal by orthogonal_of_jmul_eq
+    -- f and (e - f) are orthogonal
     have horth := orthogonal_of_jmul_eq hf_idem hef
     -- e - f ≠ 0 since f ≠ e
     have hemf_ne0 : e - f ≠ 0 := sub_ne_zero.mpr hf_nee.symm
     -- e = f + (e - f)
     have heq : e = f + (e - f) := by abel
-    -- TODO: Need induction to complete. Approach options:
-    -- 1. Strong induction on Module.finrank ℝ (PeirceSpace e 1)
-    --    Requires: converse of primitive_peirce_one_dim_one (dim 1 → primitive)
-    --    And: finrank P₁(f) < finrank P₁(e) when f is proper sub-idempotent
-    -- 2. Well-founded induction on idempotent partial order (e' ≤ e iff jmul e e' = e')
-    -- 3. Zorn's lemma for maximal orthogonal primitive families
+    -- Key bounds for recursion (sub_idem_finrank_lt):
+    have hlt_f : Module.finrank ℝ (PeirceSpace f 1) < Module.finrank ℝ (PeirceSpace e 1) :=
+      sub_idem_finrank_lt hf_idem hemf_idem horth hemf_ne0 heq
+    have hlt_emf : Module.finrank ℝ (PeirceSpace (e - f) 1) < Module.finrank ℝ (PeirceSpace e 1) := by
+      have heq' : e = (e - f) + f := by abel
+      exact sub_idem_finrank_lt hemf_idem hf_idem horth.symm hf_ne0 heq'
+    -- TODO: Use Nat.lt_wfRel.wf.fix for recursion, then combine decompositions.
+    -- Need helper: primitive_orthog_of_sum_orthog (if Σp₁ ⊥ Σp₂ then p₁ᵢ ⊥ p₂ⱼ)
     sorry
 
 /-- A CSOI can be refined to a primitive CSOI. -/

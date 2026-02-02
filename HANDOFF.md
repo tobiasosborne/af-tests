@@ -1,6 +1,32 @@
-# Handoff: 2026-02-02 (Session 48)
+# Handoff: 2026-02-02 (Session 49)
 
 ## Completed This Session
+
+### Helper Lemmas for exists_primitive_decomp (Primitive.lean:1367-1412)
+
+Added key lemmas enabling induction on finrank P₁(e):
+
+1. **sub_idem_in_peirce_one**: If `jmul e f = f`, then `f ∈ P₁(e)`
+
+2. **orthog_idem_peirce_one_le**: For orthogonal idempotents f, g: `P₁(f) ≤ P₁(f+g)`
+   - Key insight: g ∈ P₀(f) implies `jmul g x = 0` for x ∈ P₁(f) by `peirce_mult_P0_P1`
+
+3. **orthog_idem_peirce_one_lt**: For orthogonal f, g with g ≠ 0: `P₁(f) < P₁(f+g)`
+   - Witness: g ∈ P₁(f+g) but g ∉ P₁(f) (since jmul f g = 0 ≠ g)
+
+4. **sub_idem_finrank_lt**: `finrank P₁(f) < finrank P₁(e)` when `e = f + g` orthogonal
+
+### Progress on exists_primitive_decomp
+
+Proof structure in place:
+- Primitive case: return singleton `![e]` ✅
+- Non-primitive case: extract f, show finrank bounds ✅
+- TODO: Complete recursion using `Nat.lt_wfRel.wf.fix`
+- TODO: Need `primitive_orthog_of_sum_orthog` (if Σp₁ ⊥ Σp₂ then p₁ᵢ ⊥ p₂ⱼ)
+
+---
+
+## Previous Session (48)
 
 ### Issue Cleanup
 
