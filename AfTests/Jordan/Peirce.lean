@@ -482,7 +482,7 @@ theorem peirceProj_sum (e : J) :
   ext x
   simp only [LinearMap.add_apply, peirceProj₀, peirceProj₁₂, peirceProj₁,
     LinearMap.sub_apply, LinearMap.smul_apply, LinearMap.comp_apply,
-    LinearMap.id_apply, LinearMap.neg_apply, L_apply]
+    LinearMap.id_apply, L_apply]
   -- Goal: (2L² - 3L + 1)x + (-4L² + 4L)x + (2L² - L)x = x
   -- = (2 - 4 + 2)L²x + (-3 + 4 - 1)Lx + x = 0·L²x + 0·Lx + x = x
   -- Use module axioms: coefficients are 0, 0, 1
@@ -566,7 +566,7 @@ theorem peirceProj₁₂_mem {e : J} (he : IsIdempotent e) (x : J) :
       = (-2 : ℝ) • ((2 : ℝ) • jmul e (jmul e (jmul e x))) := by rw [smul_smul]; norm_num
       _ = (-2 : ℝ) • ((3 : ℝ) • jmul e (jmul e x) - jmul e x) := by rw [h2L3]
       _ = (-6 : ℝ) • jmul e (jmul e x) + (2 : ℝ) • jmul e x := by
-          rw [smul_sub, smul_smul]; simp only [neg_mul, neg_neg]; norm_num
+          rw [smul_sub, smul_smul]; simp only [neg_mul]; norm_num
   -- Now: -4L³ + 4L² = (-6L² + 2L) + 4L² = -2L² + 2L = (1/2)(-4L² + 4L)
   calc (-4 : ℝ) • jmul e (jmul e (jmul e x)) + (4 : ℝ) • jmul e (jmul e x)
     = ((-6 : ℝ) • jmul e (jmul e x) + (2 : ℝ) • jmul e x) + (4 : ℝ) • jmul e (jmul e x) := by
