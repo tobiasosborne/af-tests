@@ -274,6 +274,29 @@ theorem traceReal_jone_pos [Nonempty n] :
   simp only [RCLike.natCast_re]
   exact Nat.cast_pos.mpr (Fintype.card_pos)
 
+/-! ### FormallyRealTrace Properties -/
+
+/-- For Hermitian A, traceReal (jsq A) = traceInnerReal A A.
+    This follows because jsq A = jmul A A has underlying value A.val * A.val. -/
+theorem traceReal_jsq_eq_traceInnerReal (A : HermitianMatrix n 𝕜) :
+    traceReal (jsq A) = traceInnerReal A A := by
+  simp only [traceReal_def, traceInnerReal_def, traceInner_def]
+  -- jsq A = jmul A A, and (jmul A A).val = jordanMul A.val A.val = A.val * A.val
+  congr 1
+  simp only [JordanAlgebra.jsq_def, jmul_val, jordanMul_self]
+
+/-- Trace of a square is non-negative for Hermitian matrices. -/
+theorem traceReal_jsq_nonneg (A : HermitianMatrix n 𝕜) :
+    0 ≤ traceReal (jsq A) := by
+  rw [traceReal_jsq_eq_traceInnerReal]
+  exact traceInnerReal_self_nonneg A
+
+/-- Trace of a square is zero iff the element is zero. -/
+theorem traceReal_jsq_eq_zero_iff (A : HermitianMatrix n 𝕜) :
+    traceReal (jsq A) = 0 ↔ A = 0 := by
+  rw [traceReal_jsq_eq_traceInnerReal]
+  exact traceInnerReal_self_eq_zero A
+
 end HermitianMatrix
 
 /-! ### JordanTrace Instance for Hermitian Matrices -/
@@ -287,3 +310,11 @@ instance jordanTraceHermitianMatrix {n : Type*} [DecidableEq n] [Fintype n] [Non
   trace_jmul_comm := HermitianMatrix.traceReal_jmul_comm
   trace_L_selfadjoint := HermitianMatrix.traceReal_L_selfadjoint
   trace_jone_pos := HermitianMatrix.traceReal_jone_pos
+
+/-! ### FormallyRealTrace Instance for Hermitian Matrices -/
+
+/-- Hermitian matrices satisfy FormallyRealTrace: trace of squares is non-negative and definite. -/
+instance formallyRealTraceHermitianMatrix {n : Type*} [DecidableEq n] [Fintype n] [Nonempty n]
+    {𝕜 : Type*} [RCLike 𝕜] : JordanAlgebra.FormallyRealTrace (HermitianMatrix n 𝕜) where
+  trace_jsq_nonneg := HermitianMatrix.traceReal_jsq_nonneg
+  trace_jsq_eq_zero_iff := HermitianMatrix.traceReal_jsq_eq_zero_iff

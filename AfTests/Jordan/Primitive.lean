@@ -1252,10 +1252,41 @@ theorem orthogonal_primitive_structure [FinDimJordanAlgebra J] [FormallyRealJord
     (he : IsPrimitive e) (hf : IsPrimitive f) (horth : AreOrthogonal e f) :
     (∀ a : J, jmul e a = (1 / 2 : ℝ) • a → jmul f a = (1 / 2 : ℝ) • a → a = 0) ∨
     IsStronglyConnected e f := by
-  -- If there exists nonzero a in the Peirce ½ space, then by orthogonal_primitive_peirce_sq,
-  -- a² = μ(e+f) with μ > 0 (μ = 0 would mean a² = 0, hence a = 0 by formal reality).
-  -- Then (μ^{-1/2} a)² = e + f, so e and f are strongly connected.
-  sorry
+  -- Either all elements in Peirce½(e) ∩ Peirce½(f) are zero, or ∃ nonzero a
+  by_cases h : ∀ a : J, jmul e a = (1 / 2 : ℝ) • a → jmul f a = (1 / 2 : ℝ) • a → a = 0
+  · left; exact h
+  · right
+    push_neg at h
+    obtain ⟨a, ha_e, ha_f, ha_ne⟩ := h
+    -- By orthogonal_primitive_peirce_sq: jsq a = μ • (e + f) with μ ≥ 0
+    obtain ⟨μ, hμ_nonneg, hsq_eq⟩ := orthogonal_primitive_peirce_sq he hf horth ⟨ha_e, ha_f⟩
+    -- μ > 0 (if μ = 0, then jsq a = 0, so a = 0 by formal reality, contradiction)
+    have hμ_pos : 0 < μ := by
+      rcases hμ_nonneg.lt_or_eq with hμ_pos | hμ_zero
+      · exact hμ_pos
+      · exfalso
+        rw [← hμ_zero, zero_smul] at hsq_eq
+        exact ha_ne (FormallyRealJordan.sq_eq_zero_imp_zero hsq_eq)
+    -- Let v = μ^(-1/2) • a
+    let v := (Real.sqrt μ)⁻¹ • a
+    refine ⟨horth, v, ?_, ?_, ?_⟩
+    -- v ∈ Peirce½(e): jmul e v = (1/2) • v
+    · simp only [v, smul_jmul, ha_e, smul_smul, mul_comm]
+    -- v ∈ Peirce½(f): jmul f v = (1/2) • v
+    · simp only [v, smul_jmul, ha_f, smul_smul, mul_comm]
+    -- jsq v = e + f
+    · have hsqrt_ne : Real.sqrt μ ≠ 0 := Real.sqrt_ne_zero'.mpr hμ_pos
+      calc jsq v = jsq ((Real.sqrt μ)⁻¹ • a) := rfl
+        _ = jmul ((Real.sqrt μ)⁻¹ • a) ((Real.sqrt μ)⁻¹ • a) := jsq_def _
+        _ = (Real.sqrt μ)⁻¹ • (Real.sqrt μ)⁻¹ • jmul a a := by rw [smul_jmul, jmul_smul]
+        _ = ((Real.sqrt μ)⁻¹ * (Real.sqrt μ)⁻¹) • jsq a := by rw [smul_smul, jsq_def]
+        _ = ((Real.sqrt μ)⁻¹ * (Real.sqrt μ)⁻¹) • (μ • (e + f)) := by rw [hsq_eq]
+        _ = ((Real.sqrt μ)⁻¹ * (Real.sqrt μ)⁻¹ * μ) • (e + f) := by rw [smul_smul]
+        _ = (1 : ℝ) • (e + f) := by
+            congr 1
+            field_simp [hsqrt_ne]
+            exact (Real.sq_sqrt (le_of_lt hμ_pos)).symm
+        _ = e + f := one_smul _ _
 
 /-! ### Note on "Primitive Dichotomy"
 

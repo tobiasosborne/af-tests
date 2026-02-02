@@ -1,18 +1,47 @@
-# Handoff: 2026-02-02 (Session 44)
+# Handoff: 2026-02-02 (Session 45)
 
 ## Completed This Session
+
+### ✅ FormallyRealTrace Instance (Matrix/Trace.lean)
+
+Added `formallyRealTraceHermitianMatrix` instance with:
+- `traceReal_jsq_nonneg`: `0 ≤ traceReal (jsq A)`
+- `traceReal_jsq_eq_zero_iff`: `traceReal (jsq A) = 0 ↔ A = 0`
+
+Key helper: `traceReal_jsq_eq_traceInnerReal A : traceReal (jsq A) = traceInnerReal A A`
+
+### ✅ orthogonal_primitive_structure (Primitive.lean:1251-1289)
+
+Proved the H-O 2.9.4(iv) dichotomy:
+```lean
+theorem orthogonal_primitive_structure {e f : J}
+    (he : IsPrimitive e) (hf : IsPrimitive f) (horth : AreOrthogonal e f) :
+    (∀ a, jmul e a = (1/2) • a → jmul f a = (1/2) • a → a = 0) ∨
+    IsStronglyConnected e f
+```
+
+**Proof strategy**:
+- Case 1: All a in Peirce½(e) ∩ Peirce½(f) are zero → left disjunct
+- Case 2: ∃ nonzero a → by `orthogonal_primitive_peirce_sq`, `jsq a = μ • (e+f)` with μ ≥ 0
+  - μ > 0 (else jsq a = 0 ⟹ a = 0 by formal reality)
+  - Let v = (√μ)⁻¹ • a, then jsq v = e + f → strongly connected
+
+### Closed Issues
+- `af-5zpv`: JordanTrace instance complete
+- `af-2dzb`: trace_L_selfadjoint proven
+- `af-pxqu`: FormallyRealTrace instance complete
+- `af-xg63`: orthogonal_primitive_structure proven
+
+---
+
+## Previous Session (44)
 
 ### ✅ JordanTrace Instance Complete (Matrix/Trace.lean)
 
 **Filled** two sorries in `AfTests/Jordan/Matrix/Trace.lean`:
 
 1. **traceReal_smul** (line 220): `traceReal (r • A) = r * traceReal A`
-   - Proof: Expand via `trace_smul` + `RCLike.smul_re`
-   - Key fix: Removed redundant `[Algebra ℝ 𝕜] [StarModule ℝ 𝕜]` constraints (RCLike provides these)
-
 2. **traceReal_L_selfadjoint** (line 252): `Tr((A∘V)∘W) = Tr(V∘(A∘W))`
-   - Proof: Expand Jordan products, use trace cyclicity (`trace_mul_cycle'`)
-   - Key insight: Both sides equal `(Tr(AVW) + Tr(VAW))/2` after applying cyclicity
 
 **Result**: `jordanTraceHermitianMatrix` instance has no sorries.
 
