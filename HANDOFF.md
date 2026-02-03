@@ -1,6 +1,31 @@
-# Handoff: 2026-02-03 (Session 64)
+# Handoff: 2026-02-03 (Session 65)
 
 ## Completed This Session
+
+### triple_product_242 PROVED (FundamentalFormula.lean:84-110, no sorry)
+
+Filled the sorry in `triple_product_242` (H-O 2.4.20, identity 2.42):
+```lean
+theorem triple_product_242 (a b c d : J) :
+    jmul (triple a b c) d =
+    triple (jmul a d) b c + triple a b (jmul c d) - triple a (jmul b d) c
+```
+
+**Proof technique** (~20 LOC):
+1. Expand triples: `simp only [triple_def, add_jmul, sub_jmul]`
+2. Introduce h1/h2/h3 = `four_variable_identity` with args `(d,a,b,c)`, `(d,b,c,a)`, `(d,a,c,b)`
+3. Normalize d-commutativity: `simp only [jmul_comm d] at h1 h2 h3`
+4. Normalize remaining commutativity via targeted `rw [jmul_comm ...] at h2/h3`
+5. Convert to zero-form: `sub_eq_zero.mpr h1/h2/h3`
+6. Close via `calc` with `abel` + `rw [e1, e2, e3]; abel`
+
+**Key insight**: `linear_combination` requires `CommSemiring` (unavailable for non-associative
+Jordan algebras). Workaround: express `goal_diff` as `(h1_diff)+(h2_diff)-(h3_diff)` via `abel`,
+then substitute each diff = 0.
+
+---
+
+## Previous Session (64)
 
 ### Verified triple_product_242 proof approach against H-O 2.4.20 (no code changes)
 
@@ -552,9 +577,8 @@ ring_nf; abel
 ## Next Steps
 
 ### Immediate (unblocked tasks)
-1. `af-9qp2` (P1, in_progress): Fill sorry in `triple_product_242` (FundamentalFormula.lean:91)
-   - Proof strategy fully worked out (see above), needs ~15 jmul_comm rewrites
-   - Then add (2.43) and (2.44) statements and proofs (same pattern)
+1. **Add (2.43) and (2.44) statements and proofs** — same pattern as triple_product_242:
+   three instances of `four_variable_identity`, jmul_comm normalization, `sub_eq_zero` + `abel`
 2. `af-i8oo` (P1): Fundamental formula — blocked on Macdonald's theorem
 3. `af-s4t7` (P2): Spectral decomposition
 4. Various P2 tasks: Quaternion embedding, spin factors, reversible algebras

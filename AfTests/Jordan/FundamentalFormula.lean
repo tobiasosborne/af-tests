@@ -88,7 +88,26 @@ theorem triple_product_242 (a b c d : J) :
   have h1 := four_variable_identity d a b c
   have h2 := four_variable_identity d b c a
   have h3 := four_variable_identity d a c b
-  sorry
+  simp only [jmul_comm d] at h1 h2 h3
+  rw [jmul_comm (jmul b c) a, jmul_comm (jmul c d) a, jmul_comm (jmul b d) a,
+      jmul_comm c (jmul a (jmul b d)),
+      jmul_comm (jmul b c) (jmul a d), jmul_comm b a, jmul_comm (jmul c d) (jmul a b),
+      jmul_comm c a] at h2
+  rw [jmul_comm (jmul a c) b, jmul_comm (jmul c d) b, jmul_comm c (jmul (jmul a d) b),
+      jmul_comm (jmul a c) (jmul b d), jmul_comm (jmul c d) (jmul a b), jmul_comm c b] at h3
+  have e1 := sub_eq_zero.mpr h1
+  have e2 := sub_eq_zero.mpr h2
+  have e3 := sub_eq_zero.mpr h3
+  apply sub_eq_zero.mp
+  calc _
+      = (jmul (jmul (jmul a b) c) d + jmul a (jmul (jmul b d) c) + jmul b (jmul (jmul a d) c) -
+          (jmul (jmul a b) (jmul c d) + jmul (jmul b d) (jmul a c) + jmul (jmul a d) (jmul b c))) +
+        (jmul (jmul a (jmul b c)) d + jmul b (jmul a (jmul c d)) + jmul (jmul a (jmul b d)) c -
+          (jmul (jmul a d) (jmul b c) + jmul (jmul a b) (jmul c d) + jmul (jmul b d) (jmul a c))) -
+        (jmul (jmul b (jmul a c)) d + jmul a (jmul b (jmul c d)) + jmul (jmul (jmul a d) b) c -
+          (jmul (jmul b d) (jmul a c) + jmul (jmul a b) (jmul c d) + jmul (jmul a d) (jmul b c)))
+          := by abel
+    _ = 0 := by rw [e1, e2, e3]; abel
 
 /-! ### The Fundamental Formula -/
 
