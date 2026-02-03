@@ -1,6 +1,19 @@
-# Handoff: 2026-02-03 (Session 55)
+# Handoff: 2026-02-03 (Session 56)
 
 ## Completed This Session
+
+### Removed false operator identities (OperatorIdentities.lean)
+
+Verified on 2×2 symmetric matrices that `opComm_double_idempotent` and `L_e_L_a_L_e`
+are **FALSE**. Counterexample: e=diag(1,0), a=[[0,1],[1,0]], x=[[1,0],[0,0]] gives
+LHS=[[0,1/8],[1/8,0]] vs RHS=[[0,1/4],[1/4,0]].
+
+Removed both sorry'd theorems from `OperatorIdentities.lean`. Build passes.
+Closed `af-cnnp` (P0) and `af-j60a` (P0).
+
+---
+
+## Previous Session (55)
 
 ### csoi_refine_primitive COMPLETE (Primitive.lean:1546-1587)
 
@@ -341,9 +354,9 @@ ring_nf; abel
 ## Next Steps
 
 ### Immediate (unblocked tasks)
-1. `af-j4dq`: Jordan/FormallyReal/Spectrum.lean - Spectral properties
-2. `af-dc2h`: Jordan/Matrix/RealHermitian.lean - Additional properties
-3. `af-noad`: Jordan/FormallyReal/Square.lean - Square roots
+1. `af-i8oo` (P1): Fundamental formula U_{U_a(b)} = U_a U_b U_a (~150-200 LOC direct calc)
+2. `af-s4t7` (P2): Spectral decomposition
+3. Various P2 tasks: Quaternion embedding, spin factors, reversible algebras
 
 ### Deferred
 - `af-0xrg`: of_sq_eq_zero - needs architectural decision (spectral theory vs axioms)

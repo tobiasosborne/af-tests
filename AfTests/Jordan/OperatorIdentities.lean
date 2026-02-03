@@ -19,7 +19,6 @@ identities used in Peirce decomposition analysis.
 
 * `linearized_jordan_operator` - The linearized Jordan identity in operator form
 * `opComm_idempotent_eigenspace` - Commutator property for idempotents
-* `L_e_L_a_L_e` - Identity involving `L_e ∘ L_a ∘ L_e` for idempotent e
 -/
 
 namespace JordanAlgebra
@@ -161,22 +160,6 @@ theorem operator_commutator_jsq_apply (a b x : J) :
 theorem opComm_idempotent_eigenspace {e : J} (_he : IsIdempotent e)
     {a : J} {ev : ℝ} (_ha : jmul e a = ev • a) (x : J) :
     ⟦L e, L a⟧ x = jmul e (jmul a x) - jmul a (jmul e x) := rfl
-
-/-- For idempotent e: `L_e ∘ L_a ∘ L_e = L_{e∘(a∘e)} + (1/2)[L_e, [L_e, L_a]]`
-    This identity is used in analyzing Peirce space products.
-
-Note: This requires the linearized Jordan identity for a full proof. -/
-theorem L_e_L_a_L_e {e : J} (_he : IsIdempotent e) (a : J) :
-    L e ∘ₗ L a ∘ₗ L e = L (jmul e (jmul a e)) + (1/2 : ℝ) • ⟦L e, ⟦L e, L a⟧⟧ := by
-  -- Follows from operator calculus and the Jordan identity
-  sorry
-
-/-- The double commutator identity for idempotent:
-    `[L_e, [L_e, L_a]]` relates to the projection onto P_{1/2}(e). -/
-theorem opComm_double_idempotent {e : J} (_he : IsIdempotent e) (a : J) :
-    ⟦L e, ⟦L e, L a⟧⟧ = 2 • (L e ∘ₗ L a ∘ₗ L e) - 2 • L (jmul e (jmul a e)) := by
-  -- Rearrangement of L_e_L_a_L_e
-  sorry
 
 /-! ### Useful Commutator Properties -/
 
