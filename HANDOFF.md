@@ -1,6 +1,43 @@
-# Handoff: 2026-02-03 (Session 60)
+# Handoff: 2026-02-03 (Session 61)
 
 ## Completed This Session
+
+### JTPI proof analysis — deep algebraic computation documented
+
+Investigated the JTPI sorry at `FundamentalFormula.lean:79`. Key findings:
+
+**After expansion** (`simp only [triple_def, U_def, two_smul, jmul_sub, jmul_add, sub_jmul, add_jmul]`),
+the goal becomes matching 12 distinct depth-4 jmul atoms (6 per side, no overlap).
+
+**Available identities** (all proven in LinearizedJordan.lean, OperatorIdentities.lean):
+- `operator_formula_apply(a,a,ab,x)`: relates atoms (1),(3),(7) + extra `(ab)(a²x)`, `(ab)(a(ax))`
+- `four_variable_identity(a,a,ab,x)`: gives `2(3) + (ab)(a²x) = 2(5) + (10)`
+- `operator_commutator_jsq_apply`: converts a²-commutator into L_a compositions
+- `fundamental_jordan'`: swaps a and a² in adjacent positions
+
+**Key difficulty**: All identities introduce "extra atoms" (e.g., `(ab)(a²x)`, `a((ab)(ax))`).
+When extra atoms are eliminated using other identities, the remaining relations among atoms 1-12
+are tautological. This means the current identity set is INSUFFICIENT to derive JTPI by
+simple linear combination + abel.
+
+**Why brute force fails**: No Lean tactic handles non-associative algebra equalities.
+`ring` requires associativity, `abel` only handles the additive group, and `linear_combination`
+requires `ring` as normalizer. A custom non-associative rewrite tactic would be needed.
+
+**Recommended approaches for next session**:
+1. **Operator-level proof**: Work at `LinearMap` level using `ext`, prove
+   `V_{a, U_a(b)} = U_a ∘ V_{a,b}` as operator equation using `operator_formula`,
+   `operator_commutator_jsq`, and `L_comm_L_sq`. More structured than element-level.
+2. **Verify for matrices first**: Prove JTPI for `RealSymmetricMatrix` where it reduces
+   to associative algebra: `{a, aba, x} = a(a({a,b,x})b)a` by `ring`. This gives confidence
+   and a concrete instance.
+3. **Shirshov-Cohn approach**: JTPI involves only 2 generators (a,b with x free/linear).
+   Shirshov-Cohn says 2-generated Jordan ⇒ special. Verify in special algebras, conclude generally.
+   Major formalization effort but reusable for FF and other identities.
+
+---
+
+## Previous Session (60)
 
 ### JTPI + proof structure for fundamental formula (FundamentalFormula.lean, ~25 LOC)
 
