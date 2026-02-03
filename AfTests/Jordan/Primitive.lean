@@ -1546,6 +1546,47 @@ elements. Each original idempotent decomposes into one or more primitives via
 theorem csoi_refine_primitive [FinDimJordanAlgebra J] [FormallyRealJordan J]
     (c : CSOI J n) (h_ne : ∀ i, c.idem i ≠ 0) :
     ∃ (m : ℕ) (p : CSOI J m), m ≥ n ∧ ∀ i, IsPrimitive (p.idem i) := by
-  sorry
+  -- Decompose each idempotent into primitives
+  choose k p hp ho hs using fun i => exists_primitive_decomp (c.is_idem i) (h_ne i)
+  -- Each k i ≥ 1 since c.idem i ≠ 0
+  have hk_pos : ∀ i, 0 < k i := by
+    intro i; rcases Nat.eq_zero_or_pos (k i) with h0 | hpos
+    · exfalso; apply h_ne i; rw [hs i]
+      haveI : IsEmpty (Fin (k i)) := by rw [h0]; infer_instance
+      simp [Finset.univ_eq_empty]
+    · exact hpos
+  -- Combined family via finSigmaFinEquiv
+  let q : Fin (∑ i : Fin n, k i) → J :=
+    fun j => p (finSigmaFinEquiv.symm j).1 (finSigmaFinEquiv.symm j).2
+  refine ⟨_, ⟨q, fun j => (hp _ _).isIdempotent, fun j₁ j₂ hjne => ?_, ?_⟩,
+    ?_, fun j => hp _ _⟩
+  · -- Pairwise orthogonal
+    show AreOrthogonal (p _ _) (p _ _)
+    have hne' : finSigmaFinEquiv.symm j₁ ≠ finSigmaFinEquiv.symm j₂ :=
+      fun h => hjne (finSigmaFinEquiv.symm.injective h)
+    rcases h₁ : finSigmaFinEquiv.symm j₁ with ⟨i₁, l₁⟩
+    rcases h₂ : finSigmaFinEquiv.symm j₂ with ⟨i₂, l₂⟩
+    rw [h₁, h₂] at hne'
+    by_cases hi : i₁ = i₂
+    · -- Same group: use internal orthogonality
+      subst hi
+      exact ho i₁ l₁ l₂ (fun h => hne' (Sigma.ext rfl (heq_of_eq h)))
+    · -- Different groups: cross-orthogonality
+      exact sub_idem_orthog_of_sum_orthog (c.is_idem i₁) (c.is_idem i₂)
+        (c.orthog i₁ i₂ hi)
+        (primitive_sum_sub_idem (hp i₁) (ho i₁) (hs i₁) l₁)
+        (primitive_sum_sub_idem (hp i₂) (ho i₂) (hs i₂) l₂)
+  · -- Complete: sum = jone
+    calc ∑ j, q j
+      _ = ∑ ij : (i : Fin n) × Fin (k i), p ij.1 ij.2 :=
+          Fintype.sum_equiv finSigmaFinEquiv.symm _ _ (fun _ => rfl)
+      _ = ∑ i : Fin n, ∑ l : Fin (k i), p i l := by
+          rw [← Finset.univ_sigma_univ]; exact Finset.sum_sigma _ _ _
+      _ = ∑ i, c.idem i := by simp_rw [← hs]
+      _ = jone := c.complete
+  · -- m ≥ n
+    calc ∑ i : Fin n, k i
+      _ ≥ ∑ _ : Fin n, 1 := Finset.sum_le_sum (fun i _ => hk_pos i)
+      _ = n := by simp
 
 end JordanAlgebra

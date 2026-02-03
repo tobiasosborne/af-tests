@@ -1,6 +1,26 @@
-# Handoff: 2026-02-03 (Session 54)
+# Handoff: 2026-02-03 (Session 55)
 
 ## Completed This Session
+
+### csoi_refine_primitive COMPLETE (Primitive.lean:1546-1587)
+
+**Proved** `csoi_refine_primitive`: a CSOI with nonzero idempotents can be refined to a
+primitive CSOI with at least as many elements. ~35 LOC, no sorry.
+
+**Proof strategy**:
+1. Decompose each `c.idem i` into primitives via `exists_primitive_decomp` (`choose`)
+2. Combine families using `finSigmaFinEquiv` (sigma-to-Fin equivalence)
+3. Same-group orthogonality: `ho i` (internal pairwise orthogonality)
+4. Cross-group orthogonality: `sub_idem_orthog_of_sum_orthog` + `primitive_sum_sub_idem`
+5. Completeness: `Fintype.sum_equiv` + `Finset.sum_sigma` + `c.complete`
+6. Count: each `k i ≥ 1` (nonzero idempotent), so `∑ k i ≥ n`
+
+**Key technique**: `rcases h : finSigmaFinEquiv.symm j with ⟨i, l⟩` to destructure
+sigma pairs while retaining the equation for later rewrites.
+
+---
+
+## Previous Session (54)
 
 ### exists_primitive_csoi (Primitive.lean:1536-1540)
 
@@ -17,7 +37,7 @@ Fixed 4 pre-existing compilation errors from mathlib API changes:
 ### Corrected csoi_refine_primitive signature (Primitive.lean:1542-1548)
 
 Added `(h_ne : ∀ i, c.idem i ≠ 0)` hypothesis — the original `m ≥ n` claim is unprovable
-without it (zero idempotents are valid in a CSOI). Still sorry.
+without it (zero idempotents are valid in a CSOI).
 
 ---
 
