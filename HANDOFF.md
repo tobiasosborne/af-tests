@@ -1,6 +1,35 @@
-# Handoff: 2026-02-03 (Session 61)
+# Handoff: 2026-02-03 (Session 62)
 
 ## Completed This Session
+
+### Course correction: JTPI approach abandoned, H-O path identified
+
+The "JTPI" (`{a, U_a(b), x} = U_a({a,b,x})`) as intermediate step to the fundamental
+formula is NOT from Hanche-Olsen. It was a hallucinated approach. H-O's actual path:
+
+1. **H-O 2.4.18**: The fundamental formula `U_{U_a(b)} = U_a U_b U_a` follows from
+   **Macdonald's theorem** (2.4.13/2.4.15). It's trivially true in associative algebras
+   and Macdonald says 3-variable polynomial identities true in special ⇒ true in all.
+
+2. **H-O 2.4.20**: The identities H-O DOES prove directly (from four_variable_identity):
+   - (2.42): `{abc} ∘ d = {(a∘d)bc} + {ab(c∘d)} - {a(b∘d)c}`
+   - (2.43): `{abc} ∘ d = {a(b∘c)d} - {(a∘c)bd} + {c(a∘b)d}`
+   - (2.44): `{abc} ∘ d + {dbc} ∘ a = {a(b∘c)d} + {(a∘d)bc}`
+
+3. **H-O 2.4.21**: Power formulas (2.45)-(2.46) follow from (2.42) + power associativity.
+
+**Correct next steps** (new issues created with dependencies):
+- `af-9qp2` (P1): Prove (2.42)-(2.44) from four_variable_identity
+- `af-u0tp` (P2): Prove (2.45)-(2.46) power formulas
+- `af-tggl` (P3): Formalize Macdonald's theorem (major effort, ~200+ LOC)
+
+The `jtpi` sorry at FundamentalFormula.lean:79 should be **removed** — it's not an
+intermediate step in H-O's proof. The fundamental formula sorry should reference
+Macdonald's theorem directly.
+
+---
+
+## Previous Session (61)
 
 ### JTPI proof analysis — deep algebraic computation documented
 
