@@ -211,4 +211,19 @@ theorem opComm_L_sum (a b c : J) :
   -- -⟦L c, L_{ab}⟧ = ⟦L_{ab}, L c⟧ by skew symmetry
   rw [h2, opComm_skew, neg_neg]
 
+/-- Commutator distributes over addition (left): ⟦f + g, h⟧ = ⟦f, h⟧ + ⟦g, h⟧. -/
+theorem opComm_add_left (f g h : J →ₗ[ℝ] J) :
+    ⟦f + g, h⟧ = ⟦f, h⟧ + ⟦g, h⟧ := by
+  ext x; simp only [opComm_apply, LinearMap.add_apply, map_add]; abel
+
+/-- Commutator distributes over addition (right): ⟦f, g + h⟧ = ⟦f, g⟧ + ⟦f, h⟧. -/
+theorem opComm_add_right (f g h : J →ₗ[ℝ] J) :
+    ⟦f, g + h⟧ = ⟦f, g⟧ + ⟦f, h⟧ := by
+  ext x; simp only [opComm_apply, LinearMap.add_apply, map_add]; abel
+
+/-- Commutator absorbs negation (right): ⟦f, -g⟧ = -⟦f, g⟧. -/
+theorem opComm_neg_right (f g : J →ₗ[ℝ] J) :
+    ⟦f, -g⟧ = -⟦f, g⟧ := by
+  ext x; simp only [opComm_apply, LinearMap.neg_apply, map_neg]; abel
+
 end JordanAlgebra
