@@ -155,4 +155,44 @@ theorem U_L_comm (a x : J) : U a (L a x) = L a (U a x) := by
     rw [jmul_comm x (jmul a a)]
   rw [h1]
 
+/-! ### The Jordan Triple Product -/
+
+/-- The Jordan triple product {a,b,c} = (a∘b)∘c + a∘(b∘c) - b∘(a∘c).
+Satisfies {a,b,a} = U_a(b). Reference: Hanche-Olsen & Størmer, Definition 3.1.1. -/
+def triple (a b c : J) : J :=
+  jmul (jmul a b) c + jmul a (jmul b c) - jmul b (jmul a c)
+
+theorem triple_def (a b c : J) :
+    triple a b c = jmul (jmul a b) c + jmul a (jmul b c) - jmul b (jmul a c) := rfl
+
+/-- {a,b,a} = U_a(b): the triple product recovers the U operator. -/
+theorem triple_self_right (a b : J) : triple a b a = U a b := by
+  simp only [triple, U_def, jsq_def]
+  have h1 : jmul (jmul a b) a = jmul a (jmul a b) := jmul_comm _ _
+  have h2 : jmul a (jmul b a) = jmul a (jmul a b) := by rw [jmul_comm b a]
+  have h3 : jmul b (jmul a a) = jmul (jmul a a) b := jmul_comm _ _
+  rw [h1, h2, h3, two_smul]
+
+/-- Symmetry in outer variables: {a,b,c} = {c,b,a}. -/
+theorem triple_comm_outer (a b c : J) : triple a b c = triple c b a := by
+  simp only [triple]
+  have h1 : jmul (jmul c b) a = jmul a (jmul b c) := by rw [jmul_comm c b, jmul_comm _ a]
+  have h2 : jmul c (jmul b a) = jmul (jmul a b) c := by rw [jmul_comm b a, jmul_comm c _]
+  have h3 : jmul b (jmul c a) = jmul b (jmul a c) := by rw [jmul_comm c a]
+  rw [h1, h2, h3]; abel
+
+/-- The V operator V_{a,b} as a linear map: V_{a,b}(x) = {a,b,x}. -/
+def V_linear (a b : J) : J →ₗ[ℝ] J where
+  toFun x := triple a b x
+  map_add' x y := by simp only [triple, jmul_add]; abel
+  map_smul' r x := by
+    simp only [triple, RingHom.id_apply, smul_jmul, smul_sub, smul_add]
+
+@[simp]
+theorem V_linear_apply (a b x : J) : V_linear a b x = triple a b x := rfl
+
+/-- V_{a,a}(x) = a²∘x: the self-V is multiplication by the square. -/
+theorem V_self (a x : J) : V_linear a a x = jmul (jsq a) x := by
+  simp only [V_linear_apply, triple, jsq_def]; abel
+
 end JordanAlgebra

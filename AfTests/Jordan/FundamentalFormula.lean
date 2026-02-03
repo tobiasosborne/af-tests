@@ -32,6 +32,20 @@ private theorem U_U_expand (a b x : J) :
                   jmul (jsq a) (2 • jmul b (jmul b x) - jmul (jsq b) x) := by
   rw [U_def, U_def]
 
+/-! ### V Operator Identities -/
+
+/-- The V operator in terms of L and commutator: V_{a,b} = L_{ab} + [L_a, L_b]. -/
+theorem V_eq_L_add_opComm (a b : J) :
+    V_linear a b = L (jmul a b) + ⟦L a, L b⟧ := by
+  ext x
+  simp only [V_linear_apply, triple_def, LinearMap.add_apply, L_apply, opComm_apply]
+  abel
+
+/-- Symmetrization: V_{a,b}(x) + V_{b,a}(x) = 2(a∘b)∘x. -/
+theorem V_add_V_swap (a b x : J) :
+    V_linear a b x + V_linear b a x = 2 • jmul (jmul a b) x := by
+  simp only [V_linear_apply, triple_def, jmul_comm b a, two_smul]; abel
+
 /-! ### The Fundamental Formula -/
 
 /-- The Fundamental Formula: U_{U_a(b)} = U_a ∘ U_b ∘ U_a.

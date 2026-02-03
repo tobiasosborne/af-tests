@@ -1,6 +1,29 @@
-# Handoff: 2026-02-03 (Session 56)
+# Handoff: 2026-02-03 (Session 57)
 
 ## Completed This Session
+
+### Jordan triple product and V operator (Quadratic.lean, FundamentalFormula.lean)
+
+Added infrastructure for the fundamental formula proof:
+
+**Quadratic.lean** (~40 LOC added):
+- `triple a b c` — Jordan triple product {a,b,c} = (a∘b)∘c + a∘(b∘c) - b∘(a∘c)
+- `triple_self_right : triple a b a = U a b` — recovers U operator
+- `triple_comm_outer : triple a b c = triple c b a` — outer symmetry
+- `V_linear a b : J →ₗ[ℝ] J` — V operator as linear map, V_{a,b}(x) = {a,b,x}
+- `V_self : V_linear a a x = jmul (jsq a) x` — self-V is L_{a²}
+
+**FundamentalFormula.lean** (~12 LOC added):
+- `V_eq_L_add_opComm : V_linear a b = L (jmul a b) + ⟦L a, L b⟧` — operator form
+- `V_add_V_swap : V_{a,b}(x) + V_{b,a}(x) = 2(ab)x` — symmetrization
+
+### Closed stale issues
+- `af-8anj`: csoi_refine_primitive (proved session 55)
+- `af-hbnj`: exists_primitive_decomp (proved session 53)
+
+---
+
+## Previous Session (56)
 
 ### Removed false operator identities (OperatorIdentities.lean)
 
@@ -354,7 +377,11 @@ ring_nf; abel
 ## Next Steps
 
 ### Immediate (unblocked tasks)
-1. `af-i8oo` (P1): Fundamental formula U_{U_a(b)} = U_a U_b U_a (~150-200 LOC direct calc)
+1. `af-i8oo` (P1, in_progress): Fundamental formula U_{U_a(b)} = U_a U_b U_a
+   - V operator infrastructure now in place
+   - Next: prove shifting identity V_{U_a(b),a} = U_a V_{b,a} using operator_formula
+   - Then derive fundamental formula from shifting identity
+   - Estimated ~100-150 LOC remaining
 2. `af-s4t7` (P2): Spectral decomposition
 3. Various P2 tasks: Quaternion embedding, spin factors, reversible algebras
 
