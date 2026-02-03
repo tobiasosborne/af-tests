@@ -603,7 +603,15 @@ ring_nf; abel
 ## Next Steps
 
 ### Immediate (unblocked tasks)
-1. `af-u0tp` (P2): H-O 2.4.21 power formulas (2.45)-(2.46) — now unblocked (depends on 2.42-2.44)
+1. `af-u0tp` (P2): H-O 2.4.21 power formulas (2.45)-(2.46) — now unblocked
+   **Prerequisites identified (Session 66 research):**
+   - Need H-O 2.4.5: power associativity `a^{m+n} = a^m ∘ a^n`
+   - H-O 2.4.5 proof: (a) show `T_{a^n}` is polynomial in `T_a, T_{a^2}` via (2.35),
+     hence all `T_{a^m}` commute; (b) induction on m using operator commutativity
+   - Need bilinear U: `U₂ a b x = triple a x b` (linearization of U)
+   - (2.45): `2·T_{a^l} · U_{a^m, a^n} = U_{a^{m+l}, a^n} + U_{a^m, a^{n+l}}`
+   - (2.46): `U_{a^n} = U_a^n` (by induction using (2.45) twice)
+   - **Smallest first step**: prove `jpow_add : jmul (jpow a m) (jpow a n) = jpow a (m+n)`
 2. `af-i8oo` (P1): Fundamental formula — blocked on Macdonald's theorem
 3. `af-s4t7` (P2): Spectral decomposition
 4. Various P2 tasks: Quaternion embedding, spin factors, reversible algebras
@@ -616,7 +624,7 @@ ring_nf; abel
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/FundamentalFormula.lean` (added jtpi, jtpi_outer; improved FF docs)
+- `AfTests/Jordan/FundamentalFormula.lean` (added triple_product_243, triple_product_244)
 - `HANDOFF.md` (updated)
 
 ---
