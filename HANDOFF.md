@@ -1,31 +1,32 @@
-# Handoff: 2026-02-03 (Session 52)
+# Handoff: 2026-02-03 (Session 53)
 
 ## Completed This Session
 
-### Helper Lemmas for exists_primitive_decomp (Primitive.lean:1438-1462)
+### exists_primitive_decomp COMPLETE (Primitive.lean:1464-1533)
 
-Added the two remaining helper lemmas needed for `exists_primitive_decomp`:
+**Proved** `exists_primitive_decomp`: every nonzero idempotent decomposes into a sum of
+pairwise orthogonal primitives. ~55 LOC, no sorry.
 
-1. **`peirce_one_finrank_pos`** (Primitive.lean:1438-1445)
-   - If e is idempotent and e ≠ 0, then `0 < finrank P₁(e)`
-   - Proof: e ∈ P₁(e) via `sub_idem_in_peirce_one`, e ≠ 0 makes the submodule nontrivial,
-     then `Module.finrank_pos` gives the result
+**Proof strategy** (strong induction on finrank P₁(e)):
 
-2. **`primitive_sum_sub_idem`** (Primitive.lean:1447-1462)
-   - If p are pairwise orthogonal primitives summing to f, then `jmul f (p j) = p j`
-   - Proof: use `jmul_comm` + `map_sum` on `L (p j)` to distribute, then diagonal = idempotent,
-     off-diagonal = 0 by orthogonality, collapse with `Finset.sum_ite_eq'`
+1. **Base case**: If e is already primitive, return singleton family `![e]`
+2. **Inductive case**: e not primitive → extract sub-idempotent f (via push_neg on IsPrimitive)
+   - Set g = e - f (idempotent by `sub_idempotent_of_jmul_eq`)
+   - f ⊥ g (by `orthogonal_of_jmul_eq`)
+   - finrank P₁(f) < finrank P₁(e) and finrank P₁(g) < finrank P₁(e) (by `sub_idem_finrank_lt`)
+   - Recurse on f and g, combine with `Fin.addCases`
+   - Cross-orthogonality: `sub_idem_orthog_of_sum_orthog` + `primitive_sum_sub_idem`
+   - Sum: `Fin.sum_univ_add` + `Fin.addCases_left/right`
 
-**All helper lemmas for `exists_primitive_decomp` are now proven.** The main proof (strong
-induction on finrank) can now proceed without needing any new supporting lemmas.
+**Key pattern**: `Fin.addCases` for combining Fin-indexed families (same as `OrderedCone.lean`).
 
 ---
 
-## Previous Session (51)
+## Previous Session (52)
 
-### exists_primitive_decomp Proof Structure (Primitive.lean:1464-1472)
+### Helper Lemmas for exists_primitive_decomp (Primitive.lean:1438-1462)
 
-Developed complete proof structure for `exists_primitive_decomp` (still sorry).
+Added the two remaining helper lemmas needed for `exists_primitive_decomp`.
 
 **Proof structure** (strong induction on finrank P₁(e)):
 

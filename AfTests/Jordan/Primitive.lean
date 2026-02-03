@@ -1466,10 +1466,71 @@ theorem exists_primitive_decomp [FinDimJordanAlgebra J] [FormallyRealJordan J]
     ∃ (k : ℕ) (p : Fin k → J),
       (∀ i, IsPrimitive (p i)) ∧ PairwiseOrthogonal p ∧ e = ∑ i, p i := by
   -- Strong induction on finrank P₁(e)
-  -- Base: e primitive → use ![e]
-  -- Inductive: extract f with jmul e f = f, decompose f and (e-f) recursively
-  -- Key helpers: sub_idem_orthog_of_sum_orthog, sub_idem_finrank_lt
-  sorry
+  suffices ∀ (d : ℕ) (e : J), IsIdempotent e → e ≠ 0 →
+      Module.finrank ℝ (PeirceSpace e 1) = d →
+      ∃ (k : ℕ) (p : Fin k → J),
+        (∀ i, IsPrimitive (p i)) ∧ PairwiseOrthogonal p ∧ e = ∑ i, p i by
+    exact this _ _ he hne rfl
+  intro d
+  induction d using Nat.strong_induction_on with
+  | _ d ih =>
+    intro e he hne hd
+    by_cases hprim : IsPrimitive e
+    · -- Base: e is primitive → singleton family
+      exact ⟨1, ![e],
+        fun i => by fin_cases i; exact hprim,
+        fun i j hij => absurd (Subsingleton.elim i j) hij,
+        by simp [Fin.sum_univ_one]⟩
+    · -- Inductive: e not primitive → extract proper sub-idempotent f
+      have : ¬ ∀ f, IsIdempotent f → jmul e f = f → f = 0 ∨ f = e :=
+        fun h => hprim ⟨he, hne, h⟩
+      push_neg at this
+      obtain ⟨f, hf_idem, hf_sub, hf_ne0, hf_nee⟩ := this
+      set g := e - f with hg_def
+      have hg_idem : IsIdempotent g := sub_idempotent_of_jmul_eq he hf_idem hf_sub
+      have hfg_orth : AreOrthogonal f g := orthogonal_of_jmul_eq hf_idem hf_sub
+      have hg_ne : g ≠ 0 := sub_ne_zero.mpr (Ne.symm hf_nee)
+      have he_eq : e = f + g := by rw [hg_def]; abel
+      -- Finrank decreases for both f and g
+      have hf_lt : Module.finrank ℝ (PeirceSpace f 1) < d := by
+        rw [hd]; exact sub_idem_finrank_lt hf_idem hg_idem hfg_orth hg_ne rfl
+      have hg_lt : Module.finrank ℝ (PeirceSpace g 1) < d := by
+        rw [hd]; exact sub_idem_finrank_lt hg_idem hf_idem hfg_orth.symm hf_ne0
+          (show e = g + f by rw [he_eq]; exact add_comm f g)
+      -- Recurse on f and g
+      obtain ⟨k₁, p₁, hp₁, ho₁, hs₁⟩ := ih _ hf_lt f hf_idem hf_ne0 rfl
+      obtain ⟨k₂, p₂, hp₂, ho₂, hs₂⟩ := ih _ hg_lt g hg_idem hg_ne rfl
+      -- Combine families using Fin.addCases
+      refine ⟨k₁ + k₂, Fin.addCases p₁ p₂, ?_, ?_, ?_⟩
+      · -- All are primitive
+        intro i
+        exact Fin.addCases (fun i₁ => by simp only [Fin.addCases_left]; exact hp₁ i₁)
+          (fun i₂ => by simp only [Fin.addCases_right]; exact hp₂ i₂) i
+      · -- Pairwise orthogonal
+        intro i j hij
+        refine Fin.addCases (fun i₁ => ?_) (fun i₂ => ?_) i <;>
+          refine Fin.addCases (fun j₁ => ?_) (fun j₂ => ?_) j
+        · -- both in first half
+          simp only [Fin.addCases_left]
+          exact ho₁ i₁ j₁ (fun h => hij (congrArg (Fin.castAdd k₂) h))
+        · -- first × second
+          simp only [Fin.addCases_left, Fin.addCases_right]
+          exact sub_idem_orthog_of_sum_orthog hf_idem hg_idem hfg_orth
+            (primitive_sum_sub_idem hp₁ ho₁ hs₁ i₁)
+            (primitive_sum_sub_idem hp₂ ho₂ hs₂ j₂)
+        · -- second × first
+          simp only [Fin.addCases_right, Fin.addCases_left]
+          exact (sub_idem_orthog_of_sum_orthog hf_idem hg_idem hfg_orth
+            (primitive_sum_sub_idem hp₁ ho₁ hs₁ j₁)
+            (primitive_sum_sub_idem hp₂ ho₂ hs₂ i₂)).symm
+        · -- both in second half
+          simp only [Fin.addCases_right]
+          exact ho₂ i₂ j₂ (fun h => hij (congrArg (Fin.natAdd k₁) h))
+      · -- Sum equals e
+        rw [Fin.sum_univ_add]
+        simp only [Fin.addCases_left, Fin.addCases_right]
+        rw [← hs₁, ← hs₂]
+        exact he_eq
 
 /-- A CSOI can be refined to a primitive CSOI. -/
 theorem csoi_refine_primitive [FinDimJordanAlgebra J] [FormallyRealJordan J]
