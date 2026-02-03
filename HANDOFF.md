@@ -1,6 +1,28 @@
-# Handoff: 2026-02-03 (Session 59)
+# Handoff: 2026-02-03 (Session 60)
 
 ## Completed This Session
+
+### JTPI + proof structure for fundamental formula (FundamentalFormula.lean, ~25 LOC)
+
+Added JTPI and jtpi_outer as sorry'd lemmas, improved documentation:
+
+**FundamentalFormula.lean**:
+1. `jtpi` (sorry) — JTPI: {a, U_a(b), x} = U_a({a, b, x})
+2. `jtpi_outer` — {x, U_a(b), a} = U_a({x, b, a}) (from jtpi + triple_comm_outer)
+3. Improved `fundamental_formula` documentation with proof approach options
+
+**Key discovery**: Standard proofs of FF use Shirshov-Cohn theorem (any 2-generated
+Jordan algebra is special) or Macdonald's principle — NOT a direct derivation from
+JTPI. A direct element-level proof of JTPI requires ~12-term manipulation using
+Jordan identity + operator_commutator_jsq. Attempted proof sketch uses:
+- Expand via `simp only [triple_def, U_def, jsq_def]`
+- Distribute with `jmul_sub, jmul_add, smul_jmul` etc.
+- Apply Jordan identity `j1` and `operator_commutator_jsq_apply`
+- Close with `abel`
+
+---
+
+## Previous Session (59)
 
 ### V-L commutator identity (OperatorIdentities.lean + FundamentalFormula.lean, ~32 LOC)
 
@@ -387,7 +409,9 @@ ring_nf; abel
 
 ### Jordan Algebra Project
 - 9 files, ~870 LOC total
-- **1 sorry remaining:**
+- **3 sorries remaining:**
+  - `FundamentalFormula.lean:79` - `jtpi` (JTPI, element-level computation)
+  - `FundamentalFormula.lean:104` - `fundamental_formula` (needs JTPI + Shirshov-Cohn or direct)
   - `FormallyReal/Def.lean` - `of_sq_eq_zero` (requires spectral theory)
 - Matrix Jordan algebra now has full instance
 
@@ -400,11 +424,13 @@ ring_nf; abel
 
 ### Immediate (unblocked tasks)
 1. `af-i8oo` (P1, in_progress): Fundamental formula U_{U_a(b)} = U_a U_b U_a
-   - V operator + operator identities + V-L commutator now in place
-   - Next: Jordan triple product identity (JTPI): V_{a,U_a(b)} = U_a ∘ V_{a,b}
-     - Should follow from V_opComm_L + operator_commutator_jsq + V_eq_L_add_opComm
-   - Then: fundamental formula from JTPI
-   - Estimated ~60-100 LOC remaining
+   - **JTPI sorry is the key blocker** (`jtpi` at FundamentalFormula.lean:79)
+   - Proof approach for JTPI: expand `triple_def, U_def, jsq_def`, distribute,
+     apply Jordan identity + `operator_commutator_jsq_apply` to 3 terms, close with `abel`
+   - **FF from JTPI**: Standard proofs use Shirshov-Cohn (2-generated ⇒ special).
+     Direct derivation from JTPI alone is non-trivial (needs linearized JTPI).
+     Alternative: prove FF directly by same element-level expansion approach.
+   - `jtpi_outer` already derived from `jtpi + triple_comm_outer`
 2. `af-s4t7` (P2): Spectral decomposition
 3. Various P2 tasks: Quaternion embedding, spin factors, reversible algebras
 
@@ -416,7 +442,7 @@ ring_nf; abel
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/OperatorIdentities.lean` (added Jacobi, linearized_jordan_op, opComm_L_sum)
+- `AfTests/Jordan/FundamentalFormula.lean` (added jtpi, jtpi_outer; improved FF docs)
 - `HANDOFF.md` (updated)
 
 ---

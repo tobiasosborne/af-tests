@@ -63,27 +63,47 @@ theorem V_opComm_L (a b c : J) :
   rw [jmul_comm a c] at h
   rw [← h]; abel
 
+/-! ### Jordan Triple Product Identity (JTPI) -/
+
+/-- JTPI: V_{a, U_a(b)} = U_a ∘ V_{a,b}, i.e., {a, U_a(b), x} = U_a({a, b, x}).
+This is the key stepping stone to the fundamental formula.
+
+**Proof approach** (element-level):
+- Expand U_a(b) = 2a(ab) - a²b in the middle of {a, -, x}
+- Distribute to get 6 LHS terms and 6 RHS terms
+- Apply Jordan identity a(a²y) = a²(ay) and operator_commutator_jsq
+- The 12-term difference reduces to 0 by the linearized Jordan identity
+
+**References**: McCrimmon "A Taste of Jordan Algebras", Thm 2.4.5;
+Hanche-Olsen & Størmer "Jordan Operator Algebras", Thm 3.3.3. -/
+theorem jtpi (a b x : J) :
+    triple a (U a b) x = U a (triple a b x) := by
+  sorry
+
+/-- JTPI with outer symmetry: {x, U_a(b), a} = U_a({x, b, a}).
+Follows from `jtpi` and `triple_comm_outer`. -/
+theorem jtpi_outer (a b x : J) :
+    triple x (U a b) a = U a (triple x b a) := by
+  rw [triple_comm_outer x (U a b) a, jtpi, ← triple_comm_outer]
+
 /-! ### The Fundamental Formula -/
 
 /-- The Fundamental Formula: U_{U_a(b)} = U_a ∘ U_b ∘ U_a.
 This is THE key identity in Jordan algebra theory.
 
-The proof requires extensive manipulation using the Jordan identity and its
-linearizations. The key insight is that both sides, when fully expanded, consist
-of terms involving products of a, b, x with various nestings, and the Jordan
-identity provides exactly the relations needed to show equality.
+**Status**: The standard proof uses Shirshov-Cohn (any 2-generated Jordan algebra
+is special) or Macdonald's principle, then checks the identity in associative
+algebras where it follows from `(aba)x(aba) = a(b(axa)b)a`. A direct element-level
+proof is ~100 LOC of Jordan identity manipulation.
+
+**Approach options**:
+1. Direct computation: expand both sides, use Jordan identity + linearizations
+2. Shirshov-Cohn: prove 2-generated ⇒ special, then use associativity
+3. Operator identity: derive from JTPI via linearization argument
 -/
 theorem fundamental_formula (a b : J) :
     ∀ x, U (U a b) x = U a (U b (U a x)) := by
   intro x
-  -- Expand U definitions
-  simp only [U_def]
-  -- At this point both sides are expanded in terms of jmul and jsq
-  -- The proof requires extensive use of:
-  -- 1. Jordan identity: jmul (jmul a y) (jsq a) = jmul a (jmul y (jsq a))
-  -- 2. Linearizations of the Jordan identity
-  -- 3. Commutativity of jmul
-  -- This is a ~2 page proof in McCrimmon's "A Taste of Jordan Algebras"
   sorry
 
 /-! ### Corollaries of the Fundamental Formula -/
