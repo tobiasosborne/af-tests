@@ -173,4 +173,42 @@ theorem opComm_on_P1 {e a b : J} (_he : IsIdempotent e)
 theorem opComm_on_P0 {e a : J} (_he : IsIdempotent e) (_ha : jmul e a = 0) (x : J) :
     ⟦L e, L a⟧ x = jmul e (jmul a x) - jmul a (jmul e x) := rfl
 
+/-! ### Jacobi Identity for Operator Commutators -/
+
+/-- Jacobi identity (rearranged): ⟦⟦f, g⟧, h⟧ = ⟦f, ⟦g, h⟧⟧ - ⟦g, ⟦f, h⟧⟧. -/
+theorem opComm_jacobi (f g h : J →ₗ[ℝ] J) :
+    ⟦⟦f, g⟧, h⟧ = ⟦f, ⟦g, h⟧⟧ - ⟦g, ⟦f, h⟧⟧ := by
+  ext x
+  simp only [opComm_apply, map_sub, LinearMap.sub_apply]
+  abel
+
+/-! ### Linearized Jordan Identity (Factor-Free) -/
+
+/-- The linearized Jordan identity without the factor of 2:
+    `[L_a, L_{bc}] + [L_b, L_{ca}] + [L_c, L_{ab}] = 0`. -/
+theorem linearized_jordan_op (a b c : J) :
+    ⟦L a, L (jmul b c)⟧ + ⟦L b, L (jmul c a)⟧ + ⟦L c, L (jmul a b)⟧ = 0 := by
+  have h := linearized_jordan_operator a b c
+  -- h : (2 : ℕ) • X = 0, extract X = 0
+  set X := ⟦L a, L (jmul b c)⟧ + ⟦L b, L (jmul c a)⟧ + ⟦L c, L (jmul a b)⟧
+  have hXX : X + X = 0 := by rwa [two_nsmul] at h
+  have h2 : (2 : ℝ) • X = 0 := by rw [two_smul]; exact hXX
+  have := (inv_smul_smul₀ (two_ne_zero (α := ℝ)) X).symm
+  rw [h2, smul_zero] at this
+  exact this
+
+/-- Key commutator identity: `[L_a, L_{bc}] + [L_b, L_{ac}] = [L_{ab}, L_c]`.
+    Follows from the linearized Jordan identity by setting one variable. -/
+theorem opComm_L_sum (a b c : J) :
+    ⟦L a, L (jmul b c)⟧ + ⟦L b, L (jmul a c)⟧ = ⟦L (jmul a b), L c⟧ := by
+  have h := linearized_jordan_op a b c
+  -- h : [L_a, L_{bc}] + [L_b, L_{ca}] + [L_c, L_{ab}] = 0
+  -- Using jmul_comm c a = a c: L_{ca} = L_{ac}
+  rw [jmul_comm c a] at h
+  -- h is now (A + B) + C = 0, so A + B = -C
+  have h2 := eq_neg_of_add_eq_zero_left h
+  -- h2 : A + B = -⟦L c, L (jmul a b)⟧
+  -- -⟦L c, L_{ab}⟧ = ⟦L_{ab}, L c⟧ by skew symmetry
+  rw [h2, opComm_skew, neg_neg]
+
 end JordanAlgebra

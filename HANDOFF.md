@@ -1,6 +1,23 @@
-# Handoff: 2026-02-03 (Session 57)
+# Handoff: 2026-02-03 (Session 58)
 
 ## Completed This Session
+
+### Operator identity building blocks (OperatorIdentities.lean, ~38 LOC)
+
+Three new lemmas for the fundamental formula proof:
+
+1. `opComm_jacobi` — Jacobi identity: ⟦⟦f,g⟧,h⟧ = ⟦f,⟦g,h⟧⟧ - ⟦g,⟦f,h⟧⟧
+2. `linearized_jordan_op` — Linearized Jordan identity without factor of 2:
+   [L_a, L_{bc}] + [L_b, L_{ca}] + [L_c, L_{ab}] = 0
+3. `opComm_L_sum` — Key identity: [L_a, L_{bc}] + [L_b, L_{ac}] = [L_{ab}, L_c]
+
+**Proof techniques:**
+- Factor-of-2 removal: convert nsmul to ℝ-smul via `two_smul`, then cancel with `inv_smul_smul₀`
+- opComm_L_sum: follows from linearized_jordan_op + `jmul_comm` + `eq_neg_of_add_eq_zero_left` + `opComm_skew`
+
+---
+
+## Previous Session (57)
 
 ### Jordan triple product and V operator (Quadratic.lean, FundamentalFormula.lean)
 
@@ -378,10 +395,12 @@ ring_nf; abel
 
 ### Immediate (unblocked tasks)
 1. `af-i8oo` (P1, in_progress): Fundamental formula U_{U_a(b)} = U_a U_b U_a
-   - V operator infrastructure now in place
-   - Next: prove shifting identity V_{U_a(b),a} = U_a V_{b,a} using operator_formula
-   - Then derive fundamental formula from shifting identity
-   - Estimated ~100-150 LOC remaining
+   - V operator + operator identities now in place (Jacobi, linearized_jordan_op, opComm_L_sum)
+   - Next: prove V-L commutator `[V_{a,b}, L_c] = [L_a, V_{b,c}] + [L_b, V_{c,a}]`
+     - Proof outline: expand V via V_eq_L_add_opComm, distribute opComm, use Jacobi + opComm_L_sum
+     - Main challenge: need `abel`-like tactic for operator equality after substituting opComm_L_sum
+   - Then: Jordan triple product identity (JTPI), then fundamental formula
+   - Estimated ~80-120 LOC remaining
 2. `af-s4t7` (P2): Spectral decomposition
 3. Various P2 tasks: Quaternion embedding, spin factors, reversible algebras
 
@@ -393,8 +412,7 @@ ring_nf; abel
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/Matrix/JordanProduct.lean` (added bilinearity, Jordan identity)
-- `AfTests/Jordan/Matrix/Instance.lean` (NEW - JordanAlgebra instance)
+- `AfTests/Jordan/OperatorIdentities.lean` (added Jacobi, linearized_jordan_op, opComm_L_sum)
 - `HANDOFF.md` (updated)
 
 ---
