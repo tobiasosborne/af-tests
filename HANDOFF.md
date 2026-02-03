@@ -1,36 +1,43 @@
-# Handoff: 2026-02-02 (Session 51)
+# Handoff: 2026-02-03 (Session 52)
 
 ## Completed This Session
 
-### exists_primitive_decomp Proof Structure (Primitive.lean:1438-1446)
+### Helper Lemmas for exists_primitive_decomp (Primitive.lean:1438-1462)
 
-Developed complete proof structure for `exists_primitive_decomp`. The proof compiles
-but needs one more helper lemma.
+Added the two remaining helper lemmas needed for `exists_primitive_decomp`:
+
+1. **`peirce_one_finrank_pos`** (Primitive.lean:1438-1445)
+   - If e is idempotent and e ≠ 0, then `0 < finrank P₁(e)`
+   - Proof: e ∈ P₁(e) via `sub_idem_in_peirce_one`, e ≠ 0 makes the submodule nontrivial,
+     then `Module.finrank_pos` gives the result
+
+2. **`primitive_sum_sub_idem`** (Primitive.lean:1447-1462)
+   - If p are pairwise orthogonal primitives summing to f, then `jmul f (p j) = p j`
+   - Proof: use `jmul_comm` + `map_sum` on `L (p j)` to distribute, then diagonal = idempotent,
+     off-diagonal = 0 by orthogonality, collapse with `Finset.sum_ite_eq'`
+
+**All helper lemmas for `exists_primitive_decomp` are now proven.** The main proof (strong
+induction on finrank) can now proceed without needing any new supporting lemmas.
+
+---
+
+## Previous Session (51)
+
+### exists_primitive_decomp Proof Structure (Primitive.lean:1464-1472)
+
+Developed complete proof structure for `exists_primitive_decomp` (still sorry).
 
 **Proof structure** (strong induction on finrank P₁(e)):
 
-1. **Helper lemma needed**: `peirce_one_finrank_pos`
-   - If e is idempotent and e ≠ 0, then `0 < finrank P₁(e)`
-   - Proof: e ∈ P₁(e) and e ≠ 0, so P₁(e) ≠ ⊥, so finrank ≥ 1
-   - Use `Submodule.one_le_finrank_iff` (needs `[StrongRankCondition ℝ]`, `[NoZeroSMulDivisors ℝ J]`)
-
-2. **Base case** (finrank = 1): e is primitive by `isPrimitive_of_peirce_one_dim_one`
+1. **Base case** (finrank = 1): e is primitive by `isPrimitive_of_peirce_one_dim_one`
    - Return `![e]`
 
-3. **Inductive case** (finrank > 1): e not primitive
+2. **Inductive case** (finrank > 1): e not primitive
    - Extract f with `IsIdempotent f`, `jmul e f = f`, `f ≠ 0`, `f ≠ e`
    - Set `g = e - f` (idempotent by `sub_idempotent_of_jmul_eq`)
    - f ⊥ g by `orthogonal_of_jmul_eq`
    - Recurse on f and g (finrank decreases by `sub_idem_finrank_lt`)
    - Combine with `Fin.append`
-
-4. **Remaining gap**: Need lemma `primitive_sum_sub_idem`
-   - If `p : Fin k → J` with all `IsPrimitive (p i)`, `PairwiseOrthogonal p`, `f = ∑ i, p i`
-   - Then `jmul f (p j) = p j` for all j
-   - Proof sketch: `jmul f (p j) = jmul (∑ i, p i) (p j) = ∑ i, jmul (p i) (p j)`
-     - When i = j: `jmul (p j) (p j) = p j` (idempotent)
-     - When i ≠ j: `jmul (p i) (p j) = 0` (orthogonal)
-   - So `jmul f (p j) = p j`
 
 **Key syntax notes**:
 - Use `| _ n ih =>` not `| ind n ih =>` for `Nat.strong_induction_on`

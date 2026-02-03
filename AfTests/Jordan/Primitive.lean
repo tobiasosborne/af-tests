@@ -1435,6 +1435,32 @@ theorem sub_idem_finrank_lt [FinDimJordanAlgebra J] {e f g : J}
   rw [heq]
   exact Submodule.finrank_lt_finrank_of_lt (orthog_idem_peirce_one_lt hf hg horth hgne)
 
+/-- If e is a nonzero idempotent, then finrank P₁(e) > 0. Proof: e ∈ P₁(e) and e ≠ 0. -/
+theorem peirce_one_finrank_pos [FinDimJordanAlgebra J] {e : J}
+    (he : IsIdempotent e) (hne : e ≠ 0) :
+    0 < Module.finrank ℝ (PeirceSpace e 1) := by
+  have he_mem : e ∈ PeirceSpace e 1 := sub_idem_in_peirce_one he
+  haveI : Nontrivial (PeirceSpace e 1) := by
+    exact ⟨⟨⟨e, he_mem⟩, 0, fun h => hne (Subtype.ext_iff.mp h)⟩⟩
+  exact Module.finrank_pos
+
+/-- If p is a primitive decomposition of f (i.e., p are pairwise orthogonal primitives summing
+to f), then jmul f (p j) = p j for each j. Proof: distribute jmul over the sum; the diagonal
+term gives p j by idempotency and off-diagonal terms vanish by orthogonality. -/
+theorem primitive_sum_sub_idem {k : ℕ} {p : Fin k → J} {f : J}
+    (hp : ∀ i, IsPrimitive (p i)) (horth : PairwiseOrthogonal p)
+    (hsum : f = ∑ i, p i) (j : Fin k) : jmul f (p j) = p j := by
+  rw [hsum, jmul_comm]
+  -- L (p j) is a linear map, so distributes over ∑
+  rw [show jmul (p j) (∑ i, p i) = ∑ i, jmul (p j) (p i) from map_sum (L (p j)) _ _]
+  -- The i=j term is p j (idempotent), others are 0 (orthogonal)
+  have hdiag : ∀ i, jmul (p j) (p i) = if i = j then p j else 0 := by
+    intro i
+    split_ifs with h
+    · rw [h]; exact (hp j).isIdempotent
+    · exact horth j i (Ne.symm h)
+  simp_rw [hdiag, Finset.sum_ite_eq', Finset.mem_univ, if_true]
+
 theorem exists_primitive_decomp [FinDimJordanAlgebra J] [FormallyRealJordan J]
     {e : J} (he : IsIdempotent e) (hne : e ≠ 0) :
     ∃ (k : ℕ) (p : Fin k → J),
