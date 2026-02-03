@@ -10,16 +10,29 @@ import AfTests.Jordan.OperatorIdentities
 # The Fundamental Formula for Jordan Algebras
 
 The fundamental formula `U_{U_a(b)} = U_a ∘ U_b ∘ U_a` is the central identity
-in Jordan algebra theory.
+in Jordan algebra theory (H-O 2.4.18, equation 2.41).
+
+## Proof path (Hanche-Olsen & Størmer)
+
+The FF is proved via Macdonald's theorem (H-O 2.4.13): any polynomial identity
+in 3 variables (degree ≤1 in the third) that holds in special Jordan algebras
+holds in all Jordan algebras. Since FF is trivially true in associative algebras,
+Macdonald gives it for free.
+
+Prerequisites along the H-O path:
+* H-O 2.4.20: Triple product identities (2.42)-(2.44) — from `four_variable_identity`
+* H-O 2.4.21: Power formulas (2.45)-(2.46) for U operator
+* H-O 2.4.13: Macdonald's theorem itself
 
 ## Main results
 
-* `fundamental_formula` - The main theorem
-* `U_jsq` - Corollary: U_{a²} = U_a ∘ U_a
+* `V_eq_L_add_opComm` - V operator decomposition
+* `V_opComm_L` - V-L commutator identity
+* `fundamental_formula` - The main theorem (sorry, needs Macdonald)
 
 ## References
 
-* McCrimmon, K. "A Taste of Jordan Algebras", Theorem 2.4.5
+* Hanche-Olsen & Størmer, "Jordan Operator Algebras" (1984), §2.4.16–2.4.18
 -/
 
 namespace JordanAlgebra
@@ -47,7 +60,7 @@ theorem V_add_V_swap (a b x : J) :
   simp only [V_linear_apply, triple_def, jmul_comm b a, two_smul]; abel
 
 /-- V-L commutator: ⟦V_{a,b}, L_c⟧ = ⟦L_a, V_{b,c}⟧ + ⟦L_b, V_{c,a}⟧.
-This is a key step toward the Jordan triple product identity (JTPI). -/
+Follows from linearized Jordan identity (H-O 2.33). -/
 theorem V_opComm_L (a b c : J) :
     ⟦V_linear a b, L c⟧ = ⟦L a, V_linear b c⟧ + ⟦L b, V_linear c a⟧ := by
   -- Expand V in terms of L and opComm
@@ -63,44 +76,13 @@ theorem V_opComm_L (a b c : J) :
   rw [jmul_comm a c] at h
   rw [← h]; abel
 
-/-! ### Jordan Triple Product Identity (JTPI) -/
-
-/-- JTPI: V_{a, U_a(b)} = U_a ∘ V_{a,b}, i.e., {a, U_a(b), x} = U_a({a, b, x}).
-This is the key stepping stone to the fundamental formula.
-
-**Proof approach** (element-level):
-- Expand U_a(b) = 2a(ab) - a²b in the middle of {a, -, x}
-- Distribute to get 6 LHS terms and 6 RHS terms
-- Apply Jordan identity a(a²y) = a²(ay) and operator_commutator_jsq
-- The 12-term difference reduces to 0 by the linearized Jordan identity
-
-**References**: McCrimmon "A Taste of Jordan Algebras", Thm 2.4.5;
-Hanche-Olsen & Størmer "Jordan Operator Algebras", Thm 3.3.3. -/
-theorem jtpi (a b x : J) :
-    triple a (U a b) x = U a (triple a b x) := by
-  sorry
-
-/-- JTPI with outer symmetry: {x, U_a(b), a} = U_a({x, b, a}).
-Follows from `jtpi` and `triple_comm_outer`. -/
-theorem jtpi_outer (a b x : J) :
-    triple x (U a b) a = U a (triple x b a) := by
-  rw [triple_comm_outer x (U a b) a, jtpi, ← triple_comm_outer]
-
 /-! ### The Fundamental Formula -/
 
-/-- The Fundamental Formula: U_{U_a(b)} = U_a ∘ U_b ∘ U_a.
-This is THE key identity in Jordan algebra theory.
+/-- The Fundamental Formula: U_{U_a(b)} = U_a ∘ U_b ∘ U_a (H-O 2.4.18, eq. 2.41).
 
-**Status**: The standard proof uses Shirshov-Cohn (any 2-generated Jordan algebra
-is special) or Macdonald's principle, then checks the identity in associative
-algebras where it follows from `(aba)x(aba) = a(b(axa)b)a`. A direct element-level
-proof is ~100 LOC of Jordan identity manipulation.
-
-**Approach options**:
-1. Direct computation: expand both sides, use Jordan identity + linearizations
-2. Shirshov-Cohn: prove 2-generated ⇒ special, then use associativity
-3. Operator identity: derive from JTPI via linearization argument
--/
+In any special Jordan algebra this is `(aba)x(aba) = a(b(axa)b)a`, which is
+trivially true by associativity. Macdonald's theorem (H-O 2.4.13) then gives
+it for all Jordan algebras. -/
 theorem fundamental_formula (a b : J) :
     ∀ x, U (U a b) x = U a (U b (U a x)) := by
   intro x
