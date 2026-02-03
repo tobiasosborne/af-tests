@@ -76,6 +76,20 @@ theorem V_opComm_L (a b c : J) :
   rw [jmul_comm a c] at h
   rw [← h]; abel
 
+/-! ### Triple Product Identities (H-O 2.4.20) -/
+
+/-- H-O 2.4.20, identity (2.42):
+`{a,b,c} ∘ d = {a∘d, b, c} + {a, b, c∘d} - {a, b∘d, c}`.
+Proved from three instances of `four_variable_identity`. -/
+theorem triple_product_242 (a b c d : J) :
+    jmul (triple a b c) d =
+    triple (jmul a d) b c + triple a b (jmul c d) - triple a (jmul b d) c := by
+  simp only [triple_def, add_jmul, sub_jmul]
+  have h1 := four_variable_identity d a b c
+  have h2 := four_variable_identity d b c a
+  have h3 := four_variable_identity d a c b
+  sorry
+
 /-! ### The Fundamental Formula -/
 
 /-- The Fundamental Formula: U_{U_a(b)} = U_a ∘ U_b ∘ U_a (H-O 2.4.18, eq. 2.41).

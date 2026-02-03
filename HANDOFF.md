@@ -1,6 +1,44 @@
-# Handoff: 2026-02-03 (Session 62)
+# Handoff: 2026-02-03 (Session 63)
 
 ## Completed This Session
+
+### Triple product identity (2.42) statement added (FundamentalFormula.lean:84-91)
+
+Added theorem statement for H-O 2.4.20, identity (2.42):
+```lean
+theorem triple_product_242 (a b c d : J) :
+    jmul (triple a b c) d =
+    triple (jmul a d) b c + triple a b (jmul c d) - triple a (jmul b d) c
+```
+
+**Proof strategy (verified correct, ready to implement):**
+
+1. `simp only [triple_def, add_jmul, sub_jmul]` — expands to 3 LHS atoms, 9 RHS atoms
+2. Introduce `h1 := four_variable_identity d a b c`, `h2 := four_variable_identity d b c a`,
+   `h3 := four_variable_identity d a c b`
+3. After depth-1 normalization (`simp only [jmul_comm d a, jmul_comm d c]` etc.):
+   - h1 gives: G1 + G11 + G6 = G7 + G12 + G5
+   - h2 gives: G2 + G9 + G10 = G5 + G7 + G12
+   - h3 gives: G3 + G8 + G4 = G12 + G7 + G5
+4. Goal = h1 + h2 - h3 (rearranged), closeable by `abel`
+5. **Key difficulty**: ~15 `jmul_comm` rewrites needed to normalize atoms in h1/h2/h3
+   to match goal atoms. Inner depth-1 commutativity (`jmul d a → jmul a d`) is easy,
+   but outer commutativity on compound terms (`jmul (jmul b c) a → jmul a (jmul b c)`,
+   `jmul d (jmul (jmul a b) c) → jmul (jmul (jmul a b) c) d`) requires specific instances.
+6. After normalization, need to derive `G1 = ... from h1'` etc. in AddCommGroup
+   (no `linarith`, need manual `calc` + `abel` or similar).
+
+**Atoms mapping** (G = goal atom):
+- G1=`(ab)c∘d`, G2=`a(bc)∘d`, G3=`b(ac)∘d` (LHS, G3 negative)
+- G4=`((ad)b)c`, G5=`(ad)(bc)`, G6=`b((ad)c)` (triple(ad,b,c), G6 negative)
+- G7=`(ab)(cd)`, G8=`a(b(cd))`, G9=`b(a(cd))` (triple(a,b,cd), G9 negative)
+- G10=`(a(bd))c`, G11=`a((bd)c)`, G12=`(bd)(ac)` (triple(a,bd,c), G10/G11 negative, G12 positive)
+
+**Identities (2.43) and (2.44)** still need statements added. Same proof pattern.
+
+---
+
+## Previous Session (62)
 
 ### Course correction: JTPI approach abandoned, H-O path identified
 
@@ -489,16 +527,12 @@ ring_nf; abel
 ## Next Steps
 
 ### Immediate (unblocked tasks)
-1. `af-i8oo` (P1, in_progress): Fundamental formula U_{U_a(b)} = U_a U_b U_a
-   - **JTPI sorry is the key blocker** (`jtpi` at FundamentalFormula.lean:79)
-   - Proof approach for JTPI: expand `triple_def, U_def, jsq_def`, distribute,
-     apply Jordan identity + `operator_commutator_jsq_apply` to 3 terms, close with `abel`
-   - **FF from JTPI**: Standard proofs use Shirshov-Cohn (2-generated ⇒ special).
-     Direct derivation from JTPI alone is non-trivial (needs linearized JTPI).
-     Alternative: prove FF directly by same element-level expansion approach.
-   - `jtpi_outer` already derived from `jtpi + triple_comm_outer`
-2. `af-s4t7` (P2): Spectral decomposition
-3. Various P2 tasks: Quaternion embedding, spin factors, reversible algebras
+1. `af-9qp2` (P1, in_progress): Fill sorry in `triple_product_242` (FundamentalFormula.lean:91)
+   - Proof strategy fully worked out (see above), needs ~15 jmul_comm rewrites
+   - Then add (2.43) and (2.44) statements and proofs (same pattern)
+2. `af-i8oo` (P1): Fundamental formula — blocked on Macdonald's theorem
+3. `af-s4t7` (P2): Spectral decomposition
+4. Various P2 tasks: Quaternion embedding, spin factors, reversible algebras
 
 ### Deferred
 - `af-0xrg`: of_sq_eq_zero - needs architectural decision (spectral theory vs axioms)
