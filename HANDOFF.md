@@ -1,8 +1,34 @@
-# Handoff: 2026-02-03 (Session 65)
+# Handoff: 2026-02-03 (Session 66)
 
 ## Completed This Session
 
-### triple_product_242 PROVED (FundamentalFormula.lean:84-110, no sorry)
+### triple_product_243 and triple_product_244 PROVED (FundamentalFormula.lean:112-139, no sorry)
+
+Added the remaining two identities from H-O 2.4.20:
+
+**Identity (2.43)** — `triple_product_243`:
+```lean
+theorem triple_product_243 (a b c d : J) :
+    jmul (triple a b c) d =
+    triple a (jmul b c) d - triple (jmul a c) b d + triple c (jmul a b) d
+```
+Proof (~10 LOC): One instance of `four_variable_identity(a,b,c,d)` plus `jmul_comm` normalization.
+The goal difference equals `-(fvi_LHS - fvi_RHS)`, closed by `neg_zero`.
+
+**Identity (2.44)** — `triple_product_244`:
+```lean
+theorem triple_product_244 (a b c d : J) :
+    jmul (triple a b c) d + jmul (triple d b c) a =
+    triple a (jmul b c) d + triple (jmul a d) b c
+```
+Proof (~4 LOC): Derived from (2.43) for the first term + (2.42) for the second (with a↔d),
+then `triple_comm_outer` cancellations + `abel`.
+
+All three H-O 2.4.20 identities are now complete: (2.42), (2.43), (2.44).
+
+---
+
+## Previous Session (65)
 
 Filled the sorry in `triple_product_242` (H-O 2.4.20, identity 2.42):
 ```lean
@@ -577,8 +603,7 @@ ring_nf; abel
 ## Next Steps
 
 ### Immediate (unblocked tasks)
-1. **Add (2.43) and (2.44) statements and proofs** — same pattern as triple_product_242:
-   three instances of `four_variable_identity`, jmul_comm normalization, `sub_eq_zero` + `abel`
+1. `af-u0tp` (P2): H-O 2.4.21 power formulas (2.45)-(2.46) — now unblocked (depends on 2.42-2.44)
 2. `af-i8oo` (P1): Fundamental formula — blocked on Macdonald's theorem
 3. `af-s4t7` (P2): Spectral decomposition
 4. Various P2 tasks: Quaternion embedding, spin factors, reversible algebras

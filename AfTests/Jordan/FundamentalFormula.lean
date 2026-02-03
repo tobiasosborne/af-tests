@@ -109,6 +109,35 @@ theorem triple_product_242 (a b c d : J) :
           := by abel
     _ = 0 := by rw [e1, e2, e3]; abel
 
+/-- H-O 2.4.20, identity (2.43):
+`{a,b,c} ∘ d = {a, b∘c, d} - {a∘c, b, d} + {c, a∘b, d}`.
+Proved from one instance of `four_variable_identity`. -/
+theorem triple_product_243 (a b c d : J) :
+    jmul (triple a b c) d =
+    triple a (jmul b c) d - triple (jmul a c) b d + triple c (jmul a b) d := by
+  simp only [triple_def, add_jmul, sub_jmul]
+  have h1 := four_variable_identity a b c d
+  rw [jmul_comm c a] at h1
+  rw [jmul_comm (jmul a c) b, jmul_comm c (jmul a b)]
+  have e1 := sub_eq_zero.mpr h1
+  apply sub_eq_zero.mp
+  calc _
+      = -(jmul a (jmul (jmul b c) d) + jmul b (jmul (jmul a c) d) + jmul c (jmul (jmul a b) d) -
+          (jmul (jmul b c) (jmul a d) + jmul (jmul a c) (jmul b d) + jmul (jmul a b) (jmul c d)))
+          := by abel
+    _ = 0 := by rw [e1, neg_zero]
+
+/-- H-O 2.4.20, identity (2.44):
+`{a,b,c} ∘ d + {d,b,c} ∘ a = {a, b∘c, d} + {a∘d, b, c}`.
+Derived from (2.43) for the first term and (2.42) for the second. -/
+theorem triple_product_244 (a b c d : J) :
+    jmul (triple a b c) d + jmul (triple d b c) a =
+    triple a (jmul b c) d + triple (jmul a d) b c := by
+  rw [triple_product_243 a b c d, triple_product_242 d b c a]
+  rw [jmul_comm d a, jmul_comm c a, jmul_comm b a]
+  rw [triple_comm_outer d b (jmul a c), triple_comm_outer d (jmul a b) c]
+  abel
+
 /-! ### The Fundamental Formula -/
 
 /-- The Fundamental Formula: U_{U_a(b)} = U_a ∘ U_b ∘ U_a (H-O 2.4.18, eq. 2.41).
