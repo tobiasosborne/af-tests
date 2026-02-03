@@ -1,6 +1,27 @@
-# Handoff: 2026-02-03 (Session 53)
+# Handoff: 2026-02-03 (Session 54)
 
 ## Completed This Session
+
+### exists_primitive_csoi (Primitive.lean:1536-1540)
+
+**Proved** `exists_primitive_csoi`: a primitive CSOI exists in any nontrivial finite-dimensional
+formally real Jordan algebra. ~3 LOC, no sorry. Applies `exists_primitive_decomp` to `jone`.
+
+### Repaired exists_primitive_decomp (Primitive.lean:1464-1533)
+
+Fixed 4 pre-existing compilation errors from mathlib API changes:
+- `rw [hd]` → `rw [← hd]` (rewrite direction)
+- `rfl` → `he_eq` (explicit equation for `sub_idem_finrank_lt`)
+- Delayed `intro hij` until after `Fin.addCases` case split (motive substitution fix)
+
+### Corrected csoi_refine_primitive signature (Primitive.lean:1542-1548)
+
+Added `(h_ne : ∀ i, c.idem i ≠ 0)` hypothesis — the original `m ≥ n` claim is unprovable
+without it (zero idempotents are valid in a CSOI). Still sorry.
+
+---
+
+## Previous Session (53)
 
 ### exists_primitive_decomp COMPLETE (Primitive.lean:1464-1533)
 

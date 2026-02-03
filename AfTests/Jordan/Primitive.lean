@@ -1493,10 +1493,10 @@ theorem exists_primitive_decomp [FinDimJordanAlgebra J] [FormallyRealJordan J]
       have he_eq : e = f + g := by rw [hg_def]; abel
       -- Finrank decreases for both f and g
       have hf_lt : Module.finrank ℝ (PeirceSpace f 1) < d := by
-        rw [hd]; exact sub_idem_finrank_lt hf_idem hg_idem hfg_orth hg_ne rfl
+        rw [← hd]; exact sub_idem_finrank_lt hf_idem hg_idem hfg_orth hg_ne he_eq
       have hg_lt : Module.finrank ℝ (PeirceSpace g 1) < d := by
-        rw [hd]; exact sub_idem_finrank_lt hg_idem hf_idem hfg_orth.symm hf_ne0
-          (show e = g + f by rw [he_eq]; exact add_comm f g)
+        rw [← hd]; exact sub_idem_finrank_lt hg_idem hf_idem hfg_orth.symm hf_ne0
+          (show e = g + f by rw [he_eq]; abel)
       -- Recurse on f and g
       obtain ⟨k₁, p₁, hp₁, ho₁, hs₁⟩ := ih _ hf_lt f hf_idem hf_ne0 rfl
       obtain ⟨k₂, p₂, hp₂, ho₂, hs₂⟩ := ih _ hg_lt g hg_idem hg_ne rfl
@@ -1507,9 +1507,10 @@ theorem exists_primitive_decomp [FinDimJordanAlgebra J] [FormallyRealJordan J]
         exact Fin.addCases (fun i₁ => by simp only [Fin.addCases_left]; exact hp₁ i₁)
           (fun i₂ => by simp only [Fin.addCases_right]; exact hp₂ i₂) i
       · -- Pairwise orthogonal
-        intro i j hij
+        intro i j
         refine Fin.addCases (fun i₁ => ?_) (fun i₂ => ?_) i <;>
-          refine Fin.addCases (fun j₁ => ?_) (fun j₂ => ?_) j
+          refine Fin.addCases (fun j₁ => ?_) (fun j₂ => ?_) j <;>
+          intro hij
         · -- both in first half
           simp only [Fin.addCases_left]
           exact ho₁ i₁ j₁ (fun h => hij (congrArg (Fin.castAdd k₂) h))
@@ -1532,11 +1533,19 @@ theorem exists_primitive_decomp [FinDimJordanAlgebra J] [FormallyRealJordan J]
         rw [← hs₁, ← hs₂]
         exact he_eq
 
-/-- A CSOI can be refined to a primitive CSOI. -/
+/-- A primitive CSOI exists in any nontrivial finite-dimensional formally real Jordan algebra.
+This follows immediately from `exists_primitive_decomp` applied to `jone`. -/
+theorem exists_primitive_csoi [FinDimJordanAlgebra J] [FormallyRealJordan J] [Nontrivial J] :
+    ∃ (m : ℕ) (p : CSOI J m), ∀ i, IsPrimitive (p.idem i) := by
+  obtain ⟨k, p, hp, ho, hs⟩ := exists_primitive_decomp isIdempotent_jone (jone_ne_zero (J := J))
+  exact ⟨k, ⟨p, fun i => (hp i).isIdempotent, ho, hs.symm⟩, hp⟩
+
+/-- A CSOI with nonzero idempotents can be refined to a primitive CSOI with at least as many
+elements. Each original idempotent decomposes into one or more primitives via
+`exists_primitive_decomp`. -/
 theorem csoi_refine_primitive [FinDimJordanAlgebra J] [FormallyRealJordan J]
-    (c : CSOI J n) :
+    (c : CSOI J n) (h_ne : ∀ i, c.idem i ≠ 0) :
     ∃ (m : ℕ) (p : CSOI J m), m ≥ n ∧ ∀ i, IsPrimitive (p.idem i) := by
-  -- Refine each idempotent in c to primitives
   sorry
 
 end JordanAlgebra
