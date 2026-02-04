@@ -335,6 +335,30 @@ theorem L_jpow_comm_L (a : J) (n : ℕ) : Commute (L a) (L (jpow a n)) := by
           rw [t1, t3, t4, t5]
         _ = jmul (jpow a (n + 3)) (jmul a x) := by rw [← expr_ax]
 
+/-- All power L-operators mutually commute (H-O 2.4.5(ii)).
+Commute (L (a^l)) (L (a^m)) for all l, m. Proof by strong induction on l. -/
+theorem L_jpow_comm_all (a : J) (l m : ℕ) :
+    Commute (L (jpow a l)) (L (jpow a m)) := by
+  induction l using Nat.strongRecOn with
+  | _ l ih =>
+    match l with
+    | 0 =>
+      rw [Commute, SemiconjBy, jpow_zero]
+      ext x; change L jone (L (jpow a m) x) = L (jpow a m) (L jone x)
+      simp only [L_apply, jone_jmul]
+    | 1 =>
+      rw [jpow_one]
+      exact L_jpow_comm_L a m
+    | 2 =>
+      rw [show jpow a 2 = jsq a from jpow_two a]
+      -- L_{a²} commutes with L_{a^m}: use L_jpow_comm_L with role reversal
+      -- L_jpow_comm_L gives Commute (L a) (L (a^m)), need Commute (L (a²)) (L (a^m))
+      sorry
+    | (n + 3) =>
+      -- Use operator_formula recursion: L(a^{n+3}) expressed via L_a, L(a^{n+2}), L(a^{n+1}), L(a²)
+      -- All commute with L(a^m) by IH
+      sorry
+
 /-- Power associativity: a^m ∘ a^n = a^{m+n}. This is H-O 2.4.4.
 The proof uses that L_a and L_{aⁿ} commute for all n. -/
 theorem jpow_add (a : J) (m n : ℕ) : jmul (jpow a m) (jpow a n) = jpow a (m + n) := by
