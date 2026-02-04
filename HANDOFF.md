@@ -1,29 +1,29 @@
-# Handoff: 2026-02-04 (Session 69)
+# Handoff: 2026-02-04 (Session 70)
 
 ## Completed This Session
 
-### L_jpow_comm_all scaffold (LinearizedJordan.lean:338-372)
+### L_jpow_comm_all l=2 case COMPLETE (LinearizedJordan.lean:340-452)
 
-Added `L_jpow_comm_all : Commute (L (jpow a l)) (L (jpow a m))` (H-O 2.4.5(ii)).
-Strong induction on l. Status:
-- **l=0**: proved (L(1) commutes with everything)
-- **l=1**: proved (delegates to L_jpow_comm_L)
-- **l=2**: nested strong induction on m; m=0,1 proved; **m=k+2 sorry**
-- **l=n+3**: sorry (operator_formula recursion + IH)
+Filled the `l=2, m=k+2` sorry in `L_jpow_comm_all`. Key structural fix:
+added `revert m` before outer strong induction so `ih` has type
+`∀ l' < l, ∀ m, Commute ...` (not fixed to one `m`). This lets the inner
+strong induction on `m` access the outer IH at different `m` values.
 
-**Key insight for l=2, m=k+2**: Use `operator_formula_apply a a (jpow a k) x` to
-express `L(a^{k+2}) x` in terms of `L_a`, `L(a^{k+1})`, `L(a^k)`, `L(a²)`.
-By IH (ihm), `L(a²)` commutes with `L(a^k)` and `L(a^{k+1})`.
-Also `L(a²)` commutes with `L_a` (L_L_jsq_comm) and `L_a²` (composition).
-So `L(a²)` commutes with `L(a^{k+2})`.
+Status of `L_jpow_comm_all`:
+- **l=0**: proved
+- **l=1**: proved
+- **l=2**: PROVED (all m, via nested strong induction + operator_formula)
+- **l=n+3**: **sorry** (one remaining sorry)
 
-**Key insight for l=n+3**: Same recursion gives `L(a^{n+3})` in terms of
-`L_a`, `L(a^{n+2})`, `L(a^{n+1})`, `L(a²)`. All commute with `L(a^m)` by
-outer IH (ih) since 1,2,n+1,n+2 < n+3. So `L(a^{n+3})` commutes with `L(a^m)`.
+### l=n+3 sorry (LinearizedJordan.lean:453)
 
-**Both sorry cases** follow the same element-level pattern as in L_jpow_comm_L:
-derive `expr_x` and `expr_y` from operator_formula_apply, then calc chain
-substituting commutativity hypotheses term by term (~30 LOC each).
+**Exact same pattern** as l=2 case and as L_jpow_comm_L's n+3 case:
+1. Get IH: `ih 1 m`, `ih 2 m`, `ih (n+1) m`, `ih (n+2) m` (all < n+3)
+2. Convert to element-level commutativity (hc1..hc4)
+3. `operator_formula_apply a a (jpow a (n+1)) x` → `expr_x`
+4. Same with `(jmul (jpow a m) x)` → `expr_mx`
+5. Calc chain: substitute term-by-term using hc1..hc4
+~40 LOC, mechanical copy of l=2 pattern.
 
 ---
 
