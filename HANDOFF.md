@@ -1,6 +1,24 @@
-# Handoff: 2026-02-04 (Session 75)
+# Handoff: 2026-02-04 (Session 76)
 
 ## This Session
+
+### U_idempotent_comp PROVED + af-a5qq CLOSED (Quadratic.lean:126-154)
+
+Proved `U_e ∘ U_e = U_e` for idempotent e (~20 LOC, 0 new sorries).
+
+**Key insight**: For idempotent e, `U_e = 2L_e² - L_e = peirceProj₁ e`. Since peirceProj₁ maps to P₁(e) and L_e = id on P₁(e), the projection is idempotent.
+
+**Proof steps**:
+1. Show `U_linear e = peirceProj₁ e` (same formula, handle ℕ/ℝ scalar cast)
+2. Show `peirceProj₁(peirceProj₁(x)) = peirceProj₁(x)` since output is in P₁(e)
+
+Added import of Peirce.lean for peirceProj₁ infrastructure.
+
+**Sorries**: 14 (down from 15)
+
+---
+
+## Previous Session (75)
 
 ### U_jpow PROVED + af-u0tp CLOSED (FundamentalFormula.lean:230-248, 0 new sorries)
 
