@@ -339,8 +339,10 @@ theorem L_jpow_comm_L (a : J) (n : ℕ) : Commute (L a) (L (jpow a n)) := by
 Commute (L (a^l)) (L (a^m)) for all l, m. Proof by strong induction on l. -/
 theorem L_jpow_comm_all (a : J) (l m : ℕ) :
     Commute (L (jpow a l)) (L (jpow a m)) := by
+  revert m
   induction l using Nat.strongRecOn with
   | _ l ih =>
+    intro m
     match l with
     | 0 =>
       rw [Commute, SemiconjBy, jpow_zero]
@@ -362,9 +364,95 @@ theorem L_jpow_comm_all (a : J) (l m : ℕ) :
         | 1 =>
           rw [jpow_one]; exact (L_L_jsq_comm a).symm
         | (k + 2) =>
-          -- Use operator_formula_apply a a (jpow a k) x to get recursion
-          -- for L(a^{k+2}) in terms of L_a, L(a^{k+1}), L(a^k), L(a²)
-          sorry
+          -- Commute (L (a²)) (L (a^{k+2})) via operator_formula recursion
+          have ihm_k1 : Commute (L (jsq a)) (L (jpow a (k + 1))) :=
+            ihm (k + 1) (by omega)
+          have ihm_k : Commute (L (jsq a)) (L (jpow a k)) :=
+            ihm k (by omega)
+          have ihm_a : Commute (L (jsq a)) (L a) := (L_L_jsq_comm a).symm
+          rw [Commute, SemiconjBy] at ihm_k1 ihm_k ihm_a ⊢
+          ext x
+          change L (jsq a) (L (jpow a (k + 2)) x) = L (jpow a (k + 2)) (L (jsq a) x)
+          simp only [L_apply]
+          -- Element-level commutativity
+          have hc1 : ∀ y, jmul (jsq a) (jmul (jpow a (k + 1)) y) =
+              jmul (jpow a (k + 1)) (jmul (jsq a) y) := fun y =>
+            congrFun (congrArg DFunLike.coe ihm_k1) y
+          have hc2 : ∀ y, jmul (jsq a) (jmul (jpow a k) y) =
+              jmul (jpow a k) (jmul (jsq a) y) := fun y =>
+            congrFun (congrArg DFunLike.coe ihm_k) y
+          have hc3 : ∀ y, jmul (jsq a) (jmul a y) = jmul a (jmul (jsq a) y) := fun y =>
+            congrFun (congrArg DFunLike.coe ihm_a) y
+          -- Operator formula: express a^{k+2} via recursion
+          have h_op := operator_formula_apply a a (jpow a k) x
+          have h_bc : jmul a (jpow a k) = jpow a (k + 1) := jpow_succ a k
+          have h_ca : jmul (jpow a k) a = jpow a (k + 1) := by
+            rw [jmul_comm]; exact jpow_succ a k
+          have h_ab : jmul a a = jsq a := rfl
+          simp only [h_bc, h_ca, h_ab] at h_op
+          have h_k2 : jmul a (jpow a (k + 1)) = jpow a (k + 2) := jpow_succ a (k + 1)
+          rw [h_k2] at h_op
+          have expr_x : jmul (jpow a (k + 2)) x =
+              jmul a (jmul (jpow a (k + 1)) x) + jmul a (jmul (jpow a (k + 1)) x) +
+              jmul (jpow a k) (jmul (jsq a) x) -
+              jmul a (jmul a (jmul (jpow a k) x)) -
+              jmul (jpow a k) (jmul a (jmul a x)) := by
+            calc jmul (jpow a (k + 2)) x
+                = jmul (jpow a (k + 2)) x +
+                  jmul a (jmul a (jmul (jpow a k) x)) +
+                  jmul (jpow a k) (jmul a (jmul a x)) -
+                  jmul a (jmul a (jmul (jpow a k) x)) -
+                  jmul (jpow a k) (jmul a (jmul a x)) := by abel
+              _ = _ := by rw [h_op]
+          have h_op' := operator_formula_apply a a (jpow a k) (jmul (jsq a) x)
+          simp only [h_bc, h_ca, h_ab] at h_op'
+          rw [h_k2] at h_op'
+          have expr_sqx : jmul (jpow a (k + 2)) (jmul (jsq a) x) =
+              jmul a (jmul (jpow a (k + 1)) (jmul (jsq a) x)) +
+              jmul a (jmul (jpow a (k + 1)) (jmul (jsq a) x)) +
+              jmul (jpow a k) (jmul (jsq a) (jmul (jsq a) x)) -
+              jmul a (jmul a (jmul (jpow a k) (jmul (jsq a) x))) -
+              jmul (jpow a k) (jmul a (jmul a (jmul (jsq a) x))) := by
+            calc jmul (jpow a (k + 2)) (jmul (jsq a) x)
+                = jmul (jpow a (k + 2)) (jmul (jsq a) x) +
+                  jmul a (jmul a (jmul (jpow a k) (jmul (jsq a) x))) +
+                  jmul (jpow a k) (jmul a (jmul a (jmul (jsq a) x))) -
+                  jmul a (jmul a (jmul (jpow a k) (jmul (jsq a) x))) -
+                  jmul (jpow a k) (jmul a (jmul a (jmul (jsq a) x))) := by
+                    abel
+              _ = _ := by rw [h_op']
+          calc jmul (jsq a) (jmul (jpow a (k + 2)) x)
+              = jmul (jsq a) (jmul a (jmul (jpow a (k + 1)) x) +
+                  jmul a (jmul (jpow a (k + 1)) x) +
+                  jmul (jpow a k) (jmul (jsq a) x) -
+                  jmul a (jmul a (jmul (jpow a k) x)) -
+                  jmul (jpow a k) (jmul a (jmul a x))) := by rw [expr_x]
+            _ = jmul (jsq a) (jmul a (jmul (jpow a (k + 1)) x)) +
+                jmul (jsq a) (jmul a (jmul (jpow a (k + 1)) x)) +
+                jmul (jsq a) (jmul (jpow a k) (jmul (jsq a) x)) -
+                jmul (jsq a) (jmul a (jmul a (jmul (jpow a k) x))) -
+                jmul (jsq a) (jmul (jpow a k) (jmul a (jmul a x))) := by
+              simp only [jmul_sub, jmul_add]
+            _ = jmul a (jmul (jpow a (k + 1)) (jmul (jsq a) x)) +
+                jmul a (jmul (jpow a (k + 1)) (jmul (jsq a) x)) +
+                jmul (jpow a k) (jmul (jsq a) (jmul (jsq a) x)) -
+                jmul a (jmul a (jmul (jpow a k) (jmul (jsq a) x))) -
+                jmul (jpow a k) (jmul a (jmul a (jmul (jsq a) x))) := by
+              have t1 : jmul (jsq a) (jmul a (jmul (jpow a (k + 1)) x)) =
+                  jmul a (jmul (jpow a (k + 1)) (jmul (jsq a) x)) := by
+                rw [hc3 (jmul (jpow a (k + 1)) x), hc1 x]
+              have t3 : jmul (jsq a) (jmul (jpow a k) (jmul (jsq a) x)) =
+                  jmul (jpow a k) (jmul (jsq a) (jmul (jsq a) x)) :=
+                hc2 (jmul (jsq a) x)
+              have t4 : jmul (jsq a) (jmul a (jmul a (jmul (jpow a k) x))) =
+                  jmul a (jmul a (jmul (jpow a k) (jmul (jsq a) x))) := by
+                rw [hc3 (jmul a (jmul (jpow a k) x)), hc3 (jmul (jpow a k) x),
+                    hc2 x]
+              have t5 : jmul (jsq a) (jmul (jpow a k) (jmul a (jmul a x))) =
+                  jmul (jpow a k) (jmul a (jmul a (jmul (jsq a) x))) := by
+                rw [hc2 (jmul a (jmul a x)), hc3 (jmul a x), hc3 x]
+              rw [t1, t3, t4, t5]
+            _ = jmul (jpow a (k + 2)) (jmul (jsq a) x) := by rw [← expr_sqx]
     | (n + 3) =>
       -- Use operator_formula recursion: L(a^{n+3}) expressed via L_a, L(a^{n+2}), L(a^{n+1}), L(a²)
       -- All commute with L(a^m) by IH
