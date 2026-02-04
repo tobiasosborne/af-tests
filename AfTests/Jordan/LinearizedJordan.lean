@@ -351,9 +351,20 @@ theorem L_jpow_comm_all (a : J) (l m : ℕ) :
       exact L_jpow_comm_L a m
     | 2 =>
       rw [show jpow a 2 = jsq a from jpow_two a]
-      -- L_{a²} commutes with L_{a^m}: use L_jpow_comm_L with role reversal
-      -- L_jpow_comm_L gives Commute (L a) (L (a^m)), need Commute (L (a²)) (L (a^m))
-      sorry
+      -- Commute (L (a²)) (L (a^m)) by strong induction on m
+      induction m using Nat.strongRecOn with
+      | _ m ihm =>
+        match m with
+        | 0 =>
+          rw [Commute, SemiconjBy, jpow_zero]
+          ext x; change L (jsq a) (L jone x) = L jone (L (jsq a) x)
+          simp only [L_apply, jone_jmul]
+        | 1 =>
+          rw [jpow_one]; exact (L_L_jsq_comm a).symm
+        | (k + 2) =>
+          -- Use operator_formula_apply a a (jpow a k) x to get recursion
+          -- for L(a^{k+2}) in terms of L_a, L(a^{k+1}), L(a^k), L(a²)
+          sorry
     | (n + 3) =>
       -- Use operator_formula recursion: L(a^{n+3}) expressed via L_a, L(a^{n+2}), L(a^{n+1}), L(a²)
       -- All commute with L(a^m) by IH
