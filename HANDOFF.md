@@ -27,10 +27,23 @@ Added proof skeleton for `spectral_decomposition_exists` with two helper lemmas 
 ## NEXT STEP FOR NEXT AGENT
 
 **af-s4t7 continues**: Fill `eigenspaces_span` (SpectralTheorem.lean:50)
-- Need to show L_a diagonalizable via self-adjointness
-- Key: `traceInner_jmul_left` proves L_a is symmetric w.r.t. trace inner product
-- Look for mathlib's `Module.End.isInternal_eigenspaces_of_isSymmetric` or similar
-- ~20-30 LOC
+
+**BLOCKER IDENTIFIED**: Need `InnerProductSpace ℝ J` instance to use mathlib's spectral theorem.
+
+**Key mathlib result**: `LinearMap.IsSymmetric.orthogonalComplement_iSup_eigenspaces_eq_bot'`
+  - Location: `Mathlib/Analysis/InnerProductSpace/Spectrum.lean`
+  - Shows eigenspaces span for symmetric operators in InnerProductSpace
+
+**Required infrastructure** (~50-100 LOC, new file `AfTests/Jordan/TraceInnerProduct.lean`):
+1. Define `traceNorm : J → ℝ := fun a => Real.sqrt (traceInner a a)`
+2. Show `traceInner` is positive definite (uses `FormallyRealJordan`)
+3. Build `InnerProductSpace.Core ℝ J` from `traceInner`
+4. Instantiate `InnerProductSpace ℝ J`
+5. Show `L a` is `LinearMap.IsSymmetric` (from `traceInner_jmul_left`)
+
+**Alternative**: Prove diagonalizability directly without mathlib's spectral theorem
+  - Induction on dimension
+  - ~80-100 LOC but self-contained
 
 ---
 
