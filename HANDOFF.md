@@ -1,6 +1,23 @@
-# Handoff: 2026-02-04 (Session 76)
+# Handoff: 2026-02-04 (Session 77)
 
 ## This Session
+
+### Spectral decomposition helpers (SpectralTheorem.lean:73-95, ~20 LOC)
+
+Added two helper lemmas for the spectral theorem:
+
+1. `spectral_decomp_jmul_idem`: For a = ∑ λᵢ eᵢ, shows `a ∘ eⱼ = λⱼ eⱼ`
+   - Key: orthogonality zeroes out i ≠ j terms, idempotence gives eⱼ for i = j
+
+2. `spectral_decomp_eigenvalue_mem_spectrum`: Shows decomposition eigenvalues are in spectrum
+   - If eⱼ ≠ 0, then λⱼ is an eigenvalue of L_a with eigenvector eⱼ
+   - This is one direction of `spectrum_eq_eigenvalueSet`
+
+**Sorries**: 14 (unchanged)
+
+---
+
+## Previous Session (76)
 
 ### U_idempotent_comp PROVED + af-a5qq CLOSED (Quadratic.lean:126-154)
 

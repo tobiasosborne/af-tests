@@ -70,6 +70,34 @@ theorem spectral_decomposition_finset [FinDimJordanAlgebra J] [JordanTrace J]
   -- Convert Fin n-indexed to Finset-indexed
   sorry
 
+/-! ### Spectral Decomposition Properties -/
+
+/-- In a spectral decomposition a = ∑ λᵢ eᵢ, each idempotent is an eigenvector:
+    a ∘ eⱼ = λⱼ eⱼ. -/
+theorem spectral_decomp_jmul_idem {a : J} (sd : SpectralDecomp a) (j : Fin sd.n) :
+    jmul a (sd.csoi.idem j) = sd.eigenvalues j • sd.csoi.idem j := by
+  rw [sd.decomp]
+  -- jmul (∑ᵢ λᵢ eᵢ) eⱼ = ∑ᵢ λᵢ (jmul eᵢ eⱼ)
+  rw [sum_jmul Finset.univ sd.csoi.idem sd.eigenvalues (sd.csoi.idem j)]
+  -- For i ≠ j: jmul eᵢ eⱼ = 0 (orthogonality)
+  -- For i = j: jmul eⱼ eⱼ = eⱼ (idempotence)
+  rw [← Finset.add_sum_erase Finset.univ _ (Finset.mem_univ j)]
+  have other_terms : ∑ i ∈ Finset.univ.erase j,
+      sd.eigenvalues i • jmul (sd.csoi.idem i) (sd.csoi.idem j) = 0 := by
+    apply Finset.sum_eq_zero
+    intro i hi
+    rw [Finset.mem_erase] at hi
+    rw [sd.csoi.orthog i j hi.1.symm, smul_zero]
+  rw [other_terms, add_zero, sd.csoi.is_idem j]
+
+/-- Eigenvalues from a spectral decomposition are eigenvalues of L_a.
+    This is one direction of spectrum_eq_eigenvalueSet. -/
+theorem spectral_decomp_eigenvalue_mem_spectrum {a : J} (sd : SpectralDecomp a)
+    (j : Fin sd.n) (hne : sd.csoi.idem j ≠ 0) :
+    sd.eigenvalues j ∈ spectrum a := by
+  rw [mem_spectrum_iff, isEigenvalue_iff_exists_eigenvector]
+  exact ⟨sd.csoi.idem j, hne, spectral_decomp_jmul_idem sd j⟩
+
 /-! ### Uniqueness Results -/
 
 /-- The spectrum (eigenvalue set) is unique - it equals eigenvalueSet a. -/
