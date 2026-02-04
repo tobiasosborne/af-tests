@@ -7,6 +7,7 @@
 
 using LinearAlgebra, SparseArrays, Printf
 using WignerSymbols
+using KrylovKit
 
 #==========================================================================
   Combinatorial Number System (Combinadics)
@@ -107,7 +108,7 @@ function build_sector_basis(j::Int, n_ferm::Int, j3_target::Int)
     return states
 end
 
-# Get dimension of sector without building full basis
+# Get dimension of sector without building full basis (slow, iterates over all states)
 function sector_dimension(j::Int, n_ferm::Int, j3_target::Int)
     N = 2j + 1
     count = 0
@@ -119,6 +120,69 @@ function sector_dimension(j::Int, n_ferm::Int, j3_target::Int)
         end
     end
     return count
+end
+
+# Fast DP-based computation of ALL sector dimensions for given j
+# Returns Dict{(n_ferm, j3), dimension}
+# Uses generating function: ∏_{m=-j}^{j} (1 + x^m * y)
+# Coefficient of x^j3 * y^n gives dimension of sector (n, j3)
+function all_sector_dimensions(j::Int)
+    N = 2j + 1
+    # m values range from -j to j, so j3 ranges from -j*N to j*N (actually tighter)
+    # For n fermions, j3 ranges from sum of lowest n m-values to sum of highest n
+
+    # DP table: dp[n+1, j3_shifted] = count of states with n fermions and total j3
+    # j3 offset: shift by j*N to make indices positive
+    j3_offset = j * N
+    max_j3 = j * N
+    dp = zeros(Int, N + 2, 2 * max_j3 + 1)
+
+    # Base: 0 fermions, j3 = 0
+    dp[1, j3_offset + 1] = 1
+
+    # Add each site
+    for s in 1:N
+        m = s - j - 1  # m value for site s
+        # Iterate backwards to avoid counting same site twice
+        for n in N:-1:0
+            for j3 in -max_j3:max_j3
+                idx = j3 + j3_offset + 1
+                if idx < 1 || idx > 2*max_j3 + 1
+                    continue
+                end
+                if dp[n+1, idx] > 0
+                    # Adding fermion at site s: n -> n+1, j3 -> j3+m
+                    new_j3_idx = idx + m
+                    if new_j3_idx >= 1 && new_j3_idx <= 2*max_j3 + 1
+                        dp[n+2, new_j3_idx] += dp[n+1, idx]
+                    end
+                end
+            end
+        end
+    end
+
+    # Extract non-zero sectors
+    result = Dict{Tuple{Int,Int}, Int}()
+    for n in 0:N
+        for j3 in -max_j3:max_j3
+            idx = j3 + j3_offset + 1
+            if idx >= 1 && idx <= 2*max_j3 + 1 && dp[n+1, idx] > 0
+                result[(n, j3)] = dp[n+1, idx]
+            end
+        end
+    end
+
+    return result
+end
+
+# Fast sector dimension lookup (computes all and caches)
+const SECTOR_DIM_CACHE = Dict{Int, Dict{Tuple{Int,Int}, Int}}()
+
+function sector_dimension_fast(j::Int, n_ferm::Int, j3_target::Int)
+    if !haskey(SECTOR_DIM_CACHE, j)
+        SECTOR_DIM_CACHE[j] = all_sector_dimensions(j)
+    end
+    return get(SECTOR_DIM_CACHE[j], (n_ferm, j3_target), 0)
 end
 
 #==========================================================================
@@ -274,11 +338,72 @@ end
   Sector Diagonalization
 ==========================================================================#
 
+# Lanczos eigensolver using KrylovKit for large sparse Hamiltonians
+# Returns (eigenvalues, eigenvectors, converged_count)
+# Note: tol=1e-8 is good for physics; 1e-12 is often overkill and slow for degenerate spectra
+function lowest_eigenvalues_lanczos(H::SparseMatrixCSC, nev::Int;
+                                     tol::Float64=1e-8, maxiter::Int=200,
+                                     krylovdim::Int=0)
+    dim = size(H, 1)
+    nev_actual = min(nev, dim - 1)  # KrylovKit needs dim > nev
+
+    if dim <= 2 * nev_actual || nev_actual < 1
+        # Full diagonalization if sector too small for Krylov benefit
+        evals = eigvals(Hermitian(Matrix(H)))
+        return sort(real.(evals)), nothing, dim
+    end
+
+    # KrylovKit eigsolve: :SR for smallest real eigenvalues
+    # ishermitian=true enables symmetric Lanczos
+    # krylovdim must be > nev, typically 2*nev or more for good convergence
+    krylov = krylovdim > 0 ? krylovdim : min(dim - 1, max(2 * nev_actual + 10, 50))
+
+    vals, vecs, info = eigsolve(H, nev_actual, :SR;
+                                ishermitian=true, tol=tol, maxiter=maxiter,
+                                krylovdim=krylov)
+
+    if info.converged < nev_actual
+        @warn "Lanczos converged only $(info.converged)/$nev_actual eigenvalues"
+    end
+
+    return real.(vals[1:info.converged]), vecs, info.converged
+end
+
+# Find eigenvalues near a target value using shift-invert Lanczos
+# Useful for finding BPS states (E ≈ 0) in large sectors
+function eigenvalues_near_target(H::SparseMatrixCSC, target::Float64, nev::Int;
+                                  tol::Float64=1e-12, maxiter::Int=300)
+    dim = size(H, 1)
+    nev_actual = min(nev, dim - 1)
+
+    if dim <= 2 * nev_actual || nev_actual < 1
+        evals = eigvals(Hermitian(Matrix(H)))
+        return sort(real.(evals)), nothing, dim
+    end
+
+    # Shift: (H - target*I)^(-1) has largest eigenvalues near where H has eigenvalues near target
+    H_shifted = H - target * I
+    F = lu(H_shifted)
+
+    # KrylovKit needs a callable: use closure over factorization
+    krylovdim = min(dim - 1, max(2 * nev_actual + 10, 50))
+    vals, vecs, info = eigsolve(x -> F \ x, dim, nev_actual, :LM;
+                                ishermitian=false, tol=tol, maxiter=maxiter,
+                                krylovdim=krylovdim)
+
+    # Transform back: eigenvalue of (H - σI)^(-1) is 1/(λ - σ)
+    original_evals = [target + 1.0 / real(v) for v in vals[1:info.converged]]
+
+    return sort(original_evals), vecs, info.converged
+end
+
 # Diagonalize a single sector
 function diag_sector(j::Int, n_ferm::Int, j3_target::Int;
                      J_coupling::Float64=1.0,
                      wigner_cache=nothing,
-                     full_diag_threshold::Int=500)
+                     full_diag_threshold::Int=500,
+                     nev::Int=50,
+                     use_lanczos::Bool=true)
 
     H, basis = build_sector_hamiltonian(j, n_ferm, j3_target;
                                         J_coupling=J_coupling,
@@ -293,9 +418,13 @@ function diag_sector(j::Int, n_ferm::Int, j3_target::Int;
         # Full diagonalization for small sectors
         evals = eigvals(Hermitian(Matrix(H)))
         return sort(real.(evals)), basis
+    elseif use_lanczos
+        # Lanczos for large sectors
+        evals, _, converged = lowest_eigenvalues_lanczos(H, min(nev, dim))
+        return evals, basis
     else
-        # TODO: Use KrylovKit for large sectors (Phase 3)
-        @warn "Sector (n=$n_ferm, j3=$j3_target) has dim=$dim > threshold, using full diag anyway"
+        # Fallback: full diag (may be slow)
+        @warn "Sector (n=$n_ferm, j3=$j3_target) has dim=$dim > threshold, using full diag"
         evals = eigvals(Hermitian(Matrix(H)))
         return sort(real.(evals)), basis
     end

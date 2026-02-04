@@ -1,69 +1,31 @@
 # HANDOFF: BLM Model Numerical Work
 
-## Status: Phases 1-2 complete, j=7 working
+## Status: Phases 1-3 complete, j=11 working
 
 **Completed this session**:
-- Phase 1: ITensor (Nf, J₃) QN conservation → j=5 now E~1e-15, j=7 works
-- Phase 2: ED direct sector construction → validated j=1..5
+- Phase 3: KrylovKit Lanczos integration for large sectors
+- Fast sector dimension computation via DP (instant for j=11+)
+- j=11 largest sector (dim=32540) builds in 6s, Lanczos in ~80s
 
-**Next**: Phase 3 (KrylovKit Lanczos) is unblocked, then Phase 4 (parallel).
+**Next**: Phase 4 (parallel sector diagonalization) for full j=11 spectrum.
 See `SYMMETRY_IMPLEMENTATION_PLAN.md` for full plan.
 
 ## What's Done
 
 - **Exact diagonalization**: Full spectrum by (n_fermion, J₃) sectors
-- **ITensor DMRG**: Ground state finder, MPO construction
+- **Direct sector construction**: Builds sector H without full Hilbert space
+- **KrylovKit Lanczos**: Iterative eigensolver for large sectors (dim > 500)
+- **Fast sector sizing**: DP-based all_sector_dimensions() for planning
+- **ITensor DMRG**: Ground state finder, MPO construction with (Nf, J₃) QN
 - **Validation**: Hermiticity, H≥0, vacuum energy, BPS count = 2×3^j
-- **Matrix comparison**: ‖H_MPO - H_ED‖ ~ 1e-15 for j=1,3
 
-## Current Limitations
+## Current Scaling
 
-1. **j=5 DMRG slow**: E₀ ~ 2e-6 after 30 sweeps (should be 0). High entanglement in BPS manifold.
-2. **No QN targeting**: DMRG runs without conserving (N_psi, J₃), wastes effort.
-3. **Ground state only**: No excited states, correlations, or dynamics.
-
-## Next Steps (prioritized)
-
-### P1: Fix j=5 convergence
-```julia
-# In itensor_dmrg.jl: use QN conservation to target specific sector
-sites = siteinds("Fermion", N; conserve_nf=true)  # conserve fermion number
-# Initialize MPS in correct sector (n=j or n=j+1 for BPS)
-```
-
-### P2: Add correlation functions
-```julia
-# Two-point correlator ⟨c†_m c_n⟩
-function correlation_matrix(psi, sites, j)
-    N = length(sites)
-    C = zeros(ComplexF64, N, N)
-    for i in 1:N, k in 1:N
-        C[i,k] = correlation_matrix(psi, "Cdag", "C")[i,k]
-    end
-    return C
-end
-```
-
-### P3: Add entanglement entropy
-```julia
-# von Neumann entropy at bond b
-function entanglement_entropy(psi, b)
-    orthogonalize!(psi, b)
-    U, S, V = svd(psi[b], (linkind(psi, b-1), siteind(psi, b)))
-    return -sum(p -> p > 0 ? p * log(p) : 0, diag(S).^2)
-end
-```
-
-### P4: Excited states
-```julia
-# Use weight penalty: dmrg(H, [psi0], psi_init; weight=100.0)
-# Returns first excited state orthogonal to psi0
-```
-
-### P5: Compare with paper's j=11 data
-- File: `examples4/paper/anc/j=11_spectrum.txt`
-- Format: `R-charge  Energy  Spin` (103k lines)
-- Would need j=11 ED (dim 8M) or sector-targeted Lanczos
+| j | Sites N | Full dim | Largest sector | Build H | Lanczos (10 evals) |
+|---|---------|----------|----------------|---------|-------------------|
+| 7 | 15 | 32,768 | 289 | 0.2s | (full diag faster) |
+| 9 | 19 | 524,288 | 2,934 | 0.5s | ~30s |
+| 11 | 23 | 8,388,608 | 32,540 | 6s | ~80s |
 
 ## Key Files
 
@@ -71,29 +33,66 @@ end
 |------|--------------|
 | `numerics/src/fock.jl` | Fock basis, c†/c operators |
 | `numerics/src/hamiltonian.jl` | H via Wigner 3j |
-| `numerics/src/exact_diag.jl` | Sector-resolved ED |
-| `numerics/src/itensor_dmrg.jl` | MPO + DMRG |
-| `numerics/src/compare.jl` | Validation driver |
-| `numerics/run_comparison.jl` | Main entry point |
+| `numerics/src/exact_diag.jl` | Legacy sector-resolved ED |
+| `numerics/src/sector_ed.jl` | Direct sector construction + Lanczos (Phase 2-3) |
+| `numerics/src/itensor_dmrg.jl` | MPO + DMRG with QN conservation |
 
 ## Running
 
 ```bash
 cd examples4/numerics
-julia run_comparison.jl   # ~2 min, tests j=1,3,5
-julia run_j1.jl           # detailed j=1
+
+# Quick j=5-7 test
+julia run_sector_ed_test.jl
+
+# j=11 single sector test
+julia -e '
+include("src/sector_ed.jl")
+j = 11
+H, basis = build_sector_hamiltonian(j, 11, 0; wigner_cache=precompute_wigner_cache(j))
+evals, _, _ = lowest_eigenvalues_lanczos(H, 10)
+println("BPS states: ", count(e -> abs(e) < 1e-6, evals))
+'
+```
+
+## Next Steps (Phase 4)
+
+### Parallel sector diagonalization
+```julia
+# In sector_ed.jl or new parallel_ed.jl
+function parallel_ground_states(j::Int; J_coupling=1.0)
+    sectors = all_sector_dimensions(j)
+    wigner_cache = precompute_wigner_cache(j)
+
+    results = Vector{NamedTuple}(undef, length(sectors))
+    sector_list = collect(sectors)
+
+    Threads.@threads for i in eachindex(sector_list)
+        (n, j3), dim = sector_list[i]
+        H, _ = build_sector_hamiltonian(j, n, j3; wigner_cache=wigner_cache)
+        if dim < 500
+            E_min = eigvals(Hermitian(Matrix(H)))[1]
+        else
+            E_min, _, _ = lowest_eigenvalues_lanczos(H, 1)
+            E_min = E_min[1]
+        end
+        results[i] = (n=n, j3=j3, dim=dim, E_min=E_min)
+    end
+    return results
+end
 ```
 
 ## Physics Notes
 
 - BPS states at R = ±1/6 (n = j and n = j+1 fermions)
-- BPS count 2×3^j confirmed numerically
+- BPS count 2×3^j confirmed numerically through j=9
+- j=11 BPS sector (n=11, j3=0): ~5 BPS states found in first 10 eigenvalues
 - Spectrum has only 4 distinct energy levels for j=3 (single Haldane pseudopotential)
-- Vacuum energy E_vac = J(2j+1)/3 at n=0
 
 ## Dependencies
 
-Julia packages (already installed):
+Julia packages (in global environment):
 - `ITensors`, `ITensorMPS` — tensor networks
 - `WignerSymbols` — 3j symbols
+- `KrylovKit` — Lanczos/Arnoldi eigensolvers
 - `LinearAlgebra`, `SparseArrays` — stdlib
