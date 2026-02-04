@@ -4,6 +4,38 @@ Research findings from formalizing Jordan algebras in Lean 4.
 
 ---
 
+## Session 67: Progress Audit & Issue Hygiene
+
+### Project Metrics (66 sessions)
+- 38 files, 7,991 LOC, 15 sorries across 8 files
+- Core algebraic theory (identities, Peirce, primitives): ~85-95% complete
+- Spectral theory: ~40% (main bottleneck)
+- Classification: ~15% (downstream, deferred)
+
+### Dependency Corrections
+- **af-a5qq** (U_idempotent_comp): Was incorrectly blocked on Macdonald's theorem.
+  Actually provable directly via Peirce polynomial identity `2L³_e - 3L²_e + L_e = 0`.
+  No fundamental formula needed.
+- **af-tggl** (Macdonald's theorem): Was incorrectly blocked on power formulas (af-u0tp).
+  In H-O, Macdonald (§2.4.13-2.4.15) precedes and is independent of power formulas (§2.4.21).
+  These are parallel critical paths, not sequential.
+- **af-i8oo** (fundamental_formula): Was prematurely closed. The sorry at
+  FundamentalFormula.lean:151 is still present. Reopened.
+
+### Three Independent Critical Paths Identified
+1. **Power formulas**: jpow_add → af-u0tp (power formulas 2.45-2.46)
+2. **Fundamental formula**: af-tggl (Macdonald) → af-i8oo (fundamental formula)
+3. **Spectral theorem**: af-s4t7 (spectral decomposition) → 6 downstream sorries
+
+These can be worked in parallel. Previous sessions treated them as sequential.
+
+### Lesson: Issue Hygiene Matters
+- Stale in_progress issues (af-4g40) → reset to open
+- Wrong dependencies create false blockers → verify mathematical dependency before wiring
+- Premature closure (af-i8oo closed while sorry present) → always verify sorry count before closing
+
+---
+
 ## Session 88: Operator Identity Correctness Issues
 
 ### 🚨 WARNING: S9/S10 May Be Incorrect

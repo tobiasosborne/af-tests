@@ -588,53 +588,86 @@ ring_nf; abel
 ## Current State
 
 ### Jordan Algebra Project
-- 9 files, ~870 LOC total
-- **3 sorries remaining:**
-  - `FundamentalFormula.lean:79` - `jtpi` (JTPI, element-level computation)
-  - `FundamentalFormula.lean:104` - `fundamental_formula` (needs JTPI + Shirshov-Cohn or direct)
-  - `FormallyReal/Def.lean` - `of_sq_eq_zero` (requires spectral theory)
-- Matrix Jordan algebra now has full instance
+- 38 files, ~7,991 LOC total
+- **15 sorries remaining** across 8 files:
+  - `FundamentalFormula.lean:151` — `fundamental_formula` (needs Macdonald's theorem)
+  - `Quadratic.lean:134` — `U_idempotent_comp` (provable via Peirce polynomial)
+  - `SpectralTheorem.lean:59,71,80,159,162,173` — 6 sorries (spectral decomposition chain)
+  - `FormallyReal/Def.lean:75,80` — `of_sq_eq_zero` (accepted gap, circular dependency)
+  - `FormallyReal/Square.lean:102,118` — sqrt uniqueness + existence (needs spectral)
+  - `FormallyReal/Spectrum.lean:146` — eigenvalue non-negativity (needs spectral)
+  - `Classification/RealSymmetric.lean:81` — isSimple (needs matrix units)
+  - `Classification/ComplexHermitian.lean:78` — isSimple (needs matrix units)
+- Matrix Jordan algebra has full instance
+- Primitive idempotent theory COMPLETE (Sessions 39-55)
+- Triple product identities (2.42)-(2.44) COMPLETE (Sessions 63-66)
 
 ### Archimedean Closure Project: COMPLETE
 - 44 files, 4,943 LOC, 0 sorries
+
+### Progress by H-O Chapter
+- Ch 2 (identities, operators): ~85%
+- Ch 2.6 (Peirce): ~95%
+- Ch 2.9 (primitives): ~95%
+- Ch 3.1-3.2 (formally real, spectral): ~40%
+- Ch 3.3-3.5 (classification): ~15%
 
 ---
 
 ## Next Steps
 
-### Immediate (unblocked tasks)
-1. `af-u0tp` (P2): H-O 2.4.21 power formulas (2.45)-(2.46) — now unblocked
-   **Prerequisites identified (Session 66 research):**
-   - Need H-O 2.4.5: power associativity `a^{m+n} = a^m ∘ a^n`
-   - H-O 2.4.5 proof: (a) show `T_{a^n}` is polynomial in `T_a, T_{a^2}` via (2.35),
+### Critical Path A: Power Formulas (unblocked)
+1. **`af-gk4c` (P1, READY)**: `jpow_add` — power associativity `a^m ∘ a^n = a^(m+n)` (H-O 2.4.5)
+   - Proof: (a) show `T_{a^n}` is polynomial in `T_a, T_{a^2}` via (2.35),
      hence all `T_{a^m}` commute; (b) induction on m using operator commutativity
-   - Need bilinear U: `U₂ a b x = triple a x b` (linearization of U)
+   - ~30-50 LOC
+2. **`af-u0tp` (P1, blocked on gk4c)**: Power formulas (2.45)-(2.46)
    - (2.45): `2·T_{a^l} · U_{a^m, a^n} = U_{a^{m+l}, a^n} + U_{a^m, a^{n+l}}`
    - (2.46): `U_{a^n} = U_a^n` (by induction using (2.45) twice)
-   - **Smallest first step**: prove `jpow_add : jmul (jpow a m) (jpow a n) = jpow a (m+n)`
-2. `af-i8oo` (P1): Fundamental formula — blocked on Macdonald's theorem
-3. `af-s4t7` (P2): Spectral decomposition
-4. Various P2 tasks: Quaternion embedding, spin factors, reversible algebras
 
-### Deferred
-- `af-0xrg`: of_sq_eq_zero - needs architectural decision (spectral theory vs axioms)
-- `af-tpm2`: Spectral theory development (P3)
+### Critical Path B: Fundamental Formula (unblocked)
+1. **`af-tggl` (P1, READY)**: Macdonald's theorem (H-O 2.4.13) — ~200+ LOC
+2. **`af-i8oo` (P1, blocked on tggl)**: Fundamental formula `U_{U_a(b)} = U_a U_b U_a`
+
+### Critical Path C: Spectral Theorem (unblocked)
+1. **`af-s4t7` (P1, READY)**: `spectral_decomposition_exists` — ~80-100 LOC
+   - All Primitive.lean dependencies are resolved (sessions 39-55)
+2. `af-102j`, `af-rcy0`, `af-vulx` (P2, blocked on s4t7): downstream spectral chain
+
+### Quick Wins (unblocked)
+- **`af-a5qq` (P2, READY)**: `U_idempotent_comp` — provable via Peirce polynomial identity, ~35 LOC
+- **`af-zi08` (P2, READY)**: RealSymmetric.isSimple — matrix units approach, ~170 LOC
+
+### Deferred (P3)
+- `af-tpm2`: of_sq_eq_zero — accepted gap (circular dependency)
+- Classification downstream: envelope, reversible, spin factors, quaternions (~15 issues)
 
 ---
 
 ## Files Modified This Session
 
-- `AfTests/Jordan/FundamentalFormula.lean` (added triple_product_243, triple_product_244)
-- `HANDOFF.md` (updated)
+- `HANDOFF.md` (progress audit + updated)
+- Beads: reprioritized 20+ issues, created af-gk4c, reopened af-i8oo, fixed dependencies
 
 ---
 
-## Sorries
+## Sorries (15 total, 8 files)
 
-1. `AfTests/Jordan/FormallyReal/Def.lean:58-68` - `of_sq_eq_zero`
-   - Proving: single-element property implies sum-of-squares property
-   - Status: **Requires spectral theory or ordering axioms**
-   - See: Faraut-Korányi "Analysis on Symmetric Cones"
+| File | Line | Theorem | Issue | Blocker |
+|------|------|---------|-------|---------|
+| FundamentalFormula.lean | 151 | `fundamental_formula` | af-i8oo (P1) | Macdonald's theorem |
+| Quadratic.lean | 134 | `U_idempotent_comp` | af-a5qq (P2) | None (Peirce polynomial) |
+| SpectralTheorem.lean | 59 | `spectral_decomposition_exists` | af-s4t7 (P1) | None (unblocked) |
+| SpectralTheorem.lean | 71 | `spectral_decomposition_finset` | af-102j (P2) | af-s4t7 |
+| SpectralTheorem.lean | 80 | `spectrum_eq_eigenvalueSet` | af-rcy0 (P2) | af-s4t7 |
+| SpectralTheorem.lean | 159,162 | `spectrum_sq` | af-vulx (P2) | af-rcy0 |
+| SpectralTheorem.lean | 173 | `sq_eigenvalues_nonneg` | af-gbmu (P3) | af-vulx |
+| FormallyReal/Def.lean | 75,80 | `of_sq_eq_zero` | af-tpm2 (P3) | Circular (accepted gap) |
+| FormallyReal/Square.lean | 102 | `isPositiveSqrt_unique` | af-o95c (P3) | af-s4t7 |
+| FormallyReal/Square.lean | 118 | `HasPositiveSqrt.of_positiveElement` | af-uifg (P3) | af-s4t7 |
+| FormallyReal/Spectrum.lean | 146 | `spectral_sq_eigenvalues_nonneg` | af-1vkv (P3) | af-vulx |
+| Classification/RealSymmetric.lean | 81 | `isSimple` | af-zi08 (P2) | None |
+| Classification/ComplexHermitian.lean | 78 | `isSimple` | af-4uo9 (P2) | af-zi08 |
 
 ---
 
@@ -654,9 +687,14 @@ The Jordan identity `(A ∘ B) ∘ A² = A ∘ (B ∘ A²)` for matrices:
 
 ---
 
-## Beads Summary
+## Beads Summary (Session 67 audit)
 
-- 1 task closed this session: `af-dcxu` (JordanAlgebra instance)
+- **33 open issues** (6 P1, 5 P2, 22 P3)
+- **Reprioritized**: Critical path issues promoted to P1, downstream classification/envelope demoted to P3
+- **Created**: af-gk4c (jpow_add)
+- **Reopened**: af-i8oo (fundamental_formula sorry still present)
+- **Fixed dependencies**: af-a5qq unblocked (doesn't need Macdonald), af-tggl unblocked (independent of power formulas)
+- **3 critical paths** identified: power formulas, fundamental formula, spectral theorem (all independent)
 
 ---
 
