@@ -6,6 +6,7 @@ Authors: AF-Tests Contributors
 import AfTests.Jordan.Basic
 import AfTests.Jordan.Product
 import AfTests.Jordan.FormallyReal.Spectrum
+import AfTests.Jordan.Peirce
 
 /-!
 # Quadratic U Operator for Jordan Algebras
@@ -125,13 +126,33 @@ theorem U_idempotent_self (e : J) (he : IsIdempotent e) : U e e = e := by
 /-- U_e is idempotent as an operator when e is idempotent: U_e ∘ U_e = U_e. -/
 theorem U_idempotent_comp (e : J) (he : IsIdempotent e) :
     U_linear e ∘ₗ U_linear e = U_linear e := by
-  -- This requires showing U_e(U_e(x)) = U_e(x) for all x
-  -- Using the fundamental formula would make this straightforward,
-  -- but we can prove it directly from U_idempotent_self and linearity considerations
+  -- Key insight: For idempotent e, U_e = 2L_e² - L_e = peirceProj₁ e
+  -- Since peirceProj₁ is a projection, it's idempotent.
+  -- Step 1: Show U_linear e = peirceProj₁ e
+  have hU_eq : U_linear e = peirceProj₁ e := by
+    ext x
+    simp only [U_linear_apply, U_def, peirceProj₁, LinearMap.sub_apply,
+      LinearMap.smul_apply, LinearMap.comp_apply, L_apply]
+    -- U_e(x) = 2(e∘(e∘x)) - e²∘x = 2L²(x) - L_e(x) since e² = e
+    -- Note: U uses nsmul 2, peirceProj₁ uses (2:ℝ) • ...
+    simp only [he.jsq_eq_self, ← Nat.cast_smul_eq_nsmul ℝ 2]
+    norm_cast
+  -- Step 2: Show peirceProj₁ e ∘ peirceProj₁ e = peirceProj₁ e
+  -- This follows because peirceProj₁ maps to P₁(e) and is identity there.
+  rw [hU_eq]
   ext x
-  simp only [LinearMap.comp_apply, U_linear_apply]
-  -- This requires deeper Jordan algebra theory (fundamental formula)
-  sorry
+  simp only [LinearMap.comp_apply]
+  -- Let y = peirceProj₁ e x. Need: peirceProj₁ e y = y.
+  set y := peirceProj₁ e x with hy_def
+  -- y ∈ P₁(e), so L_e(y) = y
+  have hy_in_P1 : y ∈ PeirceSpace e 1 := peirceProj₁_mem he x
+  rw [mem_peirceSpace_one_iff] at hy_in_P1
+  -- peirceProj₁ e y = (2L² - L)(y) = 2L(L(y)) - L(y) = 2L(y) - y = 2y - y = y
+  simp only [peirceProj₁, LinearMap.sub_apply, LinearMap.smul_apply,
+    LinearMap.comp_apply, L_apply]
+  rw [hy_in_P1, hy_in_P1]
+  -- 2 • y - y = y in a module
+  rw [two_smul, add_sub_cancel_right]
 
 /-- U commutes with L in a specific way: U_a(L_a(x)) = L_a(U_a(x)). -/
 theorem U_L_comm (a x : J) : U a (L a x) = L a (U a x) := by
