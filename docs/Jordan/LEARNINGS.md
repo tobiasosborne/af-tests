@@ -4,6 +4,38 @@ Research findings from formalizing Jordan algebras in Lean 4.
 
 ---
 
+## 🚨 Session 79: HALLUCINATED THEOREM REMOVED
+
+### spectrum_sq WAS FALSE - Two Different "Spectrum" Concepts
+
+**What happened:** Session 68 created `spectrum_sq` claiming `spectrum(a²) = (·^2)''spectrum(a)`.
+This was **NEVER in H-O** and is **mathematically FALSE**.
+
+**The confusion:** Two different "spectrum" concepts were conflated:
+
+| Concept | Definition | Example for A=diag(1,2) |
+|---------|------------|-------------------------|
+| H-O 3.2.3 "spectrum" | {λ : a-λ1 not invertible in C(a)} | {1, 2} |
+| Our `eigenvalueSet` | Eigenvalues of L_a operator | {1, 3/2, 2} |
+
+The 3/2 eigenvalue comes from the **Peirce-½ space** (off-diagonal matrices).
+L_{A²} has eigenvalue 5/2 ≠ (3/2)² = 9/4.
+
+**Removed theorems:**
+- `spectrum_sq` (SpectralTheorem.lean) - FALSE
+- `spectrum_sq_nonneg` - depended on false theorem
+
+**Closed issues:** af-vulx, af-1vkv, af-gbmu (all based on false theorem)
+
+**What IS correct:** The proven `spectral_sq` theorem about jordanSpectrum
+(eigenvalues from spectral decomposition, not full eigenvalueSet).
+
+### Lesson: ALWAYS verify theorems against H-O before creating issues
+
+If H-O doesn't state it, ask: **Why would this be true?** Provide a reference or proof sketch.
+
+---
+
 ## Session 67: Progress Audit & Issue Hygiene
 
 ### Project Metrics (66 sessions)
