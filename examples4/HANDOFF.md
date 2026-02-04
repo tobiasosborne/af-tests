@@ -1,11 +1,13 @@
 # HANDOFF: BLM Model Numerical Work
 
-## Status: Symmetry implementation planned
+## Status: Phases 1-2 complete, j=7 working
 
-Ground state comparison working for j=1,3,5. Full Hamiltonian matrix verified (MPO = ED to machine precision).
+**Completed this session**:
+- Phase 1: ITensor (Nf, J₃) QN conservation → j=5 now E~1e-15, j=7 works
+- Phase 2: ED direct sector construction → validated j=1..5
 
-**Next major work**: Implement (Nf, J₃) symmetry conservation to scale beyond j=5.
-See `SYMMETRY_IMPLEMENTATION_PLAN.md` for detailed 6-phase plan.
+**Next**: Phase 3 (KrylovKit Lanczos) is unblocked, then Phase 4 (parallel).
+See `SYMMETRY_IMPLEMENTATION_PLAN.md` for full plan.
 
 ## What's Done
 
