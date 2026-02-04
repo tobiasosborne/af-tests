@@ -1,26 +1,15 @@
-# Handoff: 2026-02-04 (Session 80)
+# Handoff: 2026-02-04 (Session 81)
 
 ## This Session
 
-### Started spectral_decomposition_exists structure (SpectralTheorem.lean:45-81)
+### Created TraceInnerProduct.lean (af-g3l8 CLOSED)
 
-Added proof skeleton for `spectral_decomposition_exists` with two helper lemmas (~25 LOC):
+Added `AfTests/Jordan/TraceInnerProduct.lean` (~75 LOC):
+- `traceInnerCore`: `InnerProductSpace.Core ℝ J` from `traceInner`
+- `traceNormedAddCommGroup`: norm = √(traceInner x x)
+- `traceInnerProductSpace`: `InnerProductSpace ℝ J` instance
 
-1. **`eigenspaces_span`** (sorry): Shows ⨆ μ ∈ eigenvalueSet a, eigenspace a μ = ⊤
-   - Key insight: L_a is self-adjoint w.r.t. traceInner (by `traceInner_jmul_left`)
-   - Self-adjoint in finite-dim inner product space ⟹ diagonalizable
-   - TODO: Connect to mathlib's spectral theorem for self-adjoint operators
-
-2. **`spectral_projection_exists`** (sorry): For each eigenvalue μ, construct idempotent e
-   - e satisfies: v ∈ eigenspace a μ ↔ jmul e v = v
-   - This is the spectral projection onto the μ-eigenspace
-
-3. **`spectral_decomposition_exists`**: Main theorem now has outline
-   - Step 1: Get finite eigenvalue set ✓
-   - Step 2: Use eigenspaces_span ✓
-   - Step 3-4: Construct CSOI + refine to primitives (sorry)
-
-**Sorries**: 12 → 14 (added 2 helper lemmas to break down the proof)
+This unblocks `eigenspaces_span` which can now use mathlib's spectral theorem.
 
 ---
 
@@ -28,22 +17,28 @@ Added proof skeleton for `spectral_decomposition_exists` with two helper lemmas 
 
 **af-s4t7 continues**: Fill `eigenspaces_span` (SpectralTheorem.lean:50)
 
-**BLOCKER IDENTIFIED**: Need `InnerProductSpace ℝ J` instance to use mathlib's spectral theorem.
+Now that InnerProductSpace is available:
+1. Import TraceInnerProduct.lean in SpectralTheorem.lean
+2. Use `LinearMap.IsSymmetric.orthogonalComplement_iSup_eigenspaces_eq_bot'`
+3. Show `L a` is `LinearMap.IsSymmetric` (from `traceInner_jmul_left`)
 
-**Key mathlib result**: `LinearMap.IsSymmetric.orthogonalComplement_iSup_eigenspaces_eq_bot'`
-  - Location: `Mathlib/Analysis/InnerProductSpace/Spectrum.lean`
-  - Shows eigenspaces span for symmetric operators in InnerProductSpace
+**Key mathlib result**: `Mathlib/Analysis/InnerProductSpace/Spectrum.lean`
 
-**Required infrastructure** (~50-100 LOC, new file `AfTests/Jordan/TraceInnerProduct.lean`):
-1. Define `traceNorm : J → ℝ := fun a => Real.sqrt (traceInner a a)`
-2. Show `traceInner` is positive definite (uses `FormallyRealJordan`)
-3. Build `InnerProductSpace.Core ℝ J` from `traceInner`
-4. Instantiate `InnerProductSpace ℝ J`
-5. Show `L a` is `LinearMap.IsSymmetric` (from `traceInner_jmul_left`)
+---
 
-**Alternative**: Prove diagonalizability directly without mathlib's spectral theorem
-  - Induction on dimension
-  - ~80-100 LOC but self-contained
+## Previous Session (80)
+
+### Started spectral_decomposition_exists structure (SpectralTheorem.lean:45-81)
+
+Added proof skeleton for `spectral_decomposition_exists` with two helper lemmas (~25 LOC):
+
+1. **`eigenspaces_span`** (sorry): Shows ⨆ μ ∈ eigenvalueSet a, eigenspace a μ = ⊤
+2. **`spectral_projection_exists`** (sorry): Construct idempotent for each eigenspace
+3. **`spectral_decomposition_exists`**: Main theorem outline
+
+**Sorries**: 12 → 14 (added 2 helper lemmas)
+
+**BLOCKER**: Needed `InnerProductSpace ℝ J` → Created af-g3l8 (now closed)
 
 ---
 
