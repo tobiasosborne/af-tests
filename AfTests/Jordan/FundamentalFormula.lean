@@ -195,6 +195,38 @@ theorem power_formula_245 (a x : J) (l m n : ℕ) :
       triple (jpow a m) (jmul (jpow a l) x) (jpow a n) := by rw [← h]
     _ = _ := by abel
 
+/-- H-O 2.4.21, equation (2.46): U_{a^{n+1}}(x) = U_a(U_{a^n}(x)).
+Proved using (2.45) three times with 2-cancellation. -/
+theorem U_jpow_succ (a x : J) (n : ℕ) :
+    U (jpow a (n + 1)) x = U a (U (jpow a n) x) := by
+  have cancel := smul_right_injective J (two_ne_zero (α := ℝ))
+  -- Helper: convert nsmul cancellation to ℝ-smul cancellation
+  have cancel2 : ∀ a b : J, (2 : ℕ) • a = b + b → a = b := by
+    intro a b h; exact cancel (show (2 : ℝ) • a = (2 : ℝ) • b by
+      rw [two_smul, two_smul, ← two_nsmul]; exact h)
+  -- Step 1: (2.45)[l=1,m=n,n'=n] → jmul a (U_{a^n} x) = {a^n, x, a^{n+1}}
+  have step1 : jmul a (U (jpow a n) x) =
+      triple (jpow a n) x (jpow a (n + 1)) := by
+    have h := power_formula_245 a x 1 n n
+    rw [jpow_one, triple_self_right,
+        triple_comm_outer (jpow a (n + 1)) x (jpow a n)] at h
+    exact cancel2 _ _ h
+  -- Step 3: (2.45)[l=2,m=n,n'=n] → jmul (jsq a) (U_{a^n} x) = {a^n, x, a^{n+2}}
+  have step3 : jmul (jsq a) (U (jpow a n) x) =
+      triple (jpow a n) x (jpow a (n + 2)) := by
+    have h := power_formula_245 a x 2 n n
+    rw [jpow_two, triple_self_right,
+        triple_comm_outer (jpow a (n + 2)) x (jpow a n)] at h
+    exact cancel2 _ _ h
+  -- Step 2: (2.45)[l=1,m=n,n'=n+1], substitute steps 1 & 3
+  have step2 := power_formula_245 a x 1 n (n + 1)
+  rw [jpow_one, ← step1, triple_self_right, ← step3] at step2
+  -- step2: 2 • jmul a (jmul a (U_{a^n} x)) = U_{a^{n+1}} x + jmul (jsq a) (U_{a^n} x)
+  have hU : ∀ y : J, 2 • jmul a (jmul a y) = U a y + jmul (jsq a) y := by
+    intro y; simp only [U_def]; abel
+  rw [hU] at step2
+  exact (add_right_cancel step2).symm
+
 /-! ### The Fundamental Formula -/
 
 /-- The Fundamental Formula: U_{U_a(b)} = U_a ∘ U_b ∘ U_a (H-O 2.4.18, eq. 2.41).

@@ -1,23 +1,28 @@
-# Handoff: 2026-02-04 (Session 73)
+# Handoff: 2026-02-04 (Session 74)
 
-## This Session (read-only)
+## This Session
 
-Reviewed af-u0tp status. Planned proof of `U_jpow_succ`: `U(a^{n+1}, x) = U(a, U(a^n, x))`.
+### U_jpow_succ PROVED (FundamentalFormula.lean:198-229, 0 new sorries)
 
-**Proof plan for (2.46)** — add `U_jpow_succ` before line 198 in FundamentalFormula.lean:
-1. (2.45) with l=1, m=n, n'=n: gives `2·a·U_{a^n}(x) = 2·{a^{n+1}, x, a^n}` (use triple_comm_outer)
-2. (2.45) with l=1, m=n, n'=n+1: gives `2·a·{a^n, x, a^{n+1}} = U_{a^{n+1}}(x) + {a^n, x, a^{n+2}}`
-3. (2.45) with l=2, m=n, n'=n: gives `2·a²·U_{a^n}(x) = 2·{a^n, x, a^{n+2}}` (use triple_comm_outer)
-4. Substitute: from (1) `{a^n,x,a^{n+1}} = a·U_{a^n}(x)` (cancel 2 via smul_right_injective)
-5. From (3): `{a^n,x,a^{n+2}} = a²·U_{a^n}(x)` (cancel 2)
-6. Into (2): `2·a·(a·U_{a^n}(x)) = U_{a^{n+1}}(x) + a²·U_{a^n}(x)`
-7. But `U_a(y) = 2·a·(a·y) - a²·y`, so `2·a·(a·y) = U_a(y) + a²·y`
-8. Therefore `U_a(U_{a^n}(x)) + a²·U_{a^n}(x) = U_{a^{n+1}}(x) + a²·U_{a^n}(x)`, cancel → done
+H-O 2.4.21 equation (2.46): `U(a^{n+1}, x) = U_a(U(a^n, x))`.
 
-Then `U_jpow` by induction: `U(a^n, x) = (U_a)^n(x)` follows from `U_jpow_succ`.
-This makes `U_jsq`, `U_jpow_two` provable WITHOUT `fundamental_formula`.
+Proof (~32 LOC):
+1. Three instances of `power_formula_245` with (l=1,m=n,n'=n), (l=2,m=n,n'=n), (l=1,m=n,n'=n+1)
+2. Steps 1&3 use `triple_self_right` + `triple_comm_outer` to collapse symmetric triples
+3. 2-cancellation via `smul_right_injective` (needed `cancel2` helper to bridge nsmul↔ℝ-smul)
+4. Step 2 substitutes steps 1&3, then `U_def` rearranges to `add_right_cancel`
 
-~30-40 LOC estimated. Key dependency: `smul_right_injective J two_ne_zero` for 2-cancellation.
+**Key technique**: nsmul `(2 : ℕ) • x` vs ℝ-smul `(2 : ℝ) • x` mismatch resolved via
+`cancel2` helper: `two_smul ℝ` converts to `x + x`, then `← two_nsmul` goes back to nsmul.
+
+**Still TODO for af-u0tp**: `U_jpow` (induction theorem `U(a^n, x) = (U_a)^n(x)`).
+This is a simple induction using `U_jpow_succ`. ~10-15 LOC.
+
+---
+
+## Previous Session (73)
+
+Planned proof of `U_jpow_succ` (read-only session).
 
 ---
 
