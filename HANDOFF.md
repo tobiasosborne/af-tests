@@ -1,22 +1,20 @@
-# Handoff: 2026-02-04 (Session 74)
+# Handoff: 2026-02-04 (Session 75)
 
 ## This Session
 
-### U_jpow_succ PROVED (FundamentalFormula.lean:198-229, 0 new sorries)
+### U_jpow PROVED + af-u0tp CLOSED (FundamentalFormula.lean:230-248, 0 new sorries)
 
-H-O 2.4.21 equation (2.46): `U(a^{n+1}, x) = U_a(U(a^n, x))`.
+H-O 2.4.21 general power formula: `U(a^n, x) = (U_a)^n(x)`.
 
-Proof (~32 LOC):
-1. Three instances of `power_formula_245` with (l=1,m=n,n'=n), (l=2,m=n,n'=n), (l=1,m=n,n'=n+1)
-2. Steps 1&3 use `triple_self_right` + `triple_comm_outer` to collapse symmetric triples
-3. 2-cancellation via `smul_right_injective` (needed `cancel2` helper to bridge nsmul↔ℝ-smul)
-4. Step 2 substitutes steps 1&3, then `U_def` rearranges to `add_right_cancel`
+Proof (~10 LOC, induction on n):
+- Base: `jpow_zero` + `pow_zero` + `U_one`
+- Step: `U_jpow_succ` + IH + `pow_succ'`
 
-**Key technique**: nsmul `(2 : ℕ) • x` vs ℝ-smul `(2 : ℝ) • x` mismatch resolved via
-`cancel2` helper: `two_smul ℝ` converts to `x + x`, then `← two_nsmul` goes back to nsmul.
+Also added:
+- `U_jpow_linear`: linear map form `U_linear (jpow a n) = (U_linear a) ^ n`
+- Rewrote `U_jpow_two` to use `U_jpow` (removes dependency on sorry'd `fundamental_formula`)
 
-**Still TODO for af-u0tp**: `U_jpow` (induction theorem `U(a^n, x) = (U_a)^n(x)`).
-This is a simple induction using `U_jpow_succ`. ~10-15 LOC.
+**af-u0tp CLOSED**: All H-O 2.4.21 equations proved (2.45, 2.46, general).
 
 ---
 

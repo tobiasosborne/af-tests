@@ -227,6 +227,25 @@ theorem U_jpow_succ (a x : J) (n : ℕ) :
   rw [hU] at step2
   exact (add_right_cancel step2).symm
 
+/-- H-O 2.4.21: U_{a^n} = (U_a)^n as iterated linear map composition.
+Simple induction using `U_jpow_succ`. -/
+theorem U_jpow (a : J) (n : ℕ) (x : J) :
+    U (jpow a n) x = ((U_linear a) ^ n) x := by
+  induction n with
+  | zero =>
+    rw [jpow_zero, pow_zero]
+    exact U_one x
+  | succ n ih =>
+    rw [U_jpow_succ, ih, ← U_linear_apply, pow_succ']
+    rfl
+
+/-- H-O 2.4.21: U_{a^n} = (U_a)^n as a linear map equation. -/
+theorem U_jpow_linear (a : J) (n : ℕ) :
+    U_linear (jpow a n) = (U_linear a) ^ n := by
+  ext x
+  simp only [U_linear_apply]
+  exact U_jpow a n x
+
 /-! ### The Fundamental Formula -/
 
 /-- The Fundamental Formula: U_{U_a(b)} = U_a ∘ U_b ∘ U_a (H-O 2.4.18, eq. 2.41).
@@ -275,11 +294,11 @@ theorem U_jsq_idempotent (e : J) (he : IsIdempotent e) :
 
 /-! ### Additional Properties from Fundamental Formula -/
 
-/-- Powers: U_{a^n} relates to U_a composed n times. -/
+/-- Powers: U_{a²} = U_a². Sorry-free via `U_jpow`. -/
 theorem U_jpow_two (a : J) : ∀ x, U (jpow a 2) x = U a (U a x) := by
   intro x
-  rw [jpow_two]
-  exact U_jsq a x
+  rw [U_jpow a 2 x, pow_succ, pow_succ, pow_zero]
+  rfl
 
 /-- The fundamental formula as a linear map composition identity. -/
 theorem fundamental_formula_linear (a b : J) :
