@@ -32,7 +32,21 @@ Deleted the hallucinated `spectrum_sq` and `spectrum_sq_nonneg` theorems.
 H-O does NOT claim this - Session 68 agent confused H-O's functional calculus
 spectrum with eigenvalues of L_a.
 
+### Closed stale issues
+- af-a5qq was proved in Session 76 but issue left open - closed it
+- af-vulx, af-1vkv, af-gbmu - based on false spectrum_sq - closed as INVALID
+
 **Sorries**: 14 → 12
+
+---
+
+## NEXT STEP FOR NEXT AGENT
+
+**af-s4t7**: `spectral_decomposition_exists` (SpectralTheorem.lean:59)
+- P1, UNBLOCKED (dependency af-9skx closed)
+- Blocks 5 downstream issues
+- ~80-100 LOC
+- Note: May not show in `bd ready` due to bug - use `bd show af-s4t7`
 
 ---
 
