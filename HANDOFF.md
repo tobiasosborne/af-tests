@@ -1,6 +1,24 @@
-# Handoff: 2026-02-04 (Session 71)
+# Handoff: 2026-02-04 (Session 72)
 
 ## Completed This Session
+
+### power_formula_245 PROVED (FundamentalFormula.lean:157-196, 0 new sorries)
+
+H-O 2.4.21 equation (2.45): `2·T_{a^l} U_{a^m,a^n}(x) = U_{a^{m+l},a^n}(x) + U_{a^m,a^{n+l}}(x)`
+
+Proof (~35 LOC):
+1. Specialize `triple_product_242` to powers a^m, x, a^n, a^l
+2. Use `jpow_add` to simplify `a^m ∘ a^l = a^{m+l}` etc.
+3. Prove `L_{a^l}` commutes with `U_{a^m,a^n}` via `L_jpow_comm_all` (helper `jpow_jmul_comm`)
+4. Combine anti-commutator form + commutation to get the `2·...` formula
+
+Also added helper `jpow_jmul_comm`: element-level form of `L_jpow_comm_all`.
+
+**Still TODO for af-u0tp**: equation (2.46) `U_{a^n} = U_a^n` (induction using (2.45) twice).
+
+---
+
+## Previous Session (71)
 
 ### L_jpow_comm_all COMPLETE (LinearizedJordan.lean:340-530, 0 sorries)
 
