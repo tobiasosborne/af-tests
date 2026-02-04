@@ -1,6 +1,27 @@
-# Handoff: 2026-02-04 (Session 72)
+# Handoff: 2026-02-04 (Session 73)
 
-## Completed This Session
+## This Session (read-only)
+
+Reviewed af-u0tp status. Planned proof of `U_jpow_succ`: `U(a^{n+1}, x) = U(a, U(a^n, x))`.
+
+**Proof plan for (2.46)** — add `U_jpow_succ` before line 198 in FundamentalFormula.lean:
+1. (2.45) with l=1, m=n, n'=n: gives `2·a·U_{a^n}(x) = 2·{a^{n+1}, x, a^n}` (use triple_comm_outer)
+2. (2.45) with l=1, m=n, n'=n+1: gives `2·a·{a^n, x, a^{n+1}} = U_{a^{n+1}}(x) + {a^n, x, a^{n+2}}`
+3. (2.45) with l=2, m=n, n'=n: gives `2·a²·U_{a^n}(x) = 2·{a^n, x, a^{n+2}}` (use triple_comm_outer)
+4. Substitute: from (1) `{a^n,x,a^{n+1}} = a·U_{a^n}(x)` (cancel 2 via smul_right_injective)
+5. From (3): `{a^n,x,a^{n+2}} = a²·U_{a^n}(x)` (cancel 2)
+6. Into (2): `2·a·(a·U_{a^n}(x)) = U_{a^{n+1}}(x) + a²·U_{a^n}(x)`
+7. But `U_a(y) = 2·a·(a·y) - a²·y`, so `2·a·(a·y) = U_a(y) + a²·y`
+8. Therefore `U_a(U_{a^n}(x)) + a²·U_{a^n}(x) = U_{a^{n+1}}(x) + a²·U_{a^n}(x)`, cancel → done
+
+Then `U_jpow` by induction: `U(a^n, x) = (U_a)^n(x)` follows from `U_jpow_succ`.
+This makes `U_jsq`, `U_jpow_two` provable WITHOUT `fundamental_formula`.
+
+~30-40 LOC estimated. Key dependency: `smul_right_injective J two_ne_zero` for 2-cancellation.
+
+---
+
+## Previous Session (72)
 
 ### power_formula_245 PROVED (FundamentalFormula.lean:157-196, 0 new sorries)
 
