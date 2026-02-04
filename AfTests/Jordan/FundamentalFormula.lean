@@ -5,6 +5,7 @@ Authors: AF-Tests Contributors
 -/
 import AfTests.Jordan.Quadratic
 import AfTests.Jordan.OperatorIdentities
+import AfTests.Jordan.LinearizedJordan
 
 /-!
 # The Fundamental Formula for Jordan Algebras
@@ -137,6 +138,62 @@ theorem triple_product_244 (a b c d : J) :
   rw [jmul_comm d a, jmul_comm c a, jmul_comm b a]
   rw [triple_comm_outer d b (jmul a c), triple_comm_outer d (jmul a b) c]
   abel
+
+/-! ### Power Formulas (H-O 2.4.21) -/
+
+/-- Element-level consequence of `L_jpow_comm_all`:
+`L_{a^l}(L_{a^m}(x)) = L_{a^m}(L_{a^l}(x))`. -/
+private theorem jpow_jmul_comm (a : J) (l m : ℕ) (x : J) :
+    jmul (jpow a l) (jmul (jpow a m) x) = jmul (jpow a m) (jmul (jpow a l) x) := by
+  have h := L_jpow_comm_all a l m
+  rw [Commute, SemiconjBy] at h
+  have hx := congr_fun (congr_arg DFunLike.coe h) x
+  simp only [L_apply] at hx
+  exact hx
+
+/-- H-O 2.4.21, equation (2.45): power formula for the bilinearized U operator.
+`2·T_{a^l} U_{a^m, a^n}(x) = U_{a^{m+l}, a^n}(x) + U_{a^m, a^{n+l}}(x)`.
+Here `U_{a^m, a^n}(x) = {a^m, x, a^n}` (triple product with x in the middle). -/
+theorem power_formula_245 (a x : J) (l m n : ℕ) :
+    2 • jmul (jpow a l) (triple (jpow a m) x (jpow a n)) =
+    triple (jpow a (m + l)) x (jpow a n) + triple (jpow a m) x (jpow a (n + l)) := by
+  -- From triple_product_242 with a^m, x, a^n, a^l:
+  have h := triple_product_242 (jpow a m) x (jpow a n) (jpow a l)
+  -- Simplify: jmul (jpow a m) (jpow a l) = jpow a (m+l), etc.
+  rw [jpow_add a m l, jpow_add a n l] at h
+  -- Orient: jmul_comm to get L_{a^l} on the outside
+  rw [jmul_comm (triple (jpow a m) x (jpow a n)) (jpow a l)] at h
+  rw [jmul_comm x (jpow a l)] at h
+  -- L_{a^l} commutes with the bilinearized operator U_{a^m, a^n}
+  have hcomm : jmul (jpow a l) (triple (jpow a m) x (jpow a n)) =
+      triple (jpow a m) (jmul (jpow a l) x) (jpow a n) := by
+    simp only [triple_def, jmul_add, jmul_sub]
+    have t1 : jmul (jpow a l) (jmul (jmul (jpow a m) x) (jpow a n)) =
+        jmul (jmul (jpow a m) (jmul (jpow a l) x)) (jpow a n) := by
+      rw [jmul_comm (jmul (jpow a m) x) (jpow a n),
+          jpow_jmul_comm a l n (jmul (jpow a m) x),
+          jpow_jmul_comm a l m x,
+          jmul_comm (jpow a n) (jmul (jpow a m) (jmul (jpow a l) x))]
+    have t2 : jmul (jpow a l) (jmul (jpow a m) (jmul x (jpow a n))) =
+        jmul (jpow a m) (jmul (jmul (jpow a l) x) (jpow a n)) := by
+      rw [jpow_jmul_comm a l m (jmul x (jpow a n)),
+          jmul_comm x (jpow a n),
+          jpow_jmul_comm a l n x,
+          jmul_comm (jpow a n) (jmul (jpow a l) x)]
+    have t3 : jmul (jpow a l) (jmul x (jmul (jpow a m) (jpow a n))) =
+        jmul (jmul (jpow a l) x) (jmul (jpow a m) (jpow a n)) := by
+      rw [jpow_add a m n,
+          jmul_comm x (jpow a (m + n)),
+          jpow_jmul_comm a l (m + n) x,
+          jmul_comm (jpow a (m + n)) (jmul (jpow a l) x)]
+    rw [t1, t2, t3]
+  -- h: A = B + C - D, hcomm: A = D, want: 2 • A = B + C
+  rw [hcomm] at h
+  rw [hcomm, two_smul]
+  calc _ = (triple (jpow a (m + l)) x (jpow a n) + triple (jpow a m) x (jpow a (n + l)) -
+      triple (jpow a m) (jmul (jpow a l) x) (jpow a n)) +
+      triple (jpow a m) (jmul (jpow a l) x) (jpow a n) := by rw [← h]
+    _ = _ := by abel
 
 /-! ### The Fundamental Formula -/
 
