@@ -6,7 +6,9 @@ Authors: AF-Tests Contributors
 import AfTests.Jordan.Eigenspace
 import AfTests.Jordan.Primitive
 import AfTests.Jordan.FormallyReal.Spectrum
+import AfTests.Jordan.TraceInnerProduct
 import Mathlib.Algebra.BigOperators.Group.Finset.Basic
+import Mathlib.Analysis.InnerProductSpace.Spectrum
 
 /-!
 # Spectral Theorem for Jordan Algebras
@@ -47,11 +49,37 @@ theorem spectrum_finite [FinDimJordanAlgebra J] (a : J) :
 
     Proof outline: L_a is self-adjoint w.r.t. traceInner (by traceInner_jmul_left),
     and in finite-dimensional inner product space, self-adjoint ⟹ diagonalizable. -/
-theorem eigenspaces_span [FinDimJordanAlgebra J] [JordanTrace J] [FormallyRealJordan J] (a : J) :
+theorem eigenspaces_span [FinDimJordanAlgebra J] [FormallyRealTrace J] (a : J) :
     ⨆ μ ∈ eigenvalueSet a, eigenspace a μ = ⊤ := by
-  -- L_a is self-adjoint w.r.t. traceInner (by traceInner_jmul_left)
-  -- In finite-dimensional inner product space, self-adjoint ⟹ diagonalizable
-  sorry
+  -- Set up the inner product space from trace
+  letI : NormedAddCommGroup J := traceNormedAddCommGroup (J := J)
+  letI : InnerProductSpace ℝ J := traceInnerProductSpace (J := J)
+  -- L_a is symmetric w.r.t. inner product (= traceInner)
+  have hL_sym : (L a).IsSymmetric := fun x y => by
+    simp only [L_apply]
+    change traceInnerReal (jmul a x) y = traceInnerReal x (jmul a y)
+    simp only [traceInnerReal]
+    exact traceInner_jmul_left a x y
+  -- Apply spectral theorem: orthogonal complement of eigenspaces is trivial
+  have h := hL_sym.orthogonalComplement_iSup_eigenspaces_eq_bot
+  -- Convert Mᗮ = ⊥ to M = ⊤
+  rw [Submodule.orthogonal_eq_bot_iff] at h
+  -- eigenspace a μ = Module.End.eigenspace (L a) μ by definition
+  -- ⨆ μ, eigenspace (L a) μ = ⨆ μ ∈ eigenvalueSet a, eigenspace a μ
+  -- (non-eigenvalues contribute ⊥, so they don't change the sup)
+  convert h using 1
+  apply le_antisymm
+  · apply iSup₂_le
+    intro μ _
+    exact le_iSup (fun μ => Module.End.eigenspace (L a) μ) μ
+  · apply iSup_le
+    intro μ
+    by_cases hμ : Module.End.eigenspace (L a) μ = ⊥
+    · rw [hμ]; exact bot_le
+    · have hμ' : μ ∈ eigenvalueSet a := by
+        rw [mem_eigenvalueSet_iff, isEigenvalue_iff, eigenspace]
+        exact hμ
+      exact le_iSup₂_of_le μ hμ' le_rfl
 
 /-- For each eigenvalue, we can construct an orthogonal projection onto the eigenspace. -/
 theorem spectral_projection_exists [FinDimJordanAlgebra J] [JordanTrace J] [FormallyRealJordan J]
@@ -68,7 +96,7 @@ theorem spectral_projection_exists [FinDimJordanAlgebra J] [JordanTrace J] [Form
     2. Show eigenspaces span J (eigenspaces_span, via self-adjointness of L_a)
     3. Construct spectral projections as idempotents (spectral_projection_exists)
     4. Form a CSOI from projections and refine to primitives (csoi_refine_primitive) -/
-theorem spectral_decomposition_exists [FinDimJordanAlgebra J] [JordanTrace J]
+theorem spectral_decomposition_exists [FinDimJordanAlgebra J] [FormallyRealTrace J]
     [FormallyRealJordan J] (a : J) :
     ∃ sd : SpectralDecomp a, ∀ i, IsPrimitive (sd.csoi.idem i) := by
   -- Step 1: Get the finite set of eigenvalues
@@ -81,7 +109,7 @@ theorem spectral_decomposition_exists [FinDimJordanAlgebra J] [JordanTrace J]
   sorry
 
 /-- Spectral decomposition with Finset-indexed sum. -/
-theorem spectral_decomposition_finset [FinDimJordanAlgebra J] [JordanTrace J]
+theorem spectral_decomposition_finset [FinDimJordanAlgebra J] [FormallyRealTrace J]
     [FormallyRealJordan J] (a : J) :
     ∃ (S : Finset ℝ) (e : ℝ → J),
       (∀ r ∈ S, IsIdempotent (e r)) ∧
