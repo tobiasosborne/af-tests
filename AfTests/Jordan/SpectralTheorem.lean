@@ -81,6 +81,20 @@ theorem eigenspaces_span [FinDimJordanAlgebra J] [FormallyRealTrace J] (a : J) :
         exact hμ
       exact le_iSup₂_of_le μ hμ' le_rfl
 
+/-- If each idempotent in a CSOI is an eigenvector of L_a, then a = Σ λᵢ eᵢ.
+    This is the key reduction: finding eigenvector-CSOIs gives spectral decompositions. -/
+theorem spectral_decomp_of_eigenvector_csoi {n : ℕ} (a : J) (c : CSOI J n) (coef : Fin n → ℝ)
+    (heig : ∀ i, jmul a (c.idem i) = coef i • c.idem i) :
+    a = ∑ i, coef i • c.idem i := by
+  -- a = a ∘ 1 = a ∘ (Σ eᵢ) = Σ (a ∘ eᵢ) = Σ λᵢ eᵢ
+  have hone : ∑ i : Fin n, c.idem i = ∑ i : Fin n, (1 : ℝ) • c.idem i := by simp
+  calc a = jmul a jone := by rw [jmul_jone]
+    _ = jmul a (∑ i, c.idem i) := by rw [c.complete]
+    _ = jmul a (∑ i, (1 : ℝ) • c.idem i) := by rw [hone]
+    _ = ∑ i, (1 : ℝ) • jmul a (c.idem i) := jmul_sum Finset.univ a (fun _ => 1) c.idem
+    _ = ∑ i, jmul a (c.idem i) := by simp
+    _ = ∑ i, coef i • c.idem i := by simp only [heig]
+
 /-- For each eigenvalue, we can construct an orthogonal projection onto the eigenspace. -/
 theorem spectral_projection_exists [FinDimJordanAlgebra J] [JordanTrace J] [FormallyRealJordan J]
     (a : J) (μ : ℝ) (hμ : μ ∈ eigenvalueSet a) :
