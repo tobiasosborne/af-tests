@@ -7,6 +7,7 @@ import AfTests.Jordan.Basic
 import AfTests.Jordan.LinearizedJordan
 import Mathlib.Data.SetLike.Basic
 import Mathlib.LinearAlgebra.BilinearMap
+import Mathlib.LinearAlgebra.FiniteDimensional.Defs
 
 /-!
 # Jordan Subalgebras
@@ -140,5 +141,11 @@ theorem jpow_mem_generatedSubalgebra (a : J) (n : ℕ) :
 theorem self_mem_generatedSubalgebra (b : J) : b ∈ generatedSubalgebra b := by
   convert jpow_mem_generatedSubalgebra b 1 using 1
   exact (jpow_one b).symm
+
+/-- The generated subalgebra C(a) is finite-dimensional when J is finite-dimensional.
+    This is because C(a) is a submodule of the finite-dimensional space J. -/
+instance generatedSubalgebra_finiteDimensional [FiniteDimensional ℝ J] (a : J) :
+    FiniteDimensional ℝ (generatedSubalgebra a).toSubmodule :=
+  FiniteDimensional.finiteDimensional_submodule _
 
 end JordanAlgebra

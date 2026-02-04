@@ -1,6 +1,38 @@
-# Handoff: 2026-02-04 (Session 84)
+# Handoff: 2026-02-04 (Session 85)
 
 ## This Session
+
+### Added generatedSubalgebra_finiteDimensional (Subalgebra.lean:145-149, ~5 LOC)
+
+Step 1 of H-O spectral decomposition: show C(a) is finite-dimensional.
+
+**Added**:
+- `generatedSubalgebra_finiteDimensional` - instance showing C(a) is finite-dimensional when J is
+- Uses `FiniteDimensional.finiteDimensional_submodule` from mathlib
+
+**Sorries**: 13 (unchanged)
+
+---
+
+## NEXT STEP FOR NEXT AGENT
+
+**af-s4t7 continues**: Spectral decomposition via C(a) structure
+
+Next steps to prove `spectral_decomposition_exists`:
+1. ~~Show C(a) is finite-dimensional~~ ✓ DONE
+2. Show C(a) is reduced (no nilpotents, by formal reality)
+3. Apply Artinian structure theorem: C(a) ≅ ℝⁿ
+4. Extract minimal idempotents → form CSOI
+5. Show idempotents are eigenvectors of L_a
+6. Apply `spectral_decomp_of_eigenvector_csoi`
+
+**Next concrete step**: Prove `generatedSubalgebra_no_nilpotents`: if J is formally real and x ∈ C(a)
+with xⁿ = 0 for some n, then x = 0. This follows from formal reality: x² = 0 implies x = 0 for any
+element of a formally real algebra, so nilpotents cannot exist.
+
+---
+
+## Previous Session (84)
 
 ### Added generatedSubalgebra C(a) (Subalgebra.lean:81-144, ~60 LOC)
 
@@ -12,25 +44,6 @@ Infrastructure for H-O spectral decomposition approach: the subalgebra C(a) gene
 - `powerSubmodule_jmul_closed'` - closure under jmul using `BilinMap.apply_apply_mem_of_mem_span`
 - `generatedSubalgebra a` - JordanSubalgebra with carrier = powerSubmodule a
 - Membership lemmas: `jpow_mem_generatedSubalgebra`, `self_mem_generatedSubalgebra`
-
-**Sorries**: 13 (unchanged)
-
----
-
-## NEXT STEP FOR NEXT AGENT
-
-**af-s4t7 continues**: Spectral decomposition via C(a) structure
-
-Next steps to prove `spectral_decomposition_exists`:
-1. Show C(a) is finite-dimensional (submodule of fin-dim J)
-2. Show C(a) is reduced (no nilpotents, by formal reality)
-3. Apply Artinian structure theorem: C(a) ≅ ℝⁿ
-4. Extract minimal idempotents → form CSOI
-5. Show idempotents are eigenvectors of L_a
-6. Apply `spectral_decomp_of_eigenvector_csoi`
-
-**Note**: Steps 2-3 require showing formal reality implies no nilpotents in C(a), then using
-mathlib's Artinian ring theory. May need 100+ LOC total.
 
 ---
 
