@@ -183,17 +183,12 @@ theorem spectral_sq [FinDimJordanAlgebra J] [JordanTrace J] [FormallyRealJordan 
     exact h1.trans h2
   exact ⟨⟨sd.n, fun i => (sd.eigenvalues i) ^ 2, sd.csoi, key⟩, rfl⟩
 
-/-- Eigenvalues of a² are squares of eigenvalues of a. -/
-theorem spectrum_sq [FinDimJordanAlgebra J] [JordanTrace J] [FormallyRealJordan J] (a : J) :
-    spectrum (jsq a) = (· ^ 2) '' spectrum a := by
-  ext r
-  constructor
-  · intro hr
-    -- r is eigenvalue of a², so r = s² for some eigenvalue s of a
-    sorry
-  · intro ⟨s, hs, hrs⟩
-    -- s is eigenvalue of a, r = s², show r is eigenvalue of a²
-    sorry
+-- REMOVED: spectrum_sq was incorrectly stated
+-- It claimed spectrum(a²) = (·^2)'' spectrum(a), conflating:
+--   - H-O's spectrum (functional calculus: invertibility in C(a))
+--   - Our eigenvalueSet (eigenvalues of L_a operator)
+-- These are different! For A=diag(1,2), L_A has eigenvalue 3/2 from Peirce-½ space.
+-- See issue af-cxcc. The correct result for decomposition eigenvalues is spectral_sq above.
 
 /-! ### Positivity of Square Eigenvalues -/
 
@@ -206,12 +201,8 @@ theorem sq_eigenvalues_nonneg [FinDimJordanAlgebra J] [JordanTrace J] [FormallyR
   -- Squares are non-negative
   sorry
 
-/-- The spectrum of a² consists of non-negative reals. -/
-theorem spectrum_sq_nonneg [FinDimJordanAlgebra J] [JordanTrace J] [FormallyRealJordan J]
-    (a : J) : ∀ r ∈ spectrum (jsq a), 0 ≤ r := by
-  intro r hr
-  rw [spectrum_sq] at hr
-  obtain ⟨s, _, rfl⟩ := hr
-  exact sq_nonneg s
+-- REMOVED: spectrum_sq_nonneg depended on the false spectrum_sq
+-- The claim "eigenvalues of L_{a²} are non-negative" may or may not be true,
+-- but the proof was using an incorrect theorem. See af-cxcc.
 
 end JordanAlgebra
