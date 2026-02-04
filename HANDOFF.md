@@ -19,16 +19,20 @@ Step 1 of H-O spectral decomposition: show C(a) is finite-dimensional.
 **af-s4t7 continues**: Spectral decomposition via C(a) structure
 
 Next steps to prove `spectral_decomposition_exists`:
-1. ~~Show C(a) is finite-dimensional~~ ✓ DONE
-2. Show C(a) is reduced (no nilpotents, by formal reality)
+1. ~~Show C(a) is finite-dimensional~~ ✓ DONE (Session 85)
+2. ~~Show C(a) is reduced~~ ✓ AUTOMATIC - C(a) ⊆ J inherits formal reality
 3. Apply Artinian structure theorem: C(a) ≅ ℝⁿ
 4. Extract minimal idempotents → form CSOI
 5. Show idempotents are eigenvectors of L_a
 6. Apply `spectral_decomp_of_eigenvector_csoi`
 
-**Next concrete step**: Prove `generatedSubalgebra_no_nilpotents`: if J is formally real and x ∈ C(a)
-with xⁿ = 0 for some n, then x = 0. This follows from formal reality: x² = 0 implies x = 0 for any
-element of a formally real algebra, so nilpotents cannot exist.
+**Next concrete step**: Step 3 - show C(a) ≅ ℝⁿ. This requires:
+- C(a) is finite-dimensional ✓
+- C(a) is commutative (true: power submodule, jpow_add gives commutativity)
+- C(a) is reduced (no nilpotents) ✓
+- Then mathlib Artinian theory: reduced finite-dim commutative algebra ≅ ℝⁿ
+
+Need to find/prove: `CommRing` instance for C(a) to use mathlib's algebra theory.
 
 ---
 
