@@ -42,20 +42,42 @@ theorem spectrum_finite [FinDimJordanAlgebra J] (a : J) :
 
 /-! ### Spectral Decomposition Existence -/
 
-/-- Every element in a finite-dimensional formally real Jordan algebra has
-a spectral decomposition.
+/-- The direct sum of eigenspaces of L_a equals all of J.
+    This is the key diagonalizability result for self-adjoint operators.
 
-Mathematical proof sketch:
-1. spectrum a is finite (from eigenvalueSet_finite)
-2. For each r ∈ spectrum a, eigenspace a r is nonzero
-3. Eigenspaces are orthogonal w.r.t. trace (eigenspace_orthogonal)
-4. Eigenspaces span J (this is the key step requiring formally real)
-5. Construct CSOI from spectral projections -/
+    Proof outline: L_a is self-adjoint w.r.t. traceInner (by traceInner_jmul_left),
+    and in finite-dimensional inner product space, self-adjoint ⟹ diagonalizable. -/
+theorem eigenspaces_span [FinDimJordanAlgebra J] [JordanTrace J] [FormallyRealJordan J] (a : J) :
+    ⨆ μ ∈ eigenvalueSet a, eigenspace a μ = ⊤ := by
+  -- L_a is self-adjoint w.r.t. traceInner (by traceInner_jmul_left)
+  -- In finite-dimensional inner product space, self-adjoint ⟹ diagonalizable
+  sorry
+
+/-- For each eigenvalue, we can construct an orthogonal projection onto the eigenspace. -/
+theorem spectral_projection_exists [FinDimJordanAlgebra J] [JordanTrace J] [FormallyRealJordan J]
+    (a : J) (μ : ℝ) (hμ : μ ∈ eigenvalueSet a) :
+    ∃ e : J, IsIdempotent e ∧ (∀ v, v ∈ eigenspace a μ ↔ jmul e v = v) := by
+  -- Spectral projection is an idempotent
+  sorry
+
+/-- Every element in a finite-dimensional formally real Jordan algebra has
+    a spectral decomposition with primitive idempotents.
+
+    Proof strategy:
+    1. Get the finite set of eigenvalues (eigenvalueSet_finite)
+    2. Show eigenspaces span J (eigenspaces_span, via self-adjointness of L_a)
+    3. Construct spectral projections as idempotents (spectral_projection_exists)
+    4. Form a CSOI from projections and refine to primitives (csoi_refine_primitive) -/
 theorem spectral_decomposition_exists [FinDimJordanAlgebra J] [JordanTrace J]
     [FormallyRealJordan J] (a : J) :
     ∃ sd : SpectralDecomp a, ∀ i, IsPrimitive (sd.csoi.idem i) := by
-  -- The full proof requires constructing spectral projections from eigenspaces
-  -- and showing they form a primitive CSOI. This is a deep result.
+  -- Step 1: Get the finite set of eigenvalues
+  have hfin : (eigenvalueSet a).Finite := eigenvalueSet_finite a
+  let S := hfin.toFinset
+  -- Step 2: Each element of J is in some eigenspace (eigenspaces span J)
+  have hspan : ⨆ μ ∈ eigenvalueSet a, eigenspace a μ = ⊤ := eigenspaces_span a
+  -- Step 3: Construct spectral projections and show they form a CSOI
+  -- Step 4: Refine to primitive idempotents using csoi_refine_primitive
   sorry
 
 /-- Spectral decomposition with Finset-indexed sum. -/

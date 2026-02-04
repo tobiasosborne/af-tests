@@ -1,6 +1,40 @@
-# Handoff: 2026-02-04 (Session 79)
+# Handoff: 2026-02-04 (Session 80)
 
 ## This Session
+
+### Started spectral_decomposition_exists structure (SpectralTheorem.lean:45-81)
+
+Added proof skeleton for `spectral_decomposition_exists` with two helper lemmas (~25 LOC):
+
+1. **`eigenspaces_span`** (sorry): Shows ⨆ μ ∈ eigenvalueSet a, eigenspace a μ = ⊤
+   - Key insight: L_a is self-adjoint w.r.t. traceInner (by `traceInner_jmul_left`)
+   - Self-adjoint in finite-dim inner product space ⟹ diagonalizable
+   - TODO: Connect to mathlib's spectral theorem for self-adjoint operators
+
+2. **`spectral_projection_exists`** (sorry): For each eigenvalue μ, construct idempotent e
+   - e satisfies: v ∈ eigenspace a μ ↔ jmul e v = v
+   - This is the spectral projection onto the μ-eigenspace
+
+3. **`spectral_decomposition_exists`**: Main theorem now has outline
+   - Step 1: Get finite eigenvalue set ✓
+   - Step 2: Use eigenspaces_span ✓
+   - Step 3-4: Construct CSOI + refine to primitives (sorry)
+
+**Sorries**: 12 → 14 (added 2 helper lemmas to break down the proof)
+
+---
+
+## NEXT STEP FOR NEXT AGENT
+
+**af-s4t7 continues**: Fill `eigenspaces_span` (SpectralTheorem.lean:50)
+- Need to show L_a diagonalizable via self-adjointness
+- Key: `traceInner_jmul_left` proves L_a is symmetric w.r.t. trace inner product
+- Look for mathlib's `Module.End.isInternal_eigenspaces_of_isSymmetric` or similar
+- ~20-30 LOC
+
+---
+
+## Previous Session (79)
 
 ### Identified bug in spectrum_sq theorem statement (SpectralTheorem.lean:187)
 
