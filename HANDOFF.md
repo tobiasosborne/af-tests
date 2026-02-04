@@ -1,6 +1,32 @@
-# Handoff: 2026-02-03 (Session 66)
+# Handoff: 2026-02-04 (Session 68)
 
 ## Completed This Session
+
+### Closed af-gk4c: jpow_add already proved (LinearizedJordan.lean:340-383)
+
+`jpow_add` (power associativity, H-O 2.4.4) and `jpow_assoc` were already fully proved
+in LinearizedJordan.lean. Also `L_jpow_comm_L` (Commute (L a) (L (jpow a n))) at :200-336.
+Issue was created in session 67 but the theorem predates it. Closed as already done.
+
+### Identified key blocker for H-O 2.4.21 power formulas
+
+To prove (2.45) `2T_{a^l} U_{a^m,a^n} = U_{a^{m+l},a^n} + U_{a^m,a^{n+l}}`, need:
+1. **L_jpow_comm_all** (af-jify, P1): `Commute (L (jpow a l)) (L (jpow a m))` for all l, m
+   - Currently only have `L_jpow_comm_L`: Commute (L a) (L (jpow a n))
+   - H-O 2.4.5(ii) states all T_{a^n} mutually commute
+2. **power_triple_comm**: `triple (a^m) (a^l ∘ x) (a^n) = a^l ∘ triple (a^m) x (a^n)`
+3. **power_triple_formula** (2.45): follows from triple_product_242 + above two
+
+**Proof strategy for L_jpow_comm_all** (af-jify):
+- Strong induction on l
+- l=0: trivial, l=1: L_jpow_comm_L, l=2: induction on m via operator_formula
+- l=n+3: operator_formula recursion gives L_{a^{n+3}} = 2 L_a L_{a^{n+2}} + L_{a^{n+1}}(L_{a²} - 2L_a²)
+  All subterms commute with L_{a^m} by IH + L_jpow_comm_L
+- File: LinearizedJordan.lean after L_jpow_comm_L, ~50-80 LOC
+
+---
+
+## Previous Session (66)
 
 ### triple_product_243 and triple_product_244 PROVED (FundamentalFormula.lean:112-139, no sorry)
 
@@ -616,12 +642,10 @@ ring_nf; abel
 
 ## Next Steps
 
-### Critical Path A: Power Formulas (unblocked)
-1. **`af-gk4c` (P1, READY)**: `jpow_add` — power associativity `a^m ∘ a^n = a^(m+n)` (H-O 2.4.5)
-   - Proof: (a) show `T_{a^n}` is polynomial in `T_a, T_{a^2}` via (2.35),
-     hence all `T_{a^m}` commute; (b) induction on m using operator commutativity
-   - ~30-50 LOC
-2. **`af-u0tp` (P1, blocked on gk4c)**: Power formulas (2.45)-(2.46)
+### Critical Path A: Power Formulas
+1. **`af-jify` (P1, READY)**: `L_jpow_comm_all` — all power L-operators commute (H-O 2.4.5(ii))
+   - Strong induction on l using operator_formula recursion, ~50-80 LOC
+2. **`af-u0tp` (P1, blocked on jify)**: Power formulas (2.45)-(2.46)
    - (2.45): `2·T_{a^l} · U_{a^m, a^n} = U_{a^{m+l}, a^n} + U_{a^m, a^{n+l}}`
    - (2.46): `U_{a^n} = U_a^n` (by induction using (2.45) twice)
 
@@ -646,8 +670,8 @@ ring_nf; abel
 
 ## Files Modified This Session
 
-- `HANDOFF.md` (progress audit + updated)
-- Beads: reprioritized 20+ issues, created af-gk4c, reopened af-i8oo, fixed dependencies
+- `HANDOFF.md` (updated)
+- Beads: closed af-gk4c, created af-jify, added dependency af-u0tp→af-jify
 
 ---
 
@@ -687,14 +711,11 @@ The Jordan identity `(A ∘ B) ∘ A² = A ∘ (B ∘ A²)` for matrices:
 
 ---
 
-## Beads Summary (Session 67 audit)
+## Beads Summary (Session 68)
 
-- **33 open issues** (6 P1, 5 P2, 22 P3)
-- **Reprioritized**: Critical path issues promoted to P1, downstream classification/envelope demoted to P3
-- **Created**: af-gk4c (jpow_add)
-- **Reopened**: af-i8oo (fundamental_formula sorry still present)
-- **Fixed dependencies**: af-a5qq unblocked (doesn't need Macdonald), af-tggl unblocked (independent of power formulas)
-- **3 critical paths** identified: power formulas, fundamental formula, spectral theorem (all independent)
+- **Closed**: af-gk4c (jpow_add already proved)
+- **Created**: af-jify (L_jpow_comm_all, P1) — blocks af-u0tp
+- **3 critical paths** remain: power formulas (needs af-jify), fundamental formula, spectral theorem
 
 ---
 
