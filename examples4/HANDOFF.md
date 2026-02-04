@@ -1,8 +1,11 @@
 # HANDOFF: BLM Model Numerical Work
 
-## Status: ED + DMRG baseline complete
+## Status: Symmetry implementation planned
 
 Ground state comparison working for j=1,3,5. Full Hamiltonian matrix verified (MPO = ED to machine precision).
+
+**Next major work**: Implement (Nf, J₃) symmetry conservation to scale beyond j=5.
+See `SYMMETRY_IMPLEMENTATION_PLAN.md` for detailed 6-phase plan.
 
 ## What's Done
 
