@@ -1,28 +1,37 @@
-# Handoff: 2026-02-04 (Session 81)
+# Handoff: 2026-02-04 (Session 82)
 
 ## This Session
 
-### Created TraceInnerProduct.lean (af-g3l8 CLOSED)
+### Proved eigenspaces_span (SpectralTheorem.lean:50-80, ~30 LOC)
 
-Added `AfTests/Jordan/TraceInnerProduct.lean` (~75 LOC):
-- `traceInnerCore`: `InnerProductSpace.Core ℝ J` from `traceInner`
-- `traceNormedAddCommGroup`: norm = √(traceInner x x)
-- `traceInnerProductSpace`: `InnerProductSpace ℝ J` instance
+Filled the `eigenspaces_span` sorry using mathlib's spectral theorem:
+- Added imports: `TraceInnerProduct.lean`, `Mathlib.Analysis.InnerProductSpace.Spectrum`
+- Set up `InnerProductSpace ℝ J` from `traceNormedAddCommGroup` and `traceInnerProductSpace`
+- Showed `(L a).IsSymmetric` via `traceInner_jmul_left`
+- Applied `orthogonalComplement_iSup_eigenspaces_eq_bot` + `Submodule.orthogonal_eq_bot_iff`
+- Converted between `⨆ μ, eigenspace (L a) μ` and `⨆ μ ∈ eigenvalueSet a, eigenspace a μ`
 
-This unblocks `eigenspaces_span` which can now use mathlib's spectral theorem.
+**Hypothesis change**: `eigenspaces_span` now requires `[FormallyRealTrace J]` instead of
+`[JordanTrace J]`. Downstream theorems updated accordingly.
+
+**Sorries**: 14 → 13
 
 ---
 
 ## NEXT STEP FOR NEXT AGENT
 
-**af-s4t7 continues**: Fill `eigenspaces_span` (SpectralTheorem.lean:50)
+**af-s4t7 continues**: Fill remaining sorries in spectral decomposition chain
 
-Now that InnerProductSpace is available:
-1. Import TraceInnerProduct.lean in SpectralTheorem.lean
-2. Use `LinearMap.IsSymmetric.orthogonalComplement_iSup_eigenspaces_eq_bot'`
-3. Show `L a` is `LinearMap.IsSymmetric` (from `traceInner_jmul_left`)
+Now that `eigenspaces_span` is proven:
+1. `spectral_projection_exists` (SpectralTheorem.lean:85) - construct orthogonal projections
+2. `spectral_decomposition_exists` (SpectralTheorem.lean:99) - main existence theorem
 
-**Key mathlib result**: `Mathlib/Analysis/InnerProductSpace/Spectrum.lean`
+**Key insight**: With eigenspaces spanning J, need to:
+- Construct spectral projections as orthogonal projections onto eigenspaces
+- Show these form idempotents in the Jordan algebra
+- Apply `csoi_refine_primitive` to get primitive decomposition
+
+**Mathlib tools**: `Submodule.orthogonalProjection` gives the projection operator
 
 ---
 
