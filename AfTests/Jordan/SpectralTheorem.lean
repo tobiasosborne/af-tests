@@ -72,23 +72,39 @@ theorem spectral_decomposition_finset [FinDimJordanAlgebra J] [JordanTrace J]
 
 /-! ### Spectral Decomposition Properties -/
 
+/-- jmul distributes over finite sums on the left. -/
+theorem sum_jmul {ι : Type*} (s : Finset ι) (f : ι → J) (r : ι → ℝ) (e : J) :
+    jmul (∑ i ∈ s, r i • f i) e = ∑ i ∈ s, r i • jmul (f i) e := by
+  classical
+  induction s using Finset.induction_on with
+  | empty => simp [zero_jmul]
+  | insert x s' hx ih =>
+    rw [Finset.sum_insert hx, Finset.sum_insert hx]
+    rw [add_jmul, jmul_smul, ih]
+
 /-- In a spectral decomposition a = ∑ λᵢ eᵢ, each idempotent is an eigenvector:
     a ∘ eⱼ = λⱼ eⱼ. -/
 theorem spectral_decomp_jmul_idem {a : J} (sd : SpectralDecomp a) (j : Fin sd.n) :
     jmul a (sd.csoi.idem j) = sd.eigenvalues j • sd.csoi.idem j := by
-  rw [sd.decomp]
-  -- jmul (∑ᵢ λᵢ eᵢ) eⱼ = ∑ᵢ λᵢ (jmul eᵢ eⱼ)
-  rw [sum_jmul Finset.univ sd.csoi.idem sd.eigenvalues (sd.csoi.idem j)]
-  -- For i ≠ j: jmul eᵢ eⱼ = 0 (orthogonality)
-  -- For i = j: jmul eⱼ eⱼ = eⱼ (idempotence)
-  rw [← Finset.add_sum_erase Finset.univ _ (Finset.mem_univ j)]
-  have other_terms : ∑ i ∈ Finset.univ.erase j,
-      sd.eigenvalues i • jmul (sd.csoi.idem i) (sd.csoi.idem j) = 0 := by
-    apply Finset.sum_eq_zero
-    intro i hi
-    rw [Finset.mem_erase] at hi
-    rw [sd.csoi.orthog i j hi.1.symm, smul_zero]
-  rw [other_terms, add_zero, sd.csoi.is_idem j]
+  -- Use calc to avoid motive issues with sd depending on a
+  calc jmul a (sd.csoi.idem j)
+      = jmul (∑ i, sd.eigenvalues i • sd.csoi.idem i) (sd.csoi.idem j) := by
+        simp only [sd.decomp]
+    _ = ∑ i, sd.eigenvalues i • jmul (sd.csoi.idem i) (sd.csoi.idem j) :=
+        sum_jmul Finset.univ sd.csoi.idem sd.eigenvalues (sd.csoi.idem j)
+    _ = sd.eigenvalues j • jmul (sd.csoi.idem j) (sd.csoi.idem j) +
+        ∑ i ∈ Finset.univ.erase j, sd.eigenvalues i • jmul (sd.csoi.idem i) (sd.csoi.idem j) := by
+        rw [← Finset.add_sum_erase Finset.univ _ (Finset.mem_univ j)]
+    _ = sd.eigenvalues j • jmul (sd.csoi.idem j) (sd.csoi.idem j) + 0 := by
+        have h : ∑ i ∈ Finset.univ.erase j,
+            sd.eigenvalues i • jmul (sd.csoi.idem i) (sd.csoi.idem j) = 0 := by
+          apply Finset.sum_eq_zero
+          intro i hi
+          rw [Finset.mem_erase] at hi
+          rw [sd.csoi.orthog i j hi.1, smul_zero]
+        rw [h]
+    _ = sd.eigenvalues j • sd.csoi.idem j := by
+        rw [add_zero, ← jsq_def, (sd.csoi.is_idem j).jsq_eq_self]
 
 /-- Eigenvalues from a spectral decomposition are eigenvalues of L_a.
     This is one direction of spectrum_eq_eigenvalueSet. -/
@@ -114,16 +130,6 @@ theorem spectral_decomp_eigenvalues_eq_spectrum [FinDimJordanAlgebra J] [JordanT
   spectrum_eq_eigenvalueSet a sd
 
 /-! ### Square Eigenvalue Theorem -/
-
-/-- jmul distributes over finite sums on the left. -/
-theorem sum_jmul {ι : Type*} (s : Finset ι) (f : ι → J) (r : ι → ℝ) (e : J) :
-    jmul (∑ i ∈ s, r i • f i) e = ∑ i ∈ s, r i • jmul (f i) e := by
-  classical
-  induction s using Finset.induction_on with
-  | empty => simp [zero_jmul]
-  | insert x s' hx ih =>
-    rw [Finset.sum_insert hx, Finset.sum_insert hx]
-    rw [add_jmul, jmul_smul, ih]
 
 /-- Squaring a sum of scaled orthogonal idempotents gives squared coefficients. -/
 theorem jsq_sum_orthog_idem {n : ℕ} (c : CSOI J n) (coef : Fin n → ℝ) :

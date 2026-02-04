@@ -1,6 +1,20 @@
-# Handoff: 2026-02-04 (Session 77)
+# Handoff: 2026-02-04 (Session 78)
 
 ## This Session
+
+### Fixed build error in SpectralTheorem.lean
+
+`spectral_decomp_jmul_idem` had a motive error from Session 77 - `rw [sd.decomp]` failed because
+`sd : SpectralDecomp a` depends on `a`. Fixed by:
+
+1. Using `calc` with `simp only [sd.decomp]` instead of bare `rw`
+2. Moving `sum_jmul` before first use (was defined after `spectral_decomp_jmul_idem`)
+
+**Sorries**: 14 (unchanged)
+
+---
+
+## Previous Session (77)
 
 ### Spectral decomposition helpers (SpectralTheorem.lean:73-95, ~20 LOC)
 
@@ -12,8 +26,6 @@ Added two helper lemmas for the spectral theorem:
 2. `spectral_decomp_eigenvalue_mem_spectrum`: Shows decomposition eigenvalues are in spectrum
    - If eⱼ ≠ 0, then λⱼ is an eigenvalue of L_a with eigenvector eⱼ
    - This is one direction of `spectrum_eq_eigenvalueSet`
-
-**Sorries**: 14 (unchanged)
 
 ---
 
