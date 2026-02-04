@@ -454,9 +454,101 @@ theorem L_jpow_comm_all (a : J) (l m : ℕ) :
               rw [t1, t3, t4, t5]
             _ = jmul (jpow a (k + 2)) (jmul (jsq a) x) := by rw [← expr_sqx]
     | (n + 3) =>
-      -- Use operator_formula recursion: L(a^{n+3}) expressed via L_a, L(a^{n+2}), L(a^{n+1}), L(a²)
-      -- All commute with L(a^m) by IH
-      sorry
+      -- IH: all l' < n+3 commute with a^m
+      have ih_a : Commute (L a) (L (jpow a m)) := by
+        have := ih 1 (by omega) m; rwa [jpow_one] at this
+      have ih_sq : Commute (L (jsq a)) (L (jpow a m)) := by
+        have := ih 2 (by omega) m; rwa [jpow_two] at this
+      have ih_n1 : Commute (L (jpow a (n + 1))) (L (jpow a m)) := ih (n + 1) (by omega) m
+      have ih_n2 : Commute (L (jpow a (n + 2))) (L (jpow a m)) := ih (n + 2) (by omega) m
+      rw [Commute, SemiconjBy] at ih_a ih_sq ih_n1 ih_n2 ⊢
+      ext x
+      change L (jpow a (n + 3)) (L (jpow a m) x) = L (jpow a m) (L (jpow a (n + 3)) x)
+      simp only [L_apply]
+      -- Element-level commutativity: jpow a m commutes past each sub-operator
+      have hc_a : ∀ y, jmul (jpow a m) (jmul a y) = jmul a (jmul (jpow a m) y) := fun y =>
+        (congrFun (congrArg DFunLike.coe ih_a) y).symm
+      have hc_sq : ∀ y, jmul (jpow a m) (jmul (jsq a) y) =
+          jmul (jsq a) (jmul (jpow a m) y) := fun y =>
+        (congrFun (congrArg DFunLike.coe ih_sq) y).symm
+      have hc_n1 : ∀ y, jmul (jpow a m) (jmul (jpow a (n + 1)) y) =
+          jmul (jpow a (n + 1)) (jmul (jpow a m) y) := fun y =>
+        (congrFun (congrArg DFunLike.coe ih_n1) y).symm
+      have hc_n2 : ∀ y, jmul (jpow a m) (jmul (jpow a (n + 2)) y) =
+          jmul (jpow a (n + 2)) (jmul (jpow a m) y) := fun y =>
+        (congrFun (congrArg DFunLike.coe ih_n2) y).symm
+      -- Operator formula: express a^{n+3} via recursion
+      have h_op := operator_formula_apply a a (jpow a (n + 1)) x
+      have h_bc : jmul a (jpow a (n + 1)) = jpow a (n + 2) := jpow_succ a (n + 1)
+      have h_ca : jmul (jpow a (n + 1)) a = jpow a (n + 2) := by
+        rw [jmul_comm]; exact jpow_succ a (n + 1)
+      have h_ab : jmul a a = jsq a := rfl
+      simp only [h_bc, h_ca, h_ab] at h_op
+      have h_n3 : jmul a (jpow a (n + 2)) = jpow a (n + 3) := jpow_succ a (n + 2)
+      rw [h_n3] at h_op
+      have expr_x : jmul (jpow a (n + 3)) x =
+          jmul a (jmul (jpow a (n + 2)) x) + jmul a (jmul (jpow a (n + 2)) x) +
+          jmul (jpow a (n + 1)) (jmul (jsq a) x) -
+          jmul a (jmul a (jmul (jpow a (n + 1)) x)) -
+          jmul (jpow a (n + 1)) (jmul a (jmul a x)) := by
+        calc jmul (jpow a (n + 3)) x
+            = jmul (jpow a (n + 3)) x +
+              jmul a (jmul a (jmul (jpow a (n + 1)) x)) +
+              jmul (jpow a (n + 1)) (jmul a (jmul a x)) -
+              jmul a (jmul a (jmul (jpow a (n + 1)) x)) -
+              jmul (jpow a (n + 1)) (jmul a (jmul a x)) := by abel
+          _ = _ := by rw [h_op]
+      have h_op' := operator_formula_apply a a (jpow a (n + 1)) (jmul (jpow a m) x)
+      simp only [h_bc, h_ca, h_ab] at h_op'
+      rw [h_n3] at h_op'
+      have expr_mx : jmul (jpow a (n + 3)) (jmul (jpow a m) x) =
+          jmul a (jmul (jpow a (n + 2)) (jmul (jpow a m) x)) +
+          jmul a (jmul (jpow a (n + 2)) (jmul (jpow a m) x)) +
+          jmul (jpow a (n + 1)) (jmul (jsq a) (jmul (jpow a m) x)) -
+          jmul a (jmul a (jmul (jpow a (n + 1)) (jmul (jpow a m) x))) -
+          jmul (jpow a (n + 1)) (jmul a (jmul a (jmul (jpow a m) x))) := by
+        calc jmul (jpow a (n + 3)) (jmul (jpow a m) x)
+            = jmul (jpow a (n + 3)) (jmul (jpow a m) x) +
+              jmul a (jmul a (jmul (jpow a (n + 1)) (jmul (jpow a m) x))) +
+              jmul (jpow a (n + 1)) (jmul a (jmul a (jmul (jpow a m) x))) -
+              jmul a (jmul a (jmul (jpow a (n + 1)) (jmul (jpow a m) x))) -
+              jmul (jpow a (n + 1)) (jmul a (jmul a (jmul (jpow a m) x))) := by
+                abel
+          _ = _ := by rw [h_op']
+      -- Commutation: push jpow a m past each subterm
+      have t1 : jmul (jpow a m) (jmul a (jmul (jpow a (n + 2)) x)) =
+          jmul a (jmul (jpow a (n + 2)) (jmul (jpow a m) x)) := by
+        rw [hc_a (jmul (jpow a (n + 2)) x), hc_n2 x]
+      have t3 : jmul (jpow a m) (jmul (jpow a (n + 1)) (jmul (jsq a) x)) =
+          jmul (jpow a (n + 1)) (jmul (jsq a) (jmul (jpow a m) x)) := by
+        rw [hc_n1 (jmul (jsq a) x), hc_sq x]
+      have t4 : jmul (jpow a m) (jmul a (jmul a (jmul (jpow a (n + 1)) x))) =
+          jmul a (jmul a (jmul (jpow a (n + 1)) (jmul (jpow a m) x))) := by
+        rw [hc_a (jmul a (jmul (jpow a (n + 1)) x)),
+            hc_a (jmul (jpow a (n + 1)) x), hc_n1 x]
+      have t5 : jmul (jpow a m) (jmul (jpow a (n + 1)) (jmul a (jmul a x))) =
+          jmul (jpow a (n + 1)) (jmul a (jmul a (jmul (jpow a m) x))) := by
+        rw [hc_n1 (jmul a (jmul a x)), hc_a (jmul a x), hc_a x]
+      symm
+      calc jmul (jpow a m) (jmul (jpow a (n + 3)) x)
+          = jmul (jpow a m) (
+              jmul a (jmul (jpow a (n + 2)) x) + jmul a (jmul (jpow a (n + 2)) x) +
+              jmul (jpow a (n + 1)) (jmul (jsq a) x) -
+              jmul a (jmul a (jmul (jpow a (n + 1)) x)) -
+              jmul (jpow a (n + 1)) (jmul a (jmul a x))) := by rw [expr_x]
+        _ = jmul (jpow a m) (jmul a (jmul (jpow a (n + 2)) x)) +
+            jmul (jpow a m) (jmul a (jmul (jpow a (n + 2)) x)) +
+            jmul (jpow a m) (jmul (jpow a (n + 1)) (jmul (jsq a) x)) -
+            jmul (jpow a m) (jmul a (jmul a (jmul (jpow a (n + 1)) x))) -
+            jmul (jpow a m) (jmul (jpow a (n + 1)) (jmul a (jmul a x))) := by
+          simp only [jmul_sub, jmul_add]
+        _ = jmul a (jmul (jpow a (n + 2)) (jmul (jpow a m) x)) +
+            jmul a (jmul (jpow a (n + 2)) (jmul (jpow a m) x)) +
+            jmul (jpow a (n + 1)) (jmul (jsq a) (jmul (jpow a m) x)) -
+            jmul a (jmul a (jmul (jpow a (n + 1)) (jmul (jpow a m) x))) -
+            jmul (jpow a (n + 1)) (jmul a (jmul a (jmul (jpow a m) x))) := by
+          rw [t1, t3, t4, t5]
+        _ = jmul (jpow a (n + 3)) (jmul (jpow a m) x) := by rw [← expr_mx]
 
 /-- Power associativity: a^m ∘ a^n = a^{m+n}. This is H-O 2.4.4.
 The proof uses that L_a and L_{aⁿ} commute for all n. -/
