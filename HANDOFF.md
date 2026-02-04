@@ -1,6 +1,33 @@
-# Handoff: 2026-02-04 (Session 68)
+# Handoff: 2026-02-04 (Session 69)
 
 ## Completed This Session
+
+### L_jpow_comm_all scaffold (LinearizedJordan.lean:338-372)
+
+Added `L_jpow_comm_all : Commute (L (jpow a l)) (L (jpow a m))` (H-O 2.4.5(ii)).
+Strong induction on l. Status:
+- **l=0**: proved (L(1) commutes with everything)
+- **l=1**: proved (delegates to L_jpow_comm_L)
+- **l=2**: nested strong induction on m; m=0,1 proved; **m=k+2 sorry**
+- **l=n+3**: sorry (operator_formula recursion + IH)
+
+**Key insight for l=2, m=k+2**: Use `operator_formula_apply a a (jpow a k) x` to
+express `L(a^{k+2}) x` in terms of `L_a`, `L(a^{k+1})`, `L(a^k)`, `L(a²)`.
+By IH (ihm), `L(a²)` commutes with `L(a^k)` and `L(a^{k+1})`.
+Also `L(a²)` commutes with `L_a` (L_L_jsq_comm) and `L_a²` (composition).
+So `L(a²)` commutes with `L(a^{k+2})`.
+
+**Key insight for l=n+3**: Same recursion gives `L(a^{n+3})` in terms of
+`L_a`, `L(a^{n+2})`, `L(a^{n+1})`, `L(a²)`. All commute with `L(a^m)` by
+outer IH (ih) since 1,2,n+1,n+2 < n+3. So `L(a^{n+3})` commutes with `L(a^m)`.
+
+**Both sorry cases** follow the same element-level pattern as in L_jpow_comm_L:
+derive `expr_x` and `expr_y` from operator_formula_apply, then calc chain
+substituting commutativity hypotheses term by term (~30 LOC each).
+
+---
+
+## Previous Session (68)
 
 ### Closed af-gk4c: jpow_add already proved (LinearizedJordan.lean:340-383)
 
