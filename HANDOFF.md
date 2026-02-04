@@ -26,7 +26,13 @@
 1. Change `spectrum_sq` to use `jordanSpectrum` instead of `spectrum`
 2. Or remove `spectrum_sq` and prove `spectrum_sq_nonneg` directly via formal reality
 
-**Sorries**: 14 (unchanged)
+### Removed false spectrum_sq theorem + dependent
+
+Deleted the hallucinated `spectrum_sq` and `spectrum_sq_nonneg` theorems.
+H-O does NOT claim this - Session 68 agent confused H-O's functional calculus
+spectrum with eigenvalues of L_a.
+
+**Sorries**: 14 → 12
 
 ---
 
