@@ -1,6 +1,36 @@
-# Handoff: 2026-02-04 (Session 78)
+# Handoff: 2026-02-04 (Session 79)
 
 ## This Session
+
+### Identified bug in spectrum_sq theorem statement (SpectralTheorem.lean:187)
+
+**ISSUE**: The theorem `spectrum (jsq a) = (· ^ 2) '' spectrum a` is likely FALSE.
+
+**Analysis**: There's a conflation between two different "spectrum" concepts:
+- `spectrum a` = eigenvalueSet a = ALL eigenvalues of L_a (includes Peirce-½ eigenvalues)
+- `jordanSpectrum a sd` = eigenvalues from spectral decomposition (only from orthogonal idempotents)
+
+**Counterexample** (2×2 real symmetric matrices):
+- A = diag(1, 2)
+- L_A has eigenvalues {1, 3/2, 2} (the 3/2 comes from off-diagonal Peirce-½ space)
+- L_{A²} has eigenvalues {1, 5/2, 4}
+- But (· ^ 2) '' {1, 3/2, 2} = {1, 9/4, 4} ≠ {1, 5/2, 4}
+
+**What IS true** (already proven in `spectral_sq`):
+- Given SpectralDecomp sd of a with eigenvalues λᵢ, we can construct SpectralDecomp of a² with eigenvalues λᵢ²
+- This is about jordanSpectrum (decomposition eigenvalues), not full spectrum
+
+**Downstream impact**: `spectrum_sq_nonneg` uses `spectrum_sq` via rewrite. May need different proof.
+
+**Recommended fix**: Either:
+1. Change `spectrum_sq` to use `jordanSpectrum` instead of `spectrum`
+2. Or remove `spectrum_sq` and prove `spectrum_sq_nonneg` directly via formal reality
+
+**Sorries**: 14 (unchanged)
+
+---
+
+## Previous Session (78)
 
 ### Fixed build error in SpectralTheorem.lean
 
