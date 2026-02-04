@@ -1,29 +1,16 @@
-# Handoff: 2026-02-04 (Session 70)
+# Handoff: 2026-02-04 (Session 71)
 
 ## Completed This Session
 
-### L_jpow_comm_all l=2 case COMPLETE (LinearizedJordan.lean:340-452)
+### L_jpow_comm_all COMPLETE (LinearizedJordan.lean:340-530, 0 sorries)
 
-Filled the `l=2, m=k+2` sorry in `L_jpow_comm_all`. Key structural fix:
-added `revert m` before outer strong induction so `ih` has type
-`∀ l' < l, ∀ m, Commute ...` (not fixed to one `m`). This lets the inner
-strong induction on `m` access the outer IH at different `m` values.
+Filled the `l=n+3` sorry. Same mechanical pattern as l=2 case:
+- IH gives commutativity for `a`, `jsq a`, `jpow a (n+1)`, `jpow a (n+2)` with `jpow a m`
+- `operator_formula_apply a a (jpow a (n+1))` expands `jpow a (n+3)` via recursion
+- Calc chain pushes `jpow a m` past each subterm using IH, then collapses via `expr_mx`
+- ~55 LOC added, purely mechanical
 
-Status of `L_jpow_comm_all`:
-- **l=0**: proved
-- **l=1**: proved
-- **l=2**: PROVED (all m, via nested strong induction + operator_formula)
-- **l=n+3**: **sorry** (one remaining sorry)
-
-### l=n+3 sorry (LinearizedJordan.lean:453)
-
-**Exact same pattern** as l=2 case and as L_jpow_comm_L's n+3 case:
-1. Get IH: `ih 1 m`, `ih 2 m`, `ih (n+1) m`, `ih (n+2) m` (all < n+3)
-2. Convert to element-level commutativity (hc1..hc4)
-3. `operator_formula_apply a a (jpow a (n+1)) x` → `expr_x`
-4. Same with `(jmul (jpow a m) x)` → `expr_mx`
-5. Calc chain: substitute term-by-term using hc1..hc4
-~40 LOC, mechanical copy of l=2 pattern.
+**LinearizedJordan.lean now has 0 sorries.** This unblocks `af-u0tp` (power formulas 2.45-2.46).
 
 ---
 
