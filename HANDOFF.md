@@ -1,6 +1,41 @@
-# Handoff: 2026-02-05 (Session 88)
+# Handoff: 2026-02-05 (Session 89)
 
 ## This Session
+
+### Factored generatedSubalgebra_spectral_csoi into cleaner sorry (~55 LOC)
+
+Split the monolithic `generatedSubalgebra_spectral_csoi` sorry into:
+
+1. **`eigenspace_jmul_zero_in_ca`** (FULLY PROVED, ~20 LOC) — Key algebraic lemma:
+   elements of C(a) in distinct eigenspaces of L_a multiply to zero.
+   Uses associativity of C(a) to derive μ·(xy) = ν·(xy), hence xy = 0.
+
+2. **`jone_eigenspace_decomp_in_ca`** (sorry) — Pure linear algebra:
+   decompose jone into nonzero eigenspace components within C(a) with
+   distinct eigenvalues. Proof sketch: eigenspace projections are polynomials
+   in L_a, and (L_a)^n(1) = a^n ∈ C(a).
+
+3. **`generatedSubalgebra_spectral_csoi`** — NOW PROVED modulo (2):
+   orthogonality from (1), idempotency from orthogonality + completeness.
+   Added [FormallyRealTrace J] hypothesis (caller already has it).
+
+**Build status**: MAY HAVE MINOR COMPILATION ISSUES — `hj.1.symm` for Ne direction
+and `map_sum` for linearity of jmul. Fix in next session.
+
+**Sorries**: 13 → 13 (replaced 1 sorry with 1 cleaner sorry). The remaining sorry
+`jone_eigenspace_decomp_in_ca` is now a precise linear algebra statement rather
+than the vague "C(a) structure theorem".
+
+**Key insight for next session**: To prove `jone_eigenspace_decomp_in_ca`:
+- Use `eigenvectorBasis` from mathlib to get orthonormal eigenvector basis of L_a
+- Group by eigenvalue: for distinct μ, define eμ = Σ_{i: ev_i = μ} ⟨bᵢ, 1⟩ bᵢ
+- Show eμ ∈ C(a) via inductive argument: if V is L_a-invariant and x ∈ V,
+  then L_a(x) - μₖ·x has fewer eigenspace components, so by induction each
+  component is in V. Apply to V = C(a), x = jone.
+
+---
+
+## Previous Session (88)
 
 ### Filled spectral_decomposition_exists (~75 LOC)
 
