@@ -201,7 +201,66 @@ theorem jone_eigenspace_decomp_in_ca [FinDimJordanAlgebra J] [FormallyRealTrace 
       (∀ i, e i ≠ 0) ∧
       Function.Injective μ ∧
       (∑ i, e i = jone) := by
-  sorry
+  classical
+  -- Setup: inner product from trace
+  letI : NormedAddCommGroup J := traceNormedAddCommGroup
+  letI : InnerProductSpace ℝ J := traceInnerProductSpace
+  let Ca := (generatedSubalgebra a).toSubmodule
+  haveI : FiniteDimensional ℝ Ca := generatedSubalgebra_finiteDimensional a
+  -- Restrict L_a to C(a) and prove symmetric
+  have hCa_inv : ∀ x ∈ Ca, L a x ∈ Ca := fun x hx => jmul_generator_mem a hx
+  let La_Ca := (L a).restrict hCa_inv
+  have hSym : La_Ca.IsSymmetric := by
+    intro x y
+    -- ⟪La_Ca x, y⟫_Ca = ⟪↑(La_Ca x), ↑y⟫_J = ⟪jmul a ↑x, ↑y⟫_J
+    -- = ⟪↑x, jmul a ↑y⟫_J = ⟪↑x, ↑(La_Ca y)⟫_J = ⟪x, La_Ca y⟫_Ca
+    sorry
+  -- Eigenvector basis on C(a)
+  set d := Module.finrank ℝ Ca
+  let b := hSym.eigenvectorBasis rfl
+  let ev := hSym.eigenvalues rfl
+  let jone_ca : Ca := ⟨jone, (generatedSubalgebra a).jone_mem⟩
+  let c : Fin d → ℝ := fun i => @inner ℝ Ca _ (b i) jone_ca
+  -- Eigenvector property in J: jmul a ↑(b i) = ev i • ↑(b i)
+  have hb_eig_J : ∀ i, jmul a ↑(b i) = ev i • (↑(b i) : J) := by
+    intro i; have h := hSym.apply_eigenvectorBasis rfl i
+    have := congr_arg Subtype.val h; sorry
+  have hb_mem : ∀ i, (↑(b i) : J) ∈ generatedSubalgebra a := fun i => (b i).2
+  -- jone = ∑ c i • ↑(b i) in J
+  have hrepr_J : jone = ∑ i, c i • (↑(b i) : J) := by
+    have hrepr : (jone_ca : Ca) = ∑ i : Fin d, c i • b i := (b.sum_repr' jone_ca).symm
+    have h : (jone_ca : J) = (∑ i : Fin d, c i • b i : Ca) := congr_arg Subtype.val hrepr
+    rw [Submodule.coe_sum] at h; simp only [Submodule.coe_smul] at h
+    exact h
+  -- Group by eigenvalue
+  let S := Finset.image ev Finset.univ
+  let g : ℝ → J := fun μ =>
+    ∑ i ∈ Finset.univ.filter (fun j => ev j = μ), c i • (↑(b i) : J)
+  have hg_sum : ∑ μ ∈ S, g μ = jone := by
+    simp only [hrepr_J, g, S]
+    exact Finset.sum_fiberwise_of_maps_to
+      (fun i _ => Finset.mem_image_of_mem ev (Finset.mem_univ i)) _
+  have hg_eig : ∀ μ ∈ S, jmul a (g μ) = μ • g μ := by
+    intro μ _; show jmul a (g μ) = μ • g μ; sorry
+  have hg_mem : ∀ μ, g μ ∈ generatedSubalgebra a := by
+    intro μ; apply Submodule.sum_mem
+    intro i _; exact Submodule.smul_mem _ _ (hb_mem i)
+  -- Filter to nonzero groups
+  let S' := S.filter (fun μ => g μ ≠ 0)
+  have hg_sum' : ∑ μ ∈ S', g μ = jone := by
+    rw [← hg_sum]
+    apply Finset.sum_subset (Finset.filter_subset _ _)
+    intro μ hμS hμS'
+    by_contra h; exact hμS' (Finset.mem_filter.mpr ⟨hμS, h⟩)
+  -- Reindex to Fin k
+  have hcard : Fintype.card ↥(↑S' : Set ℝ) = S'.card := by simp [Fintype.card_ofFinset]
+  let ψ := (Fintype.equivFinOfCardEq hcard).symm
+  refine ⟨S'.card, fun i => g (ψ i).val, fun i => (ψ i).val, ?_, ?_, ?_, ?_, ?_⟩
+  · intro i; exact hg_mem _
+  · intro i; exact hg_eig _ sorry
+  · intro i; sorry
+  · intro i j hij; exact ψ.injective (Subtype.ext hij)
+  · sorry
 
 /-- C(a) admits a CSOI where each idempotent is an eigenvector of L_a.
     Given the eigenspace decomposition of jone within C(a), orthogonality follows from
