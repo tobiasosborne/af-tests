@@ -148,4 +148,45 @@ instance generatedSubalgebra_finiteDimensional [FiniteDimensional ℝ J] (a : J)
     FiniteDimensional ℝ (generatedSubalgebra a).toSubmodule :=
   FiniteDimensional.finiteDimensional_submodule _
 
+/-- Powers of a associate: (a^m ∘ a^n) ∘ a^k = a^m ∘ (a^n ∘ a^k).
+    This follows directly from jpow_add. -/
+theorem jpow_jmul_assoc (a : J) (m n k : ℕ) :
+    jmul (jmul (jpow a m) (jpow a n)) (jpow a k) =
+    jmul (jpow a m) (jmul (jpow a n) (jpow a k)) := by
+  rw [jpow_add, jpow_add, jpow_add, jpow_add]
+  ring_nf  -- m + n + k = m + (n + k)
+
+/-- The Jordan product is associative within C(a).
+    This is because C(a) consists of polynomials in a single element. -/
+theorem generatedSubalgebra_jmul_assoc (a : J) {x y z : J}
+    (hx : x ∈ generatedSubalgebra a) (hy : y ∈ generatedSubalgebra a)
+    (hz : z ∈ generatedSubalgebra a) :
+    jmul (jmul x y) z = jmul x (jmul y z) := by
+  rw [mem_generatedSubalgebra_iff] at hx hy hz
+  -- Induction on z ∈ span{powers}
+  induction hz using Submodule.span_induction with
+  | mem p hp =>
+    obtain ⟨k, hk⟩ := hp
+    subst hk
+    -- Induction on y ∈ span{powers}
+    induction hy using Submodule.span_induction with
+    | mem q hq =>
+      obtain ⟨n, hn⟩ := hq
+      subst hn
+      -- Induction on x ∈ span{powers}
+      induction hx using Submodule.span_induction with
+      | mem r hr =>
+        obtain ⟨m, hm⟩ := hr
+        subst hm
+        exact jpow_jmul_assoc a m n k
+      | zero => simp only [zero_jmul]
+      | add s t _ _ ihs iht => simp only [add_jmul, ihs, iht]
+      | smul r s _ ihs => simp only [jmul_smul, ihs]
+    | zero => simp only [zero_jmul, jmul_zero]
+    | add s t _ _ ihs iht => simp only [add_jmul, jmul_add, ihs, iht]
+    | smul r s _ ihs => simp only [smul_jmul, jmul_smul, ihs]
+  | zero => simp only [jmul_zero]
+  | add s t _ _ ihs iht => rw [jmul_add, jmul_add, ihs, iht, ← jmul_add]
+  | smul r s _ ihs => simp only [smul_jmul, ihs]
+
 end JordanAlgebra

@@ -1,6 +1,24 @@
-# Handoff: 2026-02-04 (Session 85)
+# Handoff: 2026-02-05 (Session 86)
 
 ## This Session
+
+### Added C(a) associativity (Subalgebra.lean:152-191, ~40 LOC)
+
+Step 3 toward spectral decomposition: show C(a) is associative.
+
+**Added**:
+- `jpow_jmul_assoc` - powers of a associate: (a^m ∘ a^n) ∘ a^k = a^m ∘ (a^n ∘ a^k)
+- `generatedSubalgebra_jmul_assoc` - Jordan product is associative within C(a)
+- Proof uses nested `Submodule.span_induction` on all three arguments
+
+**Why this matters**: C(a) being associative + commutative + reduced ⟹ C(a) ≅ ℝⁿ (Wedderburn).
+This gives minimal idempotents for spectral decomposition.
+
+**Sorries**: 13 (unchanged)
+
+---
+
+## Previous Session (85)
 
 ### Added generatedSubalgebra_finiteDimensional (Subalgebra.lean:145-149, ~5 LOC)
 
@@ -21,18 +39,23 @@ Step 1 of H-O spectral decomposition: show C(a) is finite-dimensional.
 Next steps to prove `spectral_decomposition_exists`:
 1. ~~Show C(a) is finite-dimensional~~ ✓ DONE (Session 85)
 2. ~~Show C(a) is reduced~~ ✓ AUTOMATIC - C(a) ⊆ J inherits formal reality
-3. Apply Artinian structure theorem: C(a) ≅ ℝⁿ
-4. Extract minimal idempotents → form CSOI
-5. Show idempotents are eigenvectors of L_a
-6. Apply `spectral_decomp_of_eigenvector_csoi`
+3. ~~Show C(a) is associative~~ ✓ DONE (Session 86) - `generatedSubalgebra_jmul_assoc`
+4. Apply Artinian structure theorem: C(a) ≅ ℝⁿ
+5. Extract minimal idempotents → form CSOI
+6. Show idempotents are eigenvectors of L_a
+7. Apply `spectral_decomp_of_eigenvector_csoi`
 
-**Next concrete step**: Step 3 - show C(a) ≅ ℝⁿ. This requires:
+**Next concrete step**: Step 4 - show C(a) ≅ ℝⁿ. This requires:
 - C(a) is finite-dimensional ✓
-- C(a) is commutative (true: power submodule, jpow_add gives commutativity)
-- C(a) is reduced (no nilpotents) ✓
-- Then mathlib Artinian theory: reduced finite-dim commutative algebra ≅ ℝⁿ
+- C(a) is commutative ✓ (jmul_comm)
+- C(a) is associative ✓ (generatedSubalgebra_jmul_assoc)
+- C(a) is reduced (no nilpotents) ✓ (formal reality)
+- Then Wedderburn theory: finite-dim commutative associative reduced algebra ≅ ℝⁿ
 
-Need to find/prove: `CommRing` instance for C(a) to use mathlib's algebra theory.
+**Options for Step 4**:
+1. Build CommRing instance for C(a) and use mathlib's Artinian theory
+2. Direct construction: find minimal idempotents via formal reality arguments
+3. Use that C(a) has a basis of orthogonal idempotents (finite-dim semisimple)
 
 ---
 
