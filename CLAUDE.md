@@ -4,6 +4,25 @@ Lean 4 formalization for operator algebras and Jordan algebras.
 
 ---
 
+## BUILD COMMAND — READ THIS FIRST
+
+**NEVER run `lake build` bare. It will rebuild all of mathlib from scratch (~2 hours).**
+
+The correct build command is:
+```bash
+lake build AfTests 2>&1 | tail -40
+```
+
+This builds ONLY the project modules, using the pre-built mathlib cache. If you see
+mathlib files compiling, STOP IMMEDIATELY (Ctrl+C) — something is wrong.
+
+For checking a single file:
+```bash
+lake env lean AfTests/Jordan/SomeFile.lean 2>&1
+```
+
+---
+
 ## GOLDEN RULES
 
 > **OUTPUT = LEAN CODE.** Every issue = Lean file modified.
@@ -64,7 +83,7 @@ This urge is your signal to STOP, not to delete.
 
 ### Execute
 - Search mathlib: `lean_loogle`, `lean_leansearch`, `lean_local_search`
-- Build often: `lake build`
+- Build often: `lake build AfTests` (NEVER bare `lake build`!)
 - Stop at 3 failed attempts on same approach
 
 ### Checkpoint (at 35%+ context OR when stuck)

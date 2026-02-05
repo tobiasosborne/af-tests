@@ -1,6 +1,58 @@
-# Handoff: 2026-02-05 (Session 89)
+# Handoff: 2026-02-05 (Session 90)
 
 ## This Session
+
+### Analysis of jone_eigenspace_decomp_in_ca proof approach (no code changes)
+
+Added critical build warning to CLAUDE.md (never run bare `lake build`).
+
+Analyzed the key remaining sorry `jone_eigenspace_decomp_in_ca` at SpectralTheorem.lean:204.
+Build passes (13 sorries, unchanged from Session 89).
+
+**Proof approach: Restrict L_a to C(a) and use spectral theorem there**
+
+The cleanest approach (avoids Finset.prod issues with non-CommMonoid Module.End):
+
+1. **Set up inner product on J** from FormallyRealTrace (same as eigenspaces_span)
+2. **Restrict L_a to C(a).toSubmodule** using `LinearMap.restrict`:
+   - `(L a).restrict hCa_inv : Ca →ₗ[ℝ] Ca` where `hCa_inv : ∀ x ∈ Ca, L a x ∈ Ca`
+   - C(a) inherits `InnerProductSpace ℝ` from J (via `Submodule.innerProductSpace`)
+   - C(a) is finite-dimensional (already proved: `generatedSubalgebra_finiteDimensional`)
+3. **Show restriction is symmetric**: For x y ∈ Ca, `⟪La_Ca x, y⟫ = ⟪x, La_Ca y⟫` reduces to
+   `traceInner_jmul_left a x y` via `Submodule.coe_inner`
+4. **Apply `IsSymmetric.eigenvectorBasis`** to restriction:
+   - Gets orthonormal eigenvector basis of C(a): `OrthonormalBasis (Fin d) ℝ Ca`
+   - Each basis element is already in C(a) (element of the submodule)
+   - Eigenvalues via `IsSymmetric.eigenvalues`
+5. **Express jone in basis**: `OrthonormalBasis.sum_repr'` gives `⟨jone, _⟩ = ∑ ⟪bᵢ, jone⟫ • bᵢ`
+6. **Group by eigenvalue**: For each distinct eigenvalue μ, sum all `⟪bᵢ, jone⟫ • bᵢ`
+   with that eigenvalue. The grouped sum is still an eigenvector and in C(a).
+7. **Filter nonzero groups** and convert from `Finset.image` indexing to `Fin k` via
+   `Finset.equivFin` or `Finset.orderIsoOfFin` (ℝ has LinearOrder).
+
+**Key mathlib APIs identified**:
+- `LinearMap.restrict (f : M →ₗ[R] M₁) {p} {q} (hf : ∀ x ∈ p, f x ∈ q) : p →ₗ[R] q`
+  (Mathlib/Algebra/Module/Submodule/LinearMap.lean:203)
+- `IsSymmetric.eigenvectorBasis (hT) (hn : finrank = n) : OrthonormalBasis (Fin n) 𝕜 E`
+  (Mathlib/Analysis/InnerProductSpace/Spectrum.lean:242)
+- `IsSymmetric.eigenvalues (hT) (hn) : Fin n → ℝ`
+  (Mathlib/Analysis/InnerProductSpace/Spectrum.lean:235)
+- `OrthonormalBasis.sum_repr' : ∑ i, ⟪b i, x⟫ • b i = x`
+  (Mathlib/Analysis/InnerProductSpace/PiL2.lean:458)
+- `Submodule.innerProductSpace` gives InnerProductSpace on ↥Ca
+  (Mathlib/Analysis/InnerProductSpace/Subspace.lean:36)
+
+**Estimated LOC**: ~50-70 for the full proof (setup ~15, symmetry ~5, basis expansion ~10,
+grouping ~20-30, verification ~10).
+
+**Alternative approach considered (rejected)**: Product-of-operators (Lagrange interpolation).
+Define Pμ = ∏_{ν≠μ} (L_a - ν·id) and show Pμ(jone) ∈ C(a). Rejected because `Finset.prod`
+requires `CommMonoid` but `Module.End` only has `Monoid`. Would need `Finset.noncommProd`
+or commutativity proof, adding unnecessary complexity.
+
+---
+
+## Previous Session (89)
 
 ### Factored generatedSubalgebra_spectral_csoi into cleaner sorry (~55 LOC)
 
