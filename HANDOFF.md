@@ -1,27 +1,28 @@
-# Handoff: 2026-02-05 (Session 87)
+# Handoff: 2026-02-05 (Session 88)
 
 ## This Session
 
-### Added eigenvector lemma for C(a) idempotents (~25 LOC)
+### Filled spectral_decomposition_exists (~75 LOC)
 
-Step 6 toward spectral decomposition: show idempotents in C(a) are eigenvectors of L_a.
+Proved `spectral_decomposition_exists` modulo 1 new sorry (`generatedSubalgebra_spectral_csoi`).
 
-**Added to Subalgebra.lean (192-206)**:
-- `generator_mem_generatedSubalgebra` - a ∈ C(a)
-- `jmul_generator_mem` - for x ∈ C(a), jmul a x ∈ C(a)
-- `jmul_generator_mem'` - for x ∈ C(a), jmul x a ∈ C(a)
+**Added to SpectralTheorem.lean**:
+- `generatedSubalgebra_spectral_csoi` (sorry) - C(a) has eigenvector CSOI
+  - Key gap: need structure theorem for finite-dim commutative associative formally real algebras
+- `csoi_eigenvector_peirce_one` - For eigenvector CSOI, L_a acts as scalar on P₁(eᵢ)
+  - Uses peirce_mult_P0_P1 + orthogonal_in_peirce_zero
+- `spectral_decomposition_exists` - FILLED (was sorry)
+  - Gets eigenvector CSOI from C(a), decomposes each to J-primitives via exists_primitive_decomp
+  - Primitives inherit eigenvalues via csoi_eigenvector_peirce_one + primitive_sum_sub_idem
+  - Combined CSOI built with finSigmaFinEquiv (same pattern as csoi_refine_primitive)
 
-**Added to SpectralTheorem.lean (99-115)**:
-- `jmul_generator_idem_in_peirce_one` - For idempotent e ∈ C(a), jmul a e ∈ P₁(e)
-  - Key: associativity in C(a) gives jmul e (jmul a e) = jmul a (jmul e e) = jmul a e
-  - Import of Subalgebra.lean added
+**Also fixed**:
+- Removed duplicate `jmulBilin` from Primitive.lean (now imported from Subalgebra.lean)
+- Fixed `jmul_generator_idem_in_peirce_one` argument order for generatedSubalgebra_jmul_assoc
 
-**Why this matters**: For a PRIMITIVE idempotent e in C(a), P₁(e) = ℝ·e (1-dimensional).
-So jmul a e ∈ ℝ·e, making e an eigenvector of L_a.
+**Build status**: PASSES
 
-**Build status**: Needs `lake build` verification (lake clean was run, full rebuild needed).
-
-**Sorries**: 13 (unchanged)
+**Sorries**: 13 → 13 (removed 1 sorry from spectral_decomposition_exists, added 1 for generatedSubalgebra_spectral_csoi). Net: spectral_decomposition_exists is now proved modulo the C(a) structure theorem.
 
 ---
 

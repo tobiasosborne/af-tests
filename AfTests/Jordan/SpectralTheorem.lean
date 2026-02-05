@@ -96,60 +96,27 @@ theorem spectral_decomp_of_eigenvector_csoi {n : ℕ} (a : J) (c : CSOI J n) (co
     _ = ∑ i, jmul a (c.idem i) := by simp
     _ = ∑ i, coef i • c.idem i := by simp only [heig]
 
-/-! ### C(a) idempotent eigenvector lemma -/
-
 /-- For idempotent e ∈ C(a), we have jmul a e ∈ P₁(e).
     Key step: associativity in C(a) gives jmul e (jmul a e) = jmul a (jmul e e) = jmul a e. -/
 theorem jmul_generator_idem_in_peirce_one (a : J) {e : J}
     (he_idem : IsIdempotent e) (he_mem : e ∈ generatedSubalgebra a) :
     jmul a e ∈ PeirceSpace e 1 := by
   rw [mem_peirceSpace_one_iff]
-  -- Use associativity in C(a): jmul e (jmul a e) = jmul (jmul e a) e = jmul a (jmul e e)
-  have h1 : jmul e (jmul a e) = jmul (jmul e a) e :=
+  -- generatedSubalgebra_jmul_assoc: jmul (jmul x y) z = jmul x (jmul y z)
+  have h1 : jmul (jmul e a) e = jmul e (jmul a e) :=
     generatedSubalgebra_jmul_assoc a he_mem (self_mem_generatedSubalgebra a) he_mem
-  have h2 : jmul (jmul e a) e = jmul a (jmul e e) :=
+  have h2 : jmul (jmul a e) e = jmul a (jmul e e) :=
     generatedSubalgebra_jmul_assoc a (self_mem_generatedSubalgebra a) he_mem he_mem
-  calc jmul e (jmul a e) = jmul (jmul e a) e := h1
-    _ = jmul a (jmul e e) := by rw [jmul_comm e a]; exact h2
+  -- jmul e (jmul a e) = jmul (jmul e a) e = jmul (jmul a e) e = jmul a (jmul e e) = jmul a e
+  calc jmul e (jmul a e) = jmul (jmul e a) e := h1.symm
+    _ = jmul (jmul a e) e := by rw [jmul_comm e a]
+    _ = jmul a (jmul e e) := h2
     _ = jmul a e := by rw [← jsq_def, he_idem.jsq_eq_self]
 
 /-- For each eigenvalue, we can construct an orthogonal projection onto the eigenspace. -/
 theorem spectral_projection_exists [FinDimJordanAlgebra J] [JordanTrace J] [FormallyRealJordan J]
     (a : J) (μ : ℝ) (hμ : μ ∈ eigenvalueSet a) :
     ∃ e : J, IsIdempotent e ∧ (∀ v, v ∈ eigenspace a μ ↔ jmul e v = v) := by
-  -- Spectral projection is an idempotent
-  sorry
-
-/-- Every element in a finite-dimensional formally real Jordan algebra has
-    a spectral decomposition with primitive idempotents.
-
-    Proof strategy:
-    1. Get the finite set of eigenvalues (eigenvalueSet_finite)
-    2. Show eigenspaces span J (eigenspaces_span, via self-adjointness of L_a)
-    3. Construct spectral projections as idempotents (spectral_projection_exists)
-    4. Form a CSOI from projections and refine to primitives (csoi_refine_primitive) -/
-theorem spectral_decomposition_exists [FinDimJordanAlgebra J] [FormallyRealTrace J]
-    [FormallyRealJordan J] (a : J) :
-    ∃ sd : SpectralDecomp a, ∀ i, IsPrimitive (sd.csoi.idem i) := by
-  -- Step 1: Get the finite set of eigenvalues
-  have hfin : (eigenvalueSet a).Finite := eigenvalueSet_finite a
-  let S := hfin.toFinset
-  -- Step 2: Each element of J is in some eigenspace (eigenspaces span J)
-  have hspan : ⨆ μ ∈ eigenvalueSet a, eigenspace a μ = ⊤ := eigenspaces_span a
-  -- Step 3: Construct spectral projections and show they form a CSOI
-  -- Step 4: Refine to primitive idempotents using csoi_refine_primitive
-  sorry
-
-/-- Spectral decomposition with Finset-indexed sum. -/
-theorem spectral_decomposition_finset [FinDimJordanAlgebra J] [FormallyRealTrace J]
-    [FormallyRealJordan J] (a : J) :
-    ∃ (S : Finset ℝ) (e : ℝ → J),
-      (∀ r ∈ S, IsIdempotent (e r)) ∧
-      (∀ r s, r ∈ S → s ∈ S → r ≠ s → AreOrthogonal (e r) (e s)) ∧
-      (∑ r ∈ S, e r = jone) ∧
-      (a = ∑ r ∈ S, r • e r) := by
-  obtain ⟨sd, _⟩ := spectral_decomposition_exists a
-  -- Convert Fin n-indexed to Finset-indexed
   sorry
 
 /-! ### Spectral Decomposition Properties -/
@@ -195,6 +162,118 @@ theorem spectral_decomp_eigenvalue_mem_spectrum {a : J} (sd : SpectralDecomp a)
     sd.eigenvalues j ∈ spectrum a := by
   rw [mem_spectrum_iff, isEigenvalue_iff_exists_eigenvector]
   exact ⟨sd.csoi.idem j, hne, spectral_decomp_jmul_idem sd j⟩
+
+/-! ### C(a) structure theorem and spectral decomposition -/
+
+/-- C(a) admits a CSOI where each idempotent is an eigenvector of L_a.
+    This follows from C(a) being a finite-dimensional commutative associative
+    formally real algebra (hence isomorphic to ℝⁿ). The minimal idempotents
+    of C(a) satisfy P₁(eᵢ) ∩ C(a) = ℝ·eᵢ, so jmul a eᵢ = λᵢ eᵢ. -/
+theorem generatedSubalgebra_spectral_csoi [FinDimJordanAlgebra J] [FormallyRealJordan J] (a : J) :
+    ∃ (k : ℕ) (c : CSOI J k) (coef : Fin k → ℝ),
+      (∀ i, c.idem i ≠ 0) ∧
+      (∀ i, jmul a (c.idem i) = coef i • c.idem i) := by
+  sorry
+
+/-- For a CSOI where each idempotent is an eigenvector of L_a,
+    L_a acts as scalar multiplication on each Peirce-1 space.
+    Key: for j ≠ i, c.idem j ∈ P₀(c.idem i), so jmul (c.idem j) x = 0
+    by peirce_mult_P0_P1. -/
+theorem csoi_eigenvector_peirce_one {n : ℕ} {a : J} (c : CSOI J n) (coef : Fin n → ℝ)
+    (heig : ∀ i, jmul a (c.idem i) = coef i • c.idem i)
+    {x : J} {i : Fin n} (hx : jmul (c.idem i) x = x) :
+    jmul a x = coef i • x := by
+  have hdecomp := spectral_decomp_of_eigenvector_csoi a c coef heig
+  calc jmul a x
+      = jmul (∑ j, coef j • c.idem j) x := by rw [hdecomp]
+    _ = ∑ j, coef j • jmul (c.idem j) x :=
+        sum_jmul Finset.univ c.idem coef x
+    _ = coef i • jmul (c.idem i) x +
+        ∑ j ∈ Finset.univ.erase i, coef j • jmul (c.idem j) x := by
+        rw [← Finset.add_sum_erase _ _ (Finset.mem_univ i)]
+    _ = coef i • x + 0 := by
+        congr 1
+        · rw [hx]
+        · apply Finset.sum_eq_zero; intro j hj
+          rw [Finset.mem_erase] at hj
+          rw [peirce_mult_P0_P1 (c.is_idem i)
+            (orthogonal_in_peirce_zero (c.orthog i j (Ne.symm hj.1)))
+            (by rw [mem_peirceSpace_one_iff]; exact hx), smul_zero]
+    _ = coef i • x := add_zero _
+
+/-- Every element in a finite-dimensional formally real Jordan algebra has
+    a spectral decomposition with primitive idempotents.
+
+    Proof: Get eigenvector-CSOI from C(a) structure theorem, decompose each
+    idempotent into J-primitives, show primitives inherit eigenvalues via
+    Peirce-1 membership, build combined CSOI with finSigmaFinEquiv. -/
+theorem spectral_decomposition_exists [FinDimJordanAlgebra J] [FormallyRealTrace J]
+    [FormallyRealJordan J] (a : J) :
+    ∃ sd : SpectralDecomp a, ∀ i, IsPrimitive (sd.csoi.idem i) := by
+  -- Step 1: Get spectral CSOI from C(a) structure theorem
+  obtain ⟨k, c, coef, hne, heig⟩ := generatedSubalgebra_spectral_csoi a
+  -- Step 2: Decompose each idempotent into primitives
+  choose m p hp hpo hps using fun i => exists_primitive_decomp (c.is_idem i) (hne i)
+  -- Step 3: Each primitive inherits the eigenvalue from its parent
+  have heig_p : ∀ i j, jmul a (p i j) = coef i • p i j := by
+    intro i j
+    apply csoi_eigenvector_peirce_one c coef heig
+    exact primitive_sum_sub_idem (hp i) (hpo i) (hps i) j
+  -- Step 4: Build combined CSOI (same pattern as csoi_refine_primitive)
+  let q : Fin (∑ i : Fin k, m i) → J :=
+    fun j => p (finSigmaFinEquiv.symm j).1 (finSigmaFinEquiv.symm j).2
+  let ev : Fin (∑ i : Fin k, m i) → ℝ :=
+    fun j => coef (finSigmaFinEquiv.symm j).1
+  -- Step 5: Decomposition equation: a = ∑ ev j • q j
+  have hdecomp : a = ∑ j, ev j • q j := by
+    -- First show ∑ j, ev j • q j = ∑ i, coef i • c.idem i
+    have hsigma : ∑ j, ev j • q j =
+        ∑ ij : (i : Fin k) × Fin (m i), coef ij.1 • p ij.1 ij.2 :=
+      Fintype.sum_equiv finSigmaFinEquiv.symm _ _ (fun _ => rfl)
+    have hreindex : ∑ ij : (i : Fin k) × Fin (m i), coef ij.1 • p ij.1 ij.2 =
+        ∑ i : Fin k, ∑ l : Fin (m i), coef i • p i l := by
+      rw [← Finset.univ_sigma_univ]; exact Finset.sum_sigma _ _ _
+    rw [hsigma, hreindex]
+    simp_rw [← Finset.smul_sum, ← hps]
+    exact spectral_decomp_of_eigenvector_csoi a c coef heig
+  -- Step 6: Construct the CSOI structure
+  have horthog : ∀ j₁ j₂ : Fin (∑ i : Fin k, m i), j₁ ≠ j₂ →
+      AreOrthogonal (q j₁) (q j₂) := by
+    intro j₁ j₂ hjne
+    show AreOrthogonal (p _ _) (p _ _)
+    have hne' : finSigmaFinEquiv.symm j₁ ≠ finSigmaFinEquiv.symm j₂ :=
+      fun h => hjne (finSigmaFinEquiv.symm.injective h)
+    rcases h₁ : finSigmaFinEquiv.symm j₁ with ⟨i₁, l₁⟩
+    rcases h₂ : finSigmaFinEquiv.symm j₂ with ⟨i₂, l₂⟩
+    rw [h₁, h₂] at hne'
+    by_cases hi : i₁ = i₂
+    · subst hi
+      exact hpo i₁ l₁ l₂ (fun h => hne' (Sigma.ext rfl (heq_of_eq h)))
+    · exact sub_idem_orthog_of_sum_orthog (c.is_idem i₁) (c.is_idem i₂)
+        (c.orthog i₁ i₂ hi)
+        (primitive_sum_sub_idem (hp i₁) (hpo i₁) (hps i₁) l₁)
+        (primitive_sum_sub_idem (hp i₂) (hpo i₂) (hps i₂) l₂)
+  have hcomplete : ∑ j, q j = jone := by
+    calc ∑ j, q j
+      _ = ∑ ij : (i : Fin k) × Fin (m i), p ij.1 ij.2 :=
+          Fintype.sum_equiv finSigmaFinEquiv.symm _ _ (fun _ => rfl)
+      _ = ∑ i : Fin k, ∑ l : Fin (m i), p i l := by
+          rw [← Finset.univ_sigma_univ]; exact Finset.sum_sigma _ _ _
+      _ = ∑ i, c.idem i := by simp_rw [← hps]
+      _ = jone := c.complete
+  exact ⟨⟨_, ev, ⟨q, fun j => (hp _ _).isIdempotent, horthog, hcomplete⟩, hdecomp⟩,
+    fun j => hp _ _⟩
+
+/-- Spectral decomposition with Finset-indexed sum. -/
+theorem spectral_decomposition_finset [FinDimJordanAlgebra J] [FormallyRealTrace J]
+    [FormallyRealJordan J] (a : J) :
+    ∃ (S : Finset ℝ) (e : ℝ → J),
+      (∀ r ∈ S, IsIdempotent (e r)) ∧
+      (∀ r s, r ∈ S → s ∈ S → r ≠ s → AreOrthogonal (e r) (e s)) ∧
+      (∑ r ∈ S, e r = jone) ∧
+      (a = ∑ r ∈ S, r • e r) := by
+  obtain ⟨sd, _⟩ := spectral_decomposition_exists a
+  sorry
 
 /-! ### Uniqueness Results -/
 
