@@ -165,15 +165,70 @@ theorem spectral_decomp_eigenvalue_mem_spectrum {a : J} (sd : SpectralDecomp a)
 
 /-! ### C(a) structure theorem and spectral decomposition -/
 
+/-- Elements of C(a) in distinct eigenspaces of L_a multiply to zero.
+    Uses associativity of C(a): jmul a (jmul x y) = μ·(jmul x y) and
+    jmul a (jmul x y) = ν·(jmul x y), so (μ - ν)·(jmul x y) = 0. -/
+theorem eigenspace_jmul_zero_in_ca (a : J) {x y : J} {μ ν : ℝ}
+    (hx_eig : jmul a x = μ • x) (hy_eig : jmul a y = ν • y)
+    (hx_ca : x ∈ generatedSubalgebra a) (hy_ca : y ∈ generatedSubalgebra a)
+    (hne : μ ≠ ν) : jmul x y = 0 := by
+  have h1 : jmul a (jmul x y) = μ • jmul x y := by
+    calc jmul a (jmul x y)
+        = jmul (jmul a x) y := (generatedSubalgebra_jmul_assoc a
+            (self_mem_generatedSubalgebra a) hx_ca hy_ca).symm
+      _ = jmul (μ • x) y := by rw [hx_eig]
+      _ = μ • jmul x y := by rw [jmul_smul]
+  have h2 : jmul a (jmul x y) = ν • jmul x y := by
+    calc jmul a (jmul x y)
+        = jmul (jmul x y) a := by rw [jmul_comm]
+      _ = jmul x (jmul y a) := generatedSubalgebra_jmul_assoc a
+            hx_ca hy_ca (self_mem_generatedSubalgebra a)
+      _ = jmul x (jmul a y) := by rw [jmul_comm y a]
+      _ = jmul x (ν • y) := by rw [hy_eig]
+      _ = ν • jmul x y := by rw [smul_jmul]
+  have h3 : (μ - ν) • jmul x y = 0 := by
+    rw [sub_smul]; exact sub_eq_zero.mpr (h1.symm.trans h2)
+  exact (smul_eq_zero.mp h3).resolve_left (sub_ne_zero.mpr hne)
+
+/-- Decomposition of jone into nonzero eigenspace components within C(a).
+    Each component is in C(a), is an eigenvector of L_a, eigenvalues are distinct.
+    Proof: eigenspace projections of L_a are polynomials in L_a; since C(a)
+    is L_a-invariant and (L_a)^n(1) = a^n ∈ C(a), each projection of 1 is in C(a). -/
+theorem jone_eigenspace_decomp_in_ca [FinDimJordanAlgebra J] [FormallyRealTrace J] (a : J) :
+    ∃ (k : ℕ) (e : Fin k → J) (μ : Fin k → ℝ),
+      (∀ i, e i ∈ generatedSubalgebra a) ∧
+      (∀ i, jmul a (e i) = μ i • e i) ∧
+      (∀ i, e i ≠ 0) ∧
+      Function.Injective μ ∧
+      (∑ i, e i = jone) := by
+  sorry
+
 /-- C(a) admits a CSOI where each idempotent is an eigenvector of L_a.
-    This follows from C(a) being a finite-dimensional commutative associative
-    formally real algebra (hence isomorphic to ℝⁿ). The minimal idempotents
-    of C(a) satisfy P₁(eᵢ) ∩ C(a) = ℝ·eᵢ, so jmul a eᵢ = λᵢ eᵢ. -/
-theorem generatedSubalgebra_spectral_csoi [FinDimJordanAlgebra J] [FormallyRealJordan J] (a : J) :
+    Given the eigenspace decomposition of jone within C(a), orthogonality follows from
+    eigenspace_jmul_zero_in_ca and idempotency from orthogonality + completeness. -/
+theorem generatedSubalgebra_spectral_csoi [FinDimJordanAlgebra J] [FormallyRealJordan J]
+    [FormallyRealTrace J] (a : J) :
     ∃ (k : ℕ) (c : CSOI J k) (coef : Fin k → ℝ),
       (∀ i, c.idem i ≠ 0) ∧
       (∀ i, jmul a (c.idem i) = coef i • c.idem i) := by
-  sorry
+  obtain ⟨k, e, μ, hca, heig, hne, hinj, hsum⟩ := jone_eigenspace_decomp_in_ca a
+  -- Orthogonality from eigenspace_jmul_zero_in_ca
+  have horth : ∀ i j, i ≠ j → AreOrthogonal (e i) (e j) := fun i j hij =>
+    eigenspace_jmul_zero_in_ca a (heig i) (heig j) (hca i) (hca j) (hinj.ne hij)
+  -- Idempotency: eᵢ = jmul eᵢ 1 = jmul eᵢ (∑ eⱼ) = jsq eᵢ (cross terms vanish)
+  have hidem : ∀ i, IsIdempotent (e i) := by
+    intro i; show jsq (e i) = e i; rw [jsq_def]; symm
+    calc e i = jmul (e i) jone := (jmul_jone _).symm
+      _ = jmul (e i) (∑ j, e j) := by rw [hsum]
+      _ = ∑ j, jmul (e i) (e j) := by
+          simp only [← L_apply]; exact map_sum _ _ _
+      _ = jmul (e i) (e i) := by
+          rw [← Finset.add_sum_erase _ _ (Finset.mem_univ i)]
+          have : ∑ j ∈ Finset.univ.erase i, jmul (e i) (e j) = 0 :=
+            Finset.sum_eq_zero fun j hj => by
+              rw [Finset.mem_erase] at hj; exact horth i j hj.1.symm
+          rw [this, add_zero]
+  exact ⟨k, ⟨e, hidem, horth, hsum⟩, μ, hne, heig⟩
 
 /-- For a CSOI where each idempotent is an eigenvector of L_a,
     L_a acts as scalar multiplication on each Peirce-1 space.
