@@ -113,12 +113,6 @@ theorem jmul_generator_idem_in_peirce_one (a : J) {e : J}
     _ = jmul a (jmul e e) := h2
     _ = jmul a e := by rw [← jsq_def, he_idem.jsq_eq_self]
 
-/-- For each eigenvalue, we can construct an orthogonal projection onto the eigenspace. -/
-theorem spectral_projection_exists [FinDimJordanAlgebra J] [JordanTrace J] [FormallyRealJordan J]
-    (a : J) (μ : ℝ) (hμ : μ ∈ eigenvalueSet a) :
-    ∃ e : J, IsIdempotent e ∧ (∀ v, v ∈ eigenspace a μ ↔ jmul e v = v) := by
-  sorry
-
 /-! ### Spectral Decomposition Properties -/
 
 /-- jmul distributes over finite sums on the left. -/

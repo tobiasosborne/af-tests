@@ -16,8 +16,58 @@ The theorem is now fully proved. Key techniques:
 4. **Membership/nonzero/sum**: Extract from `Finset.mem_filter` via `(ψ i).prop`;
    sum reindexed via `Fintype.sum_equiv ψ` + `Finset.sum_coe_sort`.
 
-**Build status**: PASSES (12 sorry's, down from 18)
-**Sorries**: 18 → 12 (filled 6 in jone_eigenspace_decomp_in_ca)
+Also deleted dead `spectral_projection_exists` (unused, sorry'd).
+
+**Build status**: PASSES
+**Sorries**: 18 → 11
+
+---
+
+## REMAINING SORRY's (11 total, 7 files)
+
+### SpectralTheorem.lean (3 sorry's) — all MEDIUM, ~15-25 LOC each
+
+| Line | Theorem | Difficulty | Approach |
+|------|---------|-----------|----------|
+| 396 | `spectral_decomposition_finset` | Medium ~20 LOC | Group `sd.eigenvalues` by value via `Finset.image`, define `e μ = ∑ {i \| ev i = μ} csoi.idem i`. Prove idempotent (sum of orthog idems), orthogonal (cross-group), complete (regroup), decomp (regroup with scalars). Same pattern as `jone_eigenspace_decomp_in_ca` grouping. |
+| 405 | `spectrum_eq_eigenvalueSet` | Medium ~20 LOC | (⊆): `spectral_decomp_eigenvalue_mem_spectrum` already proved. (⊇): Given eigenvector v with L_a v = μv, expand v in CSOI basis, show μ must equal some coef_i. |
+| 483 | `sq_eigenvalues_nonneg` | Medium ~15 LOC | Use trace inner product: `λ_i ⟨eᵢ,eᵢ⟩ = ⟨a²∘eᵢ,eᵢ⟩ = ⟨a∘eᵢ,a∘eᵢ⟩ ≥ 0` by self-adjointness of L_a. Or: use `spectral_sq` to get decomp with squared eigenvalues, then needs uniqueness. Direct trace approach is cleaner. |
+
+### FundamentalFormula.lean (1 sorry) — HARD
+
+| Line | Theorem | Difficulty | Approach |
+|------|---------|-----------|----------|
+| 259 | `fundamental_formula` | Hard ~200+ LOC | Needs Macdonald's theorem (H-O 2.4.13). Major formalization. |
+
+### FormallyReal/ (4 sorry's)
+
+| File:Line | Theorem | Difficulty | Approach |
+|-----------|---------|-----------|----------|
+| Def.lean:75,80 | `of_sq_eq_zero` | Accepted gap | Circular dependency, intentionally sorry'd. |
+| Square.lean:102 | `isPositiveSqrt_unique` | Easy ~10 LOC | Needs `spectrum_eq_eigenvalueSet`. Then spectral decomps of both roots must match. |
+| Square.lean:118 | `HasPositiveSqrt.of_positiveElement` | Easy ~15 LOC | Apply spectral decomp, take sqrt of eigenvalues (all ≥ 0 for positive element). |
+
+### FormallyReal/Spectrum.lean (1 sorry)
+
+| Line | Theorem | Difficulty | Approach |
+|------|---------|-----------|----------|
+| 146 | `spectral_sq_eigenvalues_nonneg` | Easy ~5 LOC | Directly from `sq_eigenvalues_nonneg` once that's filled. |
+
+### Classification/ (2 sorry's)
+
+| File:Line | Theorem | Difficulty | Approach |
+|-----------|---------|-----------|----------|
+| RealSymmetric.lean:81 | `isSimple` | Hard ~170 LOC | Needs matrix units theory. |
+| ComplexHermitian.lean:78 | `isSimple` | Hard ~170 LOC | Depends on RealSymmetric. |
+
+### Recommended next session priority
+
+1. **`spectral_decomposition_finset`** — Finset repackaging, same grouping pattern we just used
+2. **`sq_eigenvalues_nonneg`** — trace inner product argument, self-contained
+3. **`spectrum_eq_eigenvalueSet`** — both directions straightforward with existing lemmas
+4. These three unblock the Square.lean and Spectrum.lean sorry's (4 more easy fills)
+
+**Critical path**: SpectralTheorem.lean sorry's → Square.lean sorry's → done with Ch 3.1-3.2
 
 ---
 
