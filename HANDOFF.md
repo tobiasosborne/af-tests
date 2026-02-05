@@ -1,6 +1,50 @@
-# Handoff: 2026-02-05 (Session 90)
+# Handoff: 2026-02-05 (Session 91)
 
 ## This Session
+
+### WIP: jone_eigenspace_decomp_in_ca proof structure (~60 LOC, 5 sorry)
+
+Implemented the proof architecture for `jone_eigenspace_decomp_in_ca` at SpectralTheorem.lean:204.
+The overall structure compiles with 5 remaining sorry's — all are straightforward coercion/linearity steps.
+
+**What's done (compiles):**
+- Inner product setup from FormallyRealTrace
+- L_a restricted to C(a) via `LinearMap.restrict`
+- Eigenvector basis on C(a) via `IsSymmetric.eigenvectorBasis`
+- `hrepr_J`: jone = ∑ c_i • ↑(b_i) via `sum_repr'` + `congr_arg Subtype.val`
+- `hg_sum`: grouping by eigenvalue via `Finset.sum_fiberwise_of_maps_to`
+- `hg_mem`: each group is in C(a) via `Submodule.sum_mem`
+- `hg_sum'`: filtering nonzero groups via `Finset.sum_subset`
+- Reindexing to Fin k via `Fintype.equivFinOfCardEq`
+- Injectivity of eigenvalues via `ψ.injective ∘ Subtype.ext`
+
+**5 sorry's remaining (all mechanical):**
+
+1. **`hSym` (line 217)**: La_Ca is symmetric. Need to show inner product on submodule
+   equals ambient inner product of coercions, then use `traceInner_jmul_left`.
+   Key issue: relating `@inner ℝ Ca _` to `@inner ℝ J _` via coercions.
+   Try: `change @inner ℝ J _ ...` or use `Submodule.inner_coe` if it exists.
+
+2. **`hb_eig_J` (line 227)**: `jmul a ↑(b i) = ev i • ↑(b i)`. Have
+   `congr_arg Subtype.val (apply_eigenvectorBasis ...)` giving something in Ca,
+   need to simplify `↑(La_Ca (b i)) = L a ↑(b i)` and `↑(ev i • b i) = ev i • ↑(b i)`.
+   Try `simp only [LinearMap.restrict_coe_apply, Submodule.coe_smul, RCLike.ofReal_real_eq_id]`.
+
+3. **`hg_eig` (line 244)**: `jmul a (g μ) = μ • g μ`. Distribute jmul a over sum
+   (use `← L_apply, map_sum, map_smul, L_apply`), apply `hb_eig_J`, then use
+   `ev i = μ` from filter membership to replace, and `smul_comm` + `Finset.smul_sum`.
+
+4. **Membership goal (line 260)**: `(ψ i).val ∈ S` — extract from `(ψ i).2 : (ψ i) ∈ S'`
+   using `Finset.mem_of_mem_filter`.
+
+5. **Nonzero + sum goals (lines 261, 263)**: Extract from filter membership and
+   use `Fintype.sum_equiv ψ` + `Finset.sum_coe_sort`.
+
+**Build status**: COMPILES (5 sorry in jone_eigenspace_decomp_in_ca, 13 pre-existing)
+
+---
+
+## Previous Session (90)
 
 ### Analysis of jone_eigenspace_decomp_in_ca proof approach (no code changes)
 
