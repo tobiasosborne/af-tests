@@ -8,10 +8,19 @@
 - `print_spectrum_summary(results)` for formatted output
 - j=11 with 4 threads: 2048 sectors processed (1042 full diag, 1006 Lanczos)
 
-**Known issue**: j≥4 shows negative energies - physics/normalization bug in Hamiltonian, not parallelization.
+## ⚠️ CRITICAL: j must be ODD
 
-**Next**: Debug j≥4 negative eigenvalues OR proceed to Phase 5 (symmetry exploitation).
-See `SYMMETRY_IMPLEMENTATION_PLAN.md` for full plan.
+**The BLM model is only defined for odd j (j = 1, 3, 5, 7, 9, 11, ...).**
+
+From `paper/Draft.tex` (line 948-950), fermion pairs couple to angular momentum:
+```
+ℓ = 1, 3, ..., 2j-1  (odd values only)
+```
+
+The Hamiltonian uses O_{j,m} which projects onto ℓ = j. For fermion antisymmetry,
+ℓ must be odd, so **j must be odd**. Even j values give unphysical negative energies.
+
+**Next**: Phase 5 (symmetry exploitation) - see `SYMMETRY_IMPLEMENTATION_PLAN.md`.
 
 ## What's Done
 
@@ -21,7 +30,7 @@ See `SYMMETRY_IMPLEMENTATION_PLAN.md` for full plan.
 - **Fast sector sizing**: DP-based all_sector_dimensions() for planning
 - **Parallel diagonalization**: `parallel_ground_states(j)` with thread-safe progress
 - **ITensor DMRG**: Ground state finder, MPO construction with (Nf, J₃) QN
-- **Validation**: Hermiticity, H≥0, vacuum energy, BPS count = 2×3^j (j≤3)
+- **Validation**: Hermiticity, H≥0, vacuum energy, BPS count = 2×3^j (odd j only)
 
 ## Current Scaling
 
@@ -35,6 +44,7 @@ See `SYMMETRY_IMPLEMENTATION_PLAN.md` for full plan.
 
 | File | What it does |
 |------|--------------|
+| `paper/Draft.tex` | **Theory paper** — Hamiltonian derivation, BPS states |
 | `numerics/src/fock.jl` | Fock basis, c†/c operators |
 | `numerics/src/hamiltonian.jl` | H via Wigner 3j |
 | `numerics/src/exact_diag.jl` | Legacy sector-resolved ED |
@@ -62,13 +72,7 @@ println("BPS states: ", count(e -> abs(e) < 1e-6, evals))
 
 ## Next Steps
 
-### Option A: Debug j≥4 negative eigenvalues
-The Hamiltonian gives negative energies for j≥4, violating H≥0. Check:
-- Wigner 3j symbol signs/phases
-- Operator ordering in quartic terms
-- Normalization factors
-
-### Option B: Phase 5 - SU(2) symmetry exploitation
+### Phase 5 - SU(2) symmetry exploitation
 Use J² block decomposition for additional speedup (see SYMMETRY_IMPLEMENTATION_PLAN.md).
 
 ### Usage (Phase 4)
@@ -85,10 +89,13 @@ results = parallel_ground_states(11; full_diag_threshold=500, nev=10)
 
 ## Physics Notes
 
+**Reference**: `paper/Draft.tex` — full theory and derivations
+
 - BPS states at R = ±1/6 (n = j and n = j+1 fermions)
-- BPS count 2×3^j confirmed numerically through j=9
-- j=11 BPS sector (n=11, j3=0): ~5 BPS states found in first 10 eigenvalues
-- Spectrum has only 4 distinct energy levels for j=3 (single Haldane pseudopotential)
+- BPS count = 2×3^j confirmed numerically for odd j (j=3,5,7,9,11)
+- Hamiltonian: H = (J/3)[(2j+1) - 3(N_ψ + j + ½) + 3 Σ_m O†_{j,m} O_{j,m}]
+- O_{ℓ,m} projects fermion pairs onto angular momentum ℓ (odd ℓ only for fermions)
+- Single Haldane pseudopotential model (ℓ = j channel only)
 
 ## Dependencies
 
