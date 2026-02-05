@@ -1,14 +1,16 @@
 # HANDOFF: BLM Model Numerical Work
 
-## Status: Phases 1-3 complete, j=11 working
+## Status: Phases 1-4 complete
 
 **Latest**:
-- Phase 3: KrylovKit Lanczos integration for large sectors
-- Fast sector dimension computation via DP (instant for j=11+)
-- j=11 largest sector (dim=32540) builds in 6s, Lanczos in ~80s
-- Note: Lanczos finds ground state accurately but may miss degenerate copies (use full diag for BPS counting)
+- Phase 4: Parallel sector diagonalization via `Threads.@threads`
+- `parallel_ground_states(j)` diagonalizes all (n, j3) sectors in parallel
+- `print_spectrum_summary(results)` for formatted output
+- j=11 with 4 threads: 2048 sectors processed (1042 full diag, 1006 Lanczos)
 
-**Next**: Phase 4 (parallel sector diagonalization) for full j=11 spectrum.
+**Known issue**: j≥4 shows negative energies - physics/normalization bug in Hamiltonian, not parallelization.
+
+**Next**: Debug j≥4 negative eigenvalues OR proceed to Phase 5 (symmetry exploitation).
 See `SYMMETRY_IMPLEMENTATION_PLAN.md` for full plan.
 
 ## What's Done
@@ -17,8 +19,9 @@ See `SYMMETRY_IMPLEMENTATION_PLAN.md` for full plan.
 - **Direct sector construction**: Builds sector H without full Hilbert space
 - **KrylovKit Lanczos**: Iterative eigensolver for large sectors (dim > 500)
 - **Fast sector sizing**: DP-based all_sector_dimensions() for planning
+- **Parallel diagonalization**: `parallel_ground_states(j)` with thread-safe progress
 - **ITensor DMRG**: Ground state finder, MPO construction with (Nf, J₃) QN
-- **Validation**: Hermiticity, H≥0, vacuum energy, BPS count = 2×3^j
+- **Validation**: Hermiticity, H≥0, vacuum energy, BPS count = 2×3^j (j≤3)
 
 ## Current Scaling
 
@@ -35,8 +38,9 @@ See `SYMMETRY_IMPLEMENTATION_PLAN.md` for full plan.
 | `numerics/src/fock.jl` | Fock basis, c†/c operators |
 | `numerics/src/hamiltonian.jl` | H via Wigner 3j |
 | `numerics/src/exact_diag.jl` | Legacy sector-resolved ED |
-| `numerics/src/sector_ed.jl` | Direct sector construction + Lanczos (Phase 2-3) |
+| `numerics/src/sector_ed.jl` | Direct sector + Lanczos + parallel (Phase 2-4) |
 | `numerics/src/itensor_dmrg.jl` | MPO + DMRG with QN conservation |
+| `numerics/run_parallel_ed.jl` | Phase 4 test script |
 
 ## Running
 
@@ -56,31 +60,27 @@ println("BPS states: ", count(e -> abs(e) < 1e-6, evals))
 '
 ```
 
-## Next Steps (Phase 4)
+## Next Steps
 
-### Parallel sector diagonalization
+### Option A: Debug j≥4 negative eigenvalues
+The Hamiltonian gives negative energies for j≥4, violating H≥0. Check:
+- Wigner 3j symbol signs/phases
+- Operator ordering in quartic terms
+- Normalization factors
+
+### Option B: Phase 5 - SU(2) symmetry exploitation
+Use J² block decomposition for additional speedup (see SYMMETRY_IMPLEMENTATION_PLAN.md).
+
+### Usage (Phase 4)
 ```julia
-# In sector_ed.jl or new parallel_ed.jl
-function parallel_ground_states(j::Int; J_coupling=1.0)
-    sectors = all_sector_dimensions(j)
-    wigner_cache = precompute_wigner_cache(j)
+include("src/sector_ed.jl")
 
-    results = Vector{NamedTuple}(undef, length(sectors))
-    sector_list = collect(sectors)
+# Full j=7 spectrum
+results = parallel_ground_states(7; full_diag_threshold=500, nev=10)
+print_spectrum_summary(results)
 
-    Threads.@threads for i in eachindex(sector_list)
-        (n, j3), dim = sector_list[i]
-        H, _ = build_sector_hamiltonian(j, n, j3; wigner_cache=wigner_cache)
-        if dim < 500
-            E_min = eigvals(Hermitian(Matrix(H)))[1]
-        else
-            E_min, _, _ = lowest_eigenvalues_lanczos(H, 1)
-            E_min = E_min[1]
-        end
-        results[i] = (n=n, j3=j3, dim=dim, E_min=E_min)
-    end
-    return results
-end
+# j=11 ground state search (4+ threads recommended)
+results = parallel_ground_states(11; full_diag_threshold=500, nev=10)
 ```
 
 ## Physics Notes

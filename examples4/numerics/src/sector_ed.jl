@@ -475,6 +475,166 @@ function diag_all_sectors(j::Int; J_coupling::Float64=1.0, verbose::Bool=true)
 end
 
 #==========================================================================
+  Phase 4: Parallel Sector Diagonalization
+==========================================================================#
+
+"""
+    parallel_ground_states(j; J_coupling=1.0, full_diag_threshold=500, nev=10, verbose=true)
+
+Diagonalize all sectors in parallel using Julia threads.
+Returns vector of NamedTuples: (n, j3, dim, E_min, n_bps, evals)
+
+For full spectrum analysis, use full_diag_threshold > largest_sector_dim.
+For ground state search, use Lanczos (default threshold=500).
+
+Note: Lanczos may miss degenerate states; for exact BPS counting use full diag.
+"""
+function parallel_ground_states(j::Int;
+                                 J_coupling::Float64=1.0,
+                                 full_diag_threshold::Int=500,
+                                 nev::Int=10,
+                                 verbose::Bool=true)
+    # Get all sector dimensions (instant via DP)
+    sectors = all_sector_dimensions(j)
+    sector_list = collect(sectors)
+    n_sectors = length(sector_list)
+
+    if verbose
+        total_dim = sum(values(sectors))
+        max_dim = maximum(values(sectors))
+        large_count = count(d -> d > full_diag_threshold, values(sectors))
+        println("j=$j: $n_sectors sectors, total dim=$total_dim, max sector=$max_dim")
+        println("  Full diag: $(n_sectors - large_count) sectors (dim ≤ $full_diag_threshold)")
+        println("  Lanczos: $large_count sectors (dim > $full_diag_threshold)")
+        println("  Using $(Threads.nthreads()) threads")
+    end
+
+    # Precompute Wigner cache (shared, read-only across threads)
+    wigner_cache = precompute_wigner_cache(j)
+
+    # Results array (pre-allocated for thread safety)
+    results = Vector{NamedTuple{(:n, :j3, :dim, :E_min, :n_bps, :evals),
+                                 Tuple{Int, Int, Int, Float64, Int, Vector{Float64}}}}(undef, n_sectors)
+
+    # Progress tracking (atomic counter for thread-safe updates)
+    completed = Threads.Atomic{Int}(0)
+    start_time = time()
+
+    Threads.@threads for i in eachindex(sector_list)
+        (n, j3), dim = sector_list[i]
+
+        # Build sector Hamiltonian
+        H, _ = build_sector_hamiltonian(j, n, j3;
+                                        J_coupling=J_coupling,
+                                        wigner_cache=wigner_cache)
+
+        # Diagonalize based on sector size
+        if dim == 0
+            evals = Float64[]
+        elseif dim <= full_diag_threshold
+            # Full diagonalization for small sectors
+            evals = sort(real.(eigvals(Hermitian(Matrix(H)))))
+        else
+            # Lanczos for large sectors
+            evals, _, _ = lowest_eigenvalues_lanczos(H, nev)
+        end
+
+        # Compute results
+        E_min = isempty(evals) ? Inf : evals[1]
+        n_bps = count(e -> abs(e) < 1e-6, evals)
+
+        results[i] = (n=n, j3=j3, dim=dim, E_min=E_min, n_bps=n_bps, evals=evals)
+
+        # Progress update
+        done = Threads.atomic_add!(completed, 1)
+        if verbose && (done % max(1, n_sectors ÷ 10) == 0 || done == n_sectors)
+            elapsed = time() - start_time
+            @printf("  Progress: %d/%d sectors (%.1fs)\n", done, n_sectors, elapsed)
+        end
+    end
+
+    if verbose
+        elapsed = time() - start_time
+        total_bps = sum(r.n_bps for r in results)
+        println("Completed in $(round(elapsed, digits=1))s, total BPS found: $total_bps")
+    end
+
+    return results
+end
+
+"""
+    collect_spectrum(results; bps_threshold=1e-6)
+
+Aggregate results from parallel_ground_states into spectrum summary.
+Returns NamedTuple with ground_states, bps_states, energy_histogram, etc.
+"""
+function collect_spectrum(results::Vector; bps_threshold::Float64=1e-6)
+    # Ground states per sector
+    ground_states = [(r.n, r.j3, r.E_min) for r in results if !isinf(r.E_min)]
+    sort!(ground_states, by=x->x[3])
+
+    # BPS states (E ≈ 0)
+    bps_states = [(r.n, r.j3, r.n_bps) for r in results if r.n_bps > 0]
+    total_bps = sum(r.n_bps for r in results)
+
+    # All eigenvalues (from full diag sectors only for accuracy)
+    all_evals = Float64[]
+    for r in results
+        append!(all_evals, r.evals)
+    end
+    sort!(all_evals)
+
+    # Global ground state
+    E_ground = isempty(ground_states) ? Inf : ground_states[1][3]
+
+    return (
+        ground_states = ground_states,
+        bps_states = bps_states,
+        total_bps = total_bps,
+        E_ground = E_ground,
+        all_evals = all_evals,
+        n_sectors = length(results),
+        total_states = sum(r.dim for r in results)
+    )
+end
+
+"""
+    print_spectrum_summary(results; max_show=20)
+
+Print formatted summary of parallel diagonalization results.
+"""
+function print_spectrum_summary(results::Vector; max_show::Int=20)
+    spec = collect_spectrum(results)
+
+    println("\n" * "="^60)
+    println("SPECTRUM SUMMARY")
+    println("="^60)
+
+    @printf("Total sectors: %d\n", spec.n_sectors)
+    @printf("Total Hilbert space dimension: %d\n", spec.total_states)
+    @printf("Global ground state energy: %.10f\n", spec.E_ground)
+    @printf("Total BPS states (E < 1e-6): %d\n", spec.total_bps)
+
+    if !isempty(spec.bps_states)
+        println("\nBPS states by sector:")
+        for (n, j3, count) in sort(spec.bps_states, by=x->-x[3])[1:min(max_show, length(spec.bps_states))]
+            @printf("  (n=%2d, j3=%3d): %d BPS states\n", n, j3, count)
+        end
+    end
+
+    # Energy level statistics
+    if length(spec.all_evals) > 0
+        unique_E = unique(round.(spec.all_evals, digits=8))
+        println("\nEnergy statistics:")
+        @printf("  Eigenvalues computed: %d\n", length(spec.all_evals))
+        @printf("  Distinct energy levels: %d\n", length(unique_E))
+        @printf("  Energy range: [%.6f, %.6f]\n", minimum(spec.all_evals), maximum(spec.all_evals))
+    end
+
+    println("="^60)
+end
+
+#==========================================================================
   Validation: Compare with full H extraction
 ==========================================================================#
 
