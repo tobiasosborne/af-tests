@@ -7,6 +7,7 @@ import AfTests.Jordan.Eigenspace
 import AfTests.Jordan.Primitive
 import AfTests.Jordan.FormallyReal.Spectrum
 import AfTests.Jordan.TraceInnerProduct
+import AfTests.Jordan.Subalgebra
 import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 import Mathlib.Analysis.InnerProductSpace.Spectrum
 
@@ -94,6 +95,23 @@ theorem spectral_decomp_of_eigenvector_csoi {n : ℕ} (a : J) (c : CSOI J n) (co
     _ = ∑ i, (1 : ℝ) • jmul a (c.idem i) := jmul_sum Finset.univ a (fun _ => 1) c.idem
     _ = ∑ i, jmul a (c.idem i) := by simp
     _ = ∑ i, coef i • c.idem i := by simp only [heig]
+
+/-! ### C(a) idempotent eigenvector lemma -/
+
+/-- For idempotent e ∈ C(a), we have jmul a e ∈ P₁(e).
+    Key step: associativity in C(a) gives jmul e (jmul a e) = jmul a (jmul e e) = jmul a e. -/
+theorem jmul_generator_idem_in_peirce_one (a : J) {e : J}
+    (he_idem : IsIdempotent e) (he_mem : e ∈ generatedSubalgebra a) :
+    jmul a e ∈ PeirceSpace e 1 := by
+  rw [mem_peirceSpace_one_iff]
+  -- Use associativity in C(a): jmul e (jmul a e) = jmul (jmul e a) e = jmul a (jmul e e)
+  have h1 : jmul e (jmul a e) = jmul (jmul e a) e :=
+    generatedSubalgebra_jmul_assoc a he_mem (self_mem_generatedSubalgebra a) he_mem
+  have h2 : jmul (jmul e a) e = jmul a (jmul e e) :=
+    generatedSubalgebra_jmul_assoc a (self_mem_generatedSubalgebra a) he_mem he_mem
+  calc jmul e (jmul a e) = jmul (jmul e a) e := h1
+    _ = jmul a (jmul e e) := by rw [jmul_comm e a]; exact h2
+    _ = jmul a e := by rw [← jsq_def, he_idem.jsq_eq_self]
 
 /-- For each eigenvalue, we can construct an orthogonal projection onto the eigenspace. -/
 theorem spectral_projection_exists [FinDimJordanAlgebra J] [JordanTrace J] [FormallyRealJordan J]

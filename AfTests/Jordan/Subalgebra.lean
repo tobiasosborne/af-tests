@@ -189,4 +189,18 @@ theorem generatedSubalgebra_jmul_assoc (a : J) {x y z : J}
   | add s t _ _ ihs iht => rw [jmul_add, jmul_add, ihs, iht, ← jmul_add]
   | smul r s _ ihs => simp only [smul_jmul, ihs]
 
+/-- The generator a is in C(a). -/
+theorem generator_mem_generatedSubalgebra (a : J) : a ∈ generatedSubalgebra a :=
+  self_mem_generatedSubalgebra a
+
+/-- For x ∈ C(a), we have jmul a x ∈ C(a). -/
+theorem jmul_generator_mem (a : J) {x : J} (hx : x ∈ generatedSubalgebra a) :
+    jmul a x ∈ generatedSubalgebra a :=
+  (generatedSubalgebra a).jmul_mem (self_mem_generatedSubalgebra a) hx
+
+/-- For x ∈ C(a), we have jmul x a ∈ C(a). -/
+theorem jmul_generator_mem' (a : J) {x : J} (hx : x ∈ generatedSubalgebra a) :
+    jmul x a ∈ generatedSubalgebra a := by
+  rw [jmul_comm]; exact jmul_generator_mem a hx
+
 end JordanAlgebra

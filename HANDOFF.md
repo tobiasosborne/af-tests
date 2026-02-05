@@ -1,6 +1,31 @@
-# Handoff: 2026-02-05 (Session 86)
+# Handoff: 2026-02-05 (Session 87)
 
 ## This Session
+
+### Added eigenvector lemma for C(a) idempotents (~25 LOC)
+
+Step 6 toward spectral decomposition: show idempotents in C(a) are eigenvectors of L_a.
+
+**Added to Subalgebra.lean (192-206)**:
+- `generator_mem_generatedSubalgebra` - a ∈ C(a)
+- `jmul_generator_mem` - for x ∈ C(a), jmul a x ∈ C(a)
+- `jmul_generator_mem'` - for x ∈ C(a), jmul x a ∈ C(a)
+
+**Added to SpectralTheorem.lean (99-115)**:
+- `jmul_generator_idem_in_peirce_one` - For idempotent e ∈ C(a), jmul a e ∈ P₁(e)
+  - Key: associativity in C(a) gives jmul e (jmul a e) = jmul a (jmul e e) = jmul a e
+  - Import of Subalgebra.lean added
+
+**Why this matters**: For a PRIMITIVE idempotent e in C(a), P₁(e) = ℝ·e (1-dimensional).
+So jmul a e ∈ ℝ·e, making e an eigenvector of L_a.
+
+**Build status**: Needs `lake build` verification (lake clean was run, full rebuild needed).
+
+**Sorries**: 13 (unchanged)
+
+---
+
+## Previous Session (86)
 
 ### Added C(a) associativity (Subalgebra.lean:152-191, ~40 LOC)
 
@@ -42,20 +67,18 @@ Next steps to prove `spectral_decomposition_exists`:
 3. ~~Show C(a) is associative~~ ✓ DONE (Session 86) - `generatedSubalgebra_jmul_assoc`
 4. Apply Artinian structure theorem: C(a) ≅ ℝⁿ
 5. Extract minimal idempotents → form CSOI
-6. Show idempotents are eigenvectors of L_a
+6. ~~Show idempotents in C(a) are eigenvectors~~ ✓ PARTIALLY DONE (Session 87) - `jmul_generator_idem_in_peirce_one`
 7. Apply `spectral_decomp_of_eigenvector_csoi`
 
-**Next concrete step**: Step 4 - show C(a) ≅ ℝⁿ. This requires:
-- C(a) is finite-dimensional ✓
-- C(a) is commutative ✓ (jmul_comm)
-- C(a) is associative ✓ (generatedSubalgebra_jmul_assoc)
-- C(a) is reduced (no nilpotents) ✓ (formal reality)
-- Then Wedderburn theory: finite-dim commutative associative reduced algebra ≅ ℝⁿ
+**Key insight (Session 87)**: For idempotent e ∈ C(a):
+- `jmul_generator_idem_in_peirce_one` shows jmul a e ∈ P₁(e)
+- For PRIMITIVE idempotent e, P₁(e) = ℝ·e by `primitive_peirce_one_dim_one`
+- Therefore jmul a e = λ·e for some λ ∈ ℝ → e is eigenvector of L_a
 
-**Options for Step 4**:
-1. Build CommRing instance for C(a) and use mathlib's Artinian theory
-2. Direct construction: find minimal idempotents via formal reality arguments
-3. Use that C(a) has a basis of orthogonal idempotents (finite-dim semisimple)
+**Next concrete step**: Show primitives in C(a) are eigenvectors of L_a
+- Need: If e ∈ C(a) is primitive, then P₁(e) ∩ C(a) = ℝ·e
+- Then: jmul a e ∈ P₁(e) ∩ C(a) = ℝ·e → eigenvector
+- Alternatively: primitives of C(a) may not be primitives of J, need separate argument
 
 ---
 
