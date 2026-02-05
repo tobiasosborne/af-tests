@@ -2,10 +2,11 @@
 
 ## Status: Phases 1-3 complete, j=11 working
 
-**Completed this session**:
+**Latest**:
 - Phase 3: KrylovKit Lanczos integration for large sectors
 - Fast sector dimension computation via DP (instant for j=11+)
 - j=11 largest sector (dim=32540) builds in 6s, Lanczos in ~80s
+- Note: Lanczos finds ground state accurately but may miss degenerate copies (use full diag for BPS counting)
 
 **Next**: Phase 4 (parallel sector diagonalization) for full j=11 spectrum.
 See `SYMMETRY_IMPLEMENTATION_PLAN.md` for full plan.
