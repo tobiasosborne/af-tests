@@ -1,6 +1,27 @@
-# Handoff: 2026-02-05 (Session 91)
+# Handoff: 2026-02-05 (Session 92)
 
 ## This Session
+
+### FILLED: jone_eigenspace_decomp_in_ca — all 6 sorry's resolved
+
+Filled all remaining sorry's in `jone_eigenspace_decomp_in_ca` (SpectralTheorem.lean:197-278).
+The theorem is now fully proved. Key techniques:
+
+1. **hSym** (La_Ca symmetric): `Submodule.coe_inner` + `restrict_coe_apply` reduce to ambient
+   inner product, then `traceInner_jmul_left`.
+2. **hb_eig_J** (eigenvector coercion): `congr_arg Subtype.val` on `apply_eigenvectorBasis`,
+   then `simp` with `restrict_coe_apply`, `coe_smul`, `RCLike.ofReal_real_eq_id`.
+3. **hg_eig** (grouped eigenvector): distribute L_a via `simp [← L_apply, Finset.smul_sum]`,
+   then use filter membership for `ev i = μ` and `smul_comm`.
+4. **Membership/nonzero/sum**: Extract from `Finset.mem_filter` via `(ψ i).prop`;
+   sum reindexed via `Fintype.sum_equiv ψ` + `Finset.sum_coe_sort`.
+
+**Build status**: PASSES (12 sorry's, down from 18)
+**Sorries**: 18 → 12 (filled 6 in jone_eigenspace_decomp_in_ca)
+
+---
+
+## Previous Session (91)
 
 ### WIP: jone_eigenspace_decomp_in_ca proof structure (~60 LOC, 5 sorry)
 
