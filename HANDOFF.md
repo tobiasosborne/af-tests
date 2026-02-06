@@ -1,30 +1,26 @@
-# Handoff: 2026-02-06 (Session 100)
+# Handoff: 2026-02-06 (Session 101)
 
 ## This Session
 
-### Proved HasPositiveSqrt.of_positiveElement, sorries 7 → 6
+### Deleted `of_sq_eq_zero` sorry — not a real gap, sorries 6 → 5
 
-Filled the `HasPositiveSqrt.of_positiveElement` sorry in FormallyReal/Square.lean (~40 LOC).
+Deleted `of_sq_eq_zero`, `formallyReal_iff_sq_eq_zero_imp_zero`, and `FormallyRealJordan'`
+from `FormallyReal/Def.lean`. These tried to prove that the single-element property
+(`a² = 0 ⟹ a = 0`) implies the sum-of-squares property. H-O never proves this direction
+— H-O *defines* formally real as the sum-of-squares property (2.9.1) and derives the
+single-element property as a corollary (2.9.4(i)). The reverse requires spectral theory and
+is not needed: all concrete types prove `FormallyRealJordan` directly.
 
-**Proof (H-O 3.1.4/3.2.4)**: Given positive `a` with spectral decomposition `a = ∑ λᵢ eᵢ`:
-1. Show `λᵢ ≥ 0` (new `positive_eigenvalues_nonneg`)
-2. Define `b = ∑ √λᵢ • eᵢ`, then `b² = a` by `jsq_sum_orthog_idem` + `Real.sq_sqrt`
-3. Show `b` is positive: `b = jsq(∑ ⁴√λᵢ • eᵢ)` by same argument
+Closed `af-tpm2`. Updated comments in `Quaternion/FormallyReal.lean` and
+`SpinFactor/FormallyReal.lean` that referenced the deleted sorry.
 
-**Two helper lemmas added to Square.lean:**
-- `traceInner_positive_idem_nonneg` — trace inner product of positive element with idempotent ≥ 0
-  - Distributes over sum-of-squares: each `traceInner(xⱼ², eᵢ) = traceInner(eᵢ∘xⱼ, xⱼ) ≥ 0`
-- `positive_eigenvalues_nonneg` — eigenvalues of a positive element are non-negative (H-O 3.1.3)
-  - Same trace argument pattern as `sq_eigenvalues_nonneg`
+**Build**: PASSES. **Sorries**: 6 → 5.
 
-**Build**: PASSES. **Sorries**: 7 → 6.
-
-### Remaining sorries (6 total, 5 files)
+### Remaining sorries (5 total, 4 files)
 
 | File | Line | Theorem | Difficulty |
 |------|------|---------|-----------|
 | FundamentalFormula.lean | 259 | `fundamental_formula` | Hard (Macdonald) |
-| FormallyReal/Def.lean | 75,80 | `of_sq_eq_zero` | Accepted gap |
 | FormallyReal/Square.lean | 103 | `isPositiveSqrt_unique` | Medium |
 | Classification/RealSymmetric.lean | 81 | `isSimple` | Hard |
 | Classification/ComplexHermitian.lean | 78 | `isSimple` | Hard |

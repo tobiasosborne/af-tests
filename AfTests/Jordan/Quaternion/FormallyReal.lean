@@ -28,8 +28,7 @@ For a Hermitian matrix A (satisfying Aᴴ = A):
 
 ## Implementation
 
-We prove `FormallyRealJordan` directly to avoid the sorry in
-`FormallyRealJordan.of_sq_eq_zero` which requires spectral theory for abstract algebras.
+We prove `FormallyRealJordan` directly by verifying the sum-of-squares property.
 -/
 
 noncomputable section

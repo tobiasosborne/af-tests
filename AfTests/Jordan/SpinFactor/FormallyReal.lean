@@ -19,8 +19,7 @@ Spin factors V_n are formally real: if a sum of squares equals zero, each term i
 ## Implementation
 
 We prove `FormallyRealJordan` directly by showing that spin factor squares have
-non-negative scalar components (x.1² + ⟨x.2, x.2⟩). This avoids the sorry in
-`FormallyRealJordan.of_sq_eq_zero` which requires spectral theory for abstract algebras.
+non-negative scalar components (x.1² + ⟨x.2, x.2⟩).
 -/
 
 namespace SpinFactor
