@@ -1,50 +1,25 @@
-# Handoff: 2026-02-06 (Session 95)
+# Handoff: 2026-02-06 (Session 96)
 
 ## This Session
 
-### spectral_decomposition_finset: goals 3 & 4 FILLED, goals 1 & 2 sorry
+### spectral_decomposition_finset: ALL 4 GOALS FILLED (complete theorem)
 
-Filled 2 of 4 subgoals in `spectral_decomposition_finset` (SpectralTheorem.lean:399-424).
+Filled remaining 2 sorry's (goals 1 & 2) in `spectral_decomposition_finset` (SpectralTheorem.lean:402-428).
+Goals 3 & 4 were filled in session 95. The theorem is now fully proved.
 
-**Goal 3 (Complete)** — FILLED (~4 LOC):
-```lean
-  show ∑ r ∈ S, ∑ i ∈ Finset.univ.filter (...), sd.csoi.idem i = jone
-  rw [Finset.sum_fiberwise_of_maps_to
-    (fun i _ => Finset.mem_image_of_mem sd.eigenvalues (Finset.mem_univ i))]
-  exact sd.csoi.complete
-```
-Note: The `∑ i` vs `∑ i ∈ univ` mismatch from session 94 notes was a non-issue — they're defeq.
+**Goal 1 (Idempotent)** — FILLED (~10 LOC):
+- `Finset.induction_on` on the filter set
+- Base: `IsIdempotent 0` (trivial: `jsq 0 = 0`)
+- Step: `orthogonal_sum_isIdempotent (is_idem a) ih` + show orthogonality via `L_apply, map_sum`
+- Ne proof: `fun h => haF (h ▸ hi)` (if a = i then a ∈ F, contradiction)
 
-**Goal 4 (Decomp)** — FILLED (~8 LOC):
-```lean
-  rw [sd.decomp]; simp only [Finset.smul_sum]; symm
-  trans (∑ r ∈ S, ∑ i ∈ filter (ev i = r), ev i • idem i)
-  · congr 1; ext r
-    exact Finset.sum_congr rfl (fun i hi => by rw [(Finset.mem_filter.mp hi).2])
-  · exact Finset.sum_fiberwise_of_maps_to (...) _
-```
-
-**Goal 1 (Idempotent)** — sorry, approach verified but syntax issue:
-- `@Finset.induction_on` works (not named `p :=` arg — that's rejected).
-- Correct syntax: `@Finset.induction_on (Fin sd.n) (fun F => IsIdempotent (∑ i ∈ F, idem i)) theFilter base step`
-- Step case needs: `orthogonal_sum_isIdempotent (is_idem a) ih` + show `AreOrthogonal (idem a) (∑ F)`.
-- Orthogonality: `rw [← L_apply, map_sum]; simp only [L_apply]; sum_eq_zero (orthog a i ...)`.
-- Compiled standalone but hit a cascade issue with pre-existing errors at lines 243/268.
-
-**Goal 2 (Orthogonal)** — sorry, approach verified:
-- Double distribution: `rw [← L_apply, map_sum]; simp only [L_apply]` for outer sum.
-- Then for each term: `rw [jmul_comm, ← L_apply, map_sum]; simp only [L_apply]` for inner.
-- Each cross-pair: `rw [jmul_comm]; exact sd.csoi.orthog i j (ne_from_filter_membership)`.
-- The ne proof: `fun h => hrs (show r = s by rw [← (mem_filter.mp hi).2]; subst h; exact (mem_filter.mp hj).2)`.
-- Note: `orthog i j` gives `AreOrthogonal (idem i) (idem j)` = `jmul (idem i) (idem j) = 0`,
-  but after `jmul_comm` distribution the goal is `jmul (idem j) (idem i) = 0`. Need extra `rw [jmul_comm]`.
-
-**Pre-existing errors**: Lines 243 and 268 in `jone_eigenspace_decomp_in_ca` have errors
-(`sum_congr rfl` unification failure, type mismatch). These exist on master without my changes —
-likely a mathlib API change. Does NOT affect build (inside sorry-tolerant context).
+**Goal 2 (Orthogonal)** — FILLED (~10 LOC):
+- Double distribution via `← L_apply, map_sum` (outer) then `jmul_comm, ← L_apply, map_sum` (inner)
+- Each cross-pair: `sd.csoi.orthog j i` with ne from filter membership + `hrs`
+- Ne proof: `subst h; simp [Finset.mem_filter] at hi hj; exact hrs (hi.2.symm.trans hj.2)`
 
 **Build status**: PASSES
-**Sorries**: 11 → 12 (split 1 sorry into 2 sorry + 2 filled)
+**Sorries**: 12 → 10 (filled 2 sorry's in spectral_decomposition_finset)
 
 ---
 

@@ -399,10 +399,30 @@ theorem spectral_decomposition_finset [FinDimJordanAlgebra J] [FormallyRealTrace
   refine ⟨S, e, ?_, ?_, ?_, ?_⟩
   -- Subgoals: idempotent, orthogonal, complete, decomp
   -- See HANDOFF.md for detailed proof approach for each
-  · -- Goal 1: Idempotent - use @Finset.induction_on with orthogonal_sum_isIdempotent
-    sorry
-  · -- Goal 2: Orthogonal - distribute jmul via L linearity, csoi.orthog
-    sorry
+  · -- Goal 1: Idempotent - Finset induction with orthogonal_sum_isIdempotent
+    intro r hr
+    show IsIdempotent (∑ i ∈ Finset.univ.filter (fun j => sd.eigenvalues j = r), sd.csoi.idem i)
+    refine Finset.induction_on (Finset.univ.filter (fun j => sd.eigenvalues j = r)) ?_ ?_
+    · simp only [Finset.sum_empty]; show jsq 0 = 0; unfold jsq; exact zero_jmul 0
+    · intro a F haF ih
+      rw [Finset.sum_insert haF]
+      exact orthogonal_sum_isIdempotent (sd.csoi.is_idem a) ih (by
+        show jmul (sd.csoi.idem a) (∑ i ∈ F, sd.csoi.idem i) = 0
+        rw [← L_apply, map_sum]; simp only [L_apply]
+        exact Finset.sum_eq_zero fun i hi =>
+          sd.csoi.orthog a i (fun h => haF (h ▸ hi)))
+  · -- Goal 2: Orthogonal - distribute jmul, cross-group pairs are orthogonal
+    intro r s hr hs hrs
+    show jmul (∑ i ∈ Finset.univ.filter (fun j => sd.eigenvalues j = r), sd.csoi.idem i)
+              (∑ j ∈ Finset.univ.filter (fun k => sd.eigenvalues k = s), sd.csoi.idem j) = 0
+    rw [← L_apply, map_sum]; simp only [L_apply]
+    apply Finset.sum_eq_zero; intro j hj
+    rw [jmul_comm, ← L_apply, map_sum]; simp only [L_apply]
+    apply Finset.sum_eq_zero; intro i hi
+    exact sd.csoi.orthog j i (by
+      intro h; subst h
+      simp only [Finset.mem_filter] at hi hj
+      exact hrs (hi.2.symm.trans hj.2))
   · -- Goal 3: Complete - sum_fiberwise_of_maps_to + csoi.complete
     show ∑ r ∈ S, ∑ i ∈ Finset.univ.filter (fun j => sd.eigenvalues j = r),
       sd.csoi.idem i = jone
