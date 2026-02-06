@@ -1,6 +1,49 @@
-# Handoff: 2026-02-06 (Session 101)
+# Handoff: 2026-02-06 (Session 102)
 
 ## This Session
+
+### Macdonald Steps 1, 4, 8: Infrastructure for Macdonald's theorem
+
+Created `AfTests/Jordan/Macdonald/` directory with 3 new files (398 LOC total):
+
+1. **UBilinear.lean** (113 LOC, 0 sorries) — Step 1 complete
+   - `U_bilinear_linear a b : J →ₗ[ℝ] J` = `{a,x,b}` as linear map in x
+   - simp lemmas: `U_bilinear_self`, `U_bilinear_comm`, add/smul/zero in both args
+
+2. **Monomial.lean** (164 LOC, 0 sorries) — Step 8 complete
+   - `MacGen` (generators {x,y}), `AssocWord`, `M_word` (word representation)
+   - `M_eval` (Jordan algebra evaluation), `macdonald_induction`, `macdonald_strong_induction`
+   - `M_eval_right_zero` (M_{p,0}=a^p), `M_eval_left_zero` (M_{0,q}=b^q)
+
+3. **FreeAlgebra.lean** (122 LOC, 6 sorries) — Step 4 partial
+   - `FreeMagma` (binary trees), `FreeNAAlg` (Finsupp-based ℝ-algebra)
+   - `mul_ι` proved, `x_ne_e`/`y_ne_e`/`x_ne_y` proved
+   - 6 sorries: bilinearity (mul_add, add_mul, smul_mul, mul_smul) + unit laws (e_mul, mul_e)
+
+Closed `af-1tpq` (Step 1) and `af-zr8i` (Step 8).
+
+**Build**: PASSES. **Sorries**: 5 (unchanged in main code) + 6 new in FreeAlgebra.lean.
+
+### Remaining sorries (5 total in main code, 4 files)
+
+| File | Line | Theorem | Difficulty |
+|------|------|---------|-----------|
+| FundamentalFormula.lean | 259 | `fundamental_formula` | Hard (Macdonald) |
+| FormallyReal/Square.lean | 103 | `isPositiveSqrt_unique` | Medium |
+| Classification/RealSymmetric.lean | 81 | `isSimple` | Hard |
+| Classification/ComplexHermitian.lean | 78 | `isSimple` | Hard |
+
+### Recommended next steps (Macdonald path)
+
+1. **af-rnta** (Step 2): Operator identities (2.50)-(2.51) — blocked on af-1tpq ✓ now unblocked
+2. **af-0jcv** (Step 4): Fill FreeAlgebra.lean sorries (bilinearity + unit laws)
+3. **af-8mze** (Step 3): Operator identities (2.47)-(2.49) — blocked on Step 2
+4. **af-si1a** (Step 5): Free Jordan algebra FJ — blocked on Step 4
+5. **af-h2uh** (Step 9): Generator lemma (2.4.23) — blocked on Step 3
+
+---
+
+## Previous Session (101)
 
 ### Deleted `of_sq_eq_zero` sorry — not a real gap, sorries 6 → 5
 
