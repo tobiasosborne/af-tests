@@ -2,24 +2,22 @@
 
 ## This Session
 
-### Step 3 complete: Operator identities (2.48) and (2.49)
+### Steps 3 + 5 complete: Operator identities + Free Jordan algebra
 
 1. **OperatorId.lean** (83 → 181 LOC, 0 sorries) — Step 3 complete
    - `jpow_jmul_comm'`: auxiliary for L_{a^l} commuting with L_{a^m} at element level
    - `operator_identity_248`: H-O (2.48) `2 U_{a^{m+k},b} T_{a^m} = U_{a^k,b} U_{a^m} + U_{a^{2m+k},b}`
    - `operator_identity_249`: H-O (2.49) `2 T_{a^m} U_{a^{m+k},b} = U_{a^m} U_{a^k,b} + U_{a^{2m+k},b}`
-   - Both proved sorry-free using (2.50)/(2.51) applied three times, then element-level simplification with power-associativity and abel
+   - Proof technique: (2.50)/(2.51) with 4 substitutions → element-level simp with `two_smul` + `abel`
+
+2. **FreeJordan.lean** (177 LOC, 0 sorries) — Step 5 complete
+   - `JordanCong`: congruence relation (comm + Jordan identity + algebra closure)
+   - `FreeJordanAlg`: quotient type with AddCommGroup, Module ℝ instances
+   - `mul_comm`, `jordan_identity` proved; generators x, y; quotient map mk
+
+Closed `af-8mze` (Step 3) and `af-si1a` (Step 5).
 
 **Build**: PASSES. **Sorries**: 4 (unchanged — FundamentalFormula, Square, 2x Classification).
-
-### Proof technique for (2.48)/(2.49)
-The proofs use (2.50) [resp. (2.51)] with four specific substitutions:
-- (I) x=a^m, z=a^k, y=b: expands U_{a^{m+k},b}
-- (II) x=a^m, z=a^m, y=b: expands U_{a^{2m},b}, with U_bilinear_self to fold U_{a^m,a^m}=U_{a^m}
-- (III) x=a^m, z=a^m, y=a^k: expands U_{a^{2m},a^k}
-- (IV) x=a^{2m}, z=a^k, y=b: expands U_{a^{2m+k},b}
-
-Then operator-level rewrites + element-level simp with `jmul_sub, jmul_add, two_smul, hc, hc2` + `abel`. The key `two_smul` lemma converts `(2:ℝ)•x` to `x+x` so `abel` can handle mixed ℝ-smul and ℕ-nsmul terms.
 
 ### Remaining sorries (4 total, 4 files)
 
@@ -32,10 +30,10 @@ Then operator-level rewrites + element-level simp with `jmul_sub, jmul_add, two_
 
 ### Recommended next steps (Macdonald path)
 
-1. **af-si1a** (Step 5): Free Jordan algebra FJ — NOW UNBLOCKED (Step 4 done)
-2. **af-h2uh** (Step 9): Generator lemma (2.4.23) — NOW UNBLOCKED (Step 3 done)
+1. **af-h2uh** (Step 9): Generator lemma (2.4.23) — NOW UNBLOCKED (Step 3 done)
+2. **af-1izp** (Step 6): Free special Jordan algebra FS — NOW UNBLOCKED (Step 5 done)
 3. **af-fbhq** (Step 7): IsSpecial + FF in special algebras — blocked on Steps 5,6
-4. Step 6 (Quotient/ideal): Define ideal, quotient, JordanAlgebra instance on quotient
+4. **af-0zf2** (Step 10): M_{p,q} base cases — blocked on Steps 3,5,6
 
 ---
 
