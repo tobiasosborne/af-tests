@@ -1,22 +1,25 @@
-# Handoff: 2026-02-06 (Session 103)
+# Handoff: 2026-02-06 (Session 104)
 
 ## This Session
 
-### Macdonald Steps 2, 4 complete + Step 3 partial (identity 2.47)
+### Step 3 complete: Operator identities (2.48) and (2.49)
 
-1. **OperatorId.lean** (83 LOC, 0 sorries) — Steps 2 + partial Step 3
-   - `U_bilinear_product_250`: identity (2.50) from triple_product_243
-   - `U_bilinear_product_251`: identity (2.51) from triple_product_244
-   - `operator_identity_247`: identity (2.47) from triple_product_244 + jpow_add
+1. **OperatorId.lean** (83 → 181 LOC, 0 sorries) — Step 3 complete
+   - `jpow_jmul_comm'`: auxiliary for L_{a^l} commuting with L_{a^m} at element level
+   - `operator_identity_248`: H-O (2.48) `2 U_{a^{m+k},b} T_{a^m} = U_{a^k,b} U_{a^m} + U_{a^{2m+k},b}`
+   - `operator_identity_249`: H-O (2.49) `2 T_{a^m} U_{a^{m+k},b} = U_{a^m} U_{a^k,b} + U_{a^{2m+k},b}`
+   - Both proved sorry-free using (2.50)/(2.51) applied three times, then element-level simplification with power-associativity and abel
 
-2. **FreeAlgebra.lean** (6 sorries → 0 sorries) — Step 4 complete
-   - Added `FreeMagma.unitMul` to handle unit normalization (1*m=m, m*1=m)
-   - Updated `mul` definition to use `unitMul` instead of raw FreeMagma.mul
-   - Proved: `mul_add`, `add_mul`, `smul_mul`, `mul_smul`, `e_mul`, `mul_e`
+**Build**: PASSES. **Sorries**: 4 (unchanged — FundamentalFormula, Square, 2x Classification).
 
-Closed `af-rnta` (Step 2) and `af-0jcv` (Step 4).
+### Proof technique for (2.48)/(2.49)
+The proofs use (2.50) [resp. (2.51)] with four specific substitutions:
+- (I) x=a^m, z=a^k, y=b: expands U_{a^{m+k},b}
+- (II) x=a^m, z=a^m, y=b: expands U_{a^{2m},b}, with U_bilinear_self to fold U_{a^m,a^m}=U_{a^m}
+- (III) x=a^m, z=a^m, y=a^k: expands U_{a^{2m},a^k}
+- (IV) x=a^{2m}, z=a^k, y=b: expands U_{a^{2m+k},b}
 
-**Build**: PASSES. **Sorries**: 4 (unchanged — FundamentalFormula, Square, 2× Classification).
+Then operator-level rewrites + element-level simp with `jmul_sub, jmul_add, two_smul, hc, hc2` + `abel`. The key `two_smul` lemma converts `(2:ℝ)•x` to `x+x` so `abel` can handle mixed ℝ-smul and ℕ-nsmul terms.
 
 ### Remaining sorries (4 total, 4 files)
 
@@ -29,10 +32,10 @@ Closed `af-rnta` (Step 2) and `af-0jcv` (Step 4).
 
 ### Recommended next steps (Macdonald path)
 
-1. **af-8mze** (Step 3): Finish operator identities (2.48)-(2.49) — NOW UNBLOCKED (Step 2 done). Identity (2.47) already proved. (2.48) needs (2.50), (2.49) needs (2.51) — both available.
-2. **af-si1a** (Step 5): Free Jordan algebra FJ — NOW UNBLOCKED (Step 4 done)
-3. **af-h2uh** (Step 9): Generator lemma (2.4.23) — blocked on Step 3
-4. **af-fbhq** (Step 7): IsSpecial + FF in special algebras — blocked on Steps 5,6
+1. **af-si1a** (Step 5): Free Jordan algebra FJ — NOW UNBLOCKED (Step 4 done)
+2. **af-h2uh** (Step 9): Generator lemma (2.4.23) — NOW UNBLOCKED (Step 3 done)
+3. **af-fbhq** (Step 7): IsSpecial + FF in special algebras — blocked on Steps 5,6
+4. Step 6 (Quotient/ideal): Define ideal, quotient, JordanAlgebra instance on quotient
 
 ---
 
