@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: AF-Tests Contributors
 -/
 import AfTests.Jordan.Eigenspace
+import AfTests.Jordan.Peirce
 import AfTests.Jordan.Primitive
 import AfTests.Jordan.FormallyReal.Spectrum
 import AfTests.Jordan.TraceInnerProduct
@@ -518,14 +519,107 @@ theorem spectral_sq [FinDimJordanAlgebra J] [JordanTrace J] [FormallyRealJordan 
 
 /-! ### Positivity of Square Eigenvalues -/
 
-/-- Eigenvalues of a² are non-negative (they are squares of reals). -/
-theorem sq_eigenvalues_nonneg [FinDimJordanAlgebra J] [JordanTrace J] [FormallyRealJordan J]
-    {a : J} (sd : SpectralDecomp (jsq a)) :
+/-- L_e is positive semidefinite for idempotent e: traceInner (e ∘ v) v ≥ 0.
+
+Proof: Decompose v = π₀(v) + π₁₂(v) + π₁(v) via Peirce projections.
+Then e ∘ v = (1/2)π₁₂(v) + π₁(v), and by eigenspace orthogonality
+⟪e∘v, v⟫ = (1/2)⟪π₁₂(v), π₁₂(v)⟫ + ⟪π₁(v), π₁(v)⟫ ≥ 0. -/
+theorem traceInner_jmul_idem_self_nonneg [FormallyRealTrace J]
+    {e : J} (he : IsIdempotent e) (v : J) :
+    0 ≤ traceInner (jmul e v) v := by
+  -- Write π₁₂(v) and π₁(v) for the Peirce projections
+  set v₀ := peirceProj₀ e v
+  set v₁₂ := peirceProj₁₂ e v
+  set v₁ := peirceProj₁ e v
+  -- v = v₀ + v₁₂ + v₁
+  have hv_decomp : v = v₀ + v₁₂ + v₁ := by
+    have := congr_fun (congr_arg DFunLike.coe (peirceProj_sum e)) v
+    simp only [LinearMap.add_apply, LinearMap.id_apply] at this
+    exact this.symm
+  -- L_e = (1/2)Π₁₂ + Π₁, so e ∘ v = (1/2)v₁₂ + v₁
+  have hev : jmul e v = (1 / 2) • v₁₂ + v₁ := by
+    have h₁₂ : jmul e v₁₂ = (1 / 2) • v₁₂ := (peirceProj₁₂_mem he v).out
+    have h₁ : jmul e v₁ = v₁ := by
+      have := (peirceProj₁_mem he v).out; rwa [one_smul] at this
+    rw [hv_decomp, jmul_add, jmul_add]
+    have h₀ : jmul e v₀ = 0 := by
+      have := (peirceProj₀_mem he v).out; rwa [zero_smul] at this
+    rw [h₀, h₁₂, h₁, zero_add]
+  -- Orthogonality: π₁₂(v) ⊥ π₀(v) and π₁₂(v) ⊥ π₁(v) w.r.t. traceInner
+  have horth₁₂_₀ : traceInner v₁₂ v₀ = 0 := by
+    have h₁₂ : jmul e v₁₂ = (1 / 2) • v₁₂ := (peirceProj₁₂_mem he v).out
+    have h₀ : jmul e v₀ = 0 := by
+      have := (peirceProj₀_mem he v).out; rwa [zero_smul] at this
+    have lhs : traceInner (jmul e v₁₂) v₀ = (1 / 2) * traceInner v₁₂ v₀ := by
+      rw [h₁₂, traceInner_smul_left]
+    have rhs : traceInner (jmul e v₁₂) v₀ = 0 := by
+      rw [traceInner_jmul_left, h₀, traceInner_zero_right]
+    linarith
+  have horth₁₂_₁ : traceInner v₁₂ v₁ = 0 := by
+    have h₁₂ : jmul e v₁₂ = (1 / 2) • v₁₂ := (peirceProj₁₂_mem he v).out
+    have h₁ : jmul e v₁ = 1 • v₁ := (peirceProj₁_mem he v).out
+    have lhs : traceInner (jmul e v₁₂) v₁ = (1 / 2) * traceInner v₁₂ v₁ := by
+      rw [h₁₂, traceInner_smul_left]
+    have rhs : traceInner (jmul e v₁₂) v₁ = 1 * traceInner v₁₂ v₁ := by
+      rw [traceInner_jmul_left, h₁, traceInner_smul_left]
+    linarith
+  have horth₁_₀ : traceInner v₁ v₀ = 0 := by
+    have h₁ : jmul e v₁ = v₁ := by
+      have := (peirceProj₁_mem he v).out; rwa [one_smul] at this
+    have h₀ : jmul e v₀ = 0 := by
+      have := (peirceProj₀_mem he v).out; rwa [zero_smul] at this
+    have lhs : traceInner (jmul e v₁) v₀ = traceInner v₁ v₀ := by rw [h₁]
+    have rhs : traceInner (jmul e v₁) v₀ = 0 := by
+      rw [traceInner_jmul_left, h₀, traceInner_zero_right]
+    linarith
+  -- Now compute ⟪e∘v, v⟫ = (1/2)⟪v₁₂, v₁₂⟫ + ⟪v₁, v₁⟫
+  rw [hev, hv_decomp]
+  simp only [traceInner_add_left, traceInner_add_right]
+  simp only [traceInner_smul_left]
+  rw [horth₁₂_₀, horth₁₂_₁, horth₁_₀, traceInner_symm v₁ v₁₂, horth₁₂_₁]
+  simp only [mul_zero, add_zero, zero_add]
+  -- Goal: 0 ≤ 1/2 * traceInner v₁₂ v₁₂ + traceInner v₁ v₁
+  have h1 : 0 ≤ traceInner v₁₂ v₁₂ := traceInner_self_nonneg v₁₂
+  have h2 : 0 ≤ traceInner v₁ v₁ := traceInner_self_nonneg v₁
+  linarith
+
+/-- Eigenvalues of a² from a spectral decomposition with nonzero idempotents are non-negative.
+
+Proof: λᵢ · trace(eᵢ) = trace(a² ∘ eᵢ) = ⟪a², eᵢ⟫ = ⟪a, a∘eᵢ⟫ = ⟪eᵢ∘a, a⟫ ≥ 0
+by L_eᵢ being PSD (traceInner_jmul_idem_self_nonneg). Since trace(eᵢ) > 0, λᵢ ≥ 0. -/
+theorem sq_eigenvalues_nonneg [FinDimJordanAlgebra J] [FormallyRealJordan J]
+    [FormallyRealTrace J] {a : J} (sd : SpectralDecomp (jsq a))
+    (hne : ∀ i, sd.csoi.idem i ≠ 0) :
     ∀ i, 0 ≤ sd.eigenvalues i := by
   intro i
-  -- By spectral_sq, eigenvalues of a² are sⱼ² for eigenvalues sⱼ of a
-  -- Squares are non-negative
-  sorry
+  -- spectral_decomp_jmul_idem: (a²) ∘ eᵢ = sd.eigenvalues i • eᵢ
+  have heig := spectral_decomp_jmul_idem sd i
+  -- traceInner(a², eᵢ) = sd.eigenvalues i * traceInner(eᵢ, eᵢ)
+  have htrace_eig : traceInner (jsq a) (sd.csoi.idem i) =
+      sd.eigenvalues i * traceInner (sd.csoi.idem i) (sd.csoi.idem i) := by
+    unfold traceInner
+    rw [heig]
+    -- trace(λ • eᵢ ∘ eᵢ) = λ * trace(eᵢ ∘ eᵢ)
+    rw [smul_jmul, trace_smul]
+  -- traceInner(a², eᵢ) = traceInner(eᵢ ∘ a, a) by self-adjointness
+  have htrace_sa : traceInner (jsq a) (sd.csoi.idem i) =
+      traceInner (jmul (sd.csoi.idem i) a) a := by
+    calc traceInner (jsq a) (sd.csoi.idem i)
+        = traceInner (jmul a a) (sd.csoi.idem i) := rfl
+      _ = traceInner a (jmul a (sd.csoi.idem i)) :=
+          traceInner_jmul_left a a (sd.csoi.idem i)
+      _ = traceInner a (jmul (sd.csoi.idem i) a) := by rw [jmul_comm]
+      _ = traceInner (jmul (sd.csoi.idem i) a) a := traceInner_symm _ _
+  -- L_eᵢ is PSD
+  have hpsd : 0 ≤ traceInner (jmul (sd.csoi.idem i) a) a :=
+    traceInner_jmul_idem_self_nonneg (sd.csoi.is_idem i) a
+  -- traceInner(eᵢ, eᵢ) > 0 since eᵢ ≠ 0
+  have htrace_pos : 0 < traceInner (sd.csoi.idem i) (sd.csoi.idem i) :=
+    traceInner_self_pos (hne i)
+  -- Combine
+  have h : 0 ≤ sd.eigenvalues i * traceInner (sd.csoi.idem i) (sd.csoi.idem i) := by
+    linarith [htrace_eig, htrace_sa, hpsd]
+  exact nonneg_of_mul_nonneg_left h htrace_pos
 
 -- REMOVED: spectrum_sq_nonneg depended on the false spectrum_sq
 -- The claim "eigenvalues of L_{a²} are non-negative" may or may not be true,

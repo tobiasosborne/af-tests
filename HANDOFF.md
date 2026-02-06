@@ -1,6 +1,100 @@
-# Handoff: 2026-02-06 (Session 96)
+# Handoff: 2026-02-06 (Session 97)
 
 ## This Session
+
+### WIP: sq_eigenvalues_nonneg — proof structure written, 3 compile errors remain
+
+Added two theorems to SpectralTheorem.lean (lines ~525-620). Code does NOT compile yet — 3 small errors remain. The proof LOGIC is correct and fully analyzed.
+
+**What was added:**
+1. `traceInner_jmul_idem_self_nonneg` — L_e is PSD for idempotent e (~45 LOC)
+2. `sq_eigenvalues_nonneg` — eigenvalues of a² are non-negative (~30 LOC, signature CHANGED)
+
+**Signature change for sq_eigenvalues_nonneg:**
+- OLD: `[FinDimJordanAlgebra J] [JordanTrace J] [FormallyRealJordan J]`
+- NEW: `[FinDimJordanAlgebra J] [FormallyRealJordan J] [FormallyRealTrace J]`
+- ADDED hypothesis: `(hne : ∀ i, sd.csoi.idem i ≠ 0)`
+- Removed `[JordanTrace J]` to avoid diamond with `[FormallyRealTrace J]` (both provide JordanTrace)
+- Added `hne` because zero idempotents have free eigenvalues (theorem is FALSE without it)
+
+**Also discovered: `spectrum_eq_eigenvalueSet` (line 450) is FALSE as stated.**
+- `jordanSpectrum a sd = spectrum a` fails both directions
+- (⊆) fails: zero idempotents give spurious eigenvalues
+- (⊇) fails: `spectrum a` = eigenvalueSet a includes Peirce-½ eigenvalues (e.g. 3/2 for diag(1,2) in 2×2 matrices) that aren't decomposition eigenvalues
+- Session 79 already identified this issue for `spectrum_sq` but `spectrum_eq_eigenvalueSet` wasn't fixed
+- Recommend: replace with `∀ i, sd.csoi.idem i ≠ 0 → sd.eigenvalues i ∈ spectrum a` (already proved by `spectral_decomp_eigenvalue_mem_spectrum`)
+
+---
+
+### THE 3 REMAINING COMPILE ERRORS (all trivial fixes)
+
+**Error 1** (line ~570): `PeirceSpace membership → jmul e v₀ = 0`
+```
+⊢ jmul e v₀ = 0
+this : ↑(PeirceSpace e 0) ((peirceProj₀ e) v)
+```
+The `.out` on PeirceSpace membership gives `jmul e v₀ = 0 • v₀`, but `rwa [zero_smul]` fails because the `this` has type `↑(PeirceSpace e 0) (...)` not `jmul e v₀ = 0 • v₀`.
+**Fix**: Use `have h₀ := (peirceProj₀_mem he v)` then access `.out` or `.prop` to get the membership predicate `jmul e v₀ = 0 • v₀`, then `simp [zero_smul] at h₀` or `rw [mem_peirceSpace_zero_iff] at h₀`. The same pattern appears in `hev` for the `h₁` case. Check how `peirceProj₁_mem` was used in other proofs in Peirce.lean.
+
+**Error 2** (line ~578): `simp made no progress`
+```
+simp only [traceInner_smul_left]  -- no progress
+```
+After `simp only [traceInner_add_left, traceInner_add_right]`, the goal has terms like `traceInner ((1/2) • v₁₂) v₀`. The `traceInner_smul_left` lemma has signature `traceInner (r • a) b = r * traceInner a b`. The issue may be that `(1/2)` is parsed as a division not a literal. Try `simp only [traceInner_smul_left]` first or use `rw [show (1:ℝ)/2 = ...] ` or just inline the smul rewrites manually.
+
+**Error 3** (line ~603): `smul_jmul` doesn't match in htrace_eig
+```
+⊢ trace (sd.eigenvalues i • sd.csoi.idem i) = sd.eigenvalues i * trace (jmul (sd.csoi.idem i) (sd.csoi.idem i))
+```
+The goal is `trace(λ • eᵢ) = λ * trace(eᵢ ∘ eᵢ)`. The `smul_jmul` was wrong — need `trace_smul` for LHS, then rewrite `eᵢ = jsq eᵢ` (idempotent) in RHS. Specifically:
+- LHS: `trace (λ • eᵢ) = λ * trace eᵢ` by `trace_smul`
+- RHS: `λ * trace (jmul eᵢ eᵢ) = λ * trace (jsq eᵢ) = λ * trace eᵢ` since `jsq eᵢ = eᵢ` (idempotent)
+- **Fix**: `rw [trace_smul]; congr 1; have := sd.csoi.is_idem i; rw [← this]` or `conv_rhs => rw [← sd.csoi.is_idem i]`
+
+---
+
+### PROOF PLAN (fully verified, next agent should just fix compile errors)
+
+**Theorem 1: `traceInner_jmul_idem_self_nonneg`**
+For idempotent e: `0 ≤ traceInner (jmul e v) v`
+
+Proof strategy (CORRECT, just needs compile fixes):
+1. Decompose `v = π₀(v) + π₁₂(v) + π₁(v)` via `peirceProj_sum`
+2. Show `jmul e v = (1/2)π₁₂(v) + π₁(v)` since `L_e = (1/2)Π₁₂ + Π₁`
+3. Show pairwise orthogonality: `traceInner πₐ(v) πᵦ(v) = 0` for α ≠ β
+   - Uses `traceInner_jmul_left` + PeirceSpace membership (eigenvalue equations)
+   - E.g.: `(1/2) * traceInner(π₁₂v, π₀v) = traceInner(e∘π₁₂v, π₀v) = traceInner(π₁₂v, e∘π₀v) = traceInner(π₁₂v, 0) = 0`
+4. Expand: `⟪e∘v, v⟫ = (1/2)⟪π₁₂v, π₁₂v⟫ + ⟪π₁v, π₁v⟫ ≥ 0`
+
+**Theorem 2: `sq_eigenvalues_nonneg`**
+For `sd : SpectralDecomp (jsq a)` with all `eᵢ ≠ 0`: `0 ≤ sd.eigenvalues i`
+
+Proof chain (CORRECT):
+```
+λᵢ * traceInner(eᵢ, eᵢ) = traceInner(a², eᵢ)     [spectral_decomp_jmul_idem + trace_smul]
+                          = traceInner(a, a∘eᵢ)      [traceInner_jmul_left a a eᵢ]
+                          = traceInner(eᵢ∘a, a)      [jmul_comm + traceInner_symm]
+                          ≥ 0                          [traceInner_jmul_idem_self_nonneg]
+traceInner(eᵢ, eᵢ) > 0                               [traceInner_self_pos, eᵢ ≠ 0]
+∴ λᵢ ≥ 0                                              [nonneg_of_mul_nonneg_left]
+```
+
+### KEY ANALYSIS: Why HANDOFF's approach was WRONG
+
+The HANDOFF said: "Use trace inner product: λᵢ⟨eᵢ,eᵢ⟩ = ⟨a²∘eᵢ,eᵢ⟩ = ⟨a∘eᵢ,a∘eᵢ⟩ ≥ 0"
+
+The step `⟨a²∘eᵢ,eᵢ⟩ = ⟨a∘eᵢ,a∘eᵢ⟩` is **FALSE** in Jordan algebras because `(a∘a)∘eᵢ ≠ a∘(a∘eᵢ)` (non-associative!). Self-adjointness gives `⟨a²∘eᵢ,eᵢ⟩ = ⟨a,a∘eᵢ⟩ = ⟨eᵢ∘a,a⟩`, NOT `⟨a∘eᵢ,a∘eᵢ⟩`.
+
+The correct approach (implemented): use `⟨eᵢ∘a, a⟩ ≥ 0` via L_eᵢ being PSD (Peirce eigenvalues are {0, 1/2, 1}, all non-negative).
+
+---
+
+### Build status: DOES NOT COMPILE (3 errors described above)
+### Sorries: 10 (unchanged from session 96, since new code doesn't compile yet)
+
+---
+
+## Previous Session (96)
 
 ### spectral_decomposition_finset: ALL 4 GOALS FILLED (complete theorem)
 
