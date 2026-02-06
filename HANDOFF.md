@@ -1,37 +1,51 @@
-# Handoff: 2026-02-06 (Session 93)
+# Handoff: 2026-02-06 (Session 94)
 
 ## This Session
 
 ### WIP: spectral_decomposition_finset proof (SpectralTheorem.lean:396)
 
-Attempted to fill `spectral_decomposition_finset`. Proof is ~90% complete but needs 1-2 more
-iterations to compile. Strategy is correct and nearly working.
+Second attempt at filling `spectral_decomposition_finset`. Setup compiles (`let S`, `let e`,
+`refine ⟨S, e, ...⟩` all work). Four subgoals need proofs. Reverted to sorry for clean build.
 
-**Proof approach** (group SpectralDecomp eigenvalues by value via Finset.image):
-- `S := Finset.image sd.eigenvalues Finset.univ`
-- `e μ := ∑ i ∈ Finset.univ.filter (fun j => sd.eigenvalues j = μ), sd.csoi.idem i`
+**Current code** (compiles, SpectralTheorem.lean:395-399):
+```lean
+  let S := Finset.image sd.eigenvalues Finset.univ
+  let e : ℝ → J := fun μ =>
+    ∑ i ∈ Finset.univ.filter (fun j => sd.eigenvalues j = μ), sd.csoi.idem i
+  refine ⟨S, e, ?_, ?_, ?_, ?_⟩
+  sorry
+```
 
-**Four goals**:
-1. **Idempotent** (COMPILES): `Finset.induction_on` + `orthogonal_sum_isIdempotent`.
-   Base: `jsq 0 = 0`. Step: `add_jmul`, orthogonality via `change (L _) _ = 0; rw [map_sum]`.
-2. **Orthogonal** (needs fix): Double Finset sum distribution. `LinearMap.map_sum` doesn't exist
-   as dot notation; use `AddMonoidHom.map_sum` or `_root_.map_sum (f := L x)` instead.
-   Alternative: `jmul_comm` + `_root_.map_sum` for each level.
-3. **Complete** (needs fix): `Finset.sum_fiberwise_of_maps_to` but `∑ i` vs `∑ i ∈ univ`
-   notation mismatch. Fix: use `Finset.sum_fiberwise_of_maps_to` directly without `.symm`,
-   then `exact sd.csoi.complete`.
-4. **Decomp** (needs fix): After `simp_rw [Finset.smul_sum]`, use `sum_fiberwise_of_maps_to`
-   for `∑ i, ev i • idem i = ∑ μ ∈ S, ∑ i ∈ filter, ev i • idem i`, then `congr` with
-   `(Finset.mem_filter.mp hi).2` to replace `ev i` with `μ` inside each fiber.
-   Issue: after fiberwise, the bound variable `i` has type `ℝ` (the outer sum index),
-   not `Fin sd.n`. Need to apply `sum_fiberwise` to the right level.
+**Four subgoals** (all ~5-10 LOC each):
 
-**Key technical issues discovered**:
-- `L` is `J → (J →ₗ[ℝ] J)` (a function), NOT a linear map `J →ₗ[ℝ] End J`. So `map_sum L`
-  fails. Must use `(L x).map_sum` or `_root_.map_sum (L x)` for right-distribution only.
-- For left-distribution (`jmul (∑ ...) y`), use `jmul_comm` first, then `(L y).map_sum`.
-- `∑ i` and `∑ i ∈ Finset.univ` are syntactically different; `sum_fiberwise_of_maps_to` uses
-  the explicit `∑ i ∈ s` form. Convert with `Finset.sum_univ_eq` or restructure the proof.
+1. **Idempotent**: `∀ r ∈ S, IsIdempotent (e r)`.
+   - Use `Finset.induction_on` with explicit `(p := ...)` motive on the filter Finset.
+   - CRITICAL: Must provide `(p := fun F => IsIdempotent (∑ i ∈ F, sd.csoi.idem i))` explicitly,
+     otherwise Lean error "failed to elaborate eliminator, expected type is not available".
+   - Base: `IsIdempotent 0` via `unfold IsIdempotent jsq; exact zero_jmul 0`.
+   - Step: `orthogonal_sum_isIdempotent` + orthogonality via `simp only [← L_apply, map_sum]`.
+   - **Universe issue**: Helper lemma `jmul_sum_right` with `{ι : Type*}` triggers
+     `AddConstAsyncResult.commitConst: constant has level params [u_1, u_2] but expected [u_1]`.
+     Fix: make helper specific to `Fin sd.n` or define it OUTSIDE the theorem.
+
+2. **Orthogonal**: `∀ r s, r ∈ S → s ∈ S → r ≠ s → AreOrthogonal (e r) (e s)`.
+   - Distribute double sum: `jmul_comm` then `simp only [← L_apply, map_sum]` for each level.
+   - Each pair vanishes: `sd.csoi.orthog i j` with `i ≠ j` from different eigenvalue groups.
+   - Key term: `fun h => hrs (hi.2.symm.trans ((congr_arg sd.eigenvalues h).trans hj.2))`.
+
+3. **Complete**: `∑ r ∈ S, e r = jone`.
+   - `Finset.sum_fiberwise_of_maps_to` directly. BUT there's a `∑ i` vs `∑ i ∈ univ` mismatch.
+   - `sd.csoi.complete : ∑ i, idem i = jone` uses `∑ i` (implicit univ).
+   - `sum_fiberwise_of_maps_to` produces `∑ i ∈ univ, idem i` (explicit univ).
+   - Fix: use `Finset.sum_univ_eq` to convert, or rewrite with `← Finset.sum_univ_eq`.
+
+4. **Decomp**: `a = ∑ r ∈ S, r • e r`.
+   - After `rw [sd.decomp]; simp only [Finset.smul_sum]`, need to show
+     `∑ r ∈ S, ∑ i ∈ filter, r • idem i = ∑ i, ev i • idem i`.
+   - Use `trans` with intermediate `∑ r ∈ S, ∑ i ∈ filter, ev i • idem i`.
+   - First step: `Finset.sum_congr rfl` twice, with `rw [(Finset.mem_filter.mp hi).2]`.
+   - Second step: `Finset.sum_fiberwise_of_maps_to`.
+   - Same `∑ i` vs `∑ i ∈ univ` issue as goal 3.
 
 **Build status**: PASSES (reverted to sorry)
 **Sorries**: 11 (unchanged)

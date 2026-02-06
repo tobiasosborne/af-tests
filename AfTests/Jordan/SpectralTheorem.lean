@@ -393,6 +393,10 @@ theorem spectral_decomposition_finset [FinDimJordanAlgebra J] [FormallyRealTrace
       (∑ r ∈ S, e r = jone) ∧
       (a = ∑ r ∈ S, r • e r) := by
   obtain ⟨sd, _⟩ := spectral_decomposition_exists a
+  let S := Finset.image sd.eigenvalues Finset.univ
+  let e : ℝ → J := fun μ =>
+    ∑ i ∈ Finset.univ.filter (fun j => sd.eigenvalues j = μ), sd.csoi.idem i
+  refine ⟨S, e, ?_, ?_, ?_, ?_⟩
   sorry
 
 /-! ### Uniqueness Results -/
