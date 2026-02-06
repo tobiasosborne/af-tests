@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: AF-Tests Contributors
 -/
 import AfTests.Jordan.FormallyReal.OrderedCone
+import AfTests.Jordan.SpectralTheorem
 import Mathlib.Data.Real.Sqrt
 
 /-!
@@ -101,20 +102,77 @@ theorem isPositiveSqrt_unique [FormallyRealJordan J] {a b c : J}
   -- For now, we handle the case where b + c is "cancellable"
   sorry
 
+/-! ### Trace inner product and positive elements -/
+
+/-- Trace inner product of a positive element with an idempotent is non-negative.
+    Key step: traceInner(x², e) = traceInner(e∘x, x) ≥ 0 by L_e PSD. -/
+theorem traceInner_positive_idem_nonneg [FormallyRealTrace J]
+    {a e : J} (ha : PositiveElement a) (he : IsIdempotent e) :
+    0 ≤ traceInner a e := by
+  obtain ⟨n, b, rfl⟩ := ha
+  -- Distribute: traceInner (∑ jsq(bᵢ)) e = ∑ traceInner (jsq(bᵢ)) e
+  show 0 ≤ traceInner (∑ i : Fin n, jsq (b i)) e
+  unfold traceInner
+  conv_lhs => rw [jmul_comm]
+  rw [← L_apply, map_sum, map_sum]
+  apply Finset.sum_nonneg
+  intro i _
+  -- trace(jmul e (jsq(bᵢ))) = traceInner(jsq(bᵢ), e) = traceInner(jmul e (bᵢ), bᵢ) ≥ 0
+  show 0 ≤ trace (L e (jsq (b i)))
+  rw [L_apply]
+  calc (0 : ℝ) ≤ traceInner (jmul e (b i)) (b i) :=
+        traceInner_jmul_idem_self_nonneg he (b i)
+    _ = traceInner (b i) (jmul e (b i)) := traceInner_symm _ _
+    _ = traceInner (b i) (jmul (b i) e) := by rw [jmul_comm]
+    _ = traceInner (jmul (b i) (b i)) e := (traceInner_jmul_left _ _ _).symm
+    _ = trace (jmul e (jmul (b i) (b i))) := by rw [jmul_comm]; rfl
+
+/-- Eigenvalues of a positive element are non-negative (H-O 3.1.3 direction). -/
+theorem positive_eigenvalues_nonneg [FinDimJordanAlgebra J] [FormallyRealJordan J]
+    [FormallyRealTrace J] {a : J} (ha : PositiveElement a) (sd : SpectralDecomp a)
+    (hne : ∀ i, sd.csoi.idem i ≠ 0) :
+    ∀ i, 0 ≤ sd.eigenvalues i := by
+  intro i
+  have heig := spectral_decomp_jmul_idem sd i
+  have htrace_eig : traceInner a (sd.csoi.idem i) =
+      sd.eigenvalues i * traceInner (sd.csoi.idem i) (sd.csoi.idem i) := by
+    unfold traceInner; rw [heig, trace_smul, ← jsq_def, (sd.csoi.is_idem i).jsq_eq_self]
+  have hpos : 0 ≤ traceInner a (sd.csoi.idem i) :=
+    traceInner_positive_idem_nonneg ha (sd.csoi.is_idem i)
+  have htrace_pos : 0 < traceInner (sd.csoi.idem i) (sd.csoi.idem i) :=
+    traceInner_self_pos (hne i)
+  exact nonneg_of_mul_nonneg_left (by linarith) htrace_pos
+
 /-! ### Existence -/
 
-/-- Existence of positive square roots requires spectral theory.
-
-In a JB-algebra with spectral theorem, every positive element `a` has a unique
-positive square root in `C(a)`. The construction uses:
-1. `C(a) ≅ C(Sp a)` (spectral theorem)
-2. `Sp a ⊆ [0, ∞)` for positive `a`
-3. Apply `√ : [0, ∞) → [0, ∞)` pointwise
-
-**Implementation Note:** Full proof requires JB-algebra structure (completeness). -/
-theorem HasPositiveSqrt.of_positiveElement
-    (a : J) (ha : PositiveElement a) : HasPositiveSqrt a := by
-  -- This requires spectral theory or axiomatization
-  sorry
+/-- Every positive element has a positive square root (H-O 3.1.4/3.2.4).
+    Construction: given spectral decomposition a = ∑ λᵢ eᵢ with λᵢ ≥ 0,
+    define b = ∑ √λᵢ eᵢ. Then b² = a and b = (∑ ⁴√λᵢ eᵢ)² is positive. -/
+theorem HasPositiveSqrt.of_positiveElement [FinDimJordanAlgebra J] [FormallyRealJordan J]
+    [FormallyRealTrace J] (a : J) (ha : PositiveElement a) : HasPositiveSqrt a := by
+  obtain ⟨sd, hprim⟩ := spectral_decomposition_exists a
+  have hne : ∀ i, sd.csoi.idem i ≠ 0 := fun i => (hprim i).ne_zero
+  have hnn : ∀ i, 0 ≤ sd.eigenvalues i := positive_eigenvalues_nonneg ha sd hne
+  -- b = ∑ √λᵢ • eᵢ
+  let b := ∑ i, Real.sqrt (sd.eigenvalues i) • sd.csoi.idem i
+  have hb_sq : jsq b = a := by
+    calc jsq b
+        = ∑ i, (Real.sqrt (sd.eigenvalues i)) ^ 2 • sd.csoi.idem i :=
+          jsq_sum_orthog_idem sd.csoi _
+      _ = ∑ i, sd.eigenvalues i • sd.csoi.idem i := by
+          congr 1; ext i; rw [Real.sq_sqrt (hnn i)]
+      _ = a := sd.decomp.symm
+  -- b is positive: b = jsq(c) where c = ∑ ⁴√λᵢ • eᵢ
+  have hb_pos : PositiveElement b := by
+    let c := ∑ i, Real.sqrt (Real.sqrt (sd.eigenvalues i)) • sd.csoi.idem i
+    have : jsq c = b := by
+      calc jsq c
+          = ∑ i, (Real.sqrt (Real.sqrt (sd.eigenvalues i))) ^ 2 • sd.csoi.idem i :=
+            jsq_sum_orthog_idem sd.csoi _
+        _ = ∑ i, Real.sqrt (sd.eigenvalues i) • sd.csoi.idem i := by
+            congr 1; ext i; rw [Real.sq_sqrt (Real.sqrt_nonneg _)]
+        _ = b := rfl
+    rw [← this]; exact positiveElement_jsq c
+  exact ⟨b, hb_sq, hb_pos⟩
 
 end JordanAlgebra

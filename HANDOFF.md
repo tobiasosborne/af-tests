@@ -1,29 +1,31 @@
-# Handoff: 2026-02-06 (Session 99)
+# Handoff: 2026-02-06 (Session 100)
 
 ## This Session
 
-### Removed 2 false/obsolete sorries, sorries 8 → 7
+### Proved HasPositiveSqrt.of_positiveElement, sorries 7 → 6
 
-1. **Replaced false `spectrum_eq_eigenvalueSet`** (SpectralTheorem.lean:447)
-   - Was: `jordanSpectrum a sd = spectrum a` (FALSE — Peirce-½ eigenvalues break ⊇)
-   - Now: `jordanSpectrum_subset_spectrum` — correct ⊆ direction, proved from `spectral_decomp_eigenvalue_mem_spectrum`
-   - Also removed wrapper `spectral_decomp_eigenvalues_eq_spectrum`
+Filled the `HasPositiveSqrt.of_positiveElement` sorry in FormallyReal/Square.lean (~40 LOC).
 
-2. **Removed `spectral_sq_eigenvalues_nonneg`** from FormallyReal/Spectrum.lean
-   - Was sorry'd with insufficient hypotheses (missing FinDimJordanAlgebra, FormallyRealTrace, hne)
-   - The correct version `sq_eigenvalues_nonneg` already exists in SpectralTheorem.lean (proved session 98)
-   - Added comment pointing to the correct theorem
+**Proof (H-O 3.1.4/3.2.4)**: Given positive `a` with spectral decomposition `a = ∑ λᵢ eᵢ`:
+1. Show `λᵢ ≥ 0` (new `positive_eigenvalues_nonneg`)
+2. Define `b = ∑ √λᵢ • eᵢ`, then `b² = a` by `jsq_sum_orthog_idem` + `Real.sq_sqrt`
+3. Show `b` is positive: `b = jsq(∑ ⁴√λᵢ • eᵢ)` by same argument
 
-**Build**: PASSES. **Sorries**: 8 → 7.
+**Two helper lemmas added to Square.lean:**
+- `traceInner_positive_idem_nonneg` — trace inner product of positive element with idempotent ≥ 0
+  - Distributes over sum-of-squares: each `traceInner(xⱼ², eᵢ) = traceInner(eᵢ∘xⱼ, xⱼ) ≥ 0`
+- `positive_eigenvalues_nonneg` — eigenvalues of a positive element are non-negative (H-O 3.1.3)
+  - Same trace argument pattern as `sq_eigenvalues_nonneg`
 
-### Remaining sorries (7 total, 5 files)
+**Build**: PASSES. **Sorries**: 7 → 6.
+
+### Remaining sorries (6 total, 5 files)
 
 | File | Line | Theorem | Difficulty |
 |------|------|---------|-----------|
 | FundamentalFormula.lean | 259 | `fundamental_formula` | Hard (Macdonald) |
 | FormallyReal/Def.lean | 75,80 | `of_sq_eq_zero` | Accepted gap |
-| FormallyReal/Square.lean | 102 | `isPositiveSqrt_unique` | Medium |
-| FormallyReal/Square.lean | 118 | `HasPositiveSqrt.of_positiveElement` | Medium |
+| FormallyReal/Square.lean | 103 | `isPositiveSqrt_unique` | Medium |
 | Classification/RealSymmetric.lean | 81 | `isSimple` | Hard |
 | Classification/ComplexHermitian.lean | 78 | `isSimple` | Hard |
 
