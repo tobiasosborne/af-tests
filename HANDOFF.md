@@ -1,32 +1,29 @@
-# Handoff: 2026-02-06 (Session 97)
+# Handoff: 2026-02-06 (Session 98)
 
 ## This Session
 
-### WIP: sq_eigenvalues_nonneg — proof structure written, 3 compile errors remain
+### FIXED: traceInner_jmul_idem_self_nonneg + sq_eigenvalues_nonneg now compile
 
-Added two theorems to SpectralTheorem.lean (lines ~525-620). Code does NOT compile yet — 3 small errors remain. The proof LOGIC is correct and fully analyzed.
+Fixed all 4 compile errors from session 97. Both theorems now fully proved:
+1. `traceInner_jmul_idem_self_nonneg` — L_e is PSD for idempotent e (SpectralTheorem.lean:527)
+2. `sq_eigenvalues_nonneg` — eigenvalues of a² are non-negative (SpectralTheorem.lean:590)
 
-**What was added:**
-1. `traceInner_jmul_idem_self_nonneg` — L_e is PSD for idempotent e (~45 LOC)
-2. `sq_eigenvalues_nonneg` — eigenvalues of a² are non-negative (~30 LOC, signature CHANGED)
+**Fixes applied:**
+1. Peirce membership: `.out` + `rwa [one_smul]` → `(mem_peirceSpace_one_iff e v₁).mp (peirceProj₁_mem he v)` (and similarly for zero)
+2. Second-argument smul: `traceInner_smul_left` → `traceInner_smul_right` (line 564)
+3. Bilinearity expansion: unfold `traceInner` to `trace(jmul ...)` with `simp only [traceInner, add_jmul, jmul_add, jmul_smul, ...]` to avoid instance mismatch between `traceInner_add_right` and `traceInner_smul_left` outputs
+4. Trace of smul: `smul_jmul, trace_smul` → `trace_smul, ← jsq_def, jsq_eq_self`
 
-**Signature change for sq_eigenvalues_nonneg:**
-- OLD: `[FinDimJordanAlgebra J] [JordanTrace J] [FormallyRealJordan J]`
-- NEW: `[FinDimJordanAlgebra J] [FormallyRealJordan J] [FormallyRealTrace J]`
-- ADDED hypothesis: `(hne : ∀ i, sd.csoi.idem i ≠ 0)`
-- Removed `[JordanTrace J]` to avoid diamond with `[FormallyRealTrace J]` (both provide JordanTrace)
-- Added `hne` because zero idempotents have free eigenvalues (theorem is FALSE without it)
+**Build**: PASSES. **Sorries**: 10 → 8.
 
-**Also discovered: `spectrum_eq_eigenvalueSet` (line 450) is FALSE as stated.**
-- `jordanSpectrum a sd = spectrum a` fails both directions
-- (⊆) fails: zero idempotents give spurious eigenvalues
-- (⊇) fails: `spectrum a` = eigenvalueSet a includes Peirce-½ eigenvalues (e.g. 3/2 for diag(1,2) in 2×2 matrices) that aren't decomposition eigenvalues
-- Session 79 already identified this issue for `spectrum_sq` but `spectrum_eq_eigenvalueSet` wasn't fixed
-- Recommend: replace with `∀ i, sd.csoi.idem i ≠ 0 → sd.eigenvalues i ∈ spectrum a` (already proved by `spectral_decomp_eigenvalue_mem_spectrum`)
+**Key learning**: `rw [traceInner_smul_left]` fails after `rw [traceInner_add_right]` due to Lean 4 instance elaboration mismatch. Workaround: unfold `traceInner` to `trace (jmul ...)` and use basic algebra lemmas directly.
+
+**Also discovered (session 97): `spectrum_eq_eigenvalueSet` (line 450) is FALSE as stated.**
+- Recommend: replace with `∀ i, sd.csoi.idem i ≠ 0 → sd.eigenvalues i ∈ spectrum a` (already proved)
 
 ---
 
-### THE 3 REMAINING COMPILE ERRORS (all trivial fixes)
+### Previous session's compile error details (now fixed)
 
 **Error 1** (line ~570): `PeirceSpace membership → jmul e v₀ = 0`
 ```
