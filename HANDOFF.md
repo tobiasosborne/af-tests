@@ -1,6 +1,42 @@
-# Handoff: 2026-02-06 (Session 102)
+# Handoff: 2026-02-06 (Session 103)
 
 ## This Session
+
+### Macdonald Steps 2, 4 complete + Step 3 partial (identity 2.47)
+
+1. **OperatorId.lean** (83 LOC, 0 sorries) — Steps 2 + partial Step 3
+   - `U_bilinear_product_250`: identity (2.50) from triple_product_243
+   - `U_bilinear_product_251`: identity (2.51) from triple_product_244
+   - `operator_identity_247`: identity (2.47) from triple_product_244 + jpow_add
+
+2. **FreeAlgebra.lean** (6 sorries → 0 sorries) — Step 4 complete
+   - Added `FreeMagma.unitMul` to handle unit normalization (1*m=m, m*1=m)
+   - Updated `mul` definition to use `unitMul` instead of raw FreeMagma.mul
+   - Proved: `mul_add`, `add_mul`, `smul_mul`, `mul_smul`, `e_mul`, `mul_e`
+
+Closed `af-rnta` (Step 2) and `af-0jcv` (Step 4).
+
+**Build**: PASSES. **Sorries**: 4 (unchanged — FundamentalFormula, Square, 2× Classification).
+
+### Remaining sorries (4 total, 4 files)
+
+| File | Line | Theorem | Difficulty |
+|------|------|---------|-----------|
+| FundamentalFormula.lean | 259 | `fundamental_formula` | Hard (Macdonald) |
+| FormallyReal/Square.lean | 103 | `isPositiveSqrt_unique` | Medium |
+| Classification/RealSymmetric.lean | 81 | `isSimple` | Hard |
+| Classification/ComplexHermitian.lean | 78 | `isSimple` | Hard |
+
+### Recommended next steps (Macdonald path)
+
+1. **af-8mze** (Step 3): Finish operator identities (2.48)-(2.49) — NOW UNBLOCKED (Step 2 done). Identity (2.47) already proved. (2.48) needs (2.50), (2.49) needs (2.51) — both available.
+2. **af-si1a** (Step 5): Free Jordan algebra FJ — NOW UNBLOCKED (Step 4 done)
+3. **af-h2uh** (Step 9): Generator lemma (2.4.23) — blocked on Step 3
+4. **af-fbhq** (Step 7): IsSpecial + FF in special algebras — blocked on Steps 5,6
+
+---
+
+## Previous Session (102)
 
 ### Macdonald Steps 1, 4, 8: Infrastructure for Macdonald's theorem
 
