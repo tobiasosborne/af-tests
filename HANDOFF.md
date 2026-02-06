@@ -1,6 +1,43 @@
-# Handoff: 2026-02-06 (Session 104)
+# Handoff: 2026-02-06 (Session 105)
 
 ## This Session
+
+### Step 6 partial: Free special Jordan algebra FS{x,y}
+
+1. **FreeSpecialJordan.lean** (200 LOC, 2 sorries) -- Step 6 partial
+   - `FreeMagma.evalJordan`: evaluate magma word via symmetrized product a∘b = ½(ab+ba)
+   - `FreeMagma.evalJordan_unitMul`: unitMul evaluates same as mul (sorry-free)
+   - `FreeNAAlg.evalJordanFun`: linear extension to FreeNAAlg (sorry-free)
+   - Linearity lemmas: `evalJordanFun_add`, `evalJordanFun_smul`, `evalJordanFun_neg` (all sorry-free)
+   - `FreeNAAlg.evalJordanFun_mul`: bilinear extension respects mul -- **SORRY**
+     - Proof approach: double `Finsupp.induction_linear` (use `refine` not `apply`)
+     - Add case: `conv_rhs => rw [mul_add, add_mul]; rw [← smul_add]; congr 1; rw [add_add_add_comm]`
+     - Single case: `rw [smul_comm, smul_add, smul_mul_assoc, mul_smul_comm]`
+     - Key blocker: `conv_rhs` enters `•` but ring-level `mul_add`/`add_mul` don't match inside
+   - `FreeNAAlg.evalJordan_congr`: JordanCong respects eval -- **SORRY** (jordan case only)
+     - comm/add/smul/mul/refl/symm/trans cases all sorry-free
+     - jordan case needs: expand ½•(½•(a*b+b*a)*(a*a)+...) on both sides, show equal by assoc
+   - `FreeJordanAlg.evalAssoc`: lift to quotient (sorry-free, depends on evalJordan_congr)
+   - `evalAssoc_x`, `evalAssoc_y`, `evalAssoc_add`, `evalAssoc_smul`, `evalAssoc_mul` (all sorry-free)
+
+2. **FreeJordan.lean** -- bug fix: `Quotient.surjective_Quotient_mk'` → `Quotient.mk_surjective`
+
+**Build**: PASSES (with 2 new sorries in FreeSpecialJordan).
+
+### Remaining work for Step 6
+
+The 2 sorries are:
+- `evalJordanFun_mul`: The bilinear extension theorem. Proof is ~90% done in scratch testing.
+  The approach works (`Finsupp.induction_linear` + `smul_comm`/`add_add_add_comm`).
+  The remaining issue: in the add case, after rewriting with IH, need to distribute
+  `mul_add`/`add_mul` on the RHS which is nested inside `(1/2:ℝ) • (...)`. Solution:
+  first `show LHS = (1/2:ℝ) • (expanded RHS)` then close with `congr 1; add_add_add_comm`.
+- `evalJordan_congr` jordan case: needs `evalJordanFun_mul` first, then expand and verify
+  the Jordan identity in associative algebras (both sides = ¼(aba²+ba³+a³b+a²ba)).
+
+---
+
+## Previous Session (104)
 
 ### Steps 3 + 5 complete: Operator identities + Free Jordan algebra
 

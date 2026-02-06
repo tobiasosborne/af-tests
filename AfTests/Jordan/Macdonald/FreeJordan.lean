@@ -172,6 +172,6 @@ theorem jordan_identity (a b : FreeJordanAlg) :
 
 /-- The quotient map is surjective. -/
 theorem mk_surjective : Function.Surjective mk :=
-  Quotient.surjective_Quotient_mk'
+  Quotient.mk_surjective
 
 end FreeJordanAlg
