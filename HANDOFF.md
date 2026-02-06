@@ -1,6 +1,44 @@
-# Handoff: 2026-02-05 (Session 92)
+# Handoff: 2026-02-06 (Session 93)
 
 ## This Session
+
+### WIP: spectral_decomposition_finset proof (SpectralTheorem.lean:396)
+
+Attempted to fill `spectral_decomposition_finset`. Proof is ~90% complete but needs 1-2 more
+iterations to compile. Strategy is correct and nearly working.
+
+**Proof approach** (group SpectralDecomp eigenvalues by value via Finset.image):
+- `S := Finset.image sd.eigenvalues Finset.univ`
+- `e μ := ∑ i ∈ Finset.univ.filter (fun j => sd.eigenvalues j = μ), sd.csoi.idem i`
+
+**Four goals**:
+1. **Idempotent** (COMPILES): `Finset.induction_on` + `orthogonal_sum_isIdempotent`.
+   Base: `jsq 0 = 0`. Step: `add_jmul`, orthogonality via `change (L _) _ = 0; rw [map_sum]`.
+2. **Orthogonal** (needs fix): Double Finset sum distribution. `LinearMap.map_sum` doesn't exist
+   as dot notation; use `AddMonoidHom.map_sum` or `_root_.map_sum (f := L x)` instead.
+   Alternative: `jmul_comm` + `_root_.map_sum` for each level.
+3. **Complete** (needs fix): `Finset.sum_fiberwise_of_maps_to` but `∑ i` vs `∑ i ∈ univ`
+   notation mismatch. Fix: use `Finset.sum_fiberwise_of_maps_to` directly without `.symm`,
+   then `exact sd.csoi.complete`.
+4. **Decomp** (needs fix): After `simp_rw [Finset.smul_sum]`, use `sum_fiberwise_of_maps_to`
+   for `∑ i, ev i • idem i = ∑ μ ∈ S, ∑ i ∈ filter, ev i • idem i`, then `congr` with
+   `(Finset.mem_filter.mp hi).2` to replace `ev i` with `μ` inside each fiber.
+   Issue: after fiberwise, the bound variable `i` has type `ℝ` (the outer sum index),
+   not `Fin sd.n`. Need to apply `sum_fiberwise` to the right level.
+
+**Key technical issues discovered**:
+- `L` is `J → (J →ₗ[ℝ] J)` (a function), NOT a linear map `J →ₗ[ℝ] End J`. So `map_sum L`
+  fails. Must use `(L x).map_sum` or `_root_.map_sum (L x)` for right-distribution only.
+- For left-distribution (`jmul (∑ ...) y`), use `jmul_comm` first, then `(L y).map_sum`.
+- `∑ i` and `∑ i ∈ Finset.univ` are syntactically different; `sum_fiberwise_of_maps_to` uses
+  the explicit `∑ i ∈ s` form. Convert with `Finset.sum_univ_eq` or restructure the proof.
+
+**Build status**: PASSES (reverted to sorry)
+**Sorries**: 11 (unchanged)
+
+---
+
+## Previous Session (92)
 
 ### FILLED: jone_eigenspace_decomp_in_ca — all 6 sorry's resolved
 
