@@ -5,6 +5,7 @@ Authors: AF-Tests Contributors
 -/
 import AfTests.Jordan.Macdonald.FreeJordan
 import Mathlib.Algebra.Algebra.Basic
+import Mathlib.Tactic.NoncommRing
 
 /-!
 # Free Special Jordan Algebra on Two Generators
@@ -115,25 +116,41 @@ theorem FreeNAAlg.evalJordanFun_neg (a b : A) (f : FreeNAAlg) :
     evalJordanFun a b (-f) = -evalJordanFun a b f := by
   rw [show -f = (-1 : ℝ) • f from by simp, evalJordanFun_smul, neg_one_smul]
 
+/-- Helper: `evalJordanFun` on `mul (ι m) g`. -/
+private theorem FreeNAAlg.evalJordanFun_mul_ι (a b : A) (m : FreeMagma) (g : FreeNAAlg) :
+    evalJordanFun a b (FreeNAAlg.mul (ι m) g) =
+    (1/2 : ℝ) • (FreeMagma.evalJordan a b m * evalJordanFun a b g +
+                  evalJordanFun a b g * FreeMagma.evalJordan a b m) := by
+  refine Finsupp.induction_linear g ?_ ?_ ?_
+  · simp [FreeNAAlg.mul, Finsupp.sum, evalJordanFun]
+  · intro g₁ g₂ ih₁ ih₂
+    rw [FreeNAAlg.mul_add, evalJordanFun_add, ih₁, ih₂, evalJordanFun_add]
+    rw [← smul_add]; congr 1; noncomm_ring
+  · intro m₂ r₂
+    rw [show Finsupp.single m₂ r₂ = r₂ • ι m₂ from by
+      simp [ι, Finsupp.smul_single, smul_eq_mul, mul_one]]
+    rw [FreeNAAlg.mul_smul, evalJordanFun_smul, evalJordanFun_smul,
+        FreeNAAlg.mul_ι, evalJordanFun_ι, FreeMagma.evalJordan_unitMul,
+        evalJordanFun_ι]
+    rw [smul_comm, smul_add, smul_mul_assoc, mul_smul_comm]
+
 /-- `evalJordanFun` respects `FreeNAAlg.mul` — it sends `mul f g` to
     `½(eval f * eval g + eval g * eval f)`. -/
 theorem FreeNAAlg.evalJordanFun_mul (a b : A) (f g : FreeNAAlg) :
     evalJordanFun a b (FreeNAAlg.mul f g) =
     (1/2 : ℝ) • (evalJordanFun a b f * evalJordanFun a b g +
                   evalJordanFun a b g * evalJordanFun a b f) := by
-  -- Proof strategy (tested, nearly complete):
-  -- 1. Use `refine Finsupp.induction_linear f` (NOT `apply f.induction_linear`)
-  -- 2. Zero case: `simp [FreeNAAlg.mul, Finsupp.sum, FreeNAAlg.evalJordanFun]`
-  -- 3. Add case: rw [add_mul, evalJordanFun_add, ih₁, ih₂], then
-  --    conv_rhs to distribute `mul_add`/`add_mul` inside `•`,
-  --    then `← smul_add; congr 1; rw [add_add_add_comm]`
-  -- 4. Single case: rewrite single as r•ι, use smul_mul/mul_smul,
-  --    then inner induction on g with same pattern.
-  --    Base: evalJordanFun_mul_ι (helper for ι on left)
-  -- Key issue: `conv_rhs` enters `•` but `mul_add`/`add_mul` are A-level
-  --   not FreeNAAlg-level, so pattern matching fails.
-  --   Fix: rewrite RHS `mul_add`/`add_mul` before entering `smul`.
-  sorry
+  refine Finsupp.induction_linear f ?_ ?_ ?_
+  · simp [FreeNAAlg.mul, Finsupp.sum, evalJordanFun]
+  · intro f₁ f₂ ih₁ ih₂
+    rw [FreeNAAlg.add_mul, evalJordanFun_add, ih₁, ih₂, evalJordanFun_add]
+    rw [← smul_add]; congr 1; noncomm_ring
+  · intro m₁ r₁
+    rw [show Finsupp.single m₁ r₁ = r₁ • ι m₁ from by
+      simp [ι, Finsupp.smul_single, smul_eq_mul, mul_one]]
+    rw [FreeNAAlg.smul_mul, evalJordanFun_smul, evalJordanFun_smul,
+        evalJordanFun_mul_ι, evalJordanFun_ι]
+    rw [smul_comm, smul_add, smul_mul_assoc, mul_smul_comm]
 
 /-! ### JordanCong respects evaluation -/
 
@@ -146,13 +163,14 @@ theorem FreeNAAlg.evalJordan_congr (a b : A) {f g : FreeNAAlg}
     simp only [evalJordanFun_mul]
     congr 1; exact add_comm _ _
   | jordan f₁ f₂ =>
-    -- (a∘b)∘a² = a∘(b∘a²) in any associative algebra.
-    -- After evalJordanFun_mul expands, both sides reduce to
-    -- ¼(aba² + ba³ + a³b + a²ba) by associativity.
-    -- Proof: expand all ½•(... + ...) factors, clear denominators,
-    -- then the equality holds by ring in a (possibly non-comm) algebra.
+    -- (x∘y)∘x² = x∘(y∘x²) in any associative algebra.
     simp only [evalJordanFun_mul]
-    sorry
+    set x := evalJordanFun a b f₁; set y := evalJordanFun a b f₂
+    have h : (1/2 : ℝ) • (x * x + x * x) = x * x := by
+      rw [← two_smul ℝ (x * x), smul_smul]; norm_num
+    simp only [h]
+    noncomm_ring
+    congr 1; simp only [← smul_add]; congr 1; abel
   | add_left _ _ c _ ih =>
     simp only [evalJordanFun_add]; rw [ih]
   | add_right _ _ c _ ih =>
