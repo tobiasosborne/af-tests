@@ -397,7 +397,28 @@ theorem spectral_decomposition_finset [FinDimJordanAlgebra J] [FormallyRealTrace
   let e : ℝ → J := fun μ =>
     ∑ i ∈ Finset.univ.filter (fun j => sd.eigenvalues j = μ), sd.csoi.idem i
   refine ⟨S, e, ?_, ?_, ?_, ?_⟩
-  sorry
+  -- Subgoals: idempotent, orthogonal, complete, decomp
+  -- See HANDOFF.md for detailed proof approach for each
+  · -- Goal 1: Idempotent - use @Finset.induction_on with orthogonal_sum_isIdempotent
+    sorry
+  · -- Goal 2: Orthogonal - distribute jmul via L linearity, csoi.orthog
+    sorry
+  · -- Goal 3: Complete - sum_fiberwise_of_maps_to + csoi.complete
+    show ∑ r ∈ S, ∑ i ∈ Finset.univ.filter (fun j => sd.eigenvalues j = r),
+      sd.csoi.idem i = jone
+    rw [Finset.sum_fiberwise_of_maps_to
+      (fun i _ => Finset.mem_image_of_mem sd.eigenvalues (Finset.mem_univ i))]
+    exact sd.csoi.complete
+  · -- Goal 4: Decomp - fiberwise after replacing r by ev i
+    rw [sd.decomp]; show ∑ i, sd.eigenvalues i • sd.csoi.idem i =
+      ∑ r ∈ S, r • ∑ i ∈ Finset.univ.filter (fun j => sd.eigenvalues j = r), sd.csoi.idem i
+    simp only [Finset.smul_sum]; symm
+    trans (∑ r ∈ S, ∑ i ∈ Finset.univ.filter (fun j => sd.eigenvalues j = r),
+      sd.eigenvalues i • sd.csoi.idem i)
+    · congr 1; ext r
+      exact Finset.sum_congr rfl (fun i hi => by rw [(Finset.mem_filter.mp hi).2])
+    · exact Finset.sum_fiberwise_of_maps_to
+        (fun i _ => Finset.mem_image_of_mem sd.eigenvalues (Finset.mem_univ i)) _
 
 /-! ### Uniqueness Results -/
 
