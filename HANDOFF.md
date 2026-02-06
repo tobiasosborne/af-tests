@@ -2,38 +2,31 @@
 
 ## This Session
 
-### Step 6 partial: Free special Jordan algebra FS{x,y}
+### Steps 6 + 9 complete: FreeSpecialJordan + GeneratorLemma (0 sorries)
 
-1. **FreeSpecialJordan.lean** (200 LOC, 2 sorries) -- Step 6 partial
+1. **FreeSpecialJordan.lean** (207 LOC, 0 sorries) -- Step 6 COMPLETE
    - `FreeMagma.evalJordan`: evaluate magma word via symmetrized product a∘b = ½(ab+ba)
-   - `FreeMagma.evalJordan_unitMul`: unitMul evaluates same as mul (sorry-free)
-   - `FreeNAAlg.evalJordanFun`: linear extension to FreeNAAlg (sorry-free)
-   - Linearity lemmas: `evalJordanFun_add`, `evalJordanFun_smul`, `evalJordanFun_neg` (all sorry-free)
-   - `FreeNAAlg.evalJordanFun_mul`: bilinear extension respects mul -- **SORRY**
-     - Proof approach: double `Finsupp.induction_linear` (use `refine` not `apply`)
-     - Add case: `conv_rhs => rw [mul_add, add_mul]; rw [← smul_add]; congr 1; rw [add_add_add_comm]`
-     - Single case: `rw [smul_comm, smul_add, smul_mul_assoc, mul_smul_comm]`
-     - Key blocker: `conv_rhs` enters `•` but ring-level `mul_add`/`add_mul` don't match inside
-   - `FreeNAAlg.evalJordan_congr`: JordanCong respects eval -- **SORRY** (jordan case only)
-     - comm/add/smul/mul/refl/symm/trans cases all sorry-free
-     - jordan case needs: expand ½•(½•(a*b+b*a)*(a*a)+...) on both sides, show equal by assoc
-   - `FreeJordanAlg.evalAssoc`: lift to quotient (sorry-free, depends on evalJordan_congr)
-   - `evalAssoc_x`, `evalAssoc_y`, `evalAssoc_add`, `evalAssoc_smul`, `evalAssoc_mul` (all sorry-free)
+   - `FreeNAAlg.evalJordanFun`: linear extension to FreeNAAlg
+   - `evalJordanFun_mul`: bilinear extension respects mul (add case: `noncomm_ring`)
+   - `evalJordan_congr`: JordanCong respects eval (jordan case: `simp only [h]; noncomm_ring; congr 1; simp only [← smul_add]; congr 1; abel`)
+   - `FreeJordanAlg.evalAssoc`: lift to quotient
+   - `evalAssoc_x/y/add/smul/mul`: API lemmas
 
-2. **FreeJordan.lean** -- bug fix: `Quotient.surjective_Quotient_mk'` → `Quotient.mk_surjective`
+2. **GeneratorLemma.lean** (102 LOC, 0 sorries) -- Step 9 COMPLETE
+   - `U_bilinear_eq_L`: U_{a,b} = L_b∘L_a + L_a∘L_b - L_{a∘b}
+   - `U_bilinear_one_right/left`: U_{a,1} = L_a, U_{1,b} = L_b
+   - `T_product_formula`: L_{a∘(b∘c)} = L_a∘L_{b∘c} + L_b∘L_{c∘a} + L_c∘L_{a∘b} - L_b∘L_a∘L_c - L_c∘L_a∘L_b
 
-**Build**: PASSES (with 2 new sorries in FreeSpecialJordan).
+**Build**: PASSES. **Sorries**: 4 (unchanged — FundamentalFormula, Square, 2x Classification).
 
-### Remaining work for Step 6
+### Key proof technique discovered
+Jordan identity in associative algebras: `simp only [evalJordanFun_mul]` then
+`set p/q`, prove `(1/2)•(p*p+p*p) = p*p` via `two_smul+smul_smul+norm_num`,
+`simp only [h]`, then `noncomm_ring` + `congr 1; simp only [← smul_add]; congr 1; abel`.
 
-The 2 sorries are:
-- `evalJordanFun_mul`: The bilinear extension theorem. Proof is ~90% done in scratch testing.
-  The approach works (`Finsupp.induction_linear` + `smul_comm`/`add_add_add_comm`).
-  The remaining issue: in the add case, after rewriting with IH, need to distribute
-  `mul_add`/`add_mul` on the RHS which is nested inside `(1/2:ℝ) • (...)`. Solution:
-  first `show LHS = (1/2:ℝ) • (expanded RHS)` then close with `congr 1; add_add_add_comm`.
-- `evalJordan_congr` jordan case: needs `evalJordanFun_mul` first, then expand and verify
-  the Jordan identity in associative algebras (both sides = ¼(aba²+ba³+a³b+a²ba)).
+### Macdonald progress: Steps 1-6, 8-9 complete
+- Next unblocked: Step 7 (surjectivity of evalAssoc onto FS)
+- Critical path: 7 → 10-13 → 14 → 15 → 16 → 17 (fill fundamental_formula)
 
 ---
 
