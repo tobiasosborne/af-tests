@@ -1,6 +1,42 @@
-# Handoff: 2026-02-06 (Session 98)
+# Handoff: 2026-02-06 (Session 99)
 
 ## This Session
+
+### Removed 2 false/obsolete sorries, sorries 8 → 7
+
+1. **Replaced false `spectrum_eq_eigenvalueSet`** (SpectralTheorem.lean:447)
+   - Was: `jordanSpectrum a sd = spectrum a` (FALSE — Peirce-½ eigenvalues break ⊇)
+   - Now: `jordanSpectrum_subset_spectrum` — correct ⊆ direction, proved from `spectral_decomp_eigenvalue_mem_spectrum`
+   - Also removed wrapper `spectral_decomp_eigenvalues_eq_spectrum`
+
+2. **Removed `spectral_sq_eigenvalues_nonneg`** from FormallyReal/Spectrum.lean
+   - Was sorry'd with insufficient hypotheses (missing FinDimJordanAlgebra, FormallyRealTrace, hne)
+   - The correct version `sq_eigenvalues_nonneg` already exists in SpectralTheorem.lean (proved session 98)
+   - Added comment pointing to the correct theorem
+
+**Build**: PASSES. **Sorries**: 8 → 7.
+
+### Remaining sorries (7 total, 5 files)
+
+| File | Line | Theorem | Difficulty |
+|------|------|---------|-----------|
+| FundamentalFormula.lean | 259 | `fundamental_formula` | Hard (Macdonald) |
+| FormallyReal/Def.lean | 75,80 | `of_sq_eq_zero` | Accepted gap |
+| FormallyReal/Square.lean | 102 | `isPositiveSqrt_unique` | Medium |
+| FormallyReal/Square.lean | 118 | `HasPositiveSqrt.of_positiveElement` | Medium |
+| Classification/RealSymmetric.lean | 81 | `isSimple` | Hard |
+| Classification/ComplexHermitian.lean | 78 | `isSimple` | Hard |
+
+### Recommended next steps
+
+1. **`isPositiveSqrt_unique`** — needs (b-c)²=0 argument; may need invertibility of b+c or C(a) structure
+2. **`HasPositiveSqrt.of_positiveElement`** — apply spectral decomp, sqrt eigenvalues
+3. **`fundamental_formula`** — Macdonald's theorem (~200+ LOC)
+4. **`isSimple`** (RealSymmetric/ComplexHermitian) — matrix units theory
+
+---
+
+## Previous Session (98)
 
 ### FIXED: traceInner_jmul_idem_self_nonneg + sq_eigenvalues_nonneg now compile
 

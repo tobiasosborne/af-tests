@@ -134,15 +134,9 @@ theorem spectral_eigenvalues_sq_nonneg {a : J} (sd : SpectralDecomp a) :
 
 /-! ### Formally Real and Spectral Properties -/
 
-/-- In a formally real Jordan algebra with spectral decomposition, squares have
-non-negative eigenvalues (since squares of reals are non-negative). -/
-theorem FormallyRealJordan.spectral_sq_eigenvalues_nonneg [FormallyRealJordan J]
-    {a : J} (sd : SpectralDecomp (jsq a)) :
-    ∀ i, 0 ≤ sd.eigenvalues i := by
-  -- This would follow from the spectral theorem: eigenvalues of squares are
-  -- squares of eigenvalues of the original element.
-  -- For now, we note that this is a consequence of formal reality.
-  intro i
-  sorry
+-- NOTE: spectral_sq_eigenvalues_nonneg has been moved to SpectralTheorem.lean
+-- as `sq_eigenvalues_nonneg`, where the trace inner product infrastructure is
+-- available. It requires [FinDimJordanAlgebra J] [FormallyRealTrace J] and
+-- nonzero idempotents: (hne : ∀ i, sd.csoi.idem i ≠ 0).
 
 end JordanAlgebra

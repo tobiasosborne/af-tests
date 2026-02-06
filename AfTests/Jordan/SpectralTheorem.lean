@@ -441,20 +441,22 @@ theorem spectral_decomposition_finset [FinDimJordanAlgebra J] [FormallyRealTrace
     · exact Finset.sum_fiberwise_of_maps_to
         (fun i _ => Finset.mem_image_of_mem sd.eigenvalues (Finset.mem_univ i)) _
 
-/-! ### Uniqueness Results -/
+/-! ### Spectrum Inclusion -/
 
-/-- The spectrum (eigenvalue set) is unique - it equals eigenvalueSet a. -/
-theorem spectrum_eq_eigenvalueSet [FinDimJordanAlgebra J] [JordanTrace J]
-    [FormallyRealJordan J] (a : J) (sd : SpectralDecomp a) :
-    jordanSpectrum a sd = spectrum a := by
-  -- Both characterize the same eigenvalues of L_a
-  sorry
+-- NOTE: The full equality `jordanSpectrum a sd = spectrum a` is FALSE.
+-- The ⊇ direction fails because `spectrum a` (eigenvalues of L_a) includes
+-- Peirce-½ eigenvalues that are not decomposition eigenvalues.
+-- Example: For A = diag(1,2) in M₂(ℝ), L_A has eigenvalue 3/2 from the
+-- off-diagonal Peirce-½ space, but 3/2 is not a decomposition eigenvalue.
+-- See HANDOFF.md session 79/97 for full analysis.
 
-/-- Eigenvalues in spectral decomposition are exactly spectrum a. -/
-theorem spectral_decomp_eigenvalues_eq_spectrum [FinDimJordanAlgebra J] [JordanTrace J]
-    [FormallyRealJordan J] (a : J) (sd : SpectralDecomp a) :
-    Set.range sd.eigenvalues = spectrum a :=
-  spectrum_eq_eigenvalueSet a sd
+/-- Decomposition eigenvalues are eigenvalues of L_a (the true inclusion direction). -/
+theorem jordanSpectrum_subset_spectrum {a : J} (sd : SpectralDecomp a)
+    (hne : ∀ i, sd.csoi.idem i ≠ 0) :
+    jordanSpectrum a sd ⊆ spectrum a := by
+  intro μ ⟨j, hj⟩
+  rw [← hj]
+  exact spectral_decomp_eigenvalue_mem_spectrum sd j (hne j)
 
 /-! ### Square Eigenvalue Theorem -/
 
