@@ -561,27 +561,27 @@ theorem traceInner_jmul_idem_self_nonneg [FormallyRealTrace J]
     have lhs : traceInner (jmul e v₁₂) v₁ = (1 / 2) * traceInner v₁₂ v₁ := by
       rw [h₁₂, traceInner_smul_left]
     have rhs : traceInner (jmul e v₁₂) v₁ = 1 * traceInner v₁₂ v₁ := by
-      rw [traceInner_jmul_left, h₁, traceInner_smul_left]
+      rw [traceInner_jmul_left, h₁, traceInner_smul_right]
     linarith
   have horth₁_₀ : traceInner v₁ v₀ = 0 := by
-    have h₁ : jmul e v₁ = v₁ := by
-      have := (peirceProj₁_mem he v).out; rwa [one_smul] at this
-    have h₀ : jmul e v₀ = 0 := by
-      have := (peirceProj₀_mem he v).out; rwa [zero_smul] at this
+    have h₁ : jmul e v₁ = v₁ :=
+      (mem_peirceSpace_one_iff e v₁).mp (peirceProj₁_mem he v)
+    have h₀ : jmul e v₀ = 0 :=
+      (mem_peirceSpace_zero_iff e v₀).mp (peirceProj₀_mem he v)
     have lhs : traceInner (jmul e v₁) v₀ = traceInner v₁ v₀ := by rw [h₁]
     have rhs : traceInner (jmul e v₁) v₀ = 0 := by
       rw [traceInner_jmul_left, h₀, traceInner_zero_right]
     linarith
   -- Now compute ⟪e∘v, v⟫ = (1/2)⟪v₁₂, v₁₂⟫ + ⟪v₁, v₁⟫
   rw [hev, hv_decomp]
-  simp only [traceInner_add_left, traceInner_add_right]
-  simp only [traceInner_smul_left]
-  rw [horth₁₂_₀, horth₁₂_₁, horth₁_₀, traceInner_symm v₁ v₁₂, horth₁₂_₁]
-  simp only [mul_zero, add_zero, zero_add]
-  -- Goal: 0 ≤ 1/2 * traceInner v₁₂ v₁₂ + traceInner v₁ v₁
-  have h1 : 0 ≤ traceInner v₁₂ v₁₂ := traceInner_self_nonneg v₁₂
-  have h2 : 0 ≤ traceInner v₁ v₁ := traceInner_self_nonneg v₁
-  linarith
+  -- Unfold traceInner to trace(jmul ...) to avoid instance mismatch with bilinearity lemmas
+  show 0 ≤ traceInner ((1 / 2) • v₁₂ + v₁) (v₀ + v₁₂ + v₁)
+  have key : traceInner ((1 / 2) • v₁₂ + v₁) (v₀ + v₁₂ + v₁)
+      = 1 / 2 * traceInner v₁₂ v₁₂ + traceInner v₁ v₁ := by
+    simp only [traceInner, add_jmul, jmul_add, jmul_smul, trace_add,
+               jmul_comm v₁ v₁₂, jmul_comm v₁ v₀]
+    linarith [horth₁₂_₀, horth₁₂_₁, horth₁_₀]
+  linarith [key, traceInner_self_nonneg v₁₂, traceInner_self_nonneg v₁]
 
 /-- Eigenvalues of a² from a spectral decomposition with nonzero idempotents are non-negative.
 
@@ -599,8 +599,8 @@ theorem sq_eigenvalues_nonneg [FinDimJordanAlgebra J] [FormallyRealJordan J]
       sd.eigenvalues i * traceInner (sd.csoi.idem i) (sd.csoi.idem i) := by
     unfold traceInner
     rw [heig]
-    -- trace(λ • eᵢ ∘ eᵢ) = λ * trace(eᵢ ∘ eᵢ)
-    rw [smul_jmul, trace_smul]
+    -- trace(λ • eᵢ) = λ * trace(eᵢ) = λ * trace(eᵢ ∘ eᵢ) by idempotence
+    rw [trace_smul, ← jsq_def, (sd.csoi.is_idem i).jsq_eq_self]
   -- traceInner(a², eᵢ) = traceInner(eᵢ ∘ a, a) by self-adjointness
   have htrace_sa : traceInner (jsq a) (sd.csoi.idem i) =
       traceInner (jmul (sd.csoi.idem i) a) a := by
