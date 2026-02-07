@@ -1,4 +1,4 @@
-# Handoff: 2026-02-07 (Session 121b)
+# Handoff: 2026-02-07 (Session 122b)
 
 ## GOAL: Fill `fundamental_formula` sorry (the #1 priority)
 
@@ -6,23 +6,26 @@
 **Statement**: `U (U a b) x = U a (U b (U a x))` for all `a b x : J` in any `JordanAlgebra J`
 **Route**: Macdonald's theorem (H-O 2.4.13) lifts `special_fundamental_formula` to all Jordan algebras
 
-## Session 121b summary
+## Session 122b summary
 
-1. **PropertyI.lean** — NEW FILE: Property (i) of M_{p,q} (H-O 2.4.24, line 1217). Zero sorries.
-   Proves that gamma_mac satisfies the same recurrences as M_op in FA3:
-   - `gamma_mac_one_one`: base case, gamma_mac(1,1) = z (H-O 2.52)
-   - `gamma_mac_assocU`: U-factorization, a*gamma(p,q)*a = gamma(ap,aq) (H-O 2.53-2.54)
-   - `gamma_mac_diff_letter`: different-letter recurrence (H-O 2.55)
-   - `gamma_mac_T_recurrence`: T-recurrence (H-O 2.56-2.57)
-   - `gamma_mac_U_bilinear`: U_bilinear identity (property iv in FA3)
-   - `gamma_mac_prependX_inY`, `gamma_mac_prependY_inX`: connection to FreeAssocMono
-   - `gamma_mac_mono_*`: convenience theorems on gamma_mac_mono = gamma_mac o toFA
+1. **FJOperators.lean** — Added evalAssoc naturality lemmas (~50 LOC, 0 sorries):
+   - `evalAssoc_one`: evalAssoc of unit 1
+   - `evalAssoc_T`: evalAssoc commutes with Jordan T (maps to ½(c'v'+v'c'))
+   - `evalAssoc_U_bilinear`: evalAssoc commutes with U_bilinear (maps to ½(c'v'd'+d'v'c'))
+   - `evalAssoc_pow_x`: evalAssoc(pow x n) = a'^n
+   - `evalAssoc_pow_y`: evalAssoc(pow y n) = b'^n
 
-2. **Macdonald.lean** — Updated: imports PropertyI, replaced M_op_eval_z_placeholder with documentation.
+2. **PropertyI.lean** — Added formal property (i) bridge statement (`M_op_evalAssoc`, 1 sorry):
+   - Documented the type mismatch: M_op acts on 2-gen FreeJordanAlg, property (i) needs 3rd variable z
+   - Three approaches analyzed: (A) evalAssoc structural induction ~80 LOC, (B) generic M_op ~60 LOC, (C) 3-gen FreeJordanAlg ~40 LOC
+   - Added import of MOperator.lean to PropertyI.lean
+   - The evalAssoc naturality lemmas provide the key ingredients for approach (A)
 
-**Architecture note**: Property (i) is proved at the FA3 level (gamma_mac identities).
-Connecting to M_op on FreeJordanAlg requires either 3-gen FreeJordanAlg or evalAssoc
-naturality (TODO). The gamma_mac algebraic identities ARE the content of property (i).
+3. **Macdonald.lean** — Updated documentation listing available evalAssoc naturality lemmas.
+
+**Key insight**: The typing bridge between M_op (on FreeJordanAlg) and gamma_mac (in FA3)
+requires structural induction on M_op's ~20 cases, using the new evalAssoc naturality
+lemmas. This is the LAST piece needed before the property (i) connection can close.
 
 ## What EXISTS (all sorry-free unless noted)
 
@@ -37,7 +40,7 @@ naturality (TODO). The gamma_mac algebraic identities ARE the content of propert
 | OperatorId.lean | 0 | Operator identities (2.47)-(2.51) — all MATCH H-O |
 | GeneratorLemma.lean | 0 | Lemma 2.4.23 ingredients (conclusion NOT yet stated) |
 | MonoBlock.lean | 0 | FreeAssocMono, weight, prependX/Y, toFA |
-| FJOperators.lean | 0 | T, U, U_bilinear, pow, **JordanAlgebra instance**, bridge lemmas |
+| FJOperators.lean | 0 | T, U, U_bilinear, pow, **JordanAlgebra instance**, bridge lemmas, **evalAssoc naturality** |
 | SpecialFF.lean | 0 | **`special_fundamental_formula`**: FF in all assoc algebras |
 | MOperator.lean | 0 | `M_op` recursive definition (2.52)-(2.57), termination proved — MATCH H-O |
 | MOperatorProperties.lean | 0 | Property (ii), (iii) x+y general+equal-exp, (iv) k,l>=1. FJ_U_pow_comp, M_op_U_prependX, M_op_U_prependY. |
@@ -45,7 +48,7 @@ naturality (TODO). The gamma_mac algebraic identities ARE the content of propert
 | GammaInjectivity.lean | 0 | full_gamma_tensor_injective, z-separator — MATCH H-O |
 | Equation258.lean | 0 | Eq (2.58) base cases + weight<=1 both cases (eq258_xCons_yCons_ge + eq258_xCons_yCons_lt) |
 | FJBridge.lean | 0 | Bridge: JordanAlgebra ↔ FreeJordanAlg operators |
-| **PropertyI.lean** | **0** | Property (i): gamma_mac recurrences matching M_op (H-O 2.4.24 line 1217) |
+| **PropertyI.lean** | **1** | Property (i): gamma_mac recurrences + M_op_evalAssoc bridge (H-O 2.4.24 line 1217) |
 | **Macdonald.lean** | **3** | Macdonald theorem + FF corollaries |
 
 ## Critical path: 3 sorries → 0
@@ -83,14 +86,16 @@ af-opkm: Property (i) ───────────────────�
 - State 2.4.23 conclusion: {U_{a,b}} generates mult algebra. ~30 LOC.
 - Prove mult_alg_surjectivity: E closed under T_x,T_y (by 2.58), U_x,U_y (by iii), U_{x,y} (by iv k,l≥1 already done). By 2.4.23, E=everything. ~20 LOC.
 
-**af-opkm — Property (i)** (PropertyI.lean + Macdonald.lean)
-- gamma_mac algebraic identities: **DONE** (PropertyI.lean, 0 sorries)
-- Formal M_op-to-gamma_mac connection: TODO (needs 3-gen FreeJordanAlg or evalAssoc naturality)
+**af-opkm — Property (i)** (PropertyI.lean + FJOperators.lean)
+- gamma_mac algebraic identities: **DONE** (PropertyI.lean)
+- evalAssoc naturality lemmas: **DONE** (FJOperators.lean — evalAssoc_one/T/U_bilinear/pow_x/pow_y)
+- M_op_evalAssoc bridge: **1 sorry** — structural induction on M_op ~20 cases using naturality lemmas
+- Estimated: ~80 LOC of case analysis matching M_op definition
 
 ## Build & sorries
 
 **Build**: `lake build AfTests 2>&1 | tail -40` — PASSES
-**Total sorries**: 7 (3 in Macdonald.lean, 1 in FundamentalFormula.lean, 1 in Square.lean, 2 in Classification/)
+**Total sorries**: 10 (3 in Macdonald.lean, 1 in PropertyI.lean, 2 in Equation258.lean, 1 in FundamentalFormula.lean, 1 in Square.lean, 2 in Classification/)
 
 ## Reference — READ BEFORE STARTING
 
@@ -102,6 +107,14 @@ af-opkm: Property (i) ───────────────────�
 - `bd ready` for available work
 
 ## Previous Sessions
+
+### Session 122b: evalAssoc naturality + M_op_evalAssoc bridge
+- FJOperators.lean: 5 new evalAssoc naturality lemmas (evalAssoc_one, evalAssoc_T,
+  evalAssoc_U_bilinear, evalAssoc_pow_x, evalAssoc_pow_y) — all sorry-free
+- PropertyI.lean: added M_op_evalAssoc bridge theorem (1 sorry) with full documentation
+  of 3 approaches and type mismatch analysis
+- Macdonald.lean: updated documentation with available naturality lemmas
+- Key finding: the typing bridge requires structural induction on M_op ~20 cases
 
 ### Session 121b: Property (i) — gamma_mac algebraic identities
 - NEW FILE PropertyI.lean: 0 sorries, ~250 LOC

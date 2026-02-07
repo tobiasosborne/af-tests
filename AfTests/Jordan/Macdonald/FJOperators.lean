@@ -184,3 +184,77 @@ theorem FJ_jpow_eq_pow (a : FreeJordanAlg) (n : ℕ) :
 
 @[simp] theorem FJ_L_apply (a v : FreeJordanAlg) :
     JordanAlgebra.L a v = FreeJordanAlg.T a v := rfl
+
+/-! ### evalAssoc naturality lemmas
+
+These lemmas show that `evalAssoc` (the canonical map FreeJordanAlg → A for any
+associative ℝ-algebra A) commutes with the Jordan operators T, U_bilinear, and pow.
+Combined with `evalAssoc_U` from SpecialFF.lean, they provide the full set of
+operator compatibility lemmas needed for the property (i) typing bridge. -/
+
+variable {A : Type*} [Ring A] [Algebra ℝ A]
+
+/-- evalAssoc of the unit 1 : FreeJordanAlg gives 1 in any associative algebra. -/
+theorem FreeJordanAlg.evalAssoc_one (a' b' : A) :
+    FreeJordanAlg.evalAssoc a' b' 1 = 1 := by
+  change FreeNAAlg.evalJordanFun a' b' FreeNAAlg.e = 1
+  rw [FreeNAAlg.e, FreeNAAlg.evalJordanFun_ι]; rfl
+
+/-- evalAssoc maps Jordan T to the symmetrized product:
+    evalAssoc(T_c(v)) = ½(c'v' + v'c'). -/
+theorem FreeJordanAlg.evalAssoc_T (a' b' : A) (c v : FreeJordanAlg) :
+    FreeJordanAlg.evalAssoc a' b' (FreeJordanAlg.T c v) =
+    (1/2 : ℝ) • (FreeJordanAlg.evalAssoc a' b' c * FreeJordanAlg.evalAssoc a' b' v +
+                  FreeJordanAlg.evalAssoc a' b' v * FreeJordanAlg.evalAssoc a' b' c) := by
+  simp only [FreeJordanAlg.T_apply]
+  exact FreeJordanAlg.evalAssoc_mul a' b' c v
+
+/-- evalAssoc maps Jordan U_bilinear to the associative bilinearized U:
+    evalAssoc(U_{c,d}(v)) = ½(c'v'd' + d'v'c'). -/
+theorem FreeJordanAlg.evalAssoc_U_bilinear (a' b' : A) (c d v : FreeJordanAlg) :
+    FreeJordanAlg.evalAssoc a' b' (FreeJordanAlg.U_bilinear c d v) =
+    (1/2 : ℝ) • (FreeJordanAlg.evalAssoc a' b' c * FreeJordanAlg.evalAssoc a' b' v *
+                  FreeJordanAlg.evalAssoc a' b' d +
+                  FreeJordanAlg.evalAssoc a' b' d * FreeJordanAlg.evalAssoc a' b' v *
+                  FreeJordanAlg.evalAssoc a' b' c) := by
+  set p := FreeJordanAlg.evalAssoc a' b' c
+  set q := FreeJordanAlg.evalAssoc a' b' d
+  set r := FreeJordanAlg.evalAssoc a' b' v
+  simp only [FreeJordanAlg.U_bilinear_apply]
+  simp only [FreeJordanAlg.evalAssoc_sub, FreeJordanAlg.evalAssoc_add,
+             FreeJordanAlg.evalAssoc_mul]
+  simp only [mul_add, add_mul, smul_add, smul_mul_assoc, mul_smul_comm, smul_smul, mul_assoc]
+  rw [show (1 / 2 : ℝ) * (1 / 2) = (1 / 4 : ℝ) from by norm_num]
+  module
+
+/-- evalAssoc maps Jordan powers of x to associative powers:
+    evalAssoc(pow x n) = a'^n. -/
+theorem FreeJordanAlg.evalAssoc_pow_x (a' b' : A) (n : ℕ) :
+    FreeJordanAlg.evalAssoc a' b' (FreeJordanAlg.pow FreeJordanAlg.x n) = a' ^ n := by
+  induction n with
+  | zero =>
+    simp only [FreeJordanAlg.pow_zero]
+    rw [FreeJordanAlg.evalAssoc_one]; simp
+  | succ n ih =>
+    simp only [FreeJordanAlg.pow_succ, FreeJordanAlg.evalAssoc_mul,
+               FreeJordanAlg.evalAssoc_x, ih]
+    rw [show a' ^ (n + 1) = a' * a' ^ n from pow_succ' a' n]
+    have : a' ^ n * a' = a' * a' ^ n := (Commute.pow_self a' n).eq
+    rw [this, ← two_smul ℝ (a' * a' ^ n), smul_smul]
+    norm_num
+
+/-- evalAssoc maps Jordan powers of y to associative powers:
+    evalAssoc(pow y n) = b'^n. -/
+theorem FreeJordanAlg.evalAssoc_pow_y (a' b' : A) (n : ℕ) :
+    FreeJordanAlg.evalAssoc a' b' (FreeJordanAlg.pow FreeJordanAlg.y n) = b' ^ n := by
+  induction n with
+  | zero =>
+    simp only [FreeJordanAlg.pow_zero]
+    rw [FreeJordanAlg.evalAssoc_one]; simp
+  | succ n ih =>
+    simp only [FreeJordanAlg.pow_succ, FreeJordanAlg.evalAssoc_mul,
+               FreeJordanAlg.evalAssoc_y, ih]
+    rw [show b' ^ (n + 1) = b' * b' ^ n from pow_succ' b' n]
+    have : b' ^ n * b' = b' * b' ^ n := (Commute.pow_self b' n).eq
+    rw [this, ← two_smul ℝ (b' * b' ^ n), smul_smul]
+    norm_num

@@ -67,9 +67,14 @@ directly on `gamma_mac` in FA3:
 - `gamma_mac_T_recurrence` : T-recurrence (2.56-2.57)
 - `gamma_mac_U_bilinear` : U_bilinear identity (property iv)
 
-These establish property (i) at the level of FA3 computations. Connecting
-to M_op on FreeJordanAlg formally requires either a 3-gen FreeJordanAlg or
-an evalAssoc naturality theorem (both TODO). -/
+These establish property (i) at the level of FA3 computations. The formal
+typing bridge (`M_op_evalAssoc` in PropertyI.lean) requires structural induction
+on M_op using the evalAssoc naturality lemmas from FJOperators.lean:
+- `evalAssoc_one` : evalAssoc of 1
+- `evalAssoc_T` : evalAssoc commutes with Jordan T
+- `evalAssoc_U` : evalAssoc commutes with Jordan U (in SpecialFF.lean)
+- `evalAssoc_U_bilinear` : evalAssoc commutes with Jordan U_bilinear
+- `evalAssoc_pow_x`, `evalAssoc_pow_y` : evalAssoc of Jordan powers -/
 
 /-! ### Part A: Surjectivity of t ↦ M_t
 

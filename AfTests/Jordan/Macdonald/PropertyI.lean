@@ -6,6 +6,7 @@ Authors: AF-Tests Contributors
 import AfTests.Jordan.Macdonald.TensorSetup
 import AfTests.Jordan.Macdonald.MonoBlock
 import AfTests.Jordan.Macdonald.GammaInjectivity
+import AfTests.Jordan.Macdonald.MOperator
 
 /-!
 # Property (i) of M_{p,q} (H-O 2.4.24)
@@ -253,3 +254,70 @@ theorem gamma_mac_mono_diff_letter (k l : ℕ) (p q : FreeAssocMono) :
     FA_to_FA3 (FA.y ^ (l + 1)) * gamma_mac (toFA p) (toFA q) * FA_to_FA3 (FA.x ^ (k + 1)) -
     gamma_mac (FA.y ^ (l + 1) * toFA p) (FA.x ^ (k + 1) * toFA q)
   exact gamma_mac_diff_letter _ _ _ _ (by simp) (by simp)
+
+/-! ### Property (i) typing bridge: M_op ↔ gamma_mac formal connection
+
+**Status**: sorry — the formal bridge requires infrastructure not yet in place.
+
+**The type mismatch**: `M_op p q : FreeJordanAlg → FreeJordanAlg` operates on
+the 2-generator free Jordan algebra, but property (i) (H-O 2.4.24(i), line 1217)
+states `M_{p,q}(z) = ½(pzq* + qzp*)` where `z` is a THIRD generator not present
+in `FreeJordanAlg`.
+
+**What PropertyI.lean proves**: `gamma_mac_mono p q` satisfies exactly the same
+recurrences as `M_op` in FA3:
+- `gamma_mac_mono_one_one` ↔ `M_op one one v = v` (2.52)
+- `gamma_mac_mono_xCons_xCons` ↔ `M_op (xCons k p) (xCons k q) = U_{x^{k+1}} M_op p q` (2.53)
+- `gamma_mac_mono_yCons_yCons` ↔ same for y (2.54)
+- `gamma_mac_mono_diff_letter` ↔ `M_op (xCons k p) (yCons l q) = 2U_{x,y} M_op p q - M_op ...` (2.55)
+
+**Three approaches to close the bridge** (ranked by implementation effort):
+
+1. **evalAssoc structural induction** (~80 LOC): Prove by structural induction on M_op
+   that `evalAssoc (FA_to_FA3 FA.x) (FA_to_FA3 FA.y) (M_op p q v)` equals an associative
+   expression in `evalAssoc ... v`. The evalAssoc naturality lemmas in FJOperators.lean
+   (`evalAssoc_T`, `evalAssoc_U`, `evalAssoc_U_bilinear`, `evalAssoc_pow_x/y`) provide
+   the tools, but matching all ~20 cases of M_op is tedious.
+
+2. **Generic M_op on any JordanAlgebra** (~60 LOC): Define `M_op_gen {J} [JordanAlgebra J]
+   (a b : J) : FreeAssocMono → FreeAssocMono → J → J` using `JordanAlgebra.U`,
+   `JordanAlgebra.L`, etc. Then `M_op = M_op_gen x y` on FreeJordanAlg, and evaluating
+   `M_op_gen` on FA3's Jordan product gives gamma_mac by the recurrence match.
+
+3. **3-generator FreeJordanAlg** (~40 LOC): Define `FreeJordanAlg3` with generators x, y, z.
+   Lift M_op to act on FreeJordanAlg3. Then property (i) is:
+   `evalAssoc3 (M_op3 p q z) = gamma_mac_mono p q`. This is the most faithful
+   formalization of H-O but requires new free algebra infrastructure.
+
+**All three approaches are blocked on the same issue**: M_op needs to be evaluated in
+a context where a third variable z is available. The evalAssoc naturality lemmas proved
+in this session (`evalAssoc_one`, `evalAssoc_T`, `evalAssoc_U_bilinear`,
+`evalAssoc_pow_x`, `evalAssoc_pow_y`) provide the key ingredients for approach (1).
+
+**Key H-O references**: 2.4.24(i) at line 1217, proof at lines 1226-1288. -/
+
+/-- **Property (i) bridge** (H-O 2.4.24(i), line 1217):
+    Evaluating `M_op p q v` via `evalAssoc` in FA3 is compatible with `gamma_mac_mono`.
+
+    Specifically: for any `v : FreeJordanAlg`, evaluating `M_op p q v` in FA3
+    (via `evalAssoc (FA_to_FA3 FA.x) (FA_to_FA3 FA.y)`) gives the associative
+    version of M_{p,q} applied to `evalAssoc ... v`. When `v` evaluates to the
+    third generator z, this yields `gamma_mac_mono p q = ½(pzq* + qzp*)`.
+
+    **Status**: sorry — requires structural induction on M_op matching all ~20
+    cases, using `evalAssoc_T`, `evalAssoc_U`, `evalAssoc_U_bilinear`,
+    `evalAssoc_pow_x`, `evalAssoc_pow_y` from FJOperators.lean.
+    Estimated effort: ~80 LOC of case analysis.
+
+    Note: The statement below captures the KEY consequence needed for Macdonald's
+    theorem (2.4.25): the linear combination `sum c_i * gamma_mac_mono(p_i, q_i)`
+    vanishes when the corresponding operator `sum c_i * M_{p_i,q_i}` acts as zero
+    on all special Jordan algebras. -/
+theorem M_op_evalAssoc (p q : FreeAssocMono) (v : FreeJordanAlg) :
+    ∃ (f : FA3 → FA3),
+    -- f is the "associative M_op" corresponding to (p, q)
+    FreeJordanAlg.evalAssoc (FA_to_FA3 FA.x) (FA_to_FA3 FA.y) (M_op p q v) =
+      f (FreeJordanAlg.evalAssoc (FA_to_FA3 FA.x) (FA_to_FA3 FA.y) v) ∧
+    -- and when applied to z, f gives gamma_mac_mono
+    f FA3.z = gamma_mac_mono p q := by
+  sorry
