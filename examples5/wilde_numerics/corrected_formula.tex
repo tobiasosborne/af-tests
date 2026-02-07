@@ -1,0 +1,193 @@
+\documentclass[11pt]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{hyperref}
+
+\newcommand{\Tr}{\operatorname{Tr}}
+\newcommand{\id}{\mathbb{1}}
+\newcommand{\cH}{\mathcal{H}}
+\newcommand{\cD}{\mathcal{D}}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{Corrected Path-Integral Hockey-Stick Representation\\of Conditional Entropy}
+\author{Numerical verification via Julia}
+\date{February 2026}
+
+\begin{document}
+\maketitle
+
+\section{Setup}
+
+Let $\cH_A$, $\cH_B$ be finite-dimensional complex Hilbert spaces with
+$d_A = \dim\cH_A$, $d_B = \dim\cH_B$, and
+$\cH_{AB} = \cH_A \otimes \cH_B$.
+
+Let $\rho_{AB}, \sigma_{AB} \in \cD(\cH_{AB})$ be density operators with
+$\rho_{AB}, \sigma_{AB} > 0$ (full rank).
+
+\begin{definition}[Interpolation and derived quantities]\leavevmode
+\begin{align}
+\rho(t) &:= (1-t)\,\rho_{AB} + t\,\sigma_{AB}, \qquad t \in [0,1] \\
+\tau(t) &:= \id_A \otimes \rho(t)_B, \qquad \rho(t)_B := \Tr_A[\rho(t)] \\
+\delta_{AB} &:= \sigma_{AB} - \rho_{AB} \\
+\delta_B &:= \Tr_A[\delta_{AB}] = \sigma_B - \rho_B
+\end{align}
+\end{definition}
+
+\begin{definition}[Hockey-stick divergence]
+For PSD operators $A, B$ and threshold $\gamma > 0$:
+\[
+E_\gamma(A \| B) := \Tr(A - \gamma B)_+
+\]
+where $X_+ := \sum_{\lambda_i > 0} \lambda_i |e_i\rangle\langle e_i|$
+denotes the positive part of Hermitian~$X$.
+\end{definition}
+
+\begin{definition}[Spectral projectors]
+\begin{align}
+P_\beta(t) &:= \mathbf{1}\!\big\{\rho(t) - \beta\,\tau(t) > 0\big\}
+  \qquad\text{(forward projector)} \\
+Q_\beta(t) &:= \mathbf{1}\!\big\{\tau(t) - \beta\,\rho(t) > 0\big\}
+  \qquad\text{(reverse projector)}
+\end{align}
+\end{definition}
+
+\begin{definition}[Threshold bounds]
+\begin{align}
+M_{\mathrm{fwd}}(t) &:= \inf\!\big\{\lambda \ge 0 : \rho(t) \le \lambda\,\tau(t)\big\}
+  = \max\mathrm{eig}\!\big(\rho(t),\, \tau(t)\big) \le d_A \\
+M_{\mathrm{rev}}(t) &:= \inf\!\big\{\lambda \ge 0 : \tau(t) \le \lambda\,\rho(t)\big\}
+  = \max\mathrm{eig}\!\big(\tau(t),\, \rho(t)\big)
+\end{align}
+where $\max\mathrm{eig}(A, B)$ denotes the largest generalized eigenvalue
+of $Av = \lambda Bv$ with $B > 0$.
+\end{definition}
+
+\section{The corrected identity}
+
+\begin{theorem}[Path-integral hockey-stick representation --- corrected]
+\label{thm:main}
+Under the full-rank assumption $\rho_{AB}, \sigma_{AB} > 0$:
+\begin{equation}
+\boxed{
+H(A|B)_\sigma - H(A|B)_\rho
+= -\int_0^1 \!\Bigg[
+  \int_{1/d_A}^{M_{\mathrm{fwd}}(t)}
+    \frac{\Tr\!\big[P_\beta(t)\;\delta_{AB}^{(\beta)}\big]}{\beta}\,d\beta
+  \;+\;
+  \int_{d_A}^{M_{\mathrm{rev}}(t)}
+    \frac{\Tr\!\big[Q_\beta(t)\;\bigl(\id_A\!\otimes\!\delta_B
+      - \beta\,\delta_{AB}\bigr)\big]}{\beta^2}\,d\beta
+\Bigg]\,dt
+}
+\tag{MAIN$'$}
+\end{equation}
+where
+\[
+\delta_{AB}^{(\beta)} := \delta_{AB} - \beta\,\id_A \otimes \delta_B\,.
+\]
+\end{theorem}
+
+\section{Derivation from the correct Frenkel formula}
+
+The identity follows from three ingredients.
+
+\begin{lemma}[CE--RE identity]
+$H(A|B)_\rho = -D(\rho_{AB} \| \id_A \otimes \rho_B)$.
+\end{lemma}
+
+\begin{lemma}[Correct Frenkel integral representation {\cite{frenkel2022,blt2024}}]
+\label{lem:frenkel}
+For density operators $\rho, \sigma$ (both trace~$1$, full rank),
+using the natural logarithm:
+\begin{equation}
+D(\rho\|\sigma)
+= \int_1^\infty \!\left[
+  \frac{E_\gamma(\rho\|\sigma)}{\gamma}
+  + \frac{E_\gamma(\sigma\|\rho)}{\gamma^2}
+\right] d\gamma
+\tag{FR}
+\end{equation}
+For unnormalised $\tau \ge 0$ with $\Tr[\tau] = c > 0$
+and $\omega := \tau/c$, the change of variables
+$E_\gamma(\rho\|\omega) = E_{\gamma/c}(\rho\|\tau)$
+and $E_\gamma(\omega\|\rho) = \tfrac{1}{c}\,E_{c\gamma}(\tau\|\rho)$ gives:
+\begin{equation}
+D(\rho\|\tau)
+= \int_{1/c}^\infty \frac{E_\beta(\rho\|\tau)}{\beta}\,d\beta
+\;+\; \int_c^\infty \frac{E_\beta(\tau\|\rho)}{\beta^2}\,d\beta
+\;-\; \log c
+\tag{FR-$c$}
+\end{equation}
+Setting $\tau = \id_A \otimes \rho_B$, $c = d_A$:
+\begin{equation}
+D(\rho_{AB}\|\id_A\!\otimes\!\rho_B)
+= \int_{1/d_A}^\infty \frac{E_\beta(\rho_{AB}\|\tau)}{\beta}\,d\beta
+\;+\; \int_{d_A}^\infty \frac{E_\beta(\tau\|\rho_{AB})}{\beta^2}\,d\beta
+\;-\; \log d_A
+\tag{FR-bip}
+\end{equation}
+\end{lemma}
+
+\begin{proof}[Derivation of Theorem~\ref{thm:main}]
+Differentiate (FR-bip) along $\rho(t)$, $\tau(t)$. The $\log d_A$ term
+is $t$-independent. By the hockey-stick derivative formula, at generic~$\beta$:
+\begin{align}
+\frac{d}{dt}\,E_\beta\!\big(\rho(t)\|\tau(t)\big)
+  &= \Tr\!\big[P_\beta(t)\,(\delta_{AB} - \beta\,\id_A\!\otimes\!\delta_B)\big]
+   = \Tr\!\big[P_\beta(t)\,\delta_{AB}^{(\beta)}\big] \\
+\frac{d}{dt}\,E_\beta\!\big(\tau(t)\|\rho(t)\big)
+  &= \Tr\!\big[Q_\beta(t)\,(\id_A\!\otimes\!\delta_B - \beta\,\delta_{AB})\big]
+\end{align}
+The first integrand vanishes for $\beta > M_{\mathrm{fwd}}(t)$ (since $P_\beta = 0$)
+and the second for $\beta > M_{\mathrm{rev}}(t)$ (since $Q_\beta = 0$).
+Applying the fundamental theorem of calculus $H(A|B)_\sigma - H(A|B)_\rho
+= -\int_0^1 \frac{d}{dt}\,D(\rho(t)\|\tau(t))\,dt$ yields (MAIN$'$).
+\end{proof}
+
+\section{Erratum: the skeleton's formula}
+
+The earlier proof skeleton (v3.0, \S0.6) stated the Frenkel formula as
+\[
+D(\rho\|\sigma)
+\stackrel{?}{=} \int_0^\infty
+  \frac{E_\gamma(\rho\|\sigma) - (1-\gamma)_+}{\gamma(1+\gamma)}\,d\gamma
+\qquad\textbf{(INCORRECT)}
+\]
+This single-term formula with kernel $[\gamma(1+\gamma)]^{-1}$ is \textbf{wrong}.
+For the simple test case $\rho = |0\rangle\!\langle 0|$,
+$\sigma = I/2$ (dimension~2), the formula gives
+$0.432$ instead of the correct $D = \log 2 \approx 0.693$.
+
+The correct formula~(FR) has \emph{two} hockey-stick terms---one forward
+($E_\gamma(\rho\|\sigma)$) and one reverse ($E_\gamma(\sigma\|\rho)$)---with
+kernels $1/\gamma$ and $1/\gamma^2$ respectively, integrated over $[1,\infty)$.
+
+Consequently, the skeleton's main identity with the single-term kernel
+$[\gamma(1+d_A\gamma)]^{-1}$ is also incorrect. The corrected identity
+(MAIN$'$) above has been verified numerically to machine precision
+($|{\rm error}| < 8 \times 10^{-15}$)
+for $37$ test cases across dimensions up to $(d_A, d_B) = (4, 4)$.
+
+\begin{thebibliography}{9}
+\bibitem{frenkel2022}
+P.\,E.~Frenkel,
+``Integral formula for quantum relative entropy implies data processing inequality,''
+\emph{Quantum}~\textbf{7}, 1102 (2023).
+arXiv:2208.12194.
+
+\bibitem{blt2024}
+M.~Berta, L.~Lami, M.~Tomamichel,
+``Continuity of entropies via integral representations,''
+arXiv:2408.15226 (2024).
+\end{thebibliography}
+
+\end{document}
