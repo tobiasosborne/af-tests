@@ -1,4 +1,4 @@
-# Handoff: 2026-02-07 (Session 114)
+# Handoff: 2026-02-07 (Session 115)
 
 ## GOAL: Fill `fundamental_formula` sorry (the #1 priority)
 
@@ -19,30 +19,30 @@
 | OperatorId.lean | 181 | 0 | Operator identities (2.47)-(2.49) |
 | GeneratorLemma.lean | 102 | 0 | Lemma 2.4.23: U_{a,b} generation |
 | Monomial.lean | 164 | 0 | M_word, M_eval, induction principles |
-| MonoBlock.lean | 238 | 0 | FreeAssocMono type, weight, prependX/Y, **toFA** |
-| FJOperators.lean | 105 | 0 | FreeJordanAlg.pow, T, U, U_bilinear on FJ |
+| MonoBlock.lean | 238 | 0 | FreeAssocMono, weight, prependX/Y, toFA |
+| FJOperators.lean | ~185 | 0 | T, U, U_bilinear, pow, **JordanAlgebra instance**, bridge lemmas |
 | SpecialFF.lean | 100 | 0 | **`special_fundamental_formula`**: FF in all assoc algebras |
 | MonomialFJ.lean | 131 | 0 | M_{p,q} as FreeJordanAlg elements |
 | MOperator.lean | 213 | 0 | `M_op` recursive definition, termination fully proved |
 | MOperatorProperties.lean | 122 | 0 | Properties (ii)-(iv): U factorization, bilinear symmetrization |
 | TensorSetup.lean | 179 | 0 | FA, FA3, evalFA, gamma_elem, gamma_mac (correct gamma) |
 | GammaInjectivity.lean | ~335 | **0** | full_gamma_tensor, encode_word, z-separator, **ALL PROVED** |
+| Equation258.lean | 58 | 0 | Equation (2.58) base cases (p=1/q=1, p=1/q=y^j, p=y^j/q=1) |
 | **Macdonald.lean** | **~206** | **3** | Macdonald theorem + FF corollaries |
 
-### Key theorems already proved
+### Key NEW results (Session 115)
 
-- **`special_fundamental_formula`** (SpecialFF.lean): FF holds in all associative algebras
-- **`M_op_one_one`**: M(1,1)(v) = v (property ii)
-- **`M_op_xCons_xCons`/`M_op_yCons_yCons`**: Same-letter U property (iii)
-- **`M_op_U_bilinear_yCons`/`M_op_U_bilinear_xCons`**: U_bilinear symmetrization (iv)
-- **`gamma_mac`**: gamma_mac(p,q) = ½(pzq*+qzp*) in FA3
-- **`gamma_mac_comm`**: gamma_mac is symmetric
-- **`full_gamma_tensor_injective`**: full_gamma_tensor is injective (z-separator argument)
-- **`gamma_mac_injective_symTensor`**: gamma_mac injective on symTensor
-- **`gamma_mac_injective`**: gamma_mac injectivity in the form used by Macdonald
-- **`macdonald_injectivity`**: evalFA injective (sorry-free assuming `macdonald`)
-- **`fundamental_formula_free`**: FF in FreeJordanAlg (sorry-free assuming `macdonald`)
-- **`FreeAssocMono.toFA`**: conversion from block monomials to FA elements
+- **JordanAlgebra instance for FreeJordanAlg** (FJOperators.lean): CRITICAL unblock!
+  FreeJordanAlg now has a JordanAlgebra instance, meaning ALL operator identities
+  from OperatorId.lean (2.47)-(2.49) can now be applied to FreeJordanAlg elements.
+  Bridge lemmas: `FJ_jmul_eq_mul`, `FJ_jpow_eq_pow`, `FJ_L_apply`.
+
+- **FreeJordanAlg.mul bilinearity** (FJOperators.lean): 9 lemmas
+  mul_add_left, mul_add_right, smul_mul_left, smul_mul_right, mul_zero_left/right,
+  T_add, T_smul, T_zero. All sorry-free.
+
+- **Equation (2.58) base cases** (Equation258.lean): 3 theorems
+  eq258_one_one, eq258_one_yCons, eq258_yCons_one. All sorry-free.
 
 ## What NEEDS to be built (3 remaining sorries in Macdonald/)
 
@@ -50,35 +50,22 @@
 
 **Goal**: Every T_v is a finite ℝ-linear combination of M_{p,q} operators.
 
-**STRATEGY (Session 114, corrected after reading H-O)**: Follow H-O exactly.
-The book proves equation (2.58): `T_{x^k} M_{p,q} = ½(M_{x^k p, q} + M_{p, x^k q})`
-by dedicated induction on weight. This is the KEY missing piece.
-- Book ref: `joa-m.md` lines 1326-1377 (proof of 2.58)
-- Book ref: `joa-m.md` lines 1379-1389 (proof of 2.4.25)
-- (2.58) base cases use operator identities (2.47)/(2.49) from OperatorId.lean
-- (2.58) inductive cases use M_op recurrence + properties (iii)/(iv)
-- Then: E is left ideal of mult algebra containing Id → E = everything
-- See `memory/mult-alg-surjectivity-analysis.md` for full strategy
-- Estimated: ~150-170 LOC total (2.58 lemma + surjectivity proof)
+**NOW UNBLOCKED by JordanAlgebra instance.** Strategy:
+1. Prove full equation (2.58) using operator_identity_249 applied to FreeJordanAlg.
+   The base case (p=x^i, q=y^j) now works since we can apply (2.49) directly.
+   Need bridge: relate JordanAlgebra.U_bilinear_linear to FreeJordanAlg.U_bilinear.
+2. Then: E is closed under U_{a,b} for a,b ∈ {1,x,y} → left ideal → E = full mult alg.
+3. Estimated: ~100-150 LOC remaining.
 
 ### Sorry 2: `macdonald` (Macdonald.lean:145)
 
 **Goal**: `∀ v, evalFA v = 0 → v = 0`
-**Blockers**: Needs `mult_alg_surjectivity` + property (i) formalized.
+**Blockers**: Needs `mult_alg_surjectivity` + property (i).
 
 ### Sorry 3: `fundamental_formula_general` (Macdonald.lean:206)
 
 **Goal**: FF holds in every JordanAlgebra.
-
-**Three approaches** (analyzed Session 114):
-1. **Generalize FreeJordanAlg to n generators** (cleanest, ~500 LOC refactoring)
-2. **Prove `macdonald`** first, then apply as metatheorem (needs Sorry 1+2)
-3. **Direct algebraic proof** from Jordan axioms (very heavy, ~200+ LOC)
-
-**KEY FINDING (Session 114)**: The subalgebra argument ⟨a,b⟩ doesn't work because
-FF needs to hold for ALL x ∈ J, not just x ∈ ⟨a,b⟩. The operator F(a,b) = U_{U_a(b)} - U_a U_b U_a
-vanishes on ⟨a,b⟩ but we can't conclude it vanishes on all of J.
-FF special cases (b=a, b=1) follow from U_jpow. General b needs Macdonald or 3-gen.
+**Three approaches**: See Session 114 notes.
 
 ## Proof dependency chain
 
@@ -107,40 +94,31 @@ It is mathematically **FALSE**. The correct gamma for Macdonald is `gamma_mac` i
 **Sorries in Macdonald/**: 3 total (mult_alg_surjectivity, macdonald, fundamental_formula_general)
 **Sorries elsewhere**: FundamentalFormula (1), Square (1), Classification (2)
 
-## Recommended next session order (following H-O exactly)
+## Recommended next session order
 
-1. **Prove equation (2.58)** as a Lean lemma: `T_{x^k} M_{p,q} = ½(M_{x^k p,q} + M_{p,x^k q})`
-   By induction on weight(p,q). Uses (2.47)/(2.49) from OperatorId.lean.
-   Book ref: joa-m.md lines 1326-1377. Estimated ~80-100 LOC.
+1. **Write bridge lemmas** connecting JordanAlgebra.U_bilinear_linear to FreeJordanAlg.U_bilinear.
+   ~20 LOC. This allows operator_identity_249 to be stated for M_op.
 
-2. **Fill `mult_alg_surjectivity`** using (2.58) + properties (iii)/(iv).
-   E = span{M_{p,q}} is left ideal containing Id → E = full mult algebra.
-   Book ref: joa-m.md lines 1379-1383. Estimated ~50-70 LOC.
+2. **Prove full equation (2.58)** for p = x^i, q = y^j using operator_identity_249.
+   Add to Equation258.lean. ~50-80 LOC.
 
-3. **Fill `macdonald`** using surjectivity + property (i) + gamma injectivity.
+3. **Prove (2.58) for general weight** by induction. ~50-80 LOC.
 
-4. **Fill `fundamental_formula_general`** — needs 3-gen FreeJordanAlg (parameterize)
-   or use direct approach. The subalgebra ⟨a,b⟩ argument does NOT work
-   (FF needs all x ∈ J, not just x ∈ ⟨a,b⟩).
+4. **Fill `mult_alg_surjectivity`** using (2.58) + left ideal argument. ~50-70 LOC.
 
-## Beads issues
+5. **Fill `macdonald`** using surjectivity + property (i) + gamma injectivity.
 
-- af-g2kb (P1): Step 16 — Macdonald theorem (3 sorries)
-- af-inuv (P1): Restate mult_alg_surjectivity using Submodule.span (DONE, can close)
-- af-efkr (P1): FJ{x,y,z} infrastructure (3-gen FreeJordanAlg)
-- af-gzm1 (P1): Step 17 — Fill fundamental_formula
+6. **Fill `fundamental_formula_general`** — needs 3-gen FreeJordanAlg or Macdonald metatheorem.
 
 ## Reference — READ BEFORE STARTING
 
 **MANDATORY READING** (do NOT re-research these topics):
-- **`memory/macdonald-proof-structure.md`** — Full mathematical proof structure
-- **`memory/macdonald-steps14-17.md`** — Mathlib API reference
-- **`memory/mult-alg-surjectivity-analysis.md`** — Detailed analysis of surjectivity proof (Session 114)
+- **HANDOFF.md** (this file)
+- **CLAUDE.md** — Build instructions, H-O ground truth, golden rules
 
 Book: `examples3/Jordan Operator Algebras/joa-m/joa-m.md`
-- Macdonald's theorem: 2.4.13 (line ~1063)
-- M_{p,q} construction: 2.4.24 (line ~1215)
-- Proof of Macdonald: 2.4.25 (line ~1379)
+- Equation (2.58): lines 1326-1377
+- Proof of Macdonald 2.4.25: lines 1379-1389
 
 ## File map
 
@@ -163,12 +141,13 @@ AfTests/Jordan/
     ├── SpecialFF.lean      -- special_fundamental_formula (PROVED)
     ├── Monomial.lean       -- M_word, M_eval
     ├── MonoBlock.lean      -- FreeAssocMono, toFA (0 sorries!)
-    ├── FJOperators.lean    -- T, U, U_bilinear on FreeJordanAlg
+    ├── FJOperators.lean    -- T, U, U_bilinear, pow, **JordanAlgebra instance** ← NEW
     ├── MonomialFJ.lean     -- M_{p,q} as FJ elements
     ├── MOperator.lean      -- M_op recursive definition (0 sorries!)
     ├── MOperatorProperties.lean -- Properties (ii)-(iv) (0 sorries!)
     ├── TensorSetup.lean    -- FA, FA3, evalFA, gamma_mac (0 sorries!)
     ├── GammaInjectivity.lean -- Step 15: gamma injectivity (0 sorries!)
+    ├── Equation258.lean    -- Eq (2.58) base cases ← NEW
     └── Macdonald.lean      -- Step 16+17: Macdonald theorem + FF (3 sorries)
 ```
 
@@ -176,30 +155,18 @@ AfTests/Jordan/
 
 ## Previous Sessions
 
+### Session 115: JordanAlgebra instance + bilinearity + equation (2.58) base cases
+- **JordanAlgebra instance** for FreeJordanAlg (FJOperators.lean): CRITICAL UNBLOCK.
+  All operator identities (2.47)-(2.49) from OperatorId.lean can now be applied to FreeJordanAlg.
+- **9 bilinearity lemmas** for FreeJordanAlg.mul and T (FJOperators.lean).
+- **3 equation (2.58) base cases** proved (Equation258.lean).
+- **Bridge lemmas**: FJ_jmul_eq_mul, FJ_jpow_eq_pow, FJ_L_apply.
+- **Key finding**: The hard (2.58) cases (p=x^i, q=y^j) need operator_identity_249
+  applied to FreeJordanAlg. Now possible thanks to JordanAlgebra instance.
+- **0 sorries added, 0 sorries filled** (infrastructure session).
+
 ### Session 114: Analysis of mult_alg_surjectivity + learnings
-- **No code changes** — pure analysis session
-- **Key finding**: mult_alg_surjectivity proof is harder than estimated.
-  Product case T_{u∘v} needs M operator compositions to close.
-  T_x = U_{x,1} not directly covered by properties (iii)/(iv).
-- **Key finding**: fundamental_formula_general cannot use subalgebra argument
-  (⟨a,b⟩ only gives FF for x ∈ ⟨a,b⟩, not all x ∈ J).
-- **Computed**: T_{x∘y}=½M_{xy,1}+½M_{yx,1}, T_x∘T_y=½M_{xy,1}+½M_{x,y}
-- **Closed beads**: af-i706, af-uzj5, af-ko7e (all completed in Session 113)
-- **Wrote**: `memory/mult-alg-surjectivity-analysis.md` (detailed analysis)
-- **Recommendation**: Parameterize FreeJordanAlg by generator type (fastest path to FF)
-
-### Session 113: Fill gamma injectivity + toFA + fix surjectivity (3 parallel agents)
-- **Agent 1 (full_gamma_tensor_injective)**: **FILLED** all 3 sorries in GammaInjectivity.lean.
-- **Agent 2 (FreeAssocMono.toFA)**: **DEFINED** `toFA : FreeAssocMono → FA` (23 LOC).
-- **Agent 3 (mult_alg_surjectivity)**: **FIXED** mathematically false statement.
-- **Net result**: 1 sorry filled, 1 definition added, 1 statement corrected. 3 sorries remain.
-
-### Session 112: Fill gamma_mac_injective + investigation (3 parallel agents)
-### Session 111: Macdonald sorry investigation (3 parallel agents)
+### Session 113: Fill gamma injectivity + toFA + fix surjectivity
+### Session 112: Fill gamma_mac_injective + investigation
+### Session 111: Macdonald sorry investigation
 ### Session 110: Steps 15+16+17 scaffolding
-### Session 109: Step 14 corrections
-### Session 108: Steps 11+12 (M_op definition)
-### Session 106: Steps 7+10 (SpecialFF + MonomialFJ)
-### Session 105: Steps 6+9 (FreeSpecialJordan + GeneratorLemma)
-### Session 104: Steps 3+5 (OperatorId + FreeJordan)
-### Session 102: Steps 1+4+8 (UBilinear + FreeAlgebra + Monomial)

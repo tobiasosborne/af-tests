@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: AF-Tests Contributors
 -/
 import AfTests.Jordan.Macdonald.SpecialFF
+import AfTests.Jordan.Basic
 
 /-!
 # Operators on the Free Jordan Algebra
@@ -102,4 +103,82 @@ theorem U_bilinear_one_right (a v : FreeJordanAlg) :
   rw [one_mul_eq v, one_mul_eq (mul a v), mul_one_eq a]
   abel
 
+/-! ### Bilinearity of FreeJordanAlg.mul -/
+
+/-- Right distributivity: mul (a + b) c = mul a c + mul b c. -/
+theorem mul_add_left (a b c : FreeJordanAlg) : mul (a + b) c = mul a c + mul b c := by
+  induction a using Quotient.ind; induction b using Quotient.ind; induction c using Quotient.ind
+  show mk _ = mk _; congr 1; exact FreeNAAlg.add_mul _ _ _
+
+/-- Left distributivity: mul a (b + c) = mul a b + mul a c. -/
+theorem mul_add_right (a b c : FreeJordanAlg) : mul a (b + c) = mul a b + mul a c := by
+  induction a using Quotient.ind; induction b using Quotient.ind; induction c using Quotient.ind
+  show mk _ = mk _; congr 1; exact FreeNAAlg.mul_add _ _ _
+
+/-- Left scalar compatibility: mul (r • a) b = r • mul a b. -/
+theorem smul_mul_left (r : ℝ) (a b : FreeJordanAlg) : mul (r • a) b = r • mul a b := by
+  induction a using Quotient.ind; induction b using Quotient.ind
+  show mk _ = mk _; congr 1; exact FreeNAAlg.smul_mul _ _ _
+
+/-- Right scalar compatibility: mul a (r • b) = r • mul a b. -/
+theorem smul_mul_right (r : ℝ) (a b : FreeJordanAlg) : mul a (r • b) = r • mul a b := by
+  induction a using Quotient.ind; induction b using Quotient.ind
+  show mk _ = mk _; congr 1; exact FreeNAAlg.mul_smul _ _ _
+
+/-- Left zero: mul 0 b = 0. -/
+theorem mul_zero_left (b : FreeJordanAlg) : mul 0 b = 0 := by
+  have : mul ((0 : ℝ) • b) b = (0 : ℝ) • mul b b := smul_mul_left 0 b b
+  rw [zero_smul, zero_smul] at this
+  calc mul 0 b = mul (0 + 0) b := by rw [add_zero]
+    _ = mul 0 b + mul 0 b := mul_add_left 0 0 b
+  linarith [this]
+
+/-- Right zero: mul a 0 = 0. -/
+theorem mul_zero_right (a : FreeJordanAlg) : mul a 0 = 0 := by
+  rw [mul_comm, mul_zero_left]
+
+/-! ### Linearity of T -/
+
+/-- T is additive in its first argument. -/
+theorem T_add (a b v : FreeJordanAlg) : T (a + b) v = T a v + T b v := by
+  simp only [T_apply]; exact mul_add_left a b v
+
+/-- T is scalar-compatible in its first argument. -/
+theorem T_smul (r : ℝ) (a v : FreeJordanAlg) : T (r • a) v = r • T a v := by
+  simp only [T_apply]; exact smul_mul_left r a v
+
+/-- T at zero is zero. -/
+theorem T_zero (v : FreeJordanAlg) : T 0 v = 0 := by
+  simp only [T_apply]; exact mul_zero_left v
+
 end FreeJordanAlg
+
+/-! ### JordanAlgebra instance for FreeJordanAlg -/
+
+/-- FreeJordanAlg is a JordanAlgebra: it has commutative multiplication satisfying
+    the Jordan identity, with unit, bilinearity, and scalar compatibility. -/
+noncomputable instance : JordanAlgebra FreeJordanAlg where
+  jmul := FreeJordanAlg.mul
+  jmul_comm := FreeJordanAlg.mul_comm
+  jordan_identity := FreeJordanAlg.jordan_identity
+  jone := 1
+  jone_jmul := FreeJordanAlg.one_mul_eq
+  jmul_add := FreeJordanAlg.mul_add_right
+  jmul_smul := FreeJordanAlg.smul_mul_left
+
+/-! ### Bridge lemmas: JordanAlgebra ↔ FreeJordanAlg operators -/
+
+@[simp] theorem FJ_jmul_eq_mul (a b : FreeJordanAlg) :
+    JordanAlgebra.jmul a b = FreeJordanAlg.mul a b := rfl
+
+@[simp] theorem FJ_jone_eq_one :
+    (JordanAlgebra.jone : FreeJordanAlg) = 1 := rfl
+
+theorem FJ_jpow_eq_pow (a : FreeJordanAlg) (n : ℕ) :
+    JordanAlgebra.jpow a n = FreeJordanAlg.pow a n := by
+  induction n with
+  | zero => rfl
+  | succ n ih => simp [JordanAlgebra.jpow, FreeJordanAlg.pow, ih]
+
+@[simp] theorem FJ_L_apply (a v : FreeJordanAlg) :
+    JordanAlgebra.L a v = FreeJordanAlg.T a v := rfl
