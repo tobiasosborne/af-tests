@@ -1,4 +1,4 @@
-# Handoff: 2026-02-07 (Session 120)
+# Handoff: 2026-02-07 (Session 121)
 
 ## GOAL: Fill `fundamental_formula` sorry (the #1 priority)
 
@@ -6,12 +6,11 @@
 **Statement**: `U (U a b) x = U a (U b (U a x))` for all `a b x : J` in any `JordanAlgebra J`
 **Route**: Macdonald's theorem (H-O 2.4.13) lifts `special_fundamental_formula` to all Jordan algebras
 
-## Session 120 summary
+## Session 121 summary
 
-1. **eq258_xCons_yCons_ge** — Eq(2.58) weight<=1, i>=k case: `T_{x^{k+1}} M_{x^{i+1},y^{j+1}} = 1/2(M_{x^{i+k+2},y^{j+1}} + U_{x^{k+1}} M_{x^{i-k},y^{j+1}})`. Sorry-free. Uses operator_identity_249 via bridge lemmas (H-O lines 1332-1335).
-2. **M_op_U_prependY** — Property (iii) y version: FILLED (was sorry). 65-line proof symmetric to M_op_U_prependX.
-3. **U_bilinear_one_left** — Helper: `U_bilinear 1 b v = T b v`.
-4. **Pre-existing build fixes** — Fixed 5 files (FJOperators, FJBridge, MonoBlock, MOperatorProperties) for mathlib/toolchain changes: `linarith` -> `sub_self`, `FJ_jmul_eq_mul` in simp sets, `rfl` after rewrite, `prependX` unfolding, `show ... from` syntax.
+1. **eq258_xCons_yCons_lt** — Eq(2.58) weight<=1, i<k case: `T_{x^{k+1}} M_{x^{i+1},y^{j+1}} = 1/2(M_{x^{i+k+2},y^{j+1}} + M_{x^{i+1},x^k·y^{j+1}})`. Sorry-free, ~50 LOC. Uses operator_identity_247, eq258_xCons_yCons_ge, power_formula_245. H-O lines 1336-1344.
+
+This completes the weight<=1 case of eq(2.58): both i>=k and i<k are now sorry-free.
 
 ## What EXISTS (all sorry-free unless noted)
 
@@ -32,7 +31,7 @@
 | MOperatorProperties.lean | 0 | Property (ii), (iii) x+y general+equal-exp, (iv) k,l>=1. FJ_U_pow_comp, M_op_U_prependX, M_op_U_prependY. |
 | TensorSetup.lean | 0 | FA, FA2, FA3, symTensor, evalFA, gamma_mac (correct gamma) |
 | GammaInjectivity.lean | 0 | full_gamma_tensor_injective, z-separator — MATCH H-O |
-| Equation258.lean | 0 | Eq (2.58) base cases + weight<=1 i>=k case (eq258_xCons_yCons_ge) |
+| Equation258.lean | 0 | Eq (2.58) base cases + weight<=1 both cases (eq258_xCons_yCons_ge + eq258_xCons_yCons_lt) |
 | FJBridge.lean | 0 | Bridge: JordanAlgebra ↔ FreeJordanAlg operators |
 | **Macdonald.lean** | **3** | Macdonald theorem + FF corollaries |
 
@@ -41,7 +40,7 @@
 ```
 af-2nr5: Property (iii) x+y ✓ DONE ─┬─→ af-07gj: Eq(2.58) weight>1 ─→ af-mlnv: GenLemma+Surj
                                      │                                        │
-af-ub66: Eq(2.58) weight≤1 (i>=k ✓) ┘                                        ↓
+af-ub66: Eq(2.58) weight≤1 ✓ DONE ──┘                                        ↓
                                                             af-0cc6: mult_alg_surjectivity
                                                                               │
 af-opkm: Property (i) ───────────────────────────────────────────────────────┐│
@@ -53,14 +52,14 @@ af-opkm: Property (i) ───────────────────�
 ```
 
 ### Ready NOW (no blockers):
-- **af-ub66**: Eq(2.58) weight<=1 i<k case — H-O lines 1336-1344. Needs operator_identity_247, power_formula_245.
+- **af-07gj**: Eq(2.58) weight>1 — H-O lines 1346-1377. Now unblocked (af-ub66 complete).
 - **af-opkm**: Property (i) — H-O line 1217, ~40-60 LOC
 
 ### What each remaining issue requires (H-O citations):
 
-**af-ub66 — Eq(2.58) weight<=1** (Equation258.lean)
+**af-ub66 — Eq(2.58) weight<=1** (Equation258.lean) — **COMPLETE**
 - H-O lines 1332-1335 (i>=k): **DONE** (`eq258_xCons_yCons_ge`). Uses operator_identity_249 + bridge lemmas.
-- H-O lines 1336-1344 (i<k): **TODO**. Use `operator_identity_247`, `power_formula_245`, eq(2.56a), (iii).
+- H-O lines 1336-1344 (i<k): **DONE** (`eq258_xCons_yCons_lt`). Uses operator_identity_247, eq258_xCons_yCons_ge, power_formula_245.
 
 **af-07gj — Eq(2.58) weight>1** (Equation258.lean, BLOCKED by af-2nr5+af-ub66)
 - H-O lines 1346-1367 (i≥k): Start from (2.55a)/(2.56a), apply (2.49), induction.
@@ -88,6 +87,11 @@ af-opkm: Property (i) ───────────────────�
 - `bd ready` for available work
 
 ## Previous Sessions
+
+### Session 121: eq258_xCons_yCons_lt — Eq(2.58) weight<=1 i<k case
+- eq258_xCons_yCons_lt: ~50 LOC sorry-free proof using (2.47) + ge case + (2.45)
+- Weight<=1 case of eq(2.58) is now COMPLETE (both i>=k and i<k)
+- af-ub66 closed; af-07gj (weight>1) now unblocked
 
 ### Session 120: eq258_xCons_yCons_ge + M_op_U_prependY fill + build fixes
 - eq258_xCons_yCons_ge: Eq(2.58) i>=k case via operator_identity_249 — sorry-free
