@@ -1,43 +1,61 @@
-# Handoff: 2026-02-07 (Session 108)
+# Handoff: 2026-02-07 (Session 109)
 
 ## This Session
+
+### Steps 11-14: M_op fully sorry-free + Properties + Tensor scaffolding
+
+1. **MOperator.lean** (213 LOC, 0 sorries) -- M_op FULLY sorry-free
+   - Fixed (2.55) bug: replaced literal `yCons j (yCons k rp')` with `prependY j (yCons k rp')`
+     (and symmetric for xCons). Merges same-letter blocks → weight decreases correctly.
+   - Non-WF cases (consecutive same-letter blocks) now return `v` for totality.
+   - Termination measure: `(p.weight + q.weight, max p.weight q.weight)` with `Prod.Lex`
+   - `decreasing_by` block: 4-tactic `first` chain handles all obligations via `omega`
+
+2. **MOperatorProperties.lean** (117 LOC, 0 sorries) -- Step 13 COMPLETE
+   - `M_op_xCons_xCons`: Property (iii) for x — `M(x^k p, x^k q) = U_{x^k} M(p,q)`
+   - `M_op_yCons_yCons`: Property (iii) for y — symmetric
+   - `M_op_xCons_yCons_yCons`: Recurrence (2.55) unfolded
+   - `M_op_yCons_xCons_xCons`: Symmetric (2.55b)
+   - `M_op_U_bilinear_yCons`: Property (iv) — `U_{x^k,y^l} M = ½(M + M)`
+   - `M_op_U_bilinear_xCons`: Symmetric property (iv)
+   - Key technique: `rw [M_op.eq_def]` + `simp` for (iii), `abel` + `smul_smul` for (iv)
+
+3. **TensorSetup.lean** (151 LOC, 1 sorry) -- Step 14 scaffolding
+   - `FA := FreeAlgebra ℝ (Fin 2)`, `FA.x`, `FA.y`, `FA2 := FA ⊗[ℝ] FA`
+   - `StarModule ℝ FA` instance (via `star_smul` + `Algebra.commutes`)
+   - `symTensor`: symmetric tensors via `LinearMap.eqLocus`
+   - `evalFA`: `FreeJordanAlg → FA` via `evalAssoc`
+   - `gamma_elem a = a ⊗ 1 + 1 ⊗ a`, `gamma u = gamma_elem (evalFA u)`
+   - Proved: `gamma_elem_symmetric`, `gamma_elem_add`, `gamma_elem_smul`,
+     `gamma_comm`, `gamma_add`, `gamma_smul`, `gamma_elem_one`
+   - **1 sorry**: `gamma_jordan_product` — `γ(u ∘ v) = ½(γ(u)·γ(v) + γ(v)·γ(u))`
+
+**Build**: PASSES (1915 jobs). **Sorries**: 4 (FundamentalFormula, Square, 2x Classification) + 1 (gamma_jordan_product).
+
+### Next steps
+- **Step 15** (af-i706): Gamma injectivity — prove `gamma` is injective using
+  `FreeAlgebra.basisFreeMonoid` + `LinearIndependent.tmul_of_isDomain`.
+  First fill `gamma_jordan_product` sorry in TensorSetup.lean.
+- **Steps 16-17**: Macdonald theorem statement + fill fundamental_formula.
+- **Detailed mathlib research**: `memory/macdonald-steps14-17.md` — READ THIS FIRST.
+
+### Macdonald progress: Steps 1-14 (mostly) complete
+- Steps 1-13 all sorry-free
+- Step 14: TensorSetup scaffolding done, 1 sorry remaining (gamma_jordan_product)
+- Critical path: fill gamma_jordan_product → 15 → 16 → 17
+
+---
+
+## Previous Session (108)
 
 ### Steps 11+12: M_op recursive definition COMPLETE (0 errors)
 
 1. **MOperator.lean** (207 LOC, 0 errors) -- Full M_op definition (H-O 2.4.24)
-   - `M_op : FreeAssocMono → FreeAssocMono → FreeJordanAlg → FreeJordanAlg`
-   - Base cases (2.52): M(1,1)=id, M(x^i,y^j)=U_bilinear, M(x^i,1)=T
-   - Same-letter x (2.53): M(xCons i rp, xCons j rq) via U_{x^{j+1}}
-   - Same-letter y (2.54): symmetric
-   - Different-letter (2.55): M(xCons i rp, yCons j rq) = 2U - M_swapped
-   - Boundary (2.56-2.57): M(xCons i (yCons k rest'), one) with inlined subcases
-   - Termination: `decreasing_by all_goals sorry` (40 obligations, all provable)
+   - Termination: `decreasing_by all_goals sorry` (40 obligations)
 
 2. **MonoBlock.lean** (215 LOC, 0 sorries) -- 12 utility lemmas added
-   - Classification: `xCons_inX0`, `yCons_inY0`, `one_inX`, `one_inY`, `xCons_inX`, `yCons_inY`
-   - Weight of prepend: `weight_prependX_of_inY`, `weight_prependY_of_inX`,
-     `weight_prependX_of_inX0`, `weight_prependY_of_inY0`
-   - WF rest: `rest_inY_of_xCons`, `rest_inX_of_yCons`
 
-**Build**: PASSES. **Sorries**: 4 (unchanged — FundamentalFormula, Square, 2x Classification).
-
-### Next steps
-- **Step 13** (af-4ijx): Prove properties (iii) U_{x^k} M_{p,q} = M_{x^k p, x^k q}
-  and (iv) U_{x^k,y^l} M_{p,q} = ½(M_{x^k p, y^l q} + M_{y^l p, x^k q})
-- **Termination proofs**: Fill the 40 `decreasing_by sorry` in MOperator.lean
-  (weight sum strictly decreases in all cases — analysis done, needs Lean proofs)
-- **Steps 14-17** (af-uzj5+): Tensor product + gamma + Macdonald theorem.
-  **Detailed mathlib research saved to `memory/macdonald-steps14-17.md`** — READ THIS FIRST.
-  Key findings: `FreeAlgebra.basisFreeMonoid`, `FreeAlgebra.StarRing` (word reversal),
-  `TensorProduct.lift` (gamma), `Basis.tensorProduct`, `LinearIndependent.tmul_of_isDomain`
-  (injectivity). Need `import Mathlib.Data.Real.Star`. Symmetric tensors via
-  `LinearMap.eqLocus`. Biggest gap: bridge FreeMagma/FreeNAAlg → mathlib FreeAlgebra.
-  Estimated ~210 LOC total for Steps 14-17.
-
-### Macdonald progress: Steps 1-12 definition complete
-- Steps 1-10 all sorry-free
-- Steps 11+12: M_op definition complete (compiles, termination sorry only)
-- Critical path: 13 → 14 → 15 → 16 → 17 (fill fundamental_formula)
+**Build**: PASSES. **Sorries**: 4 (unchanged).
 
 ---
 

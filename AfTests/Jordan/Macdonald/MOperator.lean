@@ -76,25 +76,24 @@ noncomputable def M_op : FreeAssocMono → FreeAssocMono → FreeJordanAlg → F
   -- where rp ∈ Y, rq ∈ X, and not both pure powers (already handled above)
   -- ========================================
   | .xCons i (.yCons k rp'), .yCons j rq, v =>
+    -- (2.55): M(x^i · y^k · rp', y^j · rq) = 2U_{x^i,y^j}(M(y^k·rp', rq)) - M(y^j·y^k·rp', x^i·rq)
+    -- Use prependY to merge y-blocks: y^j·(y^k·rp') = y^{j+k+1}·rp' (lower weight)
     (2 : ℝ) • U_bilinear (pow x (i + 1)) (pow y (j + 1))
         (M_op (.yCons k rp') rq v)
-      - M_op (.yCons j (.yCons k rp')) (.xCons i rq) v
-  | .xCons i (.xCons l rp'), .yCons j rq, v =>
-    -- rp = xCons l rp' starts with x, but rp should be in Y for well-formed.
-    -- This case shouldn't arise for WF monomials, but handle it for totality:
-    (2 : ℝ) • U_bilinear (pow x (i + 1)) (pow y (j + 1))
-        (M_op (.xCons l rp') rq v)
-      - M_op (prependY j (.xCons l rp')) (prependX i rq) v
+      - M_op (prependY j (.yCons k rp')) (.xCons i rq) v
+  | .xCons i (.xCons _l _rp'), .yCons _j _rq, v =>
+    -- Non-WF: consecutive x-blocks in first arg. Return v for totality.
+    v
   -- (2.55b) M(yCons j rq, xCons i rp) — symmetric case
   | .yCons j (.xCons l rq'), .xCons i rp, v =>
+    -- (2.55b): M(y^j · x^l · rq', x^i · rp) = 2U_{y^j,x^i}(M(x^l·rq', rp)) - M(x^i·x^l·rq', y^j·rp)
+    -- Use prependX to merge x-blocks: x^i·(x^l·rq') = x^{i+l+1}·rq' (lower weight)
     (2 : ℝ) • U_bilinear (pow y (j + 1)) (pow x (i + 1))
         (M_op (.xCons l rq') rp v)
-      - M_op (.xCons i (.xCons l rq')) (.yCons j rp) v
-  | .yCons j (.yCons k rq'), .xCons i rp, v =>
-    -- rq' starts with y but rq should be in X for WF; handle for totality
-    (2 : ℝ) • U_bilinear (pow y (j + 1)) (pow x (i + 1))
-        (M_op (.yCons k rq') rp v)
-      - M_op (prependX i (.yCons k rq')) (prependY j rp) v
+      - M_op (prependX i (.xCons l rq')) (.yCons j rp) v
+  | .yCons _j (.yCons _k _rq'), .xCons _i _rp, v =>
+    -- Non-WF: consecutive y-blocks in first arg. Return v for totality.
+    v
   -- ========================================
   -- (2.56) Boundary: M(xCons i (yCons k rest'), one)
   -- Weight doesn't decrease naively, so we inline the problematic call
@@ -188,20 +187,26 @@ noncomputable def M_op : FreeAssocMono → FreeAssocMono → FreeJordanAlg → F
     (2 : ℝ) • U_bilinear (pow x (i + 1)) (pow y (j + 1))
         (M_op .one (.xCons l rest') v)
       - M_op (prependY j .one) (prependX i (.xCons l rest')) v
-  -- M(xCons i one, yCons j (yCons k rest'))
-  | .xCons i .one, .yCons j (.yCons k rest'), v =>
-    (2 : ℝ) • U_bilinear (pow x (i + 1)) (pow y (j + 1))
-        (M_op .one (.yCons k rest') v)
-      - M_op (prependY j .one) (prependX i (.yCons k rest')) v
+  -- M(xCons i one, yCons j (yCons k rest')) — non-WF second arg
+  | .xCons _i .one, .yCons _j (.yCons _k _rest'), v =>
+    v
   -- M(yCons j one, xCons i (yCons k rest'))
   | .yCons j .one, .xCons i (.yCons k rest'), v =>
     (2 : ℝ) • U_bilinear (pow y (j + 1)) (pow x (i + 1))
         (M_op .one (.yCons k rest') v)
       - M_op (prependX i .one) (prependY j (.yCons k rest')) v
-  -- M(yCons j one, xCons i (xCons l rest'))
-  | .yCons j .one, .xCons i (.xCons l rest'), v =>
-    (2 : ℝ) • U_bilinear (pow y (j + 1)) (pow x (i + 1))
-        (M_op .one (.xCons l rest') v)
-      - M_op (prependX i .one) (prependY j (.xCons l rest')) v
-termination_by p q _ => p.weight + q.weight
-decreasing_by all_goals sorry
+  -- M(yCons j one, xCons i (xCons l rest')) — non-WF second arg
+  | .yCons _j .one, .xCons _i (.xCons _l _rest'), v =>
+    v
+termination_by p q _ => (p.weight + q.weight, max p.weight q.weight)
+decreasing_by
+  all_goals
+    simp only [FreeAssocMono.weight_xCons, FreeAssocMono.weight_yCons,
+      FreeAssocMono.weight_one, FreeAssocMono.prependY, FreeAssocMono.prependX]
+    first
+    | exact Prod.Lex.left _ _ (by omega)
+    | apply Prod.Lex.right; simp only [Nat.max_def]; split_ifs <;> omega
+    | (split_ifs <;> simp only [FreeAssocMono.weight_xCons, FreeAssocMono.weight_yCons] <;> (first
+        | exact Prod.Lex.left _ _ (by omega)
+        | (apply Prod.Lex.right; simp only [Nat.max_def]; split_ifs <;> omega)))
+    | (constructor; · simp only [Nat.max_def]; split_ifs <;> omega)
