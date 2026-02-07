@@ -1,4 +1,4 @@
-# Handoff: 2026-02-07 (Session 116)
+# Handoff: 2026-02-07 (Session 117)
 
 ## GOAL: Fill `fundamental_formula` sorry (the #1 priority)
 
@@ -28,35 +28,15 @@
 | TensorSetup.lean | 179 | 0 | FA, FA3, evalFA, gamma_elem, gamma_mac (correct gamma) |
 | GammaInjectivity.lean | ~335 | **0** | full_gamma_tensor, encode_word, z-separator, **ALL PROVED** |
 | Equation258.lean | 58 | 0 | Equation (2.58) base cases (p=1/q=1, p=1/q=y^j, p=y^j/q=1) |
-| FJBridge.lean | ~50 | 0 | Bridge: JordanAlgebra.U/U_bilinear ↔ FreeJordanAlg.U/U_bilinear ← NEW |
+| FJBridge.lean | ~50 | 0 | Bridge: JordanAlgebra.U/U_bilinear ↔ FreeJordanAlg.U/U_bilinear |
 | **Macdonald.lean** | **~206** | **3** | Macdonald theorem + FF corollaries |
-
-### Key NEW results (Session 115)
-
-- **JordanAlgebra instance for FreeJordanAlg** (FJOperators.lean): CRITICAL unblock!
-  FreeJordanAlg now has a JordanAlgebra instance, meaning ALL operator identities
-  from OperatorId.lean (2.47)-(2.49) can now be applied to FreeJordanAlg elements.
-  Bridge lemmas: `FJ_jmul_eq_mul`, `FJ_jpow_eq_pow`, `FJ_L_apply`.
-
-- **FreeJordanAlg.mul bilinearity** (FJOperators.lean): 9 lemmas
-  mul_add_left, mul_add_right, smul_mul_left, smul_mul_right, mul_zero_left/right,
-  T_add, T_smul, T_zero. All sorry-free.
-
-- **Equation (2.58) base cases** (Equation258.lean): 3 theorems
-  eq258_one_one, eq258_one_yCons, eq258_yCons_one. All sorry-free.
 
 ## What NEEDS to be built (3 remaining sorries in Macdonald/)
 
 ### Sorry 1: `mult_alg_surjectivity` (Macdonald.lean:92)
 
 **Goal**: Every T_v is a finite ℝ-linear combination of M_{p,q} operators.
-
-**NOW UNBLOCKED by JordanAlgebra instance.** Strategy:
-1. Prove full equation (2.58) using operator_identity_249 applied to FreeJordanAlg.
-   The base case (p=x^i, q=y^j) now works since we can apply (2.49) directly.
-   Need bridge: relate JordanAlgebra.U_bilinear_linear to FreeJordanAlg.U_bilinear.
-2. Then: E is closed under U_{a,b} for a,b ∈ {1,x,y} → left ideal → E = full mult alg.
-3. Estimated: ~100-150 LOC remaining.
+**Blocked by**: Full equation (2.58) proof.
 
 ### Sorry 2: `macdonald` (Macdonald.lean:145)
 
@@ -66,14 +46,27 @@
 ### Sorry 3: `fundamental_formula_general` (Macdonald.lean:206)
 
 **Goal**: FF holds in every JordanAlgebra.
-**Three approaches**: See Session 114 notes.
+**Blockers**: Needs `macdonald` or direct proof. See Session 117 analysis.
+
+## IMMEDIATE NEXT STEP — eq258_xCons_yCons_ge
+
+**READY TO IMPLEMENT.** Complete proof skeleton in `memory/eq258-proof-strategy.md`.
+
+Steps:
+1. Add `import AfTests.Jordan.Macdonald.FJBridge` to Equation258.lean
+2. Copy proof skeleton from memory file (~35 LOC)
+3. Build and fix any type issues
+4. This proves (2.58) for p=x^{i+1}, q=y^{j+1}, i≥k
+
+**Why it matters**: For k=0, i≥0 always holds. So this covers T_x ∘ M_{x^i, y^j} ∈ E,
+which is needed for mult_alg_surjectivity (the H-O 2.4.25 argument).
 
 ## Proof dependency chain
 
 ```
 [DONE] full_gamma_tensor_injective ──→ gamma_mac_injective ──┐
                                                               ├──→ macdonald ──→ macdonald_injectivity
-mult_alg_surjectivity ───────────────────────────────────────┘           │
+eq258_xCons_yCons_ge ──→ eq258_full ──→ mult_alg_surjectivity┘           │
 M_op_eval_z (property (i)) ─────────────────────────────────┘           ↓
                                                               fundamental_formula_free
                                                                      │
@@ -83,6 +76,25 @@ M_op_eval_z (property (i)) ─────────────────�
                                                                      ↓
                                                     Fill fundamental_formula sorry
 ```
+
+## Session 117 findings (analysis, no code)
+
+### Key finding: fundamental_formula_general is HARDER than expected
+- Direct transfer from FJ{x,y} to general JA **FAILS**: FF is U_{U_a(b)}(x) = U_a(U_b(U_a(x))),
+  linear in x. Evaluation map evalJA : FJ{x,y} → J sends x→a, y→b, but im(evalJA) = ⟨a,b⟩ ⊂ J.
+  So FF only transfers for x ∈ ⟨a,b⟩, not arbitrary x ∈ J.
+- Generalizing FreeJordanAlg to 3 generators doesn't help: FJ(Fin 3) is NOT special
+  (Shirshov only for 2 generators). Can't use special_fundamental_formula.
+- **ONLY viable paths**: (a) Full Macdonald metatheorem, or (b) McCrimmon direct algebraic proof.
+- Path (a) requires the full chain: eq258 → mult_alg_surjectivity → macdonald.
+- Path (b) is ~100 LOC of degree-(4,2,1) polynomial identity verification. Very tedious.
+
+### eq258_xCons_yCons_ge proof strategy (fully worked out)
+- Uses `operator_identity_249` specialized to FreeJordanAlg
+- Bridge: `DFunLike.congr_fun h249 v` + simp with `FJ_L_apply, FJ_jpow_eq_pow, FJ_U_bilinear_eq, FJ_U_linear_apply`
+- Three M_op unfoldings: LHS base case, RHS1 base case, RHS2 via (2.53) with by_cases i=k
+- Final calc: multiply by (1/2), rw h249v, add_comm via abel
+- Complete proof skeleton: `memory/eq258-proof-strategy.md`
 
 ## CRITICAL TRAP TO AVOID
 
@@ -97,25 +109,18 @@ It is mathematically **FALSE**. The correct gamma for Macdonald is `gamma_mac` i
 
 ## Recommended next session order
 
-1. **Write bridge lemmas** connecting JordanAlgebra.U_bilinear_linear to FreeJordanAlg.U_bilinear.
-   ~20 LOC. This allows operator_identity_249 to be stated for M_op.
-
-2. **Prove full equation (2.58)** for p = x^i, q = y^j using operator_identity_249.
-   Add to Equation258.lean. ~50-80 LOC.
-
-3. **Prove (2.58) for general weight** by induction. ~50-80 LOC.
-
-4. **Fill `mult_alg_surjectivity`** using (2.58) + left ideal argument. ~50-70 LOC.
-
-5. **Fill `macdonald`** using surjectivity + property (i) + gamma injectivity.
-
-6. **Fill `fundamental_formula_general`** — needs 3-gen FreeJordanAlg or Macdonald metatheorem.
+1. **Implement eq258_xCons_yCons_ge** — proof skeleton ready in memory file. ~35 LOC.
+2. **Prove remaining (2.58) cases** — p=x^{i+1}/q=y^{j+1} with i<k (uses 2.47), inductive cases.
+3. **Fill `mult_alg_surjectivity`** — uses (2.58) + left ideal argument. ~50-70 LOC.
+4. **Fill `macdonald`** — uses surjectivity + property (i) + gamma injectivity.
+5. **Fill `fundamental_formula_general`** — needs Macdonald metatheorem or direct proof.
 
 ## Reference — READ BEFORE STARTING
 
 **MANDATORY READING** (do NOT re-research these topics):
 - **HANDOFF.md** (this file)
 - **CLAUDE.md** — Build instructions, H-O ground truth, golden rules
+- **memory/eq258-proof-strategy.md** — COPY-PASTE proof skeleton
 
 Book: `examples3/Jordan Operator Algebras/joa-m/joa-m.md`
 - Equation (2.58): lines 1326-1377
@@ -142,13 +147,14 @@ AfTests/Jordan/
     ├── SpecialFF.lean      -- special_fundamental_formula (PROVED)
     ├── Monomial.lean       -- M_word, M_eval
     ├── MonoBlock.lean      -- FreeAssocMono, toFA (0 sorries!)
-    ├── FJOperators.lean    -- T, U, U_bilinear, pow, **JordanAlgebra instance** ← NEW
+    ├── FJOperators.lean    -- T, U, U_bilinear, pow, **JordanAlgebra instance**
     ├── MonomialFJ.lean     -- M_{p,q} as FJ elements
     ├── MOperator.lean      -- M_op recursive definition (0 sorries!)
     ├── MOperatorProperties.lean -- Properties (ii)-(iv) (0 sorries!)
     ├── TensorSetup.lean    -- FA, FA3, evalFA, gamma_mac (0 sorries!)
     ├── GammaInjectivity.lean -- Step 15: gamma injectivity (0 sorries!)
-    ├── Equation258.lean    -- Eq (2.58) base cases ← NEW
+    ├── Equation258.lean    -- Eq (2.58) base cases
+    ├── FJBridge.lean       -- Bridge: JordanAlgebra ↔ FreeJordanAlg operators
     └── Macdonald.lean      -- Step 16+17: Macdonald theorem + FF (3 sorries)
 ```
 
@@ -156,28 +162,18 @@ AfTests/Jordan/
 
 ## Previous Sessions
 
+### Session 117: Analysis of eq258 + fundamental_formula_general (no code)
+- **Worked out complete proof strategy** for eq258_xCons_yCons_ge (~35 LOC)
+  Saved to `memory/eq258-proof-strategy.md`. Ready to implement.
+- **Key finding**: fundamental_formula_general cannot use direct transfer from FJ{x,y}.
+  im(evalJA) = ⟨a,b⟩ ⊂ J, so FF only proved for x ∈ ⟨a,b⟩. Generalizing to
+  FJ(Fin 3) doesn't help (not special). Need full Macdonald or McCrimmon direct proof.
+- **0 sorries added, 0 sorries filled** (pure analysis session).
+
 ### Session 116: Bridge lemmas (FJBridge.lean)
-- **New file FJBridge.lean** with 3 bridge lemmas (0 sorries):
-  - `FJ_U_eq`: `JordanAlgebra.U a v = FreeJordanAlg.U a v`
-  - `FJ_U_linear_apply`: `JordanAlgebra.U_linear a v = FreeJordanAlg.U a v`
-  - `FJ_U_bilinear_eq`: `JordanAlgebra.U_bilinear_linear a b v = FreeJordanAlg.U_bilinear a b v`
-- These bridge the JordanAlgebra-level operator identities (OperatorId.lean) to
-  the FreeJordanAlg-level operators used in M_op. The key difference is nsmul 2
-  vs (2:ℝ)• and argument ordering (triple vs U_bilinear).
-- **Key lesson**: Importing UBilinear into FJOperators.lean breaks existing proofs
-  (linarith failure in mul_zero_left). Solution: separate file (FJBridge.lean)
-  that imports both FJOperators and OperatorId.
+- **New file FJBridge.lean** with 3 bridge lemmas (0 sorries)
 
 ### Session 115: JordanAlgebra instance + bilinearity + equation (2.58) base cases
-- **JordanAlgebra instance** for FreeJordanAlg (FJOperators.lean): CRITICAL UNBLOCK.
-  All operator identities (2.47)-(2.49) from OperatorId.lean can now be applied to FreeJordanAlg.
-- **9 bilinearity lemmas** for FreeJordanAlg.mul and T (FJOperators.lean).
-- **3 equation (2.58) base cases** proved (Equation258.lean).
-- **Bridge lemmas**: FJ_jmul_eq_mul, FJ_jpow_eq_pow, FJ_L_apply.
-- **Key finding**: The hard (2.58) cases (p=x^i, q=y^j) need operator_identity_249
-  applied to FreeJordanAlg. Now possible thanks to JordanAlgebra instance.
-- **0 sorries added, 0 sorries filled** (infrastructure session).
-
 ### Session 114: Analysis of mult_alg_surjectivity + learnings
 ### Session 113: Fill gamma injectivity + toFA + fix surjectivity
 ### Session 112: Fill gamma_mac_injective + investigation
