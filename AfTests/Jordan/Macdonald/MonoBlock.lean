@@ -163,4 +163,52 @@ theorem prependY_of_inX {p : FreeAssocMono} (hp : p.inX) :
     | inl h => exact FreeAssocMono.noConfusion h
     | inr h => exact absurd h (by simp [inX0, startsWithX])
 
+/-! ### Classification lemmas -/
+
+theorem xCons_inX0 (i : ℕ) (r : FreeAssocMono) : inX0 (xCons i r) := rfl
+
+theorem yCons_inY0 (j : ℕ) (r : FreeAssocMono) : inY0 (yCons j r) := rfl
+
+theorem one_inX : inX one := Or.inl rfl
+
+theorem one_inY : inY one := Or.inl rfl
+
+theorem xCons_inX (i : ℕ) (r : FreeAssocMono) : inX (xCons i r) :=
+  Or.inr (xCons_inX0 i r)
+
+theorem yCons_inY (j : ℕ) (r : FreeAssocMono) : inY (yCons j r) :=
+  Or.inr (yCons_inY0 j r)
+
+/-! ### Weight of prepend operations -/
+
+theorem weight_prependX_of_inY {p : FreeAssocMono} (hp : p.inY) (k : ℕ) :
+    (prependX k p).weight = p.weight + 1 := by
+  rw [prependX_of_inY hp, weight_xCons]
+
+theorem weight_prependY_of_inX {p : FreeAssocMono} (hp : p.inX) (l : ℕ) :
+    (prependY l p).weight = p.weight + 1 := by
+  rw [prependY_of_inX hp, weight_yCons]
+
+theorem weight_prependX_of_inX0 {p : FreeAssocMono} (hp : p.inX0) (k : ℕ) :
+    (prependX k p).weight = p.weight := by
+  cases p with
+  | one => exact absurd hp (by simp [inX0, startsWithX])
+  | xCons i rest => simp [prependX, weight]
+  | yCons j rest => exact absurd hp (by simp [inX0, startsWithX])
+
+theorem weight_prependY_of_inY0 {p : FreeAssocMono} (hp : p.inY0) (l : ℕ) :
+    (prependY l p).weight = p.weight := by
+  cases p with
+  | one => exact absurd hp (by simp [inY0, startsWithY])
+  | xCons i rest => exact absurd hp (by simp [inY0, startsWithY])
+  | yCons j rest => simp [prependY, weight]
+
+/-! ### Rest classification for well-formed monomials -/
+
+theorem rest_inY_of_xCons (i : ℕ) (r : FreeAssocMono) (h : WF (xCons i r)) :
+    r.inY := h.1
+
+theorem rest_inX_of_yCons (j : ℕ) (r : FreeAssocMono) (h : WF (yCons j r)) :
+    r.inX := h.1
+
 end FreeAssocMono
