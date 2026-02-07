@@ -1,4 +1,4 @@
-# Handoff: 2026-02-07 (Session 110)
+# Handoff: 2026-02-07 (Session 111)
 
 ## GOAL: Fill `fundamental_formula` sorry (the #1 priority)
 
@@ -87,24 +87,27 @@ core theorem. Need to connect M_op to evalFA and gamma_mac.
 - Evaluation of FreeJordanAlg into FA3 (3-generator free algebra)
 - Induction on weight using properties (ii)-(iv)
 
-### Sorry 5: `fundamental_formula_general` (Macdonald.lean:160)
+### Sorry 5: `fundamental_formula_general` (Macdonald.lean:179)
 
 **Goal**: FF holds in every JordanAlgebra.
 
-**Approach**: `fundamental_formula_free` gives FF in FreeJordanAlg. For a general
-JA J and a,b,x ∈ J, the operator `U_{U_a(b)} - U_a U_b U_a` is a multiplication
-operator in (a,b). By Macdonald it's zero on FreeJordanAlg. The operator identity
-transfers to any JA because `U_{U_a(b)} = U_a U_b U_a` as endomorphisms (not just
-on specific elements).
+**Blockers investigated (Session 111)**:
+- `fundamental_formula_free` proves FF for ALL u,v,w in FJ{x,y}
+- `evalAssoc : A → A → FreeJordanAlg → A` evaluates FJ elements into associative algebras
+- No `evalJA : FreeJordanAlg → J` (Jordan algebra evaluation) exists yet
+- Even with evalJA, the image only reaches ⟨a,b⟩ ⊆ J — does NOT cover arbitrary x ∈ J
+- Both `U_{U_a(b)}` and `U_a U_b U_a` are linear in x, but they only agree on ⟨a,b⟩
 
-**Critical detail from book (H-O 2.4.13)**: Macdonald's theorem is about multiplication
-operators in 2 variables acting on FJ{x,y,z} (3 generators). The FF involves 3
-variables but the operator only depends on 2. The third variable z is the "input"
-to the operator. So the theorem gives `U_{U_x(y)} = U_x U_y U_x` as endomorphisms
-of FJ{x,y,z}, which transfers to any JA.
+**Three possible approaches**:
+1. **Generalize FreeJordanAlg to n generators** (recommended). Refactor `FreeNAAlg`
+   from 2 fixed generators to `Type*`-indexed generators. Then FJ(Fin 3) has 3
+   generators, and evalJA sends x→a, y→b, z→c covering all of J.
+2. **Prove `macdonald`** first (Sorries 1-4), then apply Macdonald's theorem as a
+   metatheorem about operator identities in 2 variables linear in a 3rd.
+3. **Direct algebraic proof** from Jordan axioms (~100 LOC, McCrimmon approach).
 
-**For formalization**: Need either (a) FreeJordanAlg on 3 generators and its universal
-property, or (b) argue at the operator level that the operator identity transfers.
+**For formalization**: Need either (a) FreeJordanAlg on 3+ generators and its universal
+property, or (b) `macdonald` sorry filled first, or (c) direct proof from axioms.
 
 ## Proof dependency chain
 
@@ -194,6 +197,22 @@ AfTests/Jordan/
 ---
 
 ## Previous Sessions
+
+### Session 111: Macdonald sorry investigation (3 parallel agents)
+- **Agent 1 (full_gamma_tensor_injective)**: Developed key helper lemmas
+  (`basisFreeMonoid_mul`, `star_basisFreeMonoid`, `FA_to_FA3_basisFreeMonoid`)
+  for the z-separator argument. Sorry remains — needs to compose helpers into
+  the full injectivity proof. The approach is correct: show image of tensor
+  basis elements are distinct FreeMonoid words in FA3.
+- **Agent 2 (mult_alg_surjectivity)**: Identified that current statement is
+  too strong — a single M_{p,q} can't express every T_v. Correct reformulation
+  uses `InMSpan` (ℝ-span of M operators). Found that `M_op (xCons k .one) .one`
+  gives T_{x^{k+1}} by `rfl`-like reduction. Key missing piece: equation (2.58)
+  `T_{x^k} ∘ M_{p,q} = ½(M_{x^k·p,q} + M_{p,x^k·q})` for closure under T composition.
+- **Agent 3 (fundamental_formula_general)**: Confirmed sorry cannot be filled
+  without: (a) generalizing FreeJordanAlg to 3+ generators, (b) filling `macdonald`
+  first, or (c) direct algebraic proof. Updated docstring with precise diagnosis.
+- **No new sorries filled**, but significant documentation and approach clarification.
 
 ### Session 110: Steps 15+16+17 scaffolding
 - Created GammaInjectivity.lean (full_gamma, gamma_mac_tensor, injectivity)

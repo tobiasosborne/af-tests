@@ -152,11 +152,30 @@ theorem fundamental_formula_free (u v w : FreeJordanAlg) :
 /-- The fundamental formula holds in every Jordan algebra:
     U_{U_a(b)}(x) = U_a(U_b(U_a(x))) for all a, b, x in J.
 
-    **Proof**: The identity holds in FreeJordanAlg by `fundamental_formula_free`.
-    For any a, b, x in a Jordan algebra J, define a homomorphism
-    φ : FreeJordanAlg → J sending generators x ↦ a, y ↦ b.
-    Since φ preserves U, the identity transfers. The variable x ∈ J
-    is handled because the identity is universal in the third variable. -/
+    **Status**: sorry — requires one of:
+
+    1. **Generalize FreeJordanAlg to n generators** (recommended).
+       Currently `FreeJordanAlg` has exactly 2 generators (x, y). The evaluation
+       map `evalJA : FreeJordanAlg → J` with x↦a, y↦b only reaches the
+       subalgebra ⟨a,b⟩ ⊆ J. Since `fundamental_formula_free` proves FF for
+       all w ∈ FJ{x,y}, the transfer via evalJA gives FF only for
+       x ∈ im(evalJA) = ⟨a,b⟩, NOT for arbitrary x ∈ J.
+       With FreeJordanAlg on 3+ generators, we could substitute z↦x and
+       get FF for all x ∈ J by the universal property.
+
+    2. **Macdonald's theorem** (H-O 2.4.13, 2.4.15) applied as a metatheorem.
+       The FF is an operator identity F(a,b) = 0 where both sides are linear
+       in the "test variable" x. Macdonald says: a polynomial identity in 2
+       variables, linear in a 3rd, that holds in all special JAs, holds in all
+       JAs. This is the approach of H-O 2.4.18. But formalizing the
+       metatheoretic transfer requires `macdonald` (which itself has a sorry).
+
+    3. **Direct algebraic proof** from Jordan axioms (McCrimmon's approach).
+       Lengthy (~100 LOC) but avoids Macdonald entirely. Uses iterated
+       linearization of the Jordan identity and operator composition formulas.
+
+    See also: `JordanAlgebra.fundamental_formula` in FundamentalFormula.lean,
+    which has the same sorry for the same reason. -/
 theorem fundamental_formula_general {J : Type*} [JordanAlgebra J]
     (a b x : J) :
     JordanAlgebra.U (JordanAlgebra.U a b) x =
