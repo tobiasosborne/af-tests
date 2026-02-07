@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-02-07T21:12:46.518681922Z","definition":{"id":"f579ac9b85dac03f","name":"max_relative_entropy","definition":"M(rho,sigma) := inf{lambda ≥ 0 : rho ≤ lambda sigma}. For bipartite states: M(rho_AB, 1_A ⊗ rho_B) ≤ d_A.","created":"2026-02-07T21:12:46.517953685Z"}}

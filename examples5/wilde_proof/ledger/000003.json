@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-02-07T21:12:23.864768961Z","definition":{"id":"28c794fdc1052927","name":"hilbert_spaces","definition":"H_A, H_B: finite-dimensional complex Hilbert spaces. d_A := dim(H_A), d_B := dim(H_B). H_AB := H_A ⊗ H_B, dimension d_AB = d_A d_B. 1_X: identity on H_X.","created":"2026-02-07T21:12:23.864200504Z"}}

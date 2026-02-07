@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-02-07T21:12:30.612781689Z","definition":{"id":"a433cf5f2646d667","name":"states","definition":"Density operator: rho ≥ 0, Tr[rho] = 1. Set D(H). Partial trace: rho_B := Tr_A[rho_AB]. Trace distance: T(rho,sigma) := (1/2)||rho - sigma||_1.","created":"2026-02-07T21:12:30.61212266Z"}}
