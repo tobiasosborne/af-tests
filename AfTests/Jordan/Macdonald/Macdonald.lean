@@ -7,7 +7,6 @@ import AfTests.Jordan.Macdonald.MOperatorProperties
 import AfTests.Jordan.Macdonald.TensorSetup
 import AfTests.Jordan.Macdonald.GammaInjectivity
 import AfTests.Jordan.Macdonald.GeneratorLemma
-import AfTests.Jordan.Macdonald.MonomialFJ
 
 /-!
 # Macdonald's Theorem (H-O 2.4.13, 2.4.25)

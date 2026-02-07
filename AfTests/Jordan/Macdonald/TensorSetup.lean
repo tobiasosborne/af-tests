@@ -22,22 +22,18 @@ of the Macdonald theorem proof (Hanche-Olsen 2.4).
 * `FA2` - The tensor product `FA ⊗ FA`, which has a natural algebra structure
 * `symTensor` - The submodule of symmetric tensors `{t | comm(t) = t}`
 * `evalFA` - Evaluation map `FreeJordanAlg → FA` (canonical surjection)
-* `gamma_elem` - The gamma map on `FA`: `γ(a) = a ⊗ 1 + 1 ⊗ a`
-* `gamma` - The gamma map on `FreeJordanAlg`: composition of `evalFA` and `gamma_elem`
-
 ## Main results
 
-* `gamma_elem_symmetric` - `γ(a)` lies in the symmetric part of `FA ⊗ FA`
-* `gamma_elem_add`, `gamma_elem_smul` - `gamma_elem` is ℝ-linear
-* `gamma_jordan_product` - `γ(u ∘ v) = ½(γ(u)·γ(v) + γ(v)·γ(u))` (sorry'd)
+* `gamma_mac` - The correct gamma map for Macdonald: `γ(p,q) = ½(pzq* + qzp*)` in FA3
+* `gamma_mac_comm` - `gamma_mac` is symmetric in its arguments
 
 ## Design notes
 
 We use Mathlib's `FreeAlgebra ℝ (Fin 2)` as the associative free algebra, connected
 to the project's `FreeJordanAlg` via `evalAssoc`. The star (anti-involution) from
 `Mathlib.Algebra.Star.Free` reverses words; generators are self-adjoint (`star_ι`).
-The gamma map `γ(a) = a ⊗ 1 + 1 ⊗ a` lands in symmetric tensors (invariant under
-`TensorProduct.comm`), which is the key structural property for Macdonald's theorem.
+The correct gamma for Macdonald maps into FA3 (3-generator free algebra) via
+`gamma_mac(p,q) = ½(pzq* + qzp*)`, which is injective on symmetric tensors.
 -/
 
 /-! ### Free algebra FA = FreeAlgebra ℝ (Fin 2) -/
@@ -95,53 +91,6 @@ theorem evalFA_mul (u v : FreeJordanAlg) :
     evalFA (FreeJordanAlg.mul u v) =
     (1/2 : ℝ) • (evalFA u * evalFA v + evalFA v * evalFA u) :=
   FreeJordanAlg.evalAssoc_mul FA.x FA.y u v
-
-/-! ### Gamma map -/
-
-/-- The gamma map on `FA` elements: `γ(a) = a ⊗ 1 + 1 ⊗ a`.
-    This maps into symmetric tensors and is the key embedding for Macdonald's theorem. -/
-noncomputable def gamma_elem (a : FA) : FA2 :=
-  a ⊗ₜ[ℝ] 1 + 1 ⊗ₜ[ℝ] a
-
-/-- The gamma map on `FreeJordanAlg`: composition of `evalFA` and `gamma_elem`. -/
-noncomputable def gamma (u : FreeJordanAlg) : FA2 :=
-  gamma_elem (evalFA u)
-
-@[simp] theorem gamma_x :
-    gamma FreeJordanAlg.x = FA.x ⊗ₜ[ℝ] 1 + 1 ⊗ₜ[ℝ] FA.x := by
-  simp [gamma, gamma_elem]
-
-@[simp] theorem gamma_y :
-    gamma FreeJordanAlg.y = FA.y ⊗ₜ[ℝ] 1 + 1 ⊗ₜ[ℝ] FA.y := by
-  simp [gamma, gamma_elem]
-
-/-! ### Properties of gamma_elem -/
-
-/-- `γ(a)` is a symmetric tensor: swapping factors leaves it invariant. -/
-theorem gamma_elem_symmetric (a : FA) : gamma_elem a ∈ symTensor := by
-  change LinearMap.id (gamma_elem a) = (TensorProduct.comm ℝ FA FA).toLinearMap (gamma_elem a)
-  unfold gamma_elem
-  simp [map_add, TensorProduct.comm_tmul]
-  abel
-
-/-- `gamma_elem` is additive. -/
-theorem gamma_elem_add (a b : FA) :
-    gamma_elem (a + b) = gamma_elem a + gamma_elem b := by
-  unfold gamma_elem
-  rw [TensorProduct.add_tmul, TensorProduct.tmul_add]
-  abel
-
-/-- `gamma_elem` respects scalar multiplication. -/
-theorem gamma_elem_smul (r : ℝ) (a : FA) :
-    gamma_elem (r • a) = r • gamma_elem a := by
-  unfold gamma_elem
-  simp only [smul_add, TensorProduct.smul_tmul', TensorProduct.tmul_smul]
-
-/-! ### Properties of gamma -/
-
-/-- `γ(u)` is a symmetric tensor for any `u : FreeJordanAlg`. -/
-theorem gamma_symmetric (u : FreeJordanAlg) : gamma u ∈ symTensor :=
-  gamma_elem_symmetric (evalFA u)
 
 /-! ### Three-generator free algebra FA3 = FreeAlgebra ℝ (Fin 3) -/
 
