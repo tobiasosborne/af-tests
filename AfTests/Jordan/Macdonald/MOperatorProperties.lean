@@ -22,7 +22,8 @@ open FreeJordanAlg FreeAssocMono
 /-! ### Property (ii): M_{1,1} = identity -/
 
 /-- Property (ii): M(1,1) is the identity operator. -/
-theorem M_op_one_one (v : FreeJordanAlg) : M_op .one .one v = v := rfl
+theorem M_op_one_one (v : FreeJordanAlg) : M_op .one .one v = v := by
+  rw [M_op.eq_def]
 
 /-! ### Property (iii): Same-letter U factorization -/
 
@@ -59,7 +60,7 @@ theorem M_op_xCons_yCons_yCons (k m : ℕ) (p' : FreeAssocMono)
     M_op (xCons k (yCons m p')) (yCons l q) v =
       (2 : ℝ) • U_bilinear (pow x (k + 1)) (pow y (l + 1))
           (M_op (yCons m p') q v)
-        - M_op (yCons l (yCons m p')) (xCons k q) v := by
+        - M_op (prependY l (yCons m p')) (xCons k q) v := by
   rw [M_op.eq_def]
 
 /-- Symmetric recurrence (2.55b): M(yCons l (xCons n q'), xCons k p) unfolds to
@@ -69,54 +70,47 @@ theorem M_op_yCons_xCons_xCons (l n : ℕ) (q' : FreeAssocMono)
     M_op (yCons l (xCons n q')) (xCons k p) v =
       (2 : ℝ) • U_bilinear (pow y (l + 1)) (pow x (k + 1))
           (M_op (xCons n q') p v)
-        - M_op (xCons k (xCons n q')) (yCons l p) v := by
+        - M_op (prependX k (xCons n q')) (yCons l p) v := by
   rw [M_op.eq_def]
 
 /-- Property (iv), yCons case: U_{x^{k+1},y^{l+1}}(M(yCons m p', q) v) =
-    ½(M(xCons k (yCons m p'), yCons l q) + M(yCons l (yCons m p'), xCons k q)).
+    ½(M(xCons k (yCons m p'), yCons l q) + M(prependY l (yCons m p'), xCons k q)).
     Derived by rearranging the different-letter recurrence (2.55). -/
 theorem M_op_U_bilinear_yCons (k l m : ℕ) (p' : FreeAssocMono)
     (q : FreeAssocMono) (v : FreeJordanAlg) :
     U_bilinear (pow x (k + 1)) (pow y (l + 1))
         (M_op (yCons m p') q v) =
       (1 / 2 : ℝ) • (M_op (xCons k (yCons m p')) (yCons l q) v
-        + M_op (yCons l (yCons m p')) (xCons k q) v) := by
+        + M_op (prependY l (yCons m p')) (xCons k q) v) := by
   have h := M_op_xCons_yCons_yCons k m p' l q v
-  -- h : M(x·p, y·q) = 2 • U_bi(...) - M(y·p, x·q)
-  -- So: 2 • U_bi(...) = M(x·p, y·q) + M(y·p, x·q)
-  -- And: U_bi(...) = (1/2) • (M(x·p, y·q) + M(y·p, x·q))
-  -- h : M(x·p, y·q) = 2 • U_bi - M(y·p, x·q)
-  -- Goal: U_bi = (1/2) • (M(x·p, y·q) + M(y·p, x·q))
-  -- From h: 2 • U_bi = M(x·p, y·q) + M(y·p, x·q)
-  -- So: U_bi = (1/2) • (M(x·p, y·q) + M(y·p, x·q))
   have key : (2 : ℝ) • U_bilinear (pow x (k + 1)) (pow y (l + 1))
       (M_op (yCons m p') q v) =
     M_op (xCons k (yCons m p')) (yCons l q) v
-      + M_op (yCons l (yCons m p')) (xCons k q) v := by
+      + M_op (prependY l (yCons m p')) (xCons k q) v := by
     rw [h]; abel
   calc U_bilinear (pow x (k + 1)) (pow y (l + 1)) (M_op (yCons m p') q v)
       = (1 / 2 : ℝ) • ((2 : ℝ) • U_bilinear (pow x (k + 1)) (pow y (l + 1))
           (M_op (yCons m p') q v)) := by rw [smul_smul]; norm_num
     _ = (1 / 2 : ℝ) • (M_op (xCons k (yCons m p')) (yCons l q) v
-        + M_op (yCons l (yCons m p')) (xCons k q) v) := by rw [key]
+        + M_op (prependY l (yCons m p')) (xCons k q) v) := by rw [key]
 
 /-- Property (iv), xCons case: U_{y^{l+1},x^{k+1}}(M(xCons n q', p) v) =
-    ½(M(yCons l (xCons n q'), xCons k p) + M(xCons k (xCons n q'), yCons l p)).
+    ½(M(yCons l (xCons n q'), xCons k p) + M(prependX k (xCons n q'), yCons l p)).
     Symmetric version of `M_op_U_bilinear_yCons`. -/
 theorem M_op_U_bilinear_xCons (k l n : ℕ) (q' : FreeAssocMono)
     (p : FreeAssocMono) (v : FreeJordanAlg) :
     U_bilinear (pow y (l + 1)) (pow x (k + 1))
         (M_op (xCons n q') p v) =
       (1 / 2 : ℝ) • (M_op (yCons l (xCons n q')) (xCons k p) v
-        + M_op (xCons k (xCons n q')) (yCons l p) v) := by
+        + M_op (prependX k (xCons n q')) (yCons l p) v) := by
   have h := M_op_yCons_xCons_xCons l n q' k p v
   have key : (2 : ℝ) • U_bilinear (pow y (l + 1)) (pow x (k + 1))
       (M_op (xCons n q') p v) =
     M_op (yCons l (xCons n q')) (xCons k p) v
-      + M_op (xCons k (xCons n q')) (yCons l p) v := by
+      + M_op (prependX k (xCons n q')) (yCons l p) v := by
     rw [h]; abel
   calc U_bilinear (pow y (l + 1)) (pow x (k + 1)) (M_op (xCons n q') p v)
       = (1 / 2 : ℝ) • ((2 : ℝ) • U_bilinear (pow y (l + 1)) (pow x (k + 1))
           (M_op (xCons n q') p v)) := by rw [smul_smul]; norm_num
     _ = (1 / 2 : ℝ) • (M_op (yCons l (xCons n q')) (xCons k p) v
-        + M_op (xCons k (xCons n q')) (yCons l p) v) := by rw [key]
+        + M_op (prependX k (xCons n q')) (yCons l p) v) := by rw [key]

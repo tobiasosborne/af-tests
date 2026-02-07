@@ -175,4 +175,4 @@ noncomputable def gamma_mac (p q : FA) : FA3 :=
 
 /-- gamma_mac is symmetric in its arguments. -/
 theorem gamma_mac_comm (p q : FA) : gamma_mac p q = gamma_mac q p := by
-  unfold gamma_mac; ring
+  unfold gamma_mac; congr 1; exact add_comm _ _

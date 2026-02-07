@@ -201,12 +201,12 @@ noncomputable def M_op : FreeAssocMono → FreeAssocMono → FreeJordanAlg → F
 termination_by p q _ => (p.weight + q.weight, max p.weight q.weight)
 decreasing_by
   all_goals
-    simp only [FreeAssocMono.weight_xCons, FreeAssocMono.weight_yCons,
+    try simp only [FreeAssocMono.weight_xCons, FreeAssocMono.weight_yCons,
       FreeAssocMono.weight_one, FreeAssocMono.prependY, FreeAssocMono.prependX]
+    try split_ifs
+  all_goals
+    try simp only [FreeAssocMono.weight_xCons, FreeAssocMono.weight_yCons]
+    rw [Prod.lex_def]
     first
-    | exact Prod.Lex.left _ _ (by omega)
-    | apply Prod.Lex.right; simp only [Nat.max_def]; split_ifs <;> omega
-    | (split_ifs <;> simp only [FreeAssocMono.weight_xCons, FreeAssocMono.weight_yCons] <;> (first
-        | exact Prod.Lex.left _ _ (by omega)
-        | (apply Prod.Lex.right; simp only [Nat.max_def]; split_ifs <;> omega)))
-    | (constructor; · simp only [Nat.max_def]; split_ifs <;> omega)
+    | left; omega
+    | (right; constructor <;> (try simp only [Nat.max_def]) <;> (try split_ifs) <;> omega)

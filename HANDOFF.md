@@ -1,4 +1,4 @@
-# Handoff: 2026-02-07 (Session 109)
+# Handoff: 2026-02-07 (Session 110)
 
 ## GOAL: Fill `fundamental_formula` sorry (the #1 priority)
 
@@ -24,88 +24,139 @@
 | SpecialFF.lean | 100 | 0 | **`special_fundamental_formula`**: FF in all assoc algebras |
 | MonomialFJ.lean | 131 | 0 | M_{p,q} as FreeJordanAlg elements |
 | MOperator.lean | 213 | 0 | `M_op` recursive definition, termination fully proved |
-| MOperatorProperties.lean | 122 | 0 | Properties (ii) M_{1,1}=id, (iii) U factorization, (iv) U_bilinear symmetrization |
-| TensorSetup.lean | 170 | 0 | FA, FA3, evalFA, gamma_elem, gamma_mac (correct gamma) |
+| MOperatorProperties.lean | 122 | 0 | Properties (ii)-(iv): U factorization, bilinear symmetrization |
+| TensorSetup.lean | 179 | 0 | FA, FA3, evalFA, gamma_elem, gamma_mac (correct gamma) |
+| **GammaInjectivity.lean** | **143** | **1** | full_gamma_tensor, gamma_mac_tensor, injectivity on symTensor |
+| **Macdonald.lean** | **164** | **4** | Macdonald theorem statement + proof skeleton + FF corollaries |
 
 ### Key theorems already proved
 
-- **`special_fundamental_formula`** (SpecialFF.lean): For any assoc algebra A and a',b' : A:
-  `evalAssoc a' b' (U (U x y) w) = evalAssoc a' b' (U x (U y (U x w)))` for all w : FreeJordanAlg
+- **`special_fundamental_formula`** (SpecialFF.lean): FF holds in all associative algebras
 - **`M_op_one_one`**: M(1,1)(v) = v (property ii)
-- **`M_op_xCons_xCons`/`M_op_yCons_yCons`**: M(x^k·p, x^k·q) = U_{x^k} M(p,q) (property iii)
-- **`M_op_U_bilinear_yCons`/`M_op_U_bilinear_xCons`**: U_{x^k,y^l}M = ½(M+M) (property iv)
-- **`gamma_mac`** (TensorSetup.lean): `gamma_mac(p,q) = ½(pzq* + qzp*)` in FA3
+- **`M_op_xCons_xCons`/`M_op_yCons_yCons`**: Same-letter U property (iii)
+- **`M_op_U_bilinear_yCons`/`M_op_U_bilinear_xCons`**: U_bilinear symmetrization (iv)
+- **`gamma_mac`**: gamma_mac(p,q) = ½(pzq*+qzp*) in FA3
 - **`gamma_mac_comm`**: gamma_mac is symmetric
+- **`FA_to_FA3_star`**: FA_to_FA3 commutes with star
+- **`gamma_mac_eq_full_on_sym`**: gamma_mac = full_gamma on symmetric tensors
+- **`gamma_mac_injective_symTensor`**: gamma_mac injective on symTensor (reduces to full_gamma_tensor_injective)
+- **`macdonald_injectivity`**: evalFA injective (sorry-free assuming `macdonald`)
+- **`fundamental_formula_free`**: FF in FreeJordanAlg (sorry-free assuming `macdonald`)
 
-## What NEEDS to be built (3 remaining steps)
+## What NEEDS to be built (5 remaining sorries)
 
-### Step 15: Gamma injectivity (af-i706, P2)
+### Sorry 1: `full_gamma_tensor_injective` (GammaInjectivity.lean:127)
 
-**Goal**: Prove `gamma_mac` is injective on symmetric tensors of FA ⊗ FA.
+**Goal**: Prove `Function.Injective full_gamma_tensor`
 
-**Mathematical argument** (H-O 2.4.25):
-- Define `full_gamma(p⊗q) = p·z·q*` (without symmetrization). This is injective because
-  monomials in FA3 containing exactly one z uniquely determine p (left of z) and q (right of z, reversed).
-- On symmetric tensors (where swap(t)=t): `gamma_mac(t) = full_gamma(t)` (since symmetrizing an
-  already-symmetric tensor is identity). So gamma_mac is injective on symmetric tensors.
-- **Key Mathlib API**: `FreeAlgebra.basisFreeMonoid` gives a basis of FA as an ℝ-module.
-  Use `Basis.tensorProduct` for FA⊗FA basis. Injectivity via linear independence of monomials.
+**Approach**: Monomial separation. The map sends basis element `m₁ ⊗ m₂` (from
+`Basis.tensorProduct` of `FreeAlgebra.basisFreeMonoid`) to `m₁ · [2] · reverse(m₂)`
+in FA3. Since `z = ι 2` appears exactly once, different `(m₁, m₂)` pairs give
+different FA3-words. This gives linear independence of the image, hence injectivity.
 
-**WARNING**: The old `gamma_jordan_product` theorem (claiming `γ(u∘v) = ½(γ(u)·γ(v)+γ(v)·γ(u))`
-with `gamma_elem a = a⊗1+1⊗a`) was **FALSE**. The difference is `a⊗b+b⊗a ≠ 0`.
-It was removed in this session. The correct gamma is `gamma_mac` which maps into FA3 (3 generators).
+**Key API**: `FreeAlgebra.basisFreeMonoid`, `Basis.tensorProduct`, `FreeMonoid` operations.
 
-### Step 16: Macdonald's theorem (af-g2kb, P1)
+### Sorry 2: `mult_alg_surjectivity` (Macdonald.lean:85)
 
-**Goal**: State and prove Macdonald's theorem (H-O 2.4.13).
+**Goal**: Every multiplication operator on FreeJordanAlg is M_t for some symmetric tensor.
 
-**Statement** (multiplication operator form): If M is a multiplication operator in 2 variables
-(x,y), and M(v) = 0 for all v when evaluated in every special Jordan algebra, then M(v) = 0
-for all v in every Jordan algebra.
+**Statement**: `∀ v, ∃ p q, ∀ w, M_op p q w = T v w`
 
-**Equivalent clean statement**: `evalFA : FreeJordanAlg → FA` is injective, where
-`evalFA = FreeJordanAlg.evalAssoc FA.x FA.y` and `FA = FreeAlgebra ℝ (Fin 2)`.
+**Approach**: Show the range of M_op contains id (property ii) and is closed under
+U_{x^k} (property iii) and U_{x^k,y^l} (property iv). By GeneratorLemma (2.4.23),
+{U_{a,b} : a,b ∈ {1,x,y}} generate the multiplication algebra, so the range is everything.
 
-**Proof structure** (H-O 2.4.25, two parts):
+**Note**: The exact statement may need refinement. The multiplication algebra is generated
+by L operators, not just T operators. The surjectivity connects M_op (which takes
+FreeAssocMono pairs) to the operator algebra (which takes FreeJordanAlg → FreeJordanAlg).
 
-*Part A — Surjectivity*: Every multiplication operator equals M_t for some symmetric tensor t.
-- The range E of `t ↦ M_t` contains Id (by M_{1,1}=id, property ii)
-- E is closed under U_{x^k} (by property iii) and U_{x^k,y^l} (by property iv)
-- By Lemma 2.4.23 (GeneratorLemma.lean), the multiplication algebra is generated by
-  {U_{a,b} : a,b ∈ {1,x,y}}, so E = entire multiplication algebra
+### Sorry 3: `gamma_mac_injective` (Macdonald.lean:101)
 
-*Part B — Injectivity*: gamma_mac on symmetric tensors is injective (Step 15).
+**Goal**: gamma_mac injectivity in the form used by the Macdonald proof.
+**Approach**: Derive from `gamma_mac_injective_symTensor` in GammaInjectivity.lean.
 
-*Conclusion*: Suppose M_t vanishes on all special JAs. Then M_t(z) = 0 in FS{x,y,z}
-(free special Jordan algebra on 3 generators). By property (i), M_t(z) = gamma_mac(t).
-So gamma_mac(t) = 0, hence t = 0 by injectivity, hence M_t = 0.
+### Sorry 4: `macdonald` (Macdonald.lean:121)
 
-**Note on property (i)**: `M_{p,q}(z) = ½(pzq* + qzp*)` in FA{x,y,z}. This hasn't been proved
-yet. It follows by induction on weight using properties (iii), (iv), and base cases. The z here
-is the THIRD generator of FA3 = FreeAlgebra ℝ (Fin 3), acting as a "test element".
+**Goal**: `∀ v, evalFA v = 0 → v = 0`
 
-### Step 17: Fill fundamental_formula (af-gzm1, P1)
+**Approach**: Combine property (i) + surjectivity + gamma injectivity. This is the
+core theorem. Need to connect M_op to evalFA and gamma_mac.
 
-**Goal**: Use Macdonald to fill the `fundamental_formula` sorry.
+**Missing piece**: Property (i): M_{p,q}(z) = gamma_mac(toFA(p), toFA(q)). Requires:
+- `toFA : FreeAssocMono → FA` (convert monomials to free algebra elements)
+- Evaluation of FreeJordanAlg into FA3 (3-generator free algebra)
+- Induction on weight using properties (ii)-(iv)
 
-**Proof sketch**:
-1. `special_fundamental_formula` (proved) shows FF holds in all associative algebras
-2. The difference `U_{U_a(b)} - U_a U_b U_a` is a multiplication operator in a,b (linear in x)
-3. By Macdonald's theorem, this operator is zero in all Jordan algebras
-4. **Subtlety**: FreeJordanAlg has only 2 generators (x,y). The FF involves 3 variables (a,b,x).
-   But x appears linearly, so `U_{U_a(b)} - U_a U_b U_a` is a multiplication operator in (a,b)
-   applied to x. Macdonald applies because the operator acts on an arbitrary element, including
-   the "free" third generator z of FA3.
-5. **Connection to general J**: For any Jordan algebra J and a,b,c ∈ J, let
-   φ: FJ{x,y,z} → J with φ(x)=a, φ(y)=b, φ(z)=c. Since FF holds in FJ{x,y,z}, it holds in J.
-   (We don't have FJ on 3 generators explicitly, but the Macdonald argument works directly
-   at the operator level using M_op applied to an arbitrary v : FreeJordanAlg.)
+### Sorry 5: `fundamental_formula_general` (Macdonald.lean:160)
+
+**Goal**: FF holds in every JordanAlgebra.
+
+**Approach**: `fundamental_formula_free` gives FF in FreeJordanAlg. For a general
+JA J and a,b,x ∈ J, the operator `U_{U_a(b)} - U_a U_b U_a` is a multiplication
+operator in (a,b). By Macdonald it's zero on FreeJordanAlg. The operator identity
+transfers to any JA because `U_{U_a(b)} = U_a U_b U_a` as endomorphisms (not just
+on specific elements).
+
+**Critical detail from book (H-O 2.4.13)**: Macdonald's theorem is about multiplication
+operators in 2 variables acting on FJ{x,y,z} (3 generators). The FF involves 3
+variables but the operator only depends on 2. The third variable z is the "input"
+to the operator. So the theorem gives `U_{U_x(y)} = U_x U_y U_x` as endomorphisms
+of FJ{x,y,z}, which transfers to any JA.
+
+**For formalization**: Need either (a) FreeJordanAlg on 3 generators and its universal
+property, or (b) argue at the operator level that the operator identity transfers.
+
+## Proof dependency chain
+
+```
+full_gamma_tensor_injective ──→ gamma_mac_injective ──┐
+                                                       ├──→ macdonald ──→ macdonald_injectivity
+mult_alg_surjectivity ────────────────────────────────┘           │
+M_op_eval_z (property (i)) ───────────────────────────┘           ↓
+                                                        fundamental_formula_free
+                                                               │
+                                                               ↓
+                                                    fundamental_formula_general
+                                                               │
+                                                               ↓
+                                              Fill fundamental_formula sorry
+```
 
 ## CRITICAL TRAP TO AVOID
 
 **DO NOT** try to prove `gamma_jordan_product` with `gamma_elem a = a⊗1+1⊗a`.
 It is mathematically **FALSE**. The correct gamma for Macdonald is `gamma_mac` in TensorSetup.lean
 which maps into FA3 (3-generator free algebra) using `½(pzq*+qzp*)`.
+
+## Build & sorries
+
+**Build**: `lake build AfTests 2>&1 | tail -40` — PASSES
+**Sorries in Macdonald/**: 5 total (see above)
+**Sorries elsewhere**: FundamentalFormula (1), Square (1), Classification (2)
+
+## Recommended next session order
+
+1. **`full_gamma_tensor_injective`** — purely linear algebra, self-contained
+2. **`mult_alg_surjectivity`** — needs careful statement refinement
+3. **Property (i)** — needs `toFA : FreeAssocMono → FA` and 3-gen evaluation
+4. **`macdonald`** — combines 1+2+3
+5. **`fundamental_formula_general`** — needs universal property of FreeJordanAlg
+
+## Beads issues
+
+- af-i706 (P2): Step 15 — Gamma injectivity (1 sorry left: full_gamma_tensor_injective)
+- af-g2kb (P1): Step 16 — Macdonald theorem (4 sorries)
+- af-gzm1 (P1): Step 17 — Fill fundamental_formula
+- af-uzj5 (P2, in_progress): Step 14 — Tensor setup (done, can close)
+
+## Reference
+
+Book: `examples3/Jordan Operator Algebras/joa-m/joa-m.md`
+- Macdonald's theorem: 2.4.13 (line ~1063)
+- M_{p,q} construction: 2.4.24 (line ~1215)
+- Proof of Macdonald: 2.4.25 (line ~1379)
+- Star involution: 2.3.5 (line ~859)
+- Mathlib research: `memory/macdonald-steps14-17.md`
 
 ## File map
 
@@ -132,34 +183,22 @@ AfTests/Jordan/
     ├── MonomialFJ.lean     -- M_{p,q} as FJ elements
     ├── MOperator.lean      -- M_op recursive definition (0 sorries!)
     ├── MOperatorProperties.lean -- Properties (ii)-(iv) (0 sorries!)
-    └── TensorSetup.lean    -- FA, FA3, evalFA, gamma_mac (0 sorries!)
+    ├── TensorSetup.lean    -- FA, FA3, evalFA, gamma_mac (0 sorries!)
+    ├── GammaInjectivity.lean -- Step 15: gamma injectivity (1 sorry)
+    └── Macdonald.lean      -- Step 16+17: Macdonald theorem + FF (4 sorries)
 ```
-
-## Build & sorries
-
-**Build**: `lake build AfTests 2>&1 | tail -40` — PASSES (1915 jobs)
-**Sorries**: 4 total (FundamentalFormula, Square, 2× Classification)
-
-## Beads issues
-
-- af-i706 (P2): Step 15 — Gamma injectivity
-- af-g2kb (P1): Step 16 — Macdonald theorem
-- af-gzm1 (P1): Step 17 — Fill fundamental_formula
-- af-uzj5 (P2, in_progress): Step 14 — Tensor setup (mostly done)
-
-## Reference
-
-Book: `examples3/Jordan Operator Algebras/joa-m/joa-m.md`
-- Macdonald's theorem: 2.4.13 (line ~1063)
-- M_{p,q} construction: 2.4.24 (line ~1215)
-- Proof of Macdonald: 2.4.25 (line ~1379)
-- Star involution: 2.3.5 (line ~859)
-- Mathlib research: `memory/macdonald-steps14-17.md`
 
 ---
 
 ## Previous Sessions
 
+### Session 110: Steps 15+16+17 scaffolding
+- Created GammaInjectivity.lean (full_gamma, gamma_mac_tensor, injectivity)
+- Created Macdonald.lean (theorem statement, FF corollaries)
+- Fixed build issues in MOperator, MOperatorProperties, TensorSetup
+- Research: detailed understanding of H-O 2.4.25 proof structure
+
+### Session 109: Step 14 corrections
 ### Session 108: Steps 11+12 (M_op definition)
 ### Session 106: Steps 7+10 (SpecialFF + MonomialFJ)
 ### Session 105: Steps 6+9 (FreeSpecialJordan + GeneratorLemma)
