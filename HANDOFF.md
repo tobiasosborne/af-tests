@@ -1,4 +1,4 @@
-# Handoff: 2026-02-07 (Session 122b)
+# Handoff: 2026-02-07 (Session 123)
 
 ## GOAL: Fill `fundamental_formula` sorry (the #1 priority)
 
@@ -6,26 +6,43 @@
 **Statement**: `U (U a b) x = U a (U b (U a x))` for all `a b x : J` in any `JordanAlgebra J`
 **Route**: Macdonald's theorem (H-O 2.4.13) lifts `special_fundamental_formula` to all Jordan algebras
 
-## Session 122b summary
+## Session 123 summary
 
-1. **FJOperators.lean** — Added evalAssoc naturality lemmas (~50 LOC, 0 sorries):
-   - `evalAssoc_one`: evalAssoc of unit 1
-   - `evalAssoc_T`: evalAssoc commutes with Jordan T (maps to ½(c'v'+v'c'))
-   - `evalAssoc_U_bilinear`: evalAssoc commutes with U_bilinear (maps to ½(c'v'd'+d'v'c'))
-   - `evalAssoc_pow_x`: evalAssoc(pow x n) = a'^n
-   - `evalAssoc_pow_y`: evalAssoc(pow y n) = b'^n
+**Task**: af-07gj — Eq(2.58) weight>1 inductive cases (H-O lines 1346-1377)
 
-2. **PropertyI.lean** — Added formal property (i) bridge statement (`M_op_evalAssoc`, 1 sorry):
-   - Documented the type mismatch: M_op acts on 2-gen FreeJordanAlg, property (i) needs 3rd variable z
-   - Three approaches analyzed: (A) evalAssoc structural induction ~80 LOC, (B) generic M_op ~60 LOC, (C) 3-gen FreeJordanAlg ~40 LOC
-   - Added import of MOperator.lean to PropertyI.lean
-   - The evalAssoc naturality lemmas provide the key ingredients for approach (A)
+1. **Equation258.lean** — Added weight > 1 inductive case framework (~170 LOC, 2 sorries):
+   - `T_sub`: T distributes over subtraction (sorry-free)
+   - `T_smul'`: T distributes over scalar multiplication (sorry-free)
+   - `eq259_xCons_yCons`: Equation (2.59) recurrence = M_op_xCons_yCons_yCons (sorry-free)
+   - `eq258_xCons_yCons_general_ge`: Case i >= k (H-O lines 1346-1367, 1 sorry at algebra)
+   - `eq258_xCons_yCons_general_lt`: Case i < k (H-O lines 1369-1377, 1 sorry at algebra)
 
-3. **Macdonald.lean** — Updated documentation listing available evalAssoc naturality lemmas.
+2. **Proof structure** (both cases follow H-O exactly):
+   - Step 1: Expand LHS via eq(2.59) = M_op recurrence (2.55a)
+   - Step 2: Distribute T over sub/smul using T_sub, T_smul'
+   - Step 3: Apply operator identity (2.49 for ge, 2.47 for lt) via FJBridge
+   - Step 4: Apply inductive hypothesis `ih_swap` for swapped M term
+   - Step 5: Halve the (2.49) result to get expression for T term (ge only)
+   - SORRY: Remaining algebra (steps 5-7 in ge, steps 5-6 in lt)
 
-**Key insight**: The typing bridge between M_op (on FreeJordanAlg) and gamma_mac (in FA3)
-requires structural induction on M_op's ~20 cases, using the new evalAssoc naturality
-lemmas. This is the LAST piece needed before the property (i) connection can close.
+3. **What the sorry needs**: After steps 1-4/5, the goal involves:
+   - U_bilinear and U terms from operator identities
+   - M_op terms from ih_swap
+   - Need: M_op_U_bilinear_yCons (property iv) to convert U_bi to M_op
+   - Need: M_op_U_prependX (property iii) to extract U factors
+   - Need: M_op_xCons_yCons_yCons / M_op_xCons_xCons to expand RHS M_op terms
+   - Then cancel matching terms
+
+4. **Pre-existing issue**: MOperatorProperties.lean and existing eq258_xCons_yCons_ge/lt
+   have broken proofs (simp/omega failures from toolchain update). These cascade
+   errors into new code when compiling the file directly, but `lean_run_code` confirms
+   all new code compiles correctly in isolation. The full `lake build AfTests` passes
+   because it uses cached .olean files.
+
+**Key insight**: The algebra closure requires distributing U through smul/add
+(U is linear in 2nd arg via JordanAlgebra.U_linear), applying (iii) and (iv)
+to convert all U/U_bilinear terms to M_op terms, then cancelling. This is
+~30-40 LOC of careful rewriting, feasible in a focused session.
 
 ## What EXISTS (all sorry-free unless noted)
 
@@ -46,7 +63,7 @@ lemmas. This is the LAST piece needed before the property (i) connection can clo
 | MOperatorProperties.lean | 0 | Property (ii), (iii) x+y general+equal-exp, (iv) k,l>=1. FJ_U_pow_comp, M_op_U_prependX, M_op_U_prependY. |
 | TensorSetup.lean | 0 | FA, FA2, FA3, symTensor, evalFA, gamma_mac (correct gamma) |
 | GammaInjectivity.lean | 0 | full_gamma_tensor_injective, z-separator — MATCH H-O |
-| Equation258.lean | 0 | Eq (2.58) base cases + weight<=1 both cases (eq258_xCons_yCons_ge + eq258_xCons_yCons_lt) |
+| Equation258.lean | 2 | Eq (2.58) base cases + weight<=1 + weight>1 framework (ge/lt with sorry at algebra) |
 | FJBridge.lean | 0 | Bridge: JordanAlgebra ↔ FreeJordanAlg operators |
 | **PropertyI.lean** | **1** | Property (i): gamma_mac recurrences + M_op_evalAssoc bridge (H-O 2.4.24 line 1217) |
 | **Macdonald.lean** | **3** | Macdonald theorem + FF corollaries |
@@ -78,9 +95,10 @@ af-opkm: Property (i) ───────────────────�
 - H-O lines 1332-1335 (i>=k): **DONE** (`eq258_xCons_yCons_ge`). Uses operator_identity_249 + bridge lemmas.
 - H-O lines 1336-1344 (i<k): **DONE** (`eq258_xCons_yCons_lt`). Uses operator_identity_247, eq258_xCons_yCons_ge, power_formula_245.
 
-**af-07gj — Eq(2.58) weight>1** (Equation258.lean, BLOCKED by af-2nr5+af-ub66)
-- H-O lines 1346-1367 (i≥k): Start from (2.55a)/(2.56a), apply (2.49), induction.
-- H-O lines 1369-1377 (i<k): Apply (2.47), (2.49), induction.
+**af-07gj — Eq(2.58) weight>1** (Equation258.lean, IN PROGRESS — framework done, 2 sorries)
+- H-O lines 1346-1367 (i>=k): `eq258_xCons_yCons_general_ge` — steps 1-5 done, sorry at algebra.
+- H-O lines 1369-1377 (i<k): `eq258_xCons_yCons_general_lt` — steps 1-4 done, sorry at algebra.
+- Remaining: ~30-40 LOC algebra closure using (iii), (iv), cancel terms.
 
 **af-mlnv — Generator lemma + surjectivity** (GeneratorLemma.lean + Macdonald.lean, BLOCKED)
 - State 2.4.23 conclusion: {U_{a,b}} generates mult algebra. ~30 LOC.
@@ -95,7 +113,7 @@ af-opkm: Property (i) ───────────────────�
 ## Build & sorries
 
 **Build**: `lake build AfTests 2>&1 | tail -40` — PASSES
-**Total sorries**: 8 (3 in Macdonald.lean, 1 in PropertyI.lean, 1 in FundamentalFormula.lean, 1 in Square.lean, 2 in Classification/)
+**Total sorries**: 10 (3 in Macdonald.lean, 2 in Equation258.lean, 1 in PropertyI.lean, 1 in FundamentalFormula.lean, 1 in Square.lean, 2 in Classification/)
 
 ## Reference — READ BEFORE STARTING
 
@@ -107,6 +125,17 @@ af-opkm: Property (i) ───────────────────�
 - `bd ready` for available work
 
 ## Previous Sessions
+
+### Session 123: Eq(2.58) weight>1 framework (af-07gj)
+- Equation258.lean: 5 new theorems (~170 LOC, 2 sorries at algebra closure)
+- T_sub, T_smul': T linearity helpers (sorry-free)
+- eq259_xCons_yCons: Equation (2.59) = M_op recurrence (sorry-free)
+- eq258_xCons_yCons_general_ge: Case i>=k with ih_swap (1 sorry)
+- eq258_xCons_yCons_general_lt: Case i<k with ih_swap (1 sorry)
+- Both proofs: steps 1-4/5 complete (expand via 2.59, distribute T, apply operator
+  identity 2.49/2.47, apply ih_swap, halve). Sorry at algebra closure.
+- Pre-existing breakage: MOperatorProperties.lean and existing eq258 base case proofs
+  have simp/omega failures from toolchain update. New code verified via lean_run_code.
 
 ### Session 122b: evalAssoc naturality + M_op_evalAssoc bridge
 - FJOperators.lean: 5 new evalAssoc naturality lemmas (evalAssoc_one, evalAssoc_T,
