@@ -1,0 +1,481 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{hyperref}
+
+% Theorem environments
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% Notation shortcuts
+\newcommand{\Tr}{\operatorname{Tr}}
+\newcommand{\supp}{\operatorname{supp}}
+\newcommand{\id}{\mathbb{I}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\pos}{_{+}}
+
+\title{Path-Integral Hockey-Stick Representation\\of Conditional Entropy Differences}
+\author{Adversarial Proof Framework (\texttt{af})\\[4pt]
+\small Verified by independent prover and verifier agents\\
+\small 36 nodes, all validated and clean}
+\date{February 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We present a complete proof of the path-integral hockey-stick representation
+for the difference of conditional entropies of two bipartite quantum states.
+Under a full-rank assumption, the conditional entropy difference
+$H(A|B)_\sigma - H(A|B)_\rho$ is expressed as a double integral involving
+the spectral projector of an interpolating operator and the hockey-stick
+divergence kernel.  The proof was constructed and adversarially verified
+within the \texttt{af} (Adversarial Proof Framework), in which independent
+prover agents propose proof steps and independent verifier agents challenge
+them until all nodes reach a validated state.
+\end{abstract}
+
+\tableofcontents
+
+%% ========================================================================
+\section{Notation and Definitions}\label{sec:notation}
+%% ========================================================================
+
+\paragraph{Hilbert spaces.}
+Let $\mathcal{H}_A$ and $\mathcal{H}_B$ be finite-dimensional complex Hilbert spaces
+with $d_A := \dim \mathcal{H}_A$ and $d_B := \dim \mathcal{H}_B$.
+Write $\mathcal{H}_{AB} := \mathcal{H}_A \otimes \mathcal{H}_B$ with
+$\dim \mathcal{H}_{AB} = d_A d_B$, and let $\id_X$ denote the identity
+operator on $\mathcal{H}_X$.
+
+\paragraph{States and operators.}
+A \emph{density operator} is a positive semidefinite operator $\rho \ge 0$
+with $\Tr[\rho] = 1$.  We write $X > 0$ for strictly positive definite
+operators.  The \emph{partial trace} is $\rho_B := \Tr_A[\rho_{AB}]$.
+The \emph{trace norm} is $\|X\|_1 := \Tr\!\sqrt{X^\dagger X}$.
+
+\paragraph{Entropy and divergence.}
+The \emph{von Neumann entropy} is $S(\rho) := -\Tr[\rho \log \rho]$
+(natural logarithm, with $0 \log 0 := 0$).
+The \emph{conditional entropy} is
+\[
+  H(A|B)_\rho \;:=\; S(\rho_{AB}) - S(\rho_B).
+\]
+The \emph{(Umegaki) relative entropy} is
+\[
+  D(\rho \| \sigma) \;:=\; \Tr[\rho(\log \rho - \log \sigma)]
+\]
+when $\supp(\rho) \subseteq \supp(\sigma)$, and $+\infty$ otherwise.
+A key identity (\textbf{CE-RE}) is
+\begin{equation}\label{eq:CE-RE}
+  H(A|B)_\rho \;=\; -D(\rho_{AB} \| \id_A \otimes \rho_B).
+\end{equation}
+
+\paragraph{Hockey-stick divergence.}
+For positive semidefinite operators $\rho, \sigma$ and $\gamma > 0$,
+\[
+  E_\gamma(\rho \| \sigma) \;:=\; \Tr(\rho - \gamma \sigma)\pos
+  \;=\; \max_{0 \le M \le \id}\; \Tr[M(\rho - \gamma\sigma)].
+\]
+The maximiser is $P_\gamma = \mathbf{1}\{\rho - \gamma\sigma > 0\}$,
+the spectral projector onto the strictly positive eigenspace.
+
+\paragraph{Max-relative entropy.}
+$M(\rho,\sigma) := \inf\{\lambda \ge 0 : \rho \le \lambda\sigma\}$.
+For bipartite states, $M(\rho_{AB}, \id_A \otimes \rho_B) \le d_A$.
+
+\paragraph{Frenkel integral representation.}
+For a density operator $\rho$ and an unnormalised reference $\tau$ with
+$\Tr[\tau] = c > 0$ and $\supp(\rho) \subseteq \supp(\tau)$ (\textbf{FR-bip}):
+\begin{equation}\label{eq:frenkel}
+  D(\rho \| \tau) \;=\;
+  \int_0^\infty
+    \frac{E_\gamma(\rho\|\tau) - (1 - c\gamma)\pos}
+         {\gamma(1 + c\gamma)}
+  \,d\gamma \;-\; \log c.
+\end{equation}
+
+\paragraph{Interpolating path.}
+Given density operators $\rho_{AB}, \sigma_{AB}$ on $\mathcal{H}_{AB}$, define
+\begin{align*}
+  \rho(t) &:= (1-t)\,\rho_{AB} + t\,\sigma_{AB}, \qquad t \in [0,1], \\
+  \delta_{AB} &:= \sigma_{AB} - \rho_{AB}, \qquad
+  \delta_B := \sigma_B - \rho_B = \Tr_A[\delta_{AB}], \\
+  \rho(t)_B &:= \Tr_A[\rho(t)] = (1-t)\,\rho_B + t\,\sigma_B, \\
+  \tau(t) &:= \id_A \otimes \rho(t)_B, \qquad
+  \Tr[\tau(t)] = d_A.
+\end{align*}
+We also define the shifted difference operator
+$\delta_{AB}^{(\gamma)} := \delta_{AB} - \gamma\,\id_A \otimes \delta_B$,
+the spectral projector
+$P_\gamma(t) := \mathbf{1}\{\rho(t) - \gamma\,\tau(t) > 0\}$,
+and the $t$-dependent upper cutoff
+$M(t) := M(\rho(t), \tau(t)) \le d_A$.
+
+%% ========================================================================
+\section{Statement of the Main Theorem}\label{sec:theorem}
+%% ========================================================================
+
+\begin{theorem}[Path-Integral Hockey-Stick Representation]\label{thm:main}
+Let $\rho_{AB}, \sigma_{AB} > 0$ be strictly positive density operators on
+$\mathcal{H}_A \otimes \mathcal{H}_B$.  Then
+\begin{equation}\label{eq:main}
+  H(A|B)_\sigma - H(A|B)_\rho
+  \;=\;
+  -\int_0^1 \!\int_0^{M(t)}
+    \frac{\Tr\!\big[P_\gamma(t)\,\delta_{AB}^{(\gamma)}\big]}
+         {\gamma\,(1 + d_A\gamma)}
+  \,d\gamma\,dt.
+\end{equation}
+\end{theorem}
+
+The proof assembles five propositions, which we now develop in turn.
+
+%% ========================================================================
+\section{Proof}\label{sec:proof}
+%% ========================================================================
+
+\begin{assumption}[Full Rank]\label{ass:fullrank}
+Assume $\rho_{AB}, \sigma_{AB} > 0$.  Since the set of positive-definite
+operators is convex, $\rho(t) = (1-t)\rho_{AB} + t\,\sigma_{AB} > 0$ for all
+$t \in [0,1]$, and consequently $\rho(t)_B = \Tr_A[\rho(t)] > 0$ as well.
+\end{assumption}
+
+%% ------ Proposition 1 ------
+\begin{proposition}[CE-RE Identity]\label{prop:CE-RE}
+For all $t \in [0,1]$,
+\[
+  H(A|B)_{\rho(t)} \;=\; -D\!\big(\rho(t)_{AB} \,\big\|\, \id_A \otimes \rho(t)_B\big).
+\]
+\end{proposition}
+
+\begin{proof}
+By definition of relative entropy,
+\[
+  D(\rho_{AB} \| \id_A \otimes \rho_B)
+  \;=\; \Tr[\rho_{AB} \log \rho_{AB}]
+        \;-\; \Tr[\rho_{AB} \log(\id_A \otimes \rho_B)].
+\]
+By the spectral mapping theorem for tensor products,
+$\log(\id_A \otimes \rho_B) = \id_A \otimes \log \rho_B$.
+Using the partial-trace identity
+$\Tr[\rho_{AB}(\id_A \otimes X_B)] = \Tr[\rho_B X_B]$,
+\[
+  \Tr[\rho_{AB}(\id_A \otimes \log \rho_B)]
+  \;=\; \Tr[\rho_B \log \rho_B]
+  \;=\; -S(\rho_B).
+\]
+Therefore
+\[
+  D(\rho_{AB} \| \id_A \otimes \rho_B)
+  \;=\; -S(\rho_{AB}) + S(\rho_B)
+  \;=\; -\big(S(\rho_{AB}) - S(\rho_B)\big)
+  \;=\; -H(A|B)_\rho,
+\]
+giving $H(A|B)_\rho = -D(\rho_{AB} \| \id_A \otimes \rho_B)$.
+The same argument applies at every point $\rho(t)$ along the interpolating path.
+\end{proof}
+
+%% ------ Proposition 2 ------
+\begin{proposition}[Fundamental Theorem of Calculus]\label{prop:FTC}
+\begin{equation}\label{eq:FTC}
+  H(A|B)_\sigma - H(A|B)_\rho
+  \;=\; \int_0^1 \frac{d}{dt}\, H(A|B)_{\rho(t)}\, dt.
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Under the full-rank assumption (Assumption~\ref{ass:fullrank}), $\rho(t)$
+and $\rho(t)_B$ are strictly positive for all $t \in [0,1]$.  The eigenvalues
+of $\rho(t)$, being eigenvalues of a matrix depending affinely on $t$, are smooth
+and strictly positive; hence $S(\rho(t))$ and $S(\rho(t)_B)$ are $C^\infty$
+functions of $t$.  Since $H(A|B)_{\rho(t)} = S(\rho(t)_{AB}) - S(\rho(t)_B)$,
+the map $t \mapsto H(A|B)_{\rho(t)}$ is $C^1$ on $[0,1]$.  The fundamental
+theorem of calculus gives
+\[
+  H(A|B)_{\rho(1)} - H(A|B)_{\rho(0)}
+  \;=\; \int_0^1 \frac{d}{dt}\, H(A|B)_{\rho(t)}\, dt.
+\]
+Since $\rho(0) = \rho_{AB}$ and $\rho(1) = \sigma_{AB}$, the result follows.
+\end{proof}
+
+%% ------ Proposition 3 ------
+\begin{proposition}[Derivative of Conditional Entropy]\label{prop:DER}
+\begin{equation}\label{eq:DER}
+  \frac{d}{dt}\, H(A|B)_{\rho(t)}
+  \;=\; \Tr\!\big[\delta_{AB}\big(\id_A \otimes \log \rho(t)_B - \log \rho(t)\big)\big].
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+By Proposition~\ref{prop:CE-RE},
+$\frac{d}{dt} H(A|B)_{\rho(t)} = -\frac{d}{dt} D(\rho(t) \| \tau(t))$.
+Write
+\[
+  D(\rho(t)\|\tau(t))
+  \;=\; \Tr[\rho(t) \log \rho(t)] - \Tr[\rho(t) \log \tau(t)].
+\]
+
+\emph{First term.}
+Using $\dot{\rho}(t) = \delta_{AB}$,
+\[
+  \frac{d}{dt}\,\Tr[\rho(t)\log\rho(t)]
+  \;=\;
+  \Tr[\delta_{AB}\log\rho(t)]
+  + \Tr\!\big[\rho(t)\, D_{\!\log}(\rho(t))[\delta_{AB}]\big].
+\]
+Here $D_{\!\log}(B)[C] = \int_0^\infty (B+s\id)^{-1}\, C\, (B+s\id)^{-1}\, ds$
+denotes the Fr\'echet derivative of the matrix logarithm.  The identity
+$\Tr[B\, D_{\!\log}(B)[C]] = \Tr[C]$ for $B > 0$
+(which follows from the integral representation and cyclicity of trace)
+gives, with $B = \rho(t) > 0$ and $C = \delta_{AB}$,
+\[
+  \Tr\!\big[\rho(t)\, D_{\!\log}(\rho(t))[\delta_{AB}]\big]
+  \;=\; \Tr[\delta_{AB}]
+  \;=\; 0,
+\]
+since $\delta_{AB} = \sigma_{AB} - \rho_{AB}$ is traceless (both states have
+unit trace).  Therefore
+$\frac{d}{dt}\,\Tr[\rho(t)\log\rho(t)] = \Tr[\delta_{AB}\log\rho(t)]$.
+
+\emph{Second term.}
+Since $\tau(t) = \id_A \otimes \rho(t)_B$, we have
+$\log\tau(t) = \id_A \otimes \log\rho(t)_B$
+and $\dot\tau(t) = \id_A \otimes \delta_B$.  Therefore
+\[
+  \frac{d}{dt}\,\Tr[\rho(t)\log\tau(t)]
+  \;=\;
+  \Tr[\delta_{AB}\log\tau(t)]
+  + \Tr\!\big[\rho(t)\, D_{\!\log}(\tau(t))[\dot\tau(t)]\big].
+\]
+The Fr\'echet derivative term reduces (via the partial-trace identity
+and $\rho(t)_B > 0$) to
+\[
+  \Tr\!\big[\rho(t)_B\,\delta_B\,\rho(t)_B^{-1}\big] = \Tr[\delta_B] = 0.
+\]
+
+\emph{Combining.}
+\[
+  \frac{d}{dt}\, D(\rho(t)\|\tau(t))
+  \;=\;
+  \Tr[\delta_{AB}\log\rho(t)]
+  - \Tr[\delta_{AB}(\id_A \otimes \log\rho(t)_B)]
+  \;=\;
+  \Tr\!\big[\delta_{AB}\big(\log\rho(t) - \id_A \otimes \log\rho(t)_B\big)\big].
+\]
+Negating yields \eqref{eq:DER}.
+\end{proof}
+
+%% ------ Proposition 4 ------
+\begin{proposition}[Hockey-Stick Derivative]\label{prop:HS-DER}
+At generic $\gamma$ (i.e., when no eigenvalue of $\rho(t) - \gamma\,\tau(t)$
+equals zero),
+\begin{equation}\label{eq:HS-DER}
+  \frac{d}{dt}\, E_\gamma(\rho(t)\|\tau(t))
+  \;=\;
+  \Tr\!\big[P_\gamma(t)\,\delta_{AB}^{(\gamma)}\big].
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Let $A(t) := \rho(t) - \gamma\,\tau(t)$.  By spectral decomposition,
+\[
+  A(t) = \sum_i \lambda_i(t)\, |e_i(t)\rangle\langle e_i(t)|, \qquad
+  A(t)\pos = \sum_{\lambda_i > 0} \lambda_i(t)\, |e_i(t)\rangle\langle e_i(t)|
+  = P_\gamma(t)\, A(t)\, P_\gamma(t).
+\]
+At generic $\gamma$, no eigenvalue of $A(t)$ is zero, so the rank of
+$A(t)\pos$ is locally constant in $t$, and the eigenvalues and
+eigenprojections are smooth.  Hence $\Tr A(t)\pos$ is differentiable.
+
+Since $A(t)\pos = P_\gamma(t)\, A(t)$ (using $[P_\gamma(t), A(t)] = 0$),
+\[
+  \frac{d}{dt}\, \Tr A(t)\pos
+  = \Tr\!\Big[\frac{dP_\gamma}{dt}\, A(t)\Big]
+  + \Tr\!\big[P_\gamma(t)\, \dot A(t)\big].
+\]
+We claim $\Tr[P' A] = 0$ where $P = P_\gamma(t)$ and $P' = dP_\gamma/dt$.
+Since $P$ is a spectral projector of $A$, we have $[P, A] = 0$; both operators
+are block-diagonal in the decomposition $\mathcal{H} = P\mathcal{H} \oplus
+(\id - P)\mathcal{H}$.  Differentiating $P^2 = P$ gives
+$P'P + PP' = P'$, from which $PP'P = 0$ and $(\id - P)P'(\id - P) = 0$.
+Thus $P'$ is \emph{off-block-diagonal}:
+\[
+  P' = PP'(\id - P) + (\id - P)P'P.
+\]
+Since $A$ is block-diagonal and $P'$ is off-block-diagonal, their product
+$P'A$ is off-block-diagonal.  Any off-block-diagonal operator has zero trace:
+\begin{align*}
+  \Tr[P'A]
+  &= \Tr\!\big[PP'(\id-P)A\big] + \Tr\!\big[(\id-P)P'PA\big] \\
+  &= \Tr\!\big[(\id-P)A\,PP'\big] + \Tr\!\big[PA\,(\id-P)P'\big] \\
+  &= \Tr\!\big[(\id-P)P\cdot AP'\big] + \Tr\!\big[P(\id-P)\cdot AP'\big]
+  = 0,
+\end{align*}
+using $P(\id - P) = 0$, $[A, P] = 0$, and cyclicity of trace.
+Therefore
+\[
+  \frac{d}{dt}\, E_\gamma(\rho(t)\|\tau(t))
+  = \Tr\!\big[P_\gamma(t)\,\dot A(t)\big]
+  = \Tr\!\big[P_\gamma(t)\,(\delta_{AB} - \gamma\,\id_A \otimes \delta_B)\big]
+  = \Tr\!\big[P_\gamma(t)\,\delta_{AB}^{(\gamma)}\big].
+  \qedhere
+\]
+\end{proof}
+
+%% ------ Proposition 5 ------
+\begin{proposition}[Derivative via Hockey-Stick]\label{prop:DER-HS}
+\begin{equation}\label{eq:DER-HS}
+  \frac{d}{dt}\, D(\rho(t)\|\tau(t))
+  \;=\;
+  \int_0^{M(t)}
+    \frac{\Tr\!\big[P_\gamma(t)\,\delta_{AB}^{(\gamma)}\big]}
+         {\gamma\,(1 + d_A\gamma)}
+  \,d\gamma.
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+By the Frenkel bipartite formula~\eqref{eq:frenkel} with $c = d_A$,
+\[
+  D(\rho(t)\|\tau(t))
+  = \int_0^\infty
+      \frac{E_\gamma(\rho(t)\|\tau(t)) - (1-d_A\gamma)\pos}
+           {\gamma(1+d_A\gamma)}
+    \,d\gamma \;-\; \log d_A.
+\]
+The term $(1 - d_A\gamma)\pos$ and the constant $\log d_A$ are independent of $t$.
+
+\emph{Differentiation under the integral sign.}
+We justify the exchange of $\frac{d}{dt}$ and $\int$ via the dominated
+convergence theorem.  Under the full-rank assumption, $\rho(t) > 0$ for all
+$t \in [0,1]$.  By compactness of $[0,1]$ and continuity of the minimum
+eigenvalue $\lambda_{\min}(\rho(t))$, there exists $\gamma_0 > 0$ (uniform in $t$)
+such that for all $\gamma < \gamma_0$ and all $t \in [0,1]$,
+$\rho(t) - \gamma\,\tau(t) > 0$.  For such $\gamma$,
+$E_\gamma(\rho(t)\|\tau(t)) = \Tr[\rho(t) - \gamma\tau(t)] = 1 - \gamma d_A$,
+which is independent of $t$, so $\frac{d}{dt} E_\gamma = 0$.
+Thus the integrand vanishes on $(0, \gamma_0)$.
+On $[\gamma_0, \infty)$, the bound
+$\big|\frac{d}{dt} E_\gamma\big| \le \|\delta_{AB}\|_1 + \gamma\,\|\id_A \otimes \delta_B\|_1$
+is finite, and $[\gamma(1+d_A\gamma)]^{-1} \le [\gamma_0(1+d_A\gamma_0)]^{-1}$
+provides a uniform bound.  Dominated convergence applies.
+
+\emph{Substituting the hockey-stick derivative.}
+By Proposition~\ref{prop:HS-DER},
+$\frac{d}{dt} E_\gamma(\rho(t)\|\tau(t)) = \Tr[P_\gamma(t)\,\delta_{AB}^{(\gamma)}]$
+at generic $\gamma$.  The set of non-generic $\gamma$ has measure zero and does
+not affect the integral.
+
+\emph{Truncation of the upper limit.}
+For $\gamma > M(t)$, we have $\rho(t) \le \gamma\,\tau(t)$, so
+$E_\gamma(\rho(t)\|\tau(t)) = 0$ identically in $t$ and its $t$-derivative
+vanishes.  The effective upper limit is $M(t) \le d_A$.
+
+\emph{Combining} yields \eqref{eq:DER-HS}.
+\end{proof}
+
+%% ------ Main assembly ------
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+We assemble the five propositions.
+
+\emph{Step 1} (FTC).
+By Proposition~\ref{prop:FTC},
+\[
+  H(A|B)_\sigma - H(A|B)_\rho
+  = \int_0^1 \frac{d}{dt}\, H(A|B)_{\rho(t)}\, dt.
+\]
+
+\emph{Step 2} (CE-RE).
+By Proposition~\ref{prop:CE-RE},
+$\frac{d}{dt} H(A|B)_{\rho(t)} = -\frac{d}{dt} D(\rho(t)\|\tau(t))$.
+
+\emph{Step 3} (DER-HS).
+By Proposition~\ref{prop:DER-HS},
+\[
+  \frac{d}{dt}\, D(\rho(t)\|\tau(t))
+  = \int_0^{M(t)}
+      \frac{\Tr\!\big[P_\gamma(t)\,\delta_{AB}^{(\gamma)}\big]}
+           {\gamma(1+d_A\gamma)}
+    \,d\gamma.
+\]
+
+\emph{Step 4} (Substitution).
+Combining Steps 1--3:
+\begin{equation}\label{eq:iterated}
+  H(A|B)_\sigma - H(A|B)_\rho
+  = -\int_0^1 \int_0^{M(t)}
+      \frac{\Tr\!\big[P_\gamma(t)\,\delta_{AB}^{(\gamma)}\big]}
+           {\gamma(1+d_A\gamma)}
+    \,d\gamma\, dt.
+\end{equation}
+
+\emph{Step 5} (Fubini).
+We verify that the iterated integral in \eqref{eq:iterated} is well-defined
+via the Fubini--Tonelli theorem.  Under the full-rank assumption, $\rho(t) > 0$
+for all $t \in [0,1]$.  By compactness and continuity of $\lambda_{\min}(\rho(t))$,
+there exists $c > 0$ (uniform in $t$) such that for all $\gamma \in (0,c)$
+and all $t \in [0,1]$, $\rho(t) - \gamma\,\tau(t) > 0$, hence $P_\gamma(t) = \id$.
+Then
+\[
+  \Tr\!\big[P_\gamma(t)\,\delta_{AB}^{(\gamma)}\big]
+  = \Tr[\delta_{AB}] - \gamma\,\Tr[\id_A \otimes \delta_B]
+  = 0 - \gamma\, d_A\, \Tr[\delta_B]
+  = 0,
+\]
+since $\Tr[\delta_{AB}] = 0$ (both states have unit trace) and
+$\Tr[\delta_B] = 0$ (partial traces preserve trace).
+The integrand therefore vanishes on $[0,1] \times (0,c)$.
+On the remaining domain $[0,1] \times [c, d_A]$, the factor
+$[\gamma(1+d_A\gamma)]^{-1}$ is bounded above by $[c(1+d_A c)]^{-1}$,
+and the numerator satisfies
+$|\Tr[P_\gamma(t)\,\delta_{AB}^{(\gamma)}]| \le \|\delta_{AB}\|_1 + d_A^2\,\|\delta_B\|_1$.
+The integrand is thus bounded on this compact domain, and Fubini--Tonelli applies.
+
+\medskip
+The iterated integral in \eqref{eq:iterated} is therefore well-defined and
+equals the claimed double integral.  This completes the proof.
+\end{proof}
+
+%% ========================================================================
+\section{Concluding Remarks}
+%% ========================================================================
+
+\begin{remark}
+The full-rank assumption ($\rho_{AB}, \sigma_{AB} > 0$) is used in three
+essential places: (i) ensuring $C^1$ regularity of $t \mapsto H(A|B)_{\rho(t)}$
+for the fundamental theorem of calculus; (ii) justifying differentiation under
+the integral sign via the vanishing of the integrand near $\gamma = 0$; and
+(iii) the Fubini argument eliminating the $1/\gamma$ singularity.
+The representation may extend to the general case via a limiting argument,
+but this requires additional care with the $\gamma \to 0$ singularity
+when $\rho(t)$ has a non-trivial kernel.
+\end{remark}
+
+\begin{remark}
+The proof relies on the Frenkel integral representation~\eqref{eq:frenkel},
+which expresses relative entropy as an integral of hockey-stick divergences.
+This representation, adapted here to the bipartite setting with unnormalised
+reference $\tau(t) = \id_A \otimes \rho(t)_B$ (trace $d_A$), is the key
+structural ingredient enabling the path-integral form.
+\end{remark}
+
+\begin{remark}
+This proof was constructed within the Adversarial Proof Framework (\texttt{af}),
+a system in which independent prover agents propose proof steps and independent
+verifier agents challenge them.  The proof tree consists of 36 nodes, all of
+which reached the \emph{validated} epistemic state with \emph{clean} taint.
+Three challenges were raised against the main assembly node (concerning
+dependency bookkeeping, structural soundness, and the Fubini justification),
+all of which were resolved through amendments.
+\end{remark}
+
+\end{document}
