@@ -143,9 +143,36 @@ theorem gamma_elem_smul (r : ℝ) (a : FA) :
 theorem gamma_symmetric (u : FreeJordanAlg) : gamma u ∈ symTensor :=
   gamma_elem_symmetric (evalFA u)
 
-/-- Key property: gamma maps the Jordan product to the symmetrized product in `FA ⊗ FA`.
-    `γ(u ∘ v) = ½(γ(u)·γ(v) + γ(v)·γ(u))` where `·` is the tensor algebra product.
-    This is the core structural lemma needed for Macdonald's theorem (Step 15). -/
-theorem gamma_jordan_product (u v : FreeJordanAlg) :
-    gamma (FreeJordanAlg.mul u v) =
-    (1/2 : ℝ) • (gamma u * gamma v + gamma v * gamma u) := by sorry
+/-! ### Three-generator free algebra FA3 = FreeAlgebra ℝ (Fin 3) -/
+
+/-- The associative free ℝ-algebra on three generators x, y, z.
+    Used in Macdonald's theorem: z is the "generic" third variable. -/
+abbrev FA3 := FreeAlgebra ℝ (Fin 3)
+
+/-- Generator z of the three-generator free algebra (the "test element"). -/
+noncomputable def FA3.z : FA3 := FreeAlgebra.ι ℝ (2 : Fin 3)
+
+/-- Embed FA = FreeAlgebra ℝ (Fin 2) into FA3 = FreeAlgebra ℝ (Fin 3)
+    by the natural inclusion Fin 2 → Fin 3. -/
+noncomputable def FA_to_FA3 : FA →ₐ[ℝ] FA3 :=
+  FreeAlgebra.lift ℝ (fun i => FreeAlgebra.ι ℝ (Fin.castSucc i))
+
+/-- Star (word-reversal anti-involution) on FA3. -/
+instance : StarRing FA3 := FreeAlgebra.instStarRing
+
+/-! ### Correct gamma map for Macdonald's theorem (H-O 2.4.25)
+
+The correct gamma maps symmetric tensors in FA ⊗ FA to FA3 via:
+`γ(p ⊗ q) = ½(p·z·q* + q·z·p*)`
+where `*` is word reversal and z is the third generator.
+This is injective because z acts as a separator in monomials. -/
+
+/-- The gamma map for Macdonald's theorem: sends `p ⊗ q` to `½(pzq* + qzp*)` in FA3.
+    This is the bilinear map from FA × FA → FA3 before restricting to symmetric tensors. -/
+noncomputable def gamma_mac (p q : FA) : FA3 :=
+  (1/2 : ℝ) • (FA_to_FA3 p * FA3.z * star (FA_to_FA3 q)
+             + FA_to_FA3 q * FA3.z * star (FA_to_FA3 p))
+
+/-- gamma_mac is symmetric in its arguments. -/
+theorem gamma_mac_comm (p q : FA) : gamma_mac p q = gamma_mac q p := by
+  unfold gamma_mac; ring

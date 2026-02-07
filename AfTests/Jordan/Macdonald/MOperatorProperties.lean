@@ -19,6 +19,11 @@ Properties (iii) and (iv) of the M_{p,q} multiplication operators:
 
 open FreeJordanAlg FreeAssocMono
 
+/-! ### Property (ii): M_{1,1} = identity -/
+
+/-- Property (ii): M(1,1) is the identity operator. -/
+theorem M_op_one_one (v : FreeJordanAlg) : M_op .one .one v = v := rfl
+
 /-! ### Property (iii): Same-letter U factorization -/
 
 /-- Property (iii)x: M(x^k·p, x^k·q) v = U_{x^{k+1}}(M(p,q) v).
