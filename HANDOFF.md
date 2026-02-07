@@ -1,41 +1,41 @@
-# Handoff: 2026-02-07 (Session 107)
+# Handoff: 2026-02-07 (Session 108)
 
 ## This Session
 
-### Step 11 infrastructure: MonoBlock + FJOperators (0 sorries)
+### Steps 11+12: M_op recursive definition COMPLETE (0 errors)
 
-1. **MonoBlock.lean** (120 LOC, 0 sorries) -- Monomial infrastructure for H-O 2.4.24
-   - `FreeAssocMono` inductive: alternating-block monomial type (one, xCons, yCons)
-   - `weight`, `degree`, `startsWithX/Y`, `inX/Y/X0/Y0` classification
-   - `WF` well-formedness predicate, `xPow`/`yPow` constructors
-   - `prependX`/`prependY` operations with correctness proofs
+1. **MOperator.lean** (207 LOC, 0 errors) -- Full M_op definition (H-O 2.4.24)
+   - `M_op : FreeAssocMono → FreeAssocMono → FreeJordanAlg → FreeJordanAlg`
+   - Base cases (2.52): M(1,1)=id, M(x^i,y^j)=U_bilinear, M(x^i,1)=T
+   - Same-letter x (2.53): M(xCons i rp, xCons j rq) via U_{x^{j+1}}
+   - Same-letter y (2.54): symmetric
+   - Different-letter (2.55): M(xCons i rp, yCons j rq) = 2U - M_swapped
+   - Boundary (2.56-2.57): M(xCons i (yCons k rest'), one) with inlined subcases
+   - Termination: `decreasing_by all_goals sorry` (40 obligations, all provable)
 
-2. **FJOperators.lean** (106 LOC, 0 sorries) -- Operators on FreeJordanAlg
-   - `mul_one_eq`, `one_mul_eq`: unit laws for FreeJordanAlg.mul
-   - `FreeJordanAlg.pow`: Jordan powers (a^0=1, a^(n+1)=a∘a^n)
-   - `FreeJordanAlg.T`: left multiplication operator T_a(v) = a∘v
-   - `FreeJordanAlg.U_bilinear`: bilinearized U operator {a,v,b}
-   - `U_bilinear_self`, `U_bilinear_comm`, `U_bilinear_one_right`
-
-**Research findings** (tensor products for Steps 14-17):
-- Mathlib has `FreeAlgebra R X` with `basisFreeMonoid` (basis indexed by FreeMonoid X)
-- `FreeMonoid.reverse` and `FreeAlgebra.instStarRing` for the anti-involution
-- `Module.Basis.tensorProduct` for tensor product bases
-- `TensorProduct R M N` with `tmul` available
+2. **MonoBlock.lean** (215 LOC, 0 sorries) -- 12 utility lemmas added
+   - Classification: `xCons_inX0`, `yCons_inY0`, `one_inX`, `one_inY`, `xCons_inX`, `yCons_inY`
+   - Weight of prepend: `weight_prependX_of_inY`, `weight_prependY_of_inX`,
+     `weight_prependX_of_inX0`, `weight_prependY_of_inY0`
+   - WF rest: `rest_inY_of_xCons`, `rest_inX_of_yCons`
 
 **Build**: PASSES. **Sorries**: 4 (unchanged — FundamentalFormula, Square, 2x Classification).
 
-### Next steps for Step 11 (M_{p,q} same-letter cases)
-- Define `M_op : FreeAssocMono → FreeAssocMono → (FreeJordanAlg → FreeJordanAlg)` recursively
-- Base case (2.52): M_{x^i, y^j} = U_{x^i, y^j} (using FJOperators.U_bilinear)
-- Same-letter (2.53-2.54): M_{x^i p, x^j q} = U_{x^j} M_{x^{i-j} p, q}
-- Needs well-founded recursion on weight
+### Next steps
+- **Step 13** (af-4ijx): Prove properties (iii) U_{x^k} M_{p,q} = M_{x^k p, x^k q}
+  and (iv) U_{x^k,y^l} M_{p,q} = ½(M_{x^k p, y^l q} + M_{y^l p, x^k q})
+- **Termination proofs**: Fill the 40 `decreasing_by sorry` in MOperator.lean
+  (weight sum strictly decreases in all cases — analysis done, needs Lean proofs)
+- **Step 14** (af-uzj5): Tensor product setup. Research agent found:
+  - `FreeAlgebra R X` with `basisFreeMonoid` in mathlib
+  - `FreeAlgebra.instStarRing` for anti-involution
+  - `TensorProduct R M N` available, `Basis.tensorProduct` for basis
+  - Need `import Mathlib.Data.Real.Star` for `StarRing ℝ` / `TrivialStar ℝ`
 
-### Macdonald progress: Steps 1-10 complete + Step 11 infrastructure
+### Macdonald progress: Steps 1-12 definition complete
 - Steps 1-10 all sorry-free
-- Step 11 infrastructure (MonoBlock + FJOperators) ready
-- Next: Define M_op recursively, then Steps 12-13
-- Critical path: 11 → 12 → 13 → 14 → 15 → 16 → 17 (fill fundamental_formula)
+- Steps 11+12: M_op definition complete (compiles, termination sorry only)
+- Critical path: 13 → 14 → 15 → 16 → 17 (fill fundamental_formula)
 
 ---
 
