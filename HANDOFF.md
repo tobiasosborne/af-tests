@@ -95,7 +95,7 @@ af-opkm: Property (i) ───────────────────�
 ## Build & sorries
 
 **Build**: `lake build AfTests 2>&1 | tail -40` — PASSES
-**Total sorries**: 10 (3 in Macdonald.lean, 1 in PropertyI.lean, 2 in Equation258.lean, 1 in FundamentalFormula.lean, 1 in Square.lean, 2 in Classification/)
+**Total sorries**: 8 (3 in Macdonald.lean, 1 in PropertyI.lean, 1 in FundamentalFormula.lean, 1 in Square.lean, 2 in Classification/)
 
 ## Reference — READ BEFORE STARTING
 
