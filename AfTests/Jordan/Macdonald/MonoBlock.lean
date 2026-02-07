@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: AF-Tests Contributors
 -/
 import AfTests.Jordan.Macdonald.Monomial
+import AfTests.Jordan.Macdonald.TensorSetup
 
 /-!
 # Alternating-Block Monomials in FA{x,y}
@@ -210,5 +211,27 @@ theorem rest_inY_of_xCons (i : ℕ) (r : FreeAssocMono) (h : WF (xCons i r)) :
 
 theorem rest_inX_of_yCons (j : ℕ) (r : FreeAssocMono) (h : WF (yCons j r)) :
     r.inX := h.1
+
+/-! ### Embedding into FA = FreeAlgebra ℝ (Fin 2) -/
+
+/-- Convert a FreeAssocMono to an element of FA = FreeAlgebra ℝ (Fin 2). -/
+noncomputable def toFA : FreeAssocMono → FA
+  | one => 1
+  | xCons i rest => FA.x ^ (i + 1) * rest.toFA
+  | yCons j rest => FA.y ^ (j + 1) * rest.toFA
+
+@[simp] theorem toFA_one : toFA one = 1 := rfl
+@[simp] theorem toFA_xCons (i : ℕ) (r : FreeAssocMono) :
+    toFA (xCons i r) = FA.x ^ (i + 1) * r.toFA := rfl
+@[simp] theorem toFA_yCons (j : ℕ) (r : FreeAssocMono) :
+    toFA (yCons j r) = FA.y ^ (j + 1) * r.toFA := rfl
+
+theorem toFA_prependX_of_inY {p : FreeAssocMono} (hp : p.inY) (k : ℕ) :
+    toFA (prependX k p) = FA.x ^ (k + 1) * p.toFA := by
+  rw [prependX_of_inY hp]
+
+theorem toFA_prependY_of_inX {p : FreeAssocMono} (hp : p.inX) (l : ℕ) :
+    toFA (prependY l p) = FA.y ^ (l + 1) * p.toFA := by
+  rw [prependY_of_inX hp]
 
 end FreeAssocMono

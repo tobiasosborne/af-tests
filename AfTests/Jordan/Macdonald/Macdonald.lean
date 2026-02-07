@@ -19,7 +19,7 @@ on 2 generators is special (isomorphic to a subalgebra of an associative algebra
 ## Main results
 
 * `M_op_eval_z` — Property (i): M_{p,q}(z) = gamma_mac(p,q) in FA3
-* `mult_alg_surjectivity` — Part A: every mult operator is some M_t
+* `mult_alg_surjectivity` — Part A: every T_v is in the ℝ-span of M_{p,q} operators
 * `gamma_mac_injective` — Part B: gamma_mac is injective on symmetric tensors
 * `macdonald` — If evalFA(v) = 0 then v = 0
 * `macdonald_injectivity` — evalFA is injective
@@ -28,7 +28,7 @@ on 2 generators is special (isomorphic to a subalgebra of an associative algebra
 
 ## Proof outline (H-O 2.4.25)
 
-**Part A (Surjectivity):** The range of `t ↦ M_t` covers all multiplication operators.
+**Part A (Surjectivity):** Every T_v lies in the ℝ-linear span of {M_{p,q}}.
 - M_{1,1} = id (property ii, `M_op_one_one`)
 - Closed under U_{x^k} (property iii, `M_op_xCons_xCons`/`M_op_yCons_yCons`)
 - Closed under U_{x^k,y^l} (property iv, `M_op_U_bilinear_yCons`/`M_op_U_bilinear_xCons`)
@@ -71,21 +71,27 @@ theorem M_op_eval_z_placeholder : True := trivial
 
 /-! ### Part A: Surjectivity of t ↦ M_t
 
-Every multiplication operator on FreeJordanAlg lies in the range of M_op.
-The key ingredients:
+Every multiplication operator T_v on FreeJordanAlg lies in the ℝ-linear span
+of the M_{p,q} operators. The key ingredients:
 - M_{1,1} = id (property ii)
 - Closure under U_{x^k} (property iii)
 - Closure under U_{x^k,y^l} (property iv)
 - Generator lemma: {U_{a,b} : a,b in {1,x,y}} generate the multiplication algebra -/
 
-/-- The set of multiplication operators expressible as M_{p,q} for some p, q
-    contains the identity and is closed under U_{x^k} and U_{x^k,y^l},
-    hence equals the full multiplication algebra on FreeJordanAlg.
+/-- Every multiplication operator T_v on FreeJordanAlg lies in the ℝ-linear span
+    of the M_{p,q} operators: for every v : FreeJordanAlg, T_v can be expressed
+    as a finite ℝ-linear combination of M_{p,q} operators.
 
-    This is Part A of the Macdonald theorem proof (H-O 2.4.25). -/
-theorem mult_alg_surjectivity :
-    ∀ (v : FreeJordanAlg),
-    ∃ (p q : FreeAssocMono), ∀ w, M_op p q w = FreeJordanAlg.T v w := by
+    This is Part A of the Macdonald theorem proof (H-O 2.4.25).
+
+    **Note:** An earlier version stated `∃ (p q), ∀ w, M_op p q w = T v w`,
+    which is mathematically false — a single M_{p,q} cannot in general express
+    T_v. The correct statement is that T_v is a *finite linear combination* of
+    such operators, proved by induction on v using the generator lemma and
+    closure properties (ii)–(iv). -/
+theorem mult_alg_surjectivity (v : FreeJordanAlg) :
+    ∃ (c : FreeAssocMono × FreeAssocMono →₀ ℝ),
+    ∀ w, FreeJordanAlg.T v w = c.sum (fun pq r => r • M_op pq.1 pq.2 w) := by
   sorry
 
 /-! ### Part B: Gamma injectivity (Step 15)
@@ -129,8 +135,8 @@ theorem gamma_mac_injective :
     Equivalently: the free Jordan algebra on 2 generators is special.
 
     **Proof sketch** (H-O 2.4.25):
-    1. (Part A) Every multiplication operator on FJ{x,y} equals M_t for some
-       symmetric tensor t, by surjectivity of the M_op construction.
+    1. (Part A) Every multiplication operator T_v on FJ{x,y} lies in the
+       ℝ-linear span of {M_{p,q}}, by `mult_alg_surjectivity`.
     2. (Property i) M_t applied to a test element z gives gamma_mac(t) in FA3.
     3. If evalFA(v) = 0, then v acts as zero in all special Jordan algebras.
        In particular M_v(z) = gamma_mac(v) = 0 in FA3.
