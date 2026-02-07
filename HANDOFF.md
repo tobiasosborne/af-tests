@@ -1,4 +1,4 @@
-# Handoff: 2026-02-07 (Session 118)
+# Handoff: 2026-02-07 (Session 119)
 
 ## GOAL: Fill `fundamental_formula` sorry (the #1 priority)
 
@@ -6,15 +6,12 @@
 **Statement**: `U (U a b) x = U a (U b (U a x))` for all `a b x : J` in any `JordanAlgebra J`
 **Route**: Macdonald's theorem (H-O 2.4.13) lifts `special_fundamental_formula` to all Jordan algebras
 
-## Session 118 summary
+## Session 119 summary
 
-1. **Full H-O audit** — 4 parallel agents compared every Lean file against Hanche-Olsen ground truth
-2. **Deleted 352 lines of dead/hallucinated code**:
-   - `Monomial.lean` (MacGen, AssocWord, M_word, M_eval — superseded by MonoBlock/MOperator)
-   - `MonomialFJ.lean` (M_eval_FJ — wrong type: elements not operators)
-   - `gamma_elem`, `gamma` and all properties from TensorSetup.lean (wrong gamma map; advertised a FALSE theorem)
-3. **Closed 3 stale/duplicate issues** (af-tggl, af-i8oo, af-efkr)
-4. **Created 4 new fine-grained issues** with H-O line citations and dependency chain
+1. **FJ_U_pow_comp** — U-power composition: `U(a^m)(U(a^n)(w)) = U(a^{m+n})(w)` for FreeJordanAlg. Sorry-free. Uses bridge to JordanAlgebra.U_jpow.
+2. **M_op_U_prependX** — Property (iii) general, x version: `U_{x^{k+1}} M_{p,q} = M_{prependX(k,p), prependX(k,q)}`. Sorry-free. Proof by 9-way case split on (p,q) constructors: 4 both-in-Y cases (M_op_xCons_xCons), 4 mixed cases (M_op.eq_def + arithmetic), 1 both-in-X₀ case (FJ_U_pow_comp).
+3. **M_op_U_prependY** — Property (iii) y version: sorry'd (symmetric structure, same proof pattern).
+4. Added `import FJBridge` to MOperatorProperties.lean.
 
 ## What EXISTS (all sorry-free unless noted)
 
@@ -32,21 +29,19 @@
 | FJOperators.lean | 0 | T, U, U_bilinear, pow, **JordanAlgebra instance**, bridge lemmas |
 | SpecialFF.lean | 0 | **`special_fundamental_formula`**: FF in all assoc algebras |
 | MOperator.lean | 0 | `M_op` recursive definition (2.52)-(2.57), termination proved — MATCH H-O |
-| MOperatorProperties.lean | 0 | Property (ii), partial (iii)/(iv) for equal-exponent + k,l≥1 cases |
+| MOperatorProperties.lean | **1** | Property (ii), (iii) x-general+equal-exp, (iv) k,l≥1. **NEW**: FJ_U_pow_comp, M_op_U_prependX. Sorry: M_op_U_prependY. |
 | TensorSetup.lean | 0 | FA, FA2, FA3, symTensor, evalFA, gamma_mac (correct gamma) |
 | GammaInjectivity.lean | 0 | full_gamma_tensor_injective, z-separator — MATCH H-O |
 | Equation258.lean | 0 | Eq (2.58) base cases (p=1/q=1, p=1/q=y^j, p=y^j/q=1) |
 | FJBridge.lean | 0 | Bridge: JordanAlgebra ↔ FreeJordanAlg operators |
 | **Macdonald.lean** | **3** | Macdonald theorem + FF corollaries |
 
-**Deleted in Session 118**: Monomial.lean, MonomialFJ.lean (dead code, no H-O basis)
-
 ## Critical path: 3 sorries → 0
 
 ```
-af-2nr5: Property (iii) general     ─┬─→ af-07gj: Eq(2.58) weight>1 ─→ af-mlnv: GenLemma+Surj
-af-ub66: Eq(2.58) weight≤1 ─────────┘                                        │
-                                                                              ↓
+af-2nr5: Property (iii) x-general ✓  ─┬─→ af-07gj: Eq(2.58) weight>1 ─→ af-mlnv: GenLemma+Surj
+  (M_op_U_prependY sorry remains)    │                                        │
+af-ub66: Eq(2.58) weight≤1 ──────────┘                                        ↓
                                                             af-0cc6: mult_alg_surjectivity
                                                                               │
 af-opkm: Property (i) ───────────────────────────────────────────────────────┐│
@@ -58,15 +53,14 @@ af-opkm: Property (i) ───────────────────�
 ```
 
 ### Ready NOW (no blockers):
-- **af-2nr5**: Property (iii) general — H-O lines 1290-1302, ~30-40 LOC
+- **af-2nr5**: Property (iii) y-version sorry — symmetric to x-version (~90 LOC copy-paste with x↔y swap)
 - **af-ub66**: Eq(2.58) weight≤1 — H-O lines 1332-1344, ~50 LOC
 - **af-opkm**: Property (i) — H-O line 1217, ~40-60 LOC
 
-### What each issue requires (H-O citations):
+### How to fill M_op_U_prependY (symmetric to x-version):
+The proof of M_op_U_prependX is by 9-way case split on (p,q) constructors. M_op_U_prependY is identical but swapping x↔y everywhere: xCons↔yCons, prependX↔prependY, M_op_xCons_xCons↔M_op_yCons_yCons. Also needs FJ_U_pow_comp with y instead of x.
 
-**af-2nr5 — Property (iii) general** (MOperatorProperties.lean)
-- H-O lines 1290-1302: Case p,q∈Y → (2.53a). Case p,q∈X → U_{x^k}U_{x^i}=U_{x^{k+i}}. Case mixed → (2.53a) directly.
-- Currently only equal-exponent case proved (`M_op_xCons_xCons`). Need general case.
+### What each remaining issue requires (H-O citations):
 
 **af-ub66 — Eq(2.58) weight≤1** (Equation258.lean)
 - H-O lines 1332-1335 (i≥k): Use `operator_identity_249` on `U_{x^i,y^j}`. Result = ½(U_{x^k}U_{x^{i-k},y^j} + U_{x^{i+k},y^j}). Then (2.52)+(2.53a) to rewrite as M_op terms.
@@ -84,25 +78,10 @@ af-opkm: Property (i) ───────────────────�
 **af-opkm — Property (i)** (Macdonald.lean)
 - M_{p,q}(z) = gamma_mac(toFA p, toFA q). Needs evalAssoc into FA3.
 
-## Audit findings (Session 118)
-
-### What MATCHES H-O (verified, solid)
-- All operator identities (2.47)-(2.51) — OperatorId.lean
-- M_op definition (2.52)-(2.57) — MOperator.lean
-- Gamma injectivity (z-separator) — GammaInjectivity.lean
-- Special FF — SpecialFF.lean
-- Free algebra constructions — FreeAlgebra, FreeJordan, FreeSpecialJordan
-- FreeAssocMono alternating blocks — MonoBlock.lean
-
-### What was HALLUCINATED (now deleted)
-- `gamma_elem` (a→a⊗1+1⊗a): wrong gamma, no H-O basis, advertised FALSE theorem
-- `Monomial.lean` (MacGen, AssocWord, M_word): superseded dead code
-- `MonomialFJ.lean` (M_eval_FJ): wrong type (elements not operators)
-
 ## Build & sorries
 
 **Build**: `lake build AfTests 2>&1 | tail -40` — PASSES
-**Total sorries**: 7 (3 in Macdonald.lean, 1 in FundamentalFormula.lean, 1 in Square.lean, 2 in Classification/)
+**Total sorries**: 8 (3 in Macdonald.lean, 1 in FundamentalFormula.lean, 1 in Square.lean, 2 in Classification/, 1 in MOperatorProperties.lean)
 
 ## Reference — READ BEFORE STARTING
 
@@ -114,6 +93,11 @@ af-opkm: Property (i) ───────────────────�
 - `bd ready` for available work
 
 ## Previous Sessions
+
+### Session 119: Property (iii) general x-version + U-power composition
+- FJ_U_pow_comp: U(a^m)(U(a^n)(w)) = U(a^{m+n})(w) — sorry-free
+- M_op_U_prependX: U_{x^{k+1}} M_{p,q} = M_{x^{k+1}·p, x^{k+1}·q} — sorry-free (9 cases)
+- M_op_U_prependY: y-version — sorry (symmetric)
 
 ### Session 118: H-O audit, dead code deletion, issue restructuring
 - Full audit: 4 agents compared all Lean files against H-O ground truth
