@@ -5,6 +5,7 @@ Authors: AF-Tests Contributors
 -/
 import AfTests.Jordan.Macdonald.SpecialFF
 import AfTests.Jordan.Basic
+import AfTests.Jordan.Product
 
 /-!
 # Operators on the Free Jordan Algebra
@@ -127,11 +128,12 @@ theorem smul_mul_right (r : ℝ) (a b : FreeJordanAlg) : mul a (r • b) = r •
 
 /-- Left zero: mul 0 b = 0. -/
 theorem mul_zero_left (b : FreeJordanAlg) : mul 0 b = 0 := by
-  have : mul ((0 : ℝ) • b) b = (0 : ℝ) • mul b b := smul_mul_left 0 b b
-  rw [zero_smul, zero_smul] at this
-  calc mul 0 b = mul (0 + 0) b := by rw [add_zero]
-    _ = mul 0 b + mul 0 b := mul_add_left 0 0 b
-  linarith [this]
+  have h : mul 0 b = mul 0 b + mul 0 b := by
+    calc mul 0 b = mul (0 + 0) b := by rw [add_zero]
+      _ = mul 0 b + mul 0 b := mul_add_left 0 0 b
+  calc mul 0 b = (mul 0 b + mul 0 b) - mul 0 b := by rw [add_sub_cancel_right]
+    _ = mul 0 b - mul 0 b := by rw [← h]
+    _ = 0 := sub_self _
 
 /-- Right zero: mul a 0 = 0. -/
 theorem mul_zero_right (a : FreeJordanAlg) : mul a 0 = 0 := by

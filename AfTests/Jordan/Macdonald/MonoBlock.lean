@@ -227,10 +227,10 @@ noncomputable def toFA : FreeAssocMono → FA
 
 theorem toFA_prependX_of_inY {p : FreeAssocMono} (hp : p.inY) (k : ℕ) :
     toFA (prependX k p) = FA.x ^ (k + 1) * p.toFA := by
-  rw [prependX_of_inY hp]
+  rw [prependX_of_inY hp]; rfl
 
 theorem toFA_prependY_of_inX {p : FreeAssocMono} (hp : p.inX) (l : ℕ) :
     toFA (prependY l p) = FA.y ^ (l + 1) * p.toFA := by
-  rw [prependY_of_inX hp]
+  rw [prependY_of_inX hp]; rfl
 
 end FreeAssocMono

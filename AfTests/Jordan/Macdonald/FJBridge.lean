@@ -25,7 +25,7 @@ operators used in M_op and the equation (2.58) proofs.
     The only difference is nsmul 2 vs (2:ℝ) •, which agree in ℝ-modules. -/
 theorem FJ_U_eq (a v : FreeJordanAlg) :
     JordanAlgebra.U a v = FreeJordanAlg.U a v := by
-  simp only [JordanAlgebra.U_def, FreeJordanAlg.U]
+  simp only [JordanAlgebra.U_def, FreeJordanAlg.U, FJ_jmul_eq_mul, JordanAlgebra.jsq_def]
   congr 1
   rw [two_smul, two_smul]
 
@@ -41,7 +41,7 @@ theorem FJ_U_bilinear_eq (a b v : FreeJordanAlg) :
     JordanAlgebra.U_bilinear_linear a b v =
     FreeJordanAlg.U_bilinear a b v := by
   simp only [JordanAlgebra.U_bilinear_linear_apply, JordanAlgebra.triple_def,
-    FreeJordanAlg.U_bilinear_apply]
+    FreeJordanAlg.U_bilinear_apply, FJ_jmul_eq_mul]
   rw [FreeJordanAlg.mul_comm (FreeJordanAlg.mul a v) b,
       FreeJordanAlg.mul_comm v b,
       FreeJordanAlg.mul_comm v (FreeJordanAlg.mul a b)]

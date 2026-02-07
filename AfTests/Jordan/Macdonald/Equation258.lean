@@ -55,3 +55,60 @@ theorem eq258_yCons_one (k j : ℕ) (v : FreeJordanAlg) :
     rw [show mul (pow y (j + 1)) (pow x (k + 1)) =
       mul (pow x (k + 1)) (pow y (j + 1)) from mul_comm _ _]
   simp only [smul_add, smul_sub, smul_smul]; norm_num; try abel
+
+/-- U_bilinear(1, b)(v) = T_b(v): bilinearized U with 1 on left is just multiplication. -/
+theorem U_bilinear_one_left (b v : FreeJordanAlg) :
+    U_bilinear 1 b v = T b v := by
+  rw [U_bilinear_comm]; exact U_bilinear_one_right b v
+
+/-- (2.58) weight≤1, i≥k case: T_{x^{k+1}} M_{x^{i+1},y^{j+1}} =
+    ½(M_{x^{i+k+2},y^{j+1}} + U_{x^{k+1}} M_{x^{i-k},y^{j+1}}).
+    H-O lines 1332-1335. Uses operator_identity_249. -/
+theorem eq258_xCons_yCons_ge (k i j : ℕ) (hik : k ≤ i) (v : FreeJordanAlg) :
+    T (pow x (k + 1)) (M_op (xCons i one) (yCons j one) v) =
+    (1/2 : ℝ) • (M_op (xCons (k + 1 + i) one) (yCons j one) v +
+                  M_op (xCons i one) (xCons k (yCons j one)) v) := by
+  -- Step 1: Unfold LHS M_op (base case 2.52)
+  conv_lhs => rw [show M_op (xCons i one) (yCons j one) v =
+    U_bilinear (pow x (i + 1)) (pow y (j + 1)) v from by rw [M_op.eq_def]]
+  -- Step 2: Unfold first RHS M_op (base case 2.52)
+  conv_rhs => rw [show M_op (xCons (k + 1 + i) one) (yCons j one) v =
+    U_bilinear (pow x (k + 1 + i + 1)) (pow y (j + 1)) v from by rw [M_op.eq_def]]
+  -- Step 3: Unfold second RHS M_op via (2.53a) + reduce to U_bilinear
+  conv_rhs => rw [show M_op (xCons i one) (xCons k (yCons j one)) v =
+    U (pow x (k + 1)) (U_bilinear (pow x (i - k)) (pow y (j + 1)) v) from by
+    rw [M_op.eq_def]; simp only [ge_iff_le]; rw [dif_pos hik]
+    by_cases heq : i = k
+    · subst heq
+      simp only [Nat.sub_self, ite_true, pow_zero, M_op.eq_def, T_apply,
+        U_bilinear_apply, one_mul_eq]
+      abel
+    · rw [if_neg heq, M_op.eq_def]; congr 1; omega]
+  -- Step 4: Apply operator_identity_249
+  -- (2.49) with a=x, m=k+1, k'=i-k, b=y^{j+1}:
+  -- 2 • T(x^{k+1})(U_bilinear(x^{i+1},y^{j+1})(v))
+  --   = U(x^{k+1})(U_bilinear(x^{i-k},y^{j+1})(v)) + U_bilinear(x^{k+i+2},y^{j+1})(v)
+  have h249 := @JordanAlgebra.operator_identity_249 FreeJordanAlg _
+    FreeJordanAlg.x (FreeJordanAlg.pow FreeJordanAlg.y (j + 1)) (k + 1) (i - k)
+  have h249v := LinearMap.ext_iff.mp h249 v
+  simp only [LinearMap.smul_apply, LinearMap.comp_apply, LinearMap.add_apply] at h249v
+  rw [FJ_L_apply, FJ_jpow_eq_pow, FJ_U_bilinear_eq, FJ_jpow_eq_pow,
+      FJ_U_linear_apply, FJ_U_bilinear_eq, FJ_jpow_eq_pow,
+      FJ_U_bilinear_eq, FJ_jpow_eq_pow] at h249v
+  rw [show k + 1 + (i - k) = i + 1 from by omega,
+      show k + 1 + (k + 1 + (i - k)) = k + 1 + i + 1 from by omega] at h249v
+  -- h249v: 2 • T(x^{k+1})(U_bilinear(x^{i+1},y^{j+1})(v)) =
+  --        U(x^{k+1})(U_bilinear(x^{i-k},y^{j+1})(v)) + U_bilinear(x^{k+1+i+1},y^{j+1})(v)
+  -- Step 5: Conclude by halving and reordering
+  simp only [T_apply]
+  calc mul (pow x (k + 1)) (U_bilinear (pow x (i + 1)) (pow y (j + 1)) v)
+      = (1 / 2 : ℝ) • ((2 : ℝ) • mul (pow x (k + 1))
+          (U_bilinear (pow x (i + 1)) (pow y (j + 1)) v)) := by
+        rw [smul_smul]; norm_num
+    _ = (1 / 2 : ℝ) • (U (pow x (k + 1))
+          (U_bilinear (pow x (i - k)) (pow y (j + 1)) v) +
+        U_bilinear (pow x (k + 1 + i + 1)) (pow y (j + 1)) v) := by
+        congr 1; exact h249v
+    _ = (1 / 2 : ℝ) • (U_bilinear (pow x (k + 1 + i + 1)) (pow y (j + 1)) v +
+          U (pow x (k + 1)) (U_bilinear (pow x (i - k)) (pow y (j + 1)) v)) := by
+        congr 1; abel
