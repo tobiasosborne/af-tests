@@ -1,10 +1,30 @@
-# Handoff: 2026-02-07 (Session 123)
+# Handoff: 2026-02-07 (Session 124)
 
 ## GOAL: Fill `fundamental_formula` sorry (the #1 priority)
 
 **File**: `AfTests/Jordan/FundamentalFormula.lean:259`
 **Statement**: `U (U a b) x = U a (U b (U a x))` for all `a b x : J` in any `JordanAlgebra J`
 **Route**: Macdonald's theorem (H-O 2.4.13) lifts `special_fundamental_formula` to all Jordan algebras
+
+## Session 124 summary
+
+**Task**: Parallel agent session on 3 tasks (af-07gj, af-opkm, af-mlnv)
+
+**Result**: All 3 agents hit context limits before writing file changes. No code modifications.
+
+**Root cause**: Each task requires deep exploration (reading goal states, searching lemmas,
+understanding M_op's ~20 case structure) which consumes context before actual code writing.
+These tasks are too complex for single-agent sessions — they need focused, incremental work.
+
+**Recommendation for next session**: Work on ONE task at a time:
+1. **af-07gj** (Eq258 algebra closure): Start by running `lean_goal` on lines 281 and 333
+   of Equation258.lean. The goals involve M_op terms that need to be rewritten using
+   M_op_U_bilinear_yCons, M_op_U_prependX, M_op_xCons_yCons_yCons. ~30-40 LOC each.
+2. **af-opkm** (M_op_evalFA3): Large structural induction (~20 cases). Best approached by
+   proving cases incrementally, starting with base cases (already done as separate lemmas)
+   then tackling recursive cases one at a time.
+3. **af-mlnv** (GeneratorLemma + surjectivity): Scaffolding task. State 2.4.23 conclusion,
+   then scaffold mult_alg_surjectivity proof.
 
 ## Session 123 summary
 
