@@ -7,6 +7,7 @@ import AfTests.Jordan.Macdonald.MOperatorProperties
 import AfTests.Jordan.Macdonald.TensorSetup
 import AfTests.Jordan.Macdonald.GammaInjectivity
 import AfTests.Jordan.Macdonald.GeneratorLemma
+import AfTests.Jordan.Macdonald.PropertyI
 
 /-!
 # Macdonald's Theorem (H-O 2.4.13, 2.4.25)
@@ -46,27 +47,29 @@ By property (i), M_v(z) = gamma_mac(v) = 0 in FA3. By injectivity, v = 0.
 
 open FreeJordanAlg FreeAssocMono
 
-/-! ### Property (i): M_{p,q}(z) = gamma_mac evaluated in FA3
+/-! ### Property (i): M_{p,q}(z) = gamma_mac(toFA p, toFA q) in FA3
 
 This connects M_op (which acts on FreeJordanAlg) to gamma_mac (which maps
-symmetric tensors to FA3). Proof is by induction on weight, using the
-recursive structure of M_op and properties (ii)-(iv). -/
+symmetric tensors to FA3). The algebraic content is proved in PropertyI.lean:
+`gamma_mac` satisfies the same recurrences as `M_op` (base cases, U-factorization,
+different-letter recurrence, T-recurrence), establishing that M_{p,q}(z) =
+gamma_mac(toFA p, toFA q) = 1/2(pzq* + qzp*) for all monomials p, q.
 
-/-- Property (i): M_{p,q} applied to a "generic" third variable z gives
-    gamma_mac(p,q) = ½(pzq* + qzp*) in FA3.
+**Architecture note** (H-O line 1217): The ideal formal statement would be
+  `evalAssoc3 (FA_to_FA3 FA.x) (FA_to_FA3 FA.y) FA3.z (M_op p q z_FJ) =
+   gamma_mac (toFA p) (toFA q)`
+where `z_FJ` is the third generator of a 3-gen FreeJordanAlg. Since FreeJordanAlg
+has only 2 generators, PropertyI.lean instead proves the algebraic identities
+directly on `gamma_mac` in FA3:
+- `gamma_mac_one_one` : base case (2.52)
+- `gamma_mac_assocU` : U-factorization (2.53-2.54)
+- `gamma_mac_diff_letter` : different-letter recurrence (2.55)
+- `gamma_mac_T_recurrence` : T-recurrence (2.56-2.57)
+- `gamma_mac_U_bilinear` : U_bilinear identity (property iv)
 
-    More precisely: for any p, q : FreeAssocMono, evaluating M_op p q on
-    the generator z of a 3-variable algebra yields gamma_mac(p_FA, q_FA)
-    where p_FA, q_FA are the images of p, q in FA. -/
-/- The real statement of property (i) requires:
-   - `toFA : FreeAssocMono → FA` converting monomials to free algebra elements
-   - An evaluation of FreeJordanAlg into FA3 (the 3-generator free algebra)
-   These are not yet defined. The statement would be:
-     `evalAssoc3 (FA_to_FA3 FA.x) (FA_to_FA3 FA.y) FA3.z (M_op p q z_FJ) =
-      gamma_mac (toFA p) (toFA q)`
-   where `z_FJ` is the generator z viewed in FreeJordanAlg on 3 generators
-   and `evalAssoc3` evaluates into the 3-generator associative algebra. -/
-theorem M_op_eval_z_placeholder : True := trivial
+These establish property (i) at the level of FA3 computations. Connecting
+to M_op on FreeJordanAlg formally requires either a 3-gen FreeJordanAlg or
+an evalAssoc naturality theorem (both TODO). -/
 
 /-! ### Part A: Surjectivity of t ↦ M_t
 

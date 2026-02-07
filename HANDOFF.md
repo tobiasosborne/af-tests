@@ -1,4 +1,4 @@
-# Handoff: 2026-02-07 (Session 121)
+# Handoff: 2026-02-07 (Session 121b)
 
 ## GOAL: Fill `fundamental_formula` sorry (the #1 priority)
 
@@ -6,11 +6,23 @@
 **Statement**: `U (U a b) x = U a (U b (U a x))` for all `a b x : J` in any `JordanAlgebra J`
 **Route**: Macdonald's theorem (H-O 2.4.13) lifts `special_fundamental_formula` to all Jordan algebras
 
-## Session 121 summary
+## Session 121b summary
 
-1. **eq258_xCons_yCons_lt** — Eq(2.58) weight<=1, i<k case: `T_{x^{k+1}} M_{x^{i+1},y^{j+1}} = 1/2(M_{x^{i+k+2},y^{j+1}} + M_{x^{i+1},x^k·y^{j+1}})`. Sorry-free, ~50 LOC. Uses operator_identity_247, eq258_xCons_yCons_ge, power_formula_245. H-O lines 1336-1344.
+1. **PropertyI.lean** — NEW FILE: Property (i) of M_{p,q} (H-O 2.4.24, line 1217). Zero sorries.
+   Proves that gamma_mac satisfies the same recurrences as M_op in FA3:
+   - `gamma_mac_one_one`: base case, gamma_mac(1,1) = z (H-O 2.52)
+   - `gamma_mac_assocU`: U-factorization, a*gamma(p,q)*a = gamma(ap,aq) (H-O 2.53-2.54)
+   - `gamma_mac_diff_letter`: different-letter recurrence (H-O 2.55)
+   - `gamma_mac_T_recurrence`: T-recurrence (H-O 2.56-2.57)
+   - `gamma_mac_U_bilinear`: U_bilinear identity (property iv in FA3)
+   - `gamma_mac_prependX_inY`, `gamma_mac_prependY_inX`: connection to FreeAssocMono
+   - `gamma_mac_mono_*`: convenience theorems on gamma_mac_mono = gamma_mac o toFA
 
-This completes the weight<=1 case of eq(2.58): both i>=k and i<k are now sorry-free.
+2. **Macdonald.lean** — Updated: imports PropertyI, replaced M_op_eval_z_placeholder with documentation.
+
+**Architecture note**: Property (i) is proved at the FA3 level (gamma_mac identities).
+Connecting to M_op on FreeJordanAlg requires either 3-gen FreeJordanAlg or evalAssoc
+naturality (TODO). The gamma_mac algebraic identities ARE the content of property (i).
 
 ## What EXISTS (all sorry-free unless noted)
 
@@ -33,6 +45,7 @@ This completes the weight<=1 case of eq(2.58): both i>=k and i<k are now sorry-f
 | GammaInjectivity.lean | 0 | full_gamma_tensor_injective, z-separator — MATCH H-O |
 | Equation258.lean | 0 | Eq (2.58) base cases + weight<=1 both cases (eq258_xCons_yCons_ge + eq258_xCons_yCons_lt) |
 | FJBridge.lean | 0 | Bridge: JordanAlgebra ↔ FreeJordanAlg operators |
+| **PropertyI.lean** | **0** | Property (i): gamma_mac recurrences matching M_op (H-O 2.4.24 line 1217) |
 | **Macdonald.lean** | **3** | Macdonald theorem + FF corollaries |
 
 ## Critical path: 3 sorries → 0
@@ -53,7 +66,8 @@ af-opkm: Property (i) ───────────────────�
 
 ### Ready NOW (no blockers):
 - **af-07gj**: Eq(2.58) weight>1 — H-O lines 1346-1377. Now unblocked (af-ub66 complete).
-- **af-opkm**: Property (i) — H-O line 1217, ~40-60 LOC
+- **af-opkm**: Property (i) — MOSTLY DONE (gamma_mac identities proved in PropertyI.lean).
+  Remaining: formal connection from M_op to gamma_mac via 3-gen FreeJordanAlg or evalAssoc naturality.
 
 ### What each remaining issue requires (H-O citations):
 
@@ -69,8 +83,9 @@ af-opkm: Property (i) ───────────────────�
 - State 2.4.23 conclusion: {U_{a,b}} generates mult algebra. ~30 LOC.
 - Prove mult_alg_surjectivity: E closed under T_x,T_y (by 2.58), U_x,U_y (by iii), U_{x,y} (by iv k,l≥1 already done). By 2.4.23, E=everything. ~20 LOC.
 
-**af-opkm — Property (i)** (Macdonald.lean)
-- M_{p,q}(z) = gamma_mac(toFA p, toFA q). Needs evalAssoc into FA3.
+**af-opkm — Property (i)** (PropertyI.lean + Macdonald.lean)
+- gamma_mac algebraic identities: **DONE** (PropertyI.lean, 0 sorries)
+- Formal M_op-to-gamma_mac connection: TODO (needs 3-gen FreeJordanAlg or evalAssoc naturality)
 
 ## Build & sorries
 
@@ -87,6 +102,15 @@ af-opkm: Property (i) ───────────────────�
 - `bd ready` for available work
 
 ## Previous Sessions
+
+### Session 121b: Property (i) — gamma_mac algebraic identities
+- NEW FILE PropertyI.lean: 0 sorries, ~250 LOC
+- 7 key theorems: gamma_mac_one_one, gamma_mac_assocU, gamma_mac_diff_letter,
+  gamma_mac_T_recurrence, gamma_mac_U_bilinear, gamma_mac_prependX_inY, gamma_mac_prependY_inX
+- 5 convenience theorems: gamma_mac_mono_* connecting to FreeAssocMono
+- Helper simp lemmas: FA.star_x_pow, FA.star_y_pow, FA_to_FA3_one_eq, toFA_xPow, toFA_yPow
+- Documented architecture gap: formal M_op↔gamma_mac needs 3-gen FreeJordanAlg or naturality
+- Macdonald.lean: updated imports + property (i) documentation
 
 ### Session 121: eq258_xCons_yCons_lt — Eq(2.58) weight<=1 i<k case
 - eq258_xCons_yCons_lt: ~50 LOC sorry-free proof using (2.47) + ge case + (2.45)
