@@ -149,14 +149,17 @@ which maps into FA3 (3-generator free algebra) using `½(pzq*+qzp*)`.
 - af-gzm1 (P1): Step 17 — Fill fundamental_formula
 - af-uzj5 (P2, in_progress): Step 14 — Tensor setup (done, can close)
 
-## Reference
+## Reference — READ BEFORE STARTING
+
+**MANDATORY READING** (do NOT re-research these topics):
+- **`memory/macdonald-proof-structure.md`** — Full mathematical proof structure: exact theorem statement, property (i) induction, surjectivity argument, z-separator argument, how FF follows. Contains everything needed to write the proofs.
+- **`memory/macdonald-steps14-17.md`** — Mathlib API reference: FreeAlgebra, TensorProduct, Basis, LinearIndependent, StarRing. Contains exact function names and signatures.
 
 Book: `examples3/Jordan Operator Algebras/joa-m/joa-m.md`
 - Macdonald's theorem: 2.4.13 (line ~1063)
 - M_{p,q} construction: 2.4.24 (line ~1215)
 - Proof of Macdonald: 2.4.25 (line ~1379)
 - Star involution: 2.3.5 (line ~859)
-- Mathlib research: `memory/macdonald-steps14-17.md`
 
 ## File map
 
