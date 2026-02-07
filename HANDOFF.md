@@ -26,11 +26,13 @@
   and (iv) U_{x^k,y^l} M_{p,q} = ½(M_{x^k p, y^l q} + M_{y^l p, x^k q})
 - **Termination proofs**: Fill the 40 `decreasing_by sorry` in MOperator.lean
   (weight sum strictly decreases in all cases — analysis done, needs Lean proofs)
-- **Step 14** (af-uzj5): Tensor product setup. Research agent found:
-  - `FreeAlgebra R X` with `basisFreeMonoid` in mathlib
-  - `FreeAlgebra.instStarRing` for anti-involution
-  - `TensorProduct R M N` available, `Basis.tensorProduct` for basis
-  - Need `import Mathlib.Data.Real.Star` for `StarRing ℝ` / `TrivialStar ℝ`
+- **Steps 14-17** (af-uzj5+): Tensor product + gamma + Macdonald theorem.
+  **Detailed mathlib research saved to `memory/macdonald-steps14-17.md`** — READ THIS FIRST.
+  Key findings: `FreeAlgebra.basisFreeMonoid`, `FreeAlgebra.StarRing` (word reversal),
+  `TensorProduct.lift` (gamma), `Basis.tensorProduct`, `LinearIndependent.tmul_of_isDomain`
+  (injectivity). Need `import Mathlib.Data.Real.Star`. Symmetric tensors via
+  `LinearMap.eqLocus`. Biggest gap: bridge FreeMagma/FreeNAAlg → mathlib FreeAlgebra.
+  Estimated ~210 LOC total for Steps 14-17.
 
 ### Macdonald progress: Steps 1-12 definition complete
 - Steps 1-10 all sorry-free
