@@ -1,4 +1,4 @@
-# Handoff: 2026-02-07 (Session 115)
+# Handoff: 2026-02-07 (Session 116)
 
 ## GOAL: Fill `fundamental_formula` sorry (the #1 priority)
 
@@ -28,6 +28,7 @@
 | TensorSetup.lean | 179 | 0 | FA, FA3, evalFA, gamma_elem, gamma_mac (correct gamma) |
 | GammaInjectivity.lean | ~335 | **0** | full_gamma_tensor, encode_word, z-separator, **ALL PROVED** |
 | Equation258.lean | 58 | 0 | Equation (2.58) base cases (p=1/q=1, p=1/q=y^j, p=y^j/q=1) |
+| FJBridge.lean | ~50 | 0 | Bridge: JordanAlgebra.U/U_bilinear ↔ FreeJordanAlg.U/U_bilinear ← NEW |
 | **Macdonald.lean** | **~206** | **3** | Macdonald theorem + FF corollaries |
 
 ### Key NEW results (Session 115)
@@ -154,6 +155,18 @@ AfTests/Jordan/
 ---
 
 ## Previous Sessions
+
+### Session 116: Bridge lemmas (FJBridge.lean)
+- **New file FJBridge.lean** with 3 bridge lemmas (0 sorries):
+  - `FJ_U_eq`: `JordanAlgebra.U a v = FreeJordanAlg.U a v`
+  - `FJ_U_linear_apply`: `JordanAlgebra.U_linear a v = FreeJordanAlg.U a v`
+  - `FJ_U_bilinear_eq`: `JordanAlgebra.U_bilinear_linear a b v = FreeJordanAlg.U_bilinear a b v`
+- These bridge the JordanAlgebra-level operator identities (OperatorId.lean) to
+  the FreeJordanAlg-level operators used in M_op. The key difference is nsmul 2
+  vs (2:ℝ)• and argument ordering (triple vs U_bilinear).
+- **Key lesson**: Importing UBilinear into FJOperators.lean breaks existing proofs
+  (linarith failure in mul_zero_left). Solution: separate file (FJBridge.lean)
+  that imports both FJOperators and OperatorId.
 
 ### Session 115: JordanAlgebra instance + bilinearity + equation (2.58) base cases
 - **JordanAlgebra instance** for FreeJordanAlg (FJOperators.lean): CRITICAL UNBLOCK.
