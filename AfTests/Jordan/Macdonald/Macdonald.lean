@@ -5,6 +5,7 @@ Authors: AF-Tests Contributors
 -/
 import AfTests.Jordan.Macdonald.MOperatorProperties
 import AfTests.Jordan.Macdonald.TensorSetup
+import AfTests.Jordan.Macdonald.GammaInjectivity
 import AfTests.Jordan.Macdonald.GeneratorLemma
 import AfTests.Jordan.Macdonald.MonomialFJ
 
@@ -101,7 +102,23 @@ Here we state the result needed for the conclusion. -/
 theorem gamma_mac_injective :
     ∀ (a b : FA), gamma_mac a b = 0 → gamma_mac b a = 0 →
     a ⊗ₜ[ℝ] b + b ⊗ₜ[ℝ] a = (0 : FA2) := by
-  sorry
+  intro a b hab hba
+  -- Let t = a ⊗ b + b ⊗ a. We show t ∈ symTensor and gamma_mac_tensor t = 0.
+  set t := a ⊗ₜ[ℝ] b + b ⊗ₜ[ℝ] a with ht_def
+  -- Step 1: t ∈ symTensor (comm swaps factors, then add_comm gives t back)
+  have ht_sym : t ∈ symTensor := by
+    change LinearMap.id t = (TensorProduct.comm ℝ FA FA).toLinearMap t
+    simp [t, map_add, TensorProduct.comm_tmul]
+    abel
+  -- Step 2: gamma_mac_tensor t = 0
+  have ht_zero : gamma_mac_tensor t = 0 := by
+    simp [t, map_add, gamma_mac_tensor_tmul, hab, hba]
+  -- Step 3: Apply injectivity on symTensor
+  have h0_sym : (0 : FA2) ∈ symTensor := Submodule.zero_mem _
+  have heq : gamma_mac_tensor.domRestrict symTensor ⟨t, ht_sym⟩ =
+             gamma_mac_tensor.domRestrict symTensor ⟨0, h0_sym⟩ := by
+    simp [LinearMap.domRestrict_apply, ht_zero]
+  exact Subtype.mk.inj (gamma_mac_injective_symTensor heq)
 
 /-! ### Macdonald's theorem -/
 

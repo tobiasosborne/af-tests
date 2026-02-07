@@ -1,4 +1,4 @@
-# Handoff: 2026-02-07 (Session 111)
+# Handoff: 2026-02-07 (Session 112)
 
 ## GOAL: Fill `fundamental_formula` sorry (the #1 priority)
 
@@ -27,7 +27,7 @@
 | MOperatorProperties.lean | 122 | 0 | Properties (ii)-(iv): U factorization, bilinear symmetrization |
 | TensorSetup.lean | 179 | 0 | FA, FA3, evalFA, gamma_elem, gamma_mac (correct gamma) |
 | **GammaInjectivity.lean** | **143** | **1** | full_gamma_tensor, gamma_mac_tensor, injectivity on symTensor |
-| **Macdonald.lean** | **164** | **4** | Macdonald theorem statement + proof skeleton + FF corollaries |
+| **Macdonald.lean** | **183** | **3** | Macdonald theorem + FF corollaries (gamma_mac_injective filled) |
 
 ### Key theorems already proved
 
@@ -43,34 +43,47 @@
 - **`macdonald_injectivity`**: evalFA injective (sorry-free assuming `macdonald`)
 - **`fundamental_formula_free`**: FF in FreeJordanAlg (sorry-free assuming `macdonald`)
 
-## What NEEDS to be built (5 remaining sorries)
+## What NEEDS to be built (4 remaining sorries)
 
 ### Sorry 1: `full_gamma_tensor_injective` (GammaInjectivity.lean:127)
 
 **Goal**: Prove `Function.Injective full_gamma_tensor`
 
-**Approach**: Monomial separation. The map sends basis element `m₁ ⊗ m₂` (from
-`Basis.tensorProduct` of `FreeAlgebra.basisFreeMonoid`) to `m₁ · [2] · reverse(m₂)`
-in FA3. Since `z = ι 2` appears exactly once, different `(m₁, m₂)` pairs give
-different FA3-words. This gives linear independence of the image, hence injectivity.
+**Approach (validated Session 112)**: The main proof structure compiles with sorry'd helpers:
+1. Define `encode_word : FreeMonoid (Fin 2) × FreeMonoid (Fin 2) → FreeMonoid (Fin 3)` as `map(castSucc)(m₁) ++ [2] ++ reverse(map(castSucc)(m₂))`
+2. Prove `encode_word_injective` — z separates left/right parts
+3. Prove `full_gamma_tensor_on_basis` — image of tensor basis = FA3 basis via encode_word
+4. Use `Basis.linearIndependent.comp` to compose 2+3 into injectivity
 
-**Key API**: `FreeAlgebra.basisFreeMonoid`, `Basis.tensorProduct`, `FreeMonoid` operations.
+**Helper lemmas proved by Agent 1**:
+- `basisFreeMonoid_mul` — basis is multiplicative
+- `injective_of_basis_image_linIndep` — generic lemma: basis maps to lin.indep → injective
 
-### Sorry 2: `mult_alg_surjectivity` (Macdonald.lean:85)
+**Remaining sub-tasks for this sorry**:
+- `encode_word_injective` (~20 LOC): needs `List.map_injective` + z-separator on lists
+- `full_gamma_tensor_on_basis` (~20 LOC): needs `basisFreeMonoid_of` (ι i = basis(of i)), `star_basisFreeMonoid` (star = reverse), `FA_to_FA3_basisFreeMonoid`
 
-**Goal**: Every multiplication operator on FreeJordanAlg is M_t for some symmetric tensor.
+**Key API**: `FreeAlgebra.basisFreeMonoid`, `Basis.tensorProduct`, `FreeMonoid.map`, `FreeMonoid.reverse`
 
-**Statement**: `∀ v, ∃ p q, ∀ w, M_op p q w = T v w`
+### Sorry 2: `mult_alg_surjectivity` (Macdonald.lean:86) — STATEMENT IS WRONG
 
-**Approach**: Show the range of M_op contains id (property ii) and is closed under
-U_{x^k} (property iii) and U_{x^k,y^l} (property iv). By GeneratorLemma (2.4.23),
-{U_{a,b} : a,b ∈ {1,x,y}} generate the multiplication algebra, so the range is everything.
+**CRITICAL**: Current statement `∀ v, ∃ p q, ∀ w, M_op p q w = T v w` is **mathematically false**. A single M_{p,q} can't express every T_v.
 
-**Note**: The exact statement may need refinement. The multiplication algebra is generated
-by L operators, not just T operators. The surjectivity connects M_op (which takes
-FreeAssocMono pairs) to the operator algebra (which takes FreeJordanAlg → FreeJordanAlg).
+**Correct statement**: T_v is in the ℝ-linear span of {M_{p,q}}. Proposed:
+```lean
+def MSpan : Submodule ℝ (FreeJordanAlg → FreeJordanAlg) :=
+  Submodule.span ℝ (Set.range (fun pq : FreeAssocMono × FreeAssocMono => M_op pq.1 pq.2))
+theorem mult_alg_surjectivity (v : FreeJordanAlg) : (FreeJordanAlg.T v) ∈ MSpan
+```
 
-### Sorry 3: `gamma_mac_injective` (Macdonald.lean:101)
+**Prerequisites** (see beads af-ko7e, af-inuv, af-0cc6):
+- `FreeAssocMono.toFA : FreeAssocMono → FA` (~15 LOC)
+- Correct statement using Submodule.span (~10 LOC)
+- Proof by induction using GeneratorLemma + properties ii-iv (~100-120 LOC)
+
+**Total estimate**: ~260-300 LOC across 4-5 sub-tasks for full `macdonald` proof
+
+### ~~Sorry 3: `gamma_mac_injective`~~ — **FILLED (Session 112)**
 
 **Goal**: gamma_mac injectivity in the form used by the Macdonald proof.
 **Approach**: Derive from `gamma_mac_injective_symTensor` in GammaInjectivity.lean.
@@ -134,7 +147,7 @@ which maps into FA3 (3-generator free algebra) using `½(pzq*+qzp*)`.
 ## Build & sorries
 
 **Build**: `lake build AfTests 2>&1 | tail -40` — PASSES
-**Sorries in Macdonald/**: 5 total (see above)
+**Sorries in Macdonald/**: 4 total (see above)
 **Sorries elsewhere**: FundamentalFormula (1), Square (1), Classification (2)
 
 ## Recommended next session order
@@ -191,12 +204,25 @@ AfTests/Jordan/
     ├── MOperatorProperties.lean -- Properties (ii)-(iv) (0 sorries!)
     ├── TensorSetup.lean    -- FA, FA3, evalFA, gamma_mac (0 sorries!)
     ├── GammaInjectivity.lean -- Step 15: gamma injectivity (1 sorry)
-    └── Macdonald.lean      -- Step 16+17: Macdonald theorem + FF (4 sorries)
+    └── Macdonald.lean      -- Step 16+17: Macdonald theorem + FF (3 sorries)
 ```
 
 ---
 
 ## Previous Sessions
+
+### Session 112: Fill gamma_mac_injective + investigation (3 parallel agents)
+- **Agent 1 (full_gamma_tensor_injective)**: Validated proof structure — main theorem
+  compiles with sorry'd helpers (`encode_word_injective`, `full_gamma_tensor_on_basis`).
+  Proved `basisFreeMonoid_mul` and `injective_of_basis_image_linIndep`. Did NOT modify
+  GammaInjectivity.lean (worked in scratch). Remaining: fill 2 helpers (~40 LOC total).
+- **Agent 2 (gamma_mac_injective)**: **FILLED** the sorry (17 LOC). Derives from
+  `gamma_mac_injective_symTensor` by showing `a⊗b + b⊗a ∈ symTensor`, then
+  `gamma_mac_tensor(t) = 0`, then injectivity. Build passes, zero warnings.
+- **Agent 3 (mult_alg_surjectivity)**: **Found current statement is FALSE**. Proposed
+  correct `Submodule.span`-based reformulation. Identified 6 sub-tasks totaling ~260-300 LOC.
+  Created beads issues: af-ko7e, af-inuv, af-0cc6, af-efkr, af-opkm.
+- **Net result**: 1 sorry filled (gamma_mac_injective), now 4 sorries remain (was 5).
 
 ### Session 111: Macdonald sorry investigation (3 parallel agents)
 - **Agent 1 (full_gamma_tensor_injective)**: Developed key helper lemmas
