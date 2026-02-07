@@ -1,6 +1,35 @@
-# Handoff: 2026-02-06 (Session 105)
+# Handoff: 2026-02-07 (Session 106)
 
 ## This Session
+
+### Steps 7 + 10 complete: SpecialFF + MonomialFJ (0 sorries)
+
+1. **SpecialFF.lean** (100 LOC, 0 sorries) -- Step 7 COMPLETE
+   - `assocU`: associative U operator U_a(b) = aba
+   - `assoc_fundamental_formula`: (aba)x(aba) = a(b(axa)b)a via `noncomm_ring`
+   - `evalAssoc_neg/sub`: compatibility lemmas for evalAssoc
+   - `FreeJordanAlg.U`: Jordan U on FreeJordanAlg
+   - `evalAssoc_U`: evalAssoc maps Jordan U to assocU (key link)
+   - `special_fundamental_formula`: FF holds in all associative algebras
+
+2. **MonomialFJ.lean** (131 LOC, 0 sorries) -- Step 10 COMPLETE
+   - `M_eval_FJ`: M_{p,q} as elements of FreeJordanAlg
+   - Base cases: M_{1,0}=x, M_{0,1}=y proved
+   - `evalAssoc_one`: evalAssoc(1) = 1
+   - `evalAssoc_M_eval_FJ_*`: compatibility for (1,0), (0,1), (2,0), (1,1), (0,2)
+
+Also closed beads af-1izp (Step 6) and af-h2uh (Step 9) from previous session.
+
+**Build**: PASSES. **Sorries**: 4 (unchanged — FundamentalFormula, Square, 2x Classification).
+
+### Macdonald progress: Steps 1-10 complete (except 7 needs surjectivity)
+- Steps 1-10 all sorry-free
+- Next unblocked: Step 11 (M_{p,q} same-letter cases)
+- Critical path: 11 → 12 → 13 → 14 → 15 → 16 → 17 (fill fundamental_formula)
+
+---
+
+## Previous Session (105)
 
 ### Steps 6 + 9 complete: FreeSpecialJordan + GeneratorLemma (0 sorries)
 
