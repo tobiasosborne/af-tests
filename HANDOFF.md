@@ -1,6 +1,45 @@
-# Handoff: 2026-02-07 (Session 106)
+# Handoff: 2026-02-07 (Session 107)
 
 ## This Session
+
+### Step 11 infrastructure: MonoBlock + FJOperators (0 sorries)
+
+1. **MonoBlock.lean** (120 LOC, 0 sorries) -- Monomial infrastructure for H-O 2.4.24
+   - `FreeAssocMono` inductive: alternating-block monomial type (one, xCons, yCons)
+   - `weight`, `degree`, `startsWithX/Y`, `inX/Y/X0/Y0` classification
+   - `WF` well-formedness predicate, `xPow`/`yPow` constructors
+   - `prependX`/`prependY` operations with correctness proofs
+
+2. **FJOperators.lean** (106 LOC, 0 sorries) -- Operators on FreeJordanAlg
+   - `mul_one_eq`, `one_mul_eq`: unit laws for FreeJordanAlg.mul
+   - `FreeJordanAlg.pow`: Jordan powers (a^0=1, a^(n+1)=a∘a^n)
+   - `FreeJordanAlg.T`: left multiplication operator T_a(v) = a∘v
+   - `FreeJordanAlg.U_bilinear`: bilinearized U operator {a,v,b}
+   - `U_bilinear_self`, `U_bilinear_comm`, `U_bilinear_one_right`
+
+**Research findings** (tensor products for Steps 14-17):
+- Mathlib has `FreeAlgebra R X` with `basisFreeMonoid` (basis indexed by FreeMonoid X)
+- `FreeMonoid.reverse` and `FreeAlgebra.instStarRing` for the anti-involution
+- `Module.Basis.tensorProduct` for tensor product bases
+- `TensorProduct R M N` with `tmul` available
+
+**Build**: PASSES. **Sorries**: 4 (unchanged — FundamentalFormula, Square, 2x Classification).
+
+### Next steps for Step 11 (M_{p,q} same-letter cases)
+- Define `M_op : FreeAssocMono → FreeAssocMono → (FreeJordanAlg → FreeJordanAlg)` recursively
+- Base case (2.52): M_{x^i, y^j} = U_{x^i, y^j} (using FJOperators.U_bilinear)
+- Same-letter (2.53-2.54): M_{x^i p, x^j q} = U_{x^j} M_{x^{i-j} p, q}
+- Needs well-founded recursion on weight
+
+### Macdonald progress: Steps 1-10 complete + Step 11 infrastructure
+- Steps 1-10 all sorry-free
+- Step 11 infrastructure (MonoBlock + FJOperators) ready
+- Next: Define M_op recursively, then Steps 12-13
+- Critical path: 11 → 12 → 13 → 14 → 15 → 16 → 17 (fill fundamental_formula)
+
+---
+
+## Previous Session (106)
 
 ### Steps 7 + 10 complete: SpecialFF + MonomialFJ (0 sorries)
 
