@@ -1,8 +1,8 @@
 # HANDOFF: Fisher Superadditivity Proof Tree
 
-**Session date:** 2026-02-08 (Sessions 130-131)
+**Session date:** 2026-02-08 (Sessions 130-132)
 **Tool:** `af` (Adversarial Proof Framework) in `examples7/`
-**Agents used:** 19 total (9 provers, 10 verifiers) across 5 waves
+**Agents used:** 25 total (12 provers, 13 verifiers) across 6 waves
 
 ---
 
@@ -188,8 +188,91 @@ needs to come from outside the "polynomial gap non-negativity" paradigm.
 
 ---
 
-## 8. Previous Sessions
+## 8. Wave 4 Results: Novel Non-Polynomial Approaches (Session 132)
 
-### Session 131 (this): Wave 3 — 2 verifiers validated, 1 prover didn't close. Orchestrator assessment added.
+Three provers explored structural approaches beyond polynomial manipulation:
+
+### PROVER-13 (aed99d8): Heat Flow / De Bruijn
+- **De Bruijn identity VALID**: dS/dt = Phi_n(p) where S = sum_{i<j} log|r_i - r_j|
+- **Root dynamics**: dr_i/dt = H_p(r_i) (Dyson Brownian motion drift)
+- **EPI analog VALID**: N(p ⊞ q) >= N(p) + N(q) with N = exp(2S/m), 0 violations / 13,770 trials
+- **n=2 EPI proved analytically**: N(p ⊞ q) = N(p) + N(q) with EQUALITY
+- **Gaussian splitting VALID**: (p ⊞ G_s) ⊞ (q ⊞ G_t) = (p ⊞ q) ⊞ G_{s+t} (exact)
+- **1/Phi concavity**: 1/Phi(p ⊞ G_t) concave in t (0 violations / 446 trials)
+- **Monotone gap PROPOSED but INVALID** (see Wave 5 below)
+
+### PROVER-14 (a2d8116): Root Geometry / Electrostatics
+- **PROVED**: Phi_n = 2 * Sm2 where Sm2 = sum_{i<j} 1/(lambda_i - lambda_j)^2
+  - Proof via triple identity: 1/((a-b)(a-c)) + cyclic = 0
+- **S2 additivity PROVED**: S2(p ⊞ q) = S2(p) + S2(q) (exact algebraic identity)
+- **Universal identity PROVED**: sum_i H_i * lambda_i = n(n-1)/2
+- **Q = Sm2*S2 scale-invariant**: Q_r <= max(Q_p, Q_q) (0 violations / 50K trials)
+- **n=3 trigonometric parametrization**: G(c) = 9/sin^2(3*arccos(c)), convex
+
+### PROVER-15 (a27cea6): Literature Survey
+- Conjecture = exact finite-n analog of Voiculescu's free Stam inequality (1998)
+- Most promising framework: finite subordination + L^2 projection
+- Key refs: Shlyakhtenko-Tao 2020, Gribinski 2019, Marcus-Spielman-Srivastava 2022
+
+---
+
+## 9. Wave 5 Results: Adversarial Verification (Session 132)
+
+### VERIFIER-12 (ac01689): Audit PROVER-13 — HIGH VALUE FINDINGS
+| Claim | Verdict |
+|-------|---------|
+| De Bruijn identity | **VALID** (algebraic backbone confirmed) |
+| EPI N(p⊞q)>=N(p)+N(q) | **VALID** (0/13,770 violations; n=2 proved analytically) |
+| Monotone gap | **INVALID** — gap NOT monotonically decreasing! |
+| Gaussian splitting | **VALID** (exact identity; but cumulant formula is WRONG) |
+
+**Critical finding**: The monotone gap proof mechanism is BROKEN.
+- gap_H(t) = same-noise gap: monotone decreasing but GOES NEGATIVE
+- gap_K(t) = double-noise gap: non-negative but NOT monotone (15/137 pairs increase)
+- PROVER-13's cumulant formula kappa_k = (-1)^k*a_k*n^{k-1}/C(n,k) is WRONG
+- Despite this, the CONJECTURE appears TRUE (gap always non-negative)
+
+### VERIFIER-13 (a302546): Audit PROVER-14
+| Claim | Verdict |
+|-------|---------|
+| Phi_n = 2*Sm2 | **VALID** (triple identity + combinatorial counting) |
+| S2 additivity | **VALID** (exact algebraic proof from MSS formula) |
+| sum H_i*lambda_i = n(n-1)/2 | **VALID** (elementary pairing argument) |
+| Q_r <= max(Q_p,Q_q) | **PARTIALLY VALID** (numerically supported but NOT proved; does NOT imply conjecture) |
+| n=3 trigonometric param | **MOSTLY VALID** (G(c) formula correct; convexity confirmed; n=3 remains unproved) |
+
+### VERIFIER-14 (a20154f): Audit monotone gap proof strategy — STILL RUNNING
+
+---
+
+## 10. Validated Structural Results (new this session)
+
+These are now PROVED (algebraic identities, not just numerical):
+1. **Phi_n = 2*Sm2** (via triple identity cancellation)
+2. **S2(p ⊞ q) = S2(p) + S2(q)** (from MSS coefficient formula)
+3. **sum_i H_i*lambda_i = n(n-1)/2** (pairing argument)
+4. **Gaussian splitting exact**: (p ⊞ G_s) ⊞ (q ⊞ G_t) = (p ⊞ q) ⊞ G_{s+t}
+5. **n=2 equality**: 1/Phi(p⊞q) = 1/Phi(p) + 1/Phi(q) for ALL degree-2 polynomials
+
+---
+
+## 11. Revised Orchestrator Assessment (Session 132)
+
+The monotone gap proof strategy is DEAD (killed by VERIFIER-12). However, Wave 4 discovered extraordinary structural results. The most promising next directions:
+
+1. **EPI-to-Stam reduction**: The EPI N(p⊞q) >= N(p)+N(q) is numerically validated to 13K+ trials. If proved, does it IMPLY Stam? In classical theory, EPI implies Stam. Check if this holds here.
+
+2. **De Bruijn + concavity**: 1/Phi(p⊞G_t) is concave in t. Combined with de Bruijn identity dS/dt = Phi_n, this gives d²S/dt² <= 0 (entropy concavity). This is the finite analog of Costa's strengthening.
+
+3. **S2 additivity + Phi=2*Sm2**: Since S2 is additive, the conjecture 1/Phi_r >= 1/Phi_p + 1/Phi_q becomes S2_r/(2*Q_r) >= S2_p/(2*Q_p) + S2_q/(2*Q_q), i.e., (S2_p+S2_q)/Q_r >= S2_p/Q_p + S2_q/Q_q, i.e., Q_r <= harmonic_mean(Q_p, Q_q) weighted by S2.
+
+4. **n=3 complete proof**: With trigonometric parametrization + MSS contraction in cos(3phi), n=3 is tantalizingly close. The contraction factor (a_p^{3/2}+a_q^{3/2})/(a_p+a_q)^{3/2} < 1 pushes Q_r toward minimum.
+
+---
+
+## 12. Previous Sessions
+
+### Session 132 (this): Waves 4-5. Novel approaches (heat flow, root geometry, literature). Monotone gap KILLED. EPI+structural results validated.
+### Session 131: Wave 3 — 2 verifiers validated, 1 prover didn't close. Orchestrator assessment added.
 ### Session 130: Wave 2 — k3=0 proved, C_n verified, R_n pattern confirmed
 ### Session 129: Crashed orchestrator recovery, Wave 1 results collected
