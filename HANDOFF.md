@@ -1,62 +1,50 @@
-# Handoff: 2026-02-08 (Session 125)
+# Handoff: 2026-02-08 (Session 126)
 
 ## What was done this session
-- Fixed `MOperatorProperties.lean` (commit 0732aa4): Lean 4.26 breakage — 8 `simp`/`ite_false` → `↓reduceIte` + `rw [show ... from by omega]`, 5 missing `simp only [prependY/prependX]` unfolds, 1 `pow_add` rewrite fix. File compiles cleanly.
-- Created `af-2n2o` (P1 bug) for Equation258 breakage. Added as blocker for `af-0llu` and `af-iobv`.
+- Fixed 9 of 11 compilation errors in `Equation258.lean` (commit 25db233):
+  - Ambiguous `mul_comm` → `FreeJordanAlg.mul_comm` (2 fixes)
+  - `ite_false` → `↓reduceIte` pattern (2 fixes)
+  - Fragile `FJ_jpow_eq_pow` rw chains → `simp only [FJ_L_apply, FJ_jpow_eq_pow, FJ_U_bilinear_eq]` (4 fixes)
+  - Stale omega rw patterns after simp normalization: `k + 1 + (k + 1 + (i - k))` → `k + 1 + (i + 1)` (2 fixes)
+  - `rw [M_op.eq_def]` leaving unreduced match → `simp only [M_op.eq_def]` (2 fixes)
+  - Forward reference: reordered `eq258_xCons_yCons_ge` before `eq258_xCons_yCons_lt`
+  - Replaced calc chains with `rw [show ... from by smul_smul; norm_num, h249v]; congr 1; abel`
 
-## IMMEDIATE NEXT: af-2n2o — Fix Equation258.lean compilation (P1, blocks critical path)
+## IMMEDIATE NEXT: Finish af-2n2o — 2 remaining errors in eq258_xCons_yCons_lt
 
 ### Detailed prompt for next agent
 
-Fix 11 compilation errors in `AfTests/Jordan/Macdonald/Equation258.lean`.
-These are Lean 4.26 tactic breakages, NOT logic errors. The proofs are correct; only tactics need updating.
+Fix 2 remaining errors in `AfTests/Jordan/Macdonald/Equation258.lean`, both in `eq258_xCons_yCons_lt`.
 
-Run `bd update af-2n2o --status=in_progress` first.
+Run `lake env lean AfTests/Jordan/Macdonald/Equation258.lean 2>&1 | grep error` to confirm.
 
-**RULES:**
-- Work theorem-by-theorem, top to bottom (6 theorems in file)
-- After each theorem fix, run `lake env lean AfTests/Jordan/Macdonald/Equation258.lean 2>&1 | grep error`
-- Do NOT change proof strategy. Only fix tactic syntax.
-- Reference commit 0732aa4 (MOperatorProperties fixes) for the `↓reduceIte` pattern.
-- The MOperatorProperties dependency now compiles — rebuild with `lake build AfTests.Jordan.Macdonald.MOperatorProperties` first if needed.
-
-**ERROR FIXES (4 categories, 11 instances):**
-
-**CATEGORY 1 — Ambiguous `mul_comm` (lines 44, 56):**
-`mul_comm` is ambiguous between `_root_.mul_comm` and `FreeJordanAlg.mul_comm`.
-Fix: qualify as `FreeJordanAlg.mul_comm` at both locations.
-After fixing mul_comm, the "unsolved goals" at lines 40, 52 may resolve. If not, the remaining goal involves `.mul` terms that need `abel` or manual `rw [FreeJordanAlg.mul_comm ...]` to align.
-
-**CATEGORY 2 — `simp`+`ite_false` no progress (line 74) + omega (line 78):**
-Same pattern already fixed in MOperatorProperties (commit 0732aa4).
-- Line 74: replace `simp only [(by omega : ¬(k = i)), ite_false]` with `simp only [show ¬(k = i) from by omega, ↓reduceIte]`
-- Line 78 area: replace `congr 2; omega` with `rw [show <expr> = <simplified> from by omega]`
-- Use `lean_goal` at line 78 to see the exact Nat expression to simplify.
-
-**CATEGORY 3 — `FJ_jpow_eq_pow` rewrite failures (lines 86, 316):**
-After `have h247 := @JordanAlgebra.operator_identity_247 ...` and extracting h247v via `LinearMap.ext_iff.mp h247 v`, the rw block `rw [FJ_L_apply, FJ_jpow_eq_pow, FJ_U_bilinear_eq, ...]` on h247v fails because:
-- The goal already has `x.pow` (jpow already converted)
-- But h247v still has `JordanAlgebra.U_bilinear_linear` and `JordanAlgebra.L` terms
-
-The fix: The rw block on h247v needs adjustment. Use `lean_goal` at the failing line to see exactly which JordanAlgebra terms remain in h247v. Then add the appropriate FJ bridge lemma rewrites.
-
-The exact error message shows h247v contains terms like:
+**Error 1 — Line 144: `congr 2; omega` failure in hge show block**
+Context (lines 141-145):
+```lean
+  rw [show M_op (xCons k one) (xCons i (yCons j one)) v =
+    U (pow x (i + 1)) (U_bilinear (pow x (k - i)) (pow y (j + 1)) v) from by
+    rw [M_op.eq_def]; simp only [ge_iff_le]; rw [dif_pos (by omega : i ≤ k)]
+    simp only [show ¬(k = i) from by omega, ↓reduceIte, M_op.eq_def]; congr 2; omega] at hge
 ```
-(JordanAlgebra.U_bilinear_linear (x.pow (i + 1)) (x.pow (k + 1))) ((JordanAlgebra.L (y.pow (j + 1))) v)
-```
-These need `FJ_U_bilinear_eq` and `FJ_L_apply` rewrites (or the right combination). Check `FJ_U_bilinear_eq` signature — it may not match because `U_bilinear_linear` takes 2 args while `FJ_U_bilinear_eq` expects `U_bilinear`. The two-argument form may need `U_bilinear_linear_apply` first.
+After `↓reduceIte, M_op.eq_def`, the M_op.eq_def over-unfolds (match not fully reduced).
+Fix: Try `simp only [show ¬(k = i) from by omega, ↓reduceIte]; simp only [M_op.eq_def, show k - i - 1 + 1 = k - i from by omega]` — same pattern that worked at line 133 for the `eq258_xCons_yCons_ge` version.
+Or: use `lean_goal` after `↓reduceIte` to see what's needed.
 
-**CATEGORY 4 — Arithmetic pattern mismatches (lines 136, 149, 247):**
-The `show ... from by omega` rewrites reference Nat expressions that don't match what `operator_identity_249` actually produces.
-- Line 136: `show k + 1 + (i - k) = i + 1` — verify with `lean_goal` whether expression differs
-- Line 149: rw pattern not found after h249v — check h249v shape with `lean_goal`
-- Line 247: `rw [show k + 1 + (k + 1 + (i - k)) = k + 1 + i + 1 from by omega]` fails because the actual h249v expression has `k + 1 + (i + 1)`, not `k + 1 + (k + 1 + (i - k))`. The earlier omega rw (line 246) already simplified, making this one stale. Remove or adjust.
+**Error 2 — Line 153: `linarith` failure**
+The final step `simp only [U_bilinear_apply, U] at *; linarith` fails. This worked before Lean 4.26.
+Likely cause: `simp only [U_bilinear_apply, U] at *` now normalizes differently, leaving terms that `linarith` can't handle.
+Fix approach:
+- Use `lean_goal` at line 152 to see the goal state after `simp only [U_bilinear_apply, U]`
+- The goal should be a linear arithmetic equation over `mul` terms
+- Try `ring` or `abel` instead of `linarith`, or add intermediate `have` steps
+- h247v, hge, h245 should provide the needed equalities
 
-**AFTER ALL FIXES:**
-1. `lake build AfTests 2>&1 | tail -40` — verify full build
-2. `bd close af-2n2o`
-3. `bd sync && git add AfTests/Jordan/Macdonald/Equation258.lean && git commit -m "Equation258: fix Lean 4.26 tactic breakages" && git push && bd sync`
-4. Check `bd ready` — `af-0llu` and `af-iobv` should now be unblocked
+**AFTER FIXES:**
+1. `lake env lean AfTests/Jordan/Macdonald/Equation258.lean 2>&1 | grep error` — should be clean
+2. `lake build AfTests 2>&1 | tail -40` — full build
+3. `bd close af-2n2o && bd sync`
+4. `git add AfTests/Jordan/Macdonald/Equation258.lean && git commit && git push && bd sync`
+5. `bd ready` — `af-0llu` and `af-iobv` should unblock
 
 ---
 
