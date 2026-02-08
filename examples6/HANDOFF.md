@@ -129,14 +129,62 @@ af admit <node>
 - **Prover standard:** Be honest about gaps. A sorry with notes beats a false claim.
 - All work stays in `examples6/`. Do NOT touch the Lean project files.
 
+## Strategy 3 Proof (NEW — Session 127)
+
+A **second** af workspace at `examples6/strategy3_proof/` pursues the modified Strategy 3, accounting for the chain rule correction (omega_1' = omega_2' = 1, sum = 2, NOT 1).
+
+### Key Insight: Clean Reformulation
+
+The superadditivity inequality is **equivalent** to:
+
+> (Phi_n(p) - Phi_n(r))(Phi_n(q) - Phi_n(r)) >= Phi_n(r)^2
+
+With vectors u = h + alpha, v = h + beta (from chain rule), setting A = ||u||^2 - ||h||^2 and B = ||v||^2 - ||h||^2, the target is AB >= ||h||^4. **EQUALITY holds at n=2** (verified analytically and computationally).
+
+### Proof Tree (13 nodes)
+
+```
+1   Main conjecture (modified Strategy 3)
+├─ 1.1  Definitions (ADMITTED from fisher_proof)
+├─ 1.2  Chain rule (ADMITTED from fisher_proof)
+├─ 1.3  Correction: partition of unity is FALSE
+│  └─ 1.3.1  Proof: omega_1'+omega_2'=2 NOT 1
+├─ 1.4  Vector reformulation: u=h+alpha, v=h+beta
+│  └─ 1.4.1  Full proof with norm/bijection details
+├─ 1.5  Clean reformulation: AB >= ||h||^4
+│  └─ 1.5.1  Algebraic equivalence + n=2 equality check
+├─ 1.6  Numerical verification (n=2,3,4,5) — IN PROGRESS
+├─ 1.7  Key structural constraint (<h,alpha> >= 0?) — IN PROGRESS
+├─ 1.8  Modified Cauchy-Schwarz approach — IN PROGRESS
+└─ 1.9  QED (conditional)
+```
+
+**Status:** 2 admitted, 11 pending, 3 nodes have detailed proofs (1.3.1, 1.4.1, 1.5.1), 3 agents still running (numerical prover, structural prover, verifier).
+
+### Quick Start
+
+```bash
+cd examples6/strategy3_proof
+af status          # see proof tree (13 nodes)
+```
+
+### Open Questions
+
+1. **Is <h,alpha> >= 0 always?** If yes, A >= ||alpha||^2 and proof may close via AM-GM.
+2. **Does simple Cauchy-Schwarz suffice?** CS gives AB >= 0 (too weak). Need stronger structural input from subordination.
+3. **What additional constraints does the algebraic subordination equation F(z,w) = r'(z)p(w) - p'(w)r(z) = 0 impose on alpha, beta?**
+
 ## Files
 
 ```
 examples6/
 ├── fisher_subordination_proof.md   # Source proof strategy document
 ├── HANDOFF.md                      # This file
-└── fisher_proof/
+├── fisher_proof/
+│   ├── meta.json                   # af workspace metadata
+│   ├── ledger/                     # 233 event log entries (append-only)
+│   └── strategy_reports.md         # 3 proof strategies for Hard Lemma 2
+└── strategy3_proof/
     ├── meta.json                   # af workspace metadata
-    ├── ledger/                     # 233 event log entries (append-only)
-    └── strategy_reports.md         # 3 proof strategies for Hard Lemma 2
+    └── ledger/                     # 27+ event log entries (append-only, growing)
 ```
