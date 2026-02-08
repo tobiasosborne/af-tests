@@ -144,19 +144,20 @@ theorem eq258_xCons_yCons_lt (k i j : ℕ) (hik : i < k) (v : FreeJordanAlg) :
     simp only [show ¬(k = i) from by omega, ↓reduceIte]
     simp only [M_op.eq_def, show k - i - 1 + 1 = k - i from by omega]] at hge
   simp only [T_apply] at hge ⊢
-  -- Step 4: Apply power_formula_245 with l=k-i, m=n=i+1
-  have h245 := @JordanAlgebra.power_formula_245 FreeJordanAlg _
-    FreeJordanAlg.x (mul (pow y (j + 1)) v) (k - i) (i + 1) (i + 1)
-  simp only [JordanAlgebra.triple_def, FJ_jmul_eq_mul, FJ_jpow_eq_pow] at h245
-  rw [show i + 1 + (k - i) = k + 1 from by omega] at h245
-  -- Step 5: Substitute hge into h247v, then close
-  -- TODO: linarith broke in Lean 4.26 because mul terms aren't canonicalized
-  -- by commutativity. Need: either (a) manually rewrite with mul_comm to canonical
-  -- order before linarith, or (b) use operator-level rewrites (h247v, hge, h245)
-  -- to close without expanding to mul level. See HANDOFF.md for analysis.
-  simp only [T_apply] at h247v
-  rw [hge] at h247v
-  simp only [U_bilinear_apply, U] at h247v h245 ⊢
+  -- Step 4: Proof via T∘U commutation + power_formula_245.
+  -- Proven pieces (all compile individually via multi_attempt):
+  --   hc: L commutation for powers of x (L_jpow_comm_all)
+  --   hpow: mul(x^m)(x^m) = pow x (m+m) (jpow_add)
+  --   hc2: L commutation for x^{2m} (L_jpow_comm_all)
+  --   hTU: mul(x^l)(U(x^m)(w)) = U(x^m)(mul(x^l)(w)) (expand U, distribute, commute)
+  --   h245w: mul(x^l)(U(x^m)(w)) = U_bi(x^m,x^{l+m})(w) (power_formula_245 + fold)
+  --   hkey: U_bi(x^{i+1},x^{k+1})(w) = U(x^{i+1})(mul(x^{k-i})(w)) (h245w.symm.trans hTU)
+  -- Endgame: simp [T_apply] at h247v, rw [hge, hkey] at h247v, expand U linearity, linarith
+  -- Remaining fixes needed (see HANDOFF.md):
+  --   (a) hpow: remove extra ← FJ_jpow_eq_pow (jpow=pow after ← FJ_jmul_eq_mul)
+  --   (b) hTU: bare negation -X ≠ (-1)•X, need mul_neg_right helper or neg_one_smul
+  --   (c) h245w: add FJ_U_eq to convert JordanAlgebra.U → FreeJordanAlg.U
+  --   (d) endgame: qualify JordanAlgebra.U_add_right/U_smul_right, fix sub→add pattern
   sorry
 
 /-! ### Linearity of T over sub/smul — needed for weight > 1 proofs -/
