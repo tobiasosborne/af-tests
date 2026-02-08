@@ -411,7 +411,7 @@ theorem M_op_evalFA3_xPow_one (i : ℕ) (v : FreeJordanAlg) :
   unfold assocM
   simp only [toFA_xCons, toFA_one, mul_one, map_mul, map_pow,
     star_one, star_mul, FA_to_FA3_x_pow_star, mul_one, map_one, one_mul]
-  congr 1; ring
+  congr 1; simp only [FA_to_FA3_x_star_pow]
 
 /-- Base case: M_op one (xCons i one) v = T(x^(i+1))(v). Symmetric to above. -/
 theorem M_op_evalFA3_one_xPow (i : ℕ) (v : FreeJordanAlg) :
@@ -421,7 +421,7 @@ theorem M_op_evalFA3_one_xPow (i : ℕ) (v : FreeJordanAlg) :
   unfold assocM
   simp only [toFA_one, toFA_xCons, mul_one, map_one, map_mul, map_pow,
     star_one, one_mul, star_mul, FA_to_FA3_x_pow_star, mul_one]
-  congr 1; ring
+  congr 1; simp only [FA_to_FA3_x_star_pow]; abel
 
 /-- Base case: M_op (yCons j one) one v = T(y^(j+1))(v). -/
 theorem M_op_evalFA3_yPow_one (j : ℕ) (v : FreeJordanAlg) :
@@ -431,7 +431,7 @@ theorem M_op_evalFA3_yPow_one (j : ℕ) (v : FreeJordanAlg) :
   unfold assocM
   simp only [toFA_yCons, toFA_one, mul_one, map_mul, map_pow,
     star_one, star_mul, FA_to_FA3_y_pow_star, mul_one, map_one, one_mul]
-  congr 1; ring
+  congr 1; simp only [FA_to_FA3_y_star_pow]
 
 /-- Base case: M_op one (yCons j one) v = T(y^(j+1))(v). -/
 theorem M_op_evalFA3_one_yPow (j : ℕ) (v : FreeJordanAlg) :
@@ -441,7 +441,7 @@ theorem M_op_evalFA3_one_yPow (j : ℕ) (v : FreeJordanAlg) :
   unfold assocM
   simp only [toFA_one, toFA_yCons, mul_one, map_one, map_mul, map_pow,
     star_one, one_mul, star_mul, FA_to_FA3_y_pow_star, mul_one]
-  congr 1; ring
+  congr 1; simp only [FA_to_FA3_y_star_pow]; abel
 
 /-- Base case: M_op (xCons i one) (yCons j one) v = U_bilinear(x^(i+1), y^(j+1))(v). -/
 theorem M_op_evalFA3_xPow_yPow (i j : ℕ) (v : FreeJordanAlg) :
