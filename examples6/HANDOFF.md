@@ -16,6 +16,48 @@ The source conjecture document is `fisher_subordination_proof.md`.
 
 ---
 
+## Session 130 Results (Latest)
+
+### MAJOR RESULT: n=3 PROVED ALGEBRAICALLY
+
+The Fisher superadditivity conjecture is **proved for n=3**. Independently verified.
+
+**Proof sketch:** For centered cubics (e_1=0), MSS boxplus is additive in coefficients: E_r=E_p+E_q, F_r=F_p+F_q where E=-e_2>0, F=e_3. Formula: 1/Phi_3=(4E^3-27F^2)/(18E^2). The excess is a positive definite quadratic form in (Fp,Fq) with det=2Ep^3*Eq^3*(Ep+Eq)^2>0. Equality iff both polynomials have equally-spaced roots.
+
+**Files:** `prove_n3_symbolic.py` (proof), `verify_n3_proof.py` (independent verification), `verification_n3_proof.md` (audit report, 56/56 checks pass).
+
+### n=4: Partial Progress
+
+- **1/Phi_4 = -disc(f)/(4·I·J)** where I=e2^2+12e4>0, J=2e2^3-8e2e4+9e3^2<0
+- **Symmetric subcase (e3=0) PROVED** via strict concavity of phi(t)=t(1-4t)/(1+12t)
+- General n=4 BLOCKED: MSS cross term (1/6)e2p·e2q in g_4 breaks coefficient additivity; 659-term excess
+- 500K random trials: zero violations
+- **Files:** `prove_n4_coefficient.py`, `prove_n4_symmetric_proof.py`, `findings_n4_coefficient.md`
+
+### Approaches Investigated and Killed (Session 130)
+
+| Approach | Status | Why |
+|---|---|---|
+| Shape factor SF(r) <= min(SF(p),SF(q)) | **KILLED** | FALSE: 42.7% violations at n=3 |
+| Coefficient additivity for n>=4 | **BLOCKED** | Cross terms in g_k for k>=4 |
+| Schur convexity of Phi in gaps | **BLOCKED for n>=4** | Phi NOT Schur-convex in gaps for n>=4 |
+
+### Structural Facts Discovered (Session 130)
+
+1. **Var(r) = Var(p) + Var(q) exactly** (proved for all n via e_2 additivity of centered boxplus)
+2. **Centered root majorization**: roots of r ALWAYS majorize those of p and q (tested n=2-8)
+3. **SF(r) <= max(SF(p), SF(q))** appears true (proved for n=3, 60K+ trials n=3-8)
+4. **Reformulation chain audited**: 56/56 checks pass, 5 minor gaps (none fatal)
+
+### Most Promising Remaining Directions (Updated)
+
+1. **n=4 general case via SOS/DSOS**: The 659-term excess might be certifiable as sum-of-squares via semidefinite programming
+2. **Free probability / random matrix approach**: Since r = E_U[chi_{A+UBU*}], use trace inequality methods with the CORRECT formula
+3. **Induction via derivative identity with simultaneous-level argument**: F_k >= 0 at ALL derivative levels, suggesting a proof across all levels at once
+4. **Direct subordination-based argument**: Use omega_1, omega_2 properties more deeply
+
+---
+
 ## Quick Start for Next Orchestrator
 
 ```bash
