@@ -10,7 +10,7 @@ An adversarial proof formalization of the **finite free Fisher information super
 Built with the `af` CLI tool (Adversarial Proof Framework). There are **two** af workspaces:
 
 1. **`fisher_proof/`** — Original proof tree (44 nodes, 61% complete). Established definitions, subordination, chain rule. Hard Lemma 2 remains open.
-2. **`strategy3_proof/`** — Modified Strategy 3 attack on Hard Lemma 2 (19 nodes, 6 validated). Created in Session 127.
+2. **`strategy3_proof/`** — Modified Strategy 3 attack (25+ nodes, 6 validated, 5 challenges resolved). Extensively tested in Sessions 127-129.
 
 The source conjecture document is `fisher_subordination_proof.md`.
 
@@ -20,269 +20,170 @@ The source conjecture document is `fisher_subordination_proof.md`.
 
 ```bash
 cd examples6/strategy3_proof
-af status          # 19-node proof tree
-af challenges      # 3 open (1 critical, 1 major, 1 minor)
+af status          # 25+ node proof tree
+af challenges      # open challenges
 af jobs            # available work
 ```
 
-**READ THIS ENTIRE HANDOFF BEFORE SPAWNING AGENTS.** The adversarial findings below contain critical information that will prevent wasted work.
+**READ THIS ENTIRE HANDOFF BEFORE SPAWNING AGENTS.**
 
 ---
 
-## Strategy 3 Proof — Current State (Session 127)
+## Session 129 Results (Current)
 
-### Proof Tree (19 nodes)
+### CRITICAL DISCOVERY 1: `<h,alpha> >= 0` is FALSE
 
-```
-1   Main conjecture (modified Strategy 3)                        pending
-├─ 1.1  Definitions (ADMITTED from fisher_proof)                 admitted
-├─ 1.2  Chain rule (ADMITTED from fisher_proof)                  admitted
-├─ 1.3  Correction: partition of unity is FALSE                  ✓ validated
-│  └─ 1.3.1  Proof: omega_1'+omega_2'=2 NOT 1                   ✓ validated
-├─ 1.4  Vector reformulation: u=h+alpha, v=h+beta               ✓ validated
-│  └─ 1.4.1  Full proof with norm/bijection details              ✓ validated
-├─ 1.5  Clean reformulation: AB >= ||h||^4                       ✓ validated
-│  └─ 1.5.1  Algebraic equivalence + n=2 equality               ✓ validated
-├─ 1.6  Numerical verification (n=2..8)                          pending
-│  └─ 1.6.1  Full results (HAS CRITICAL CHALLENGE)              pending
-├─ 1.7  Key structural constraint                                pending
-│  ├─ 1.7.1  Analysis: <h,alpha> >= 0 TRUE (800+ trials)        pending
-│  ├─ 1.7.2  Sub-lemma: <h,alpha> >= 0 (UNPROVED)               pending  ← KEY
-│  └─ 1.7.3  Equality for equally spaced roots                  pending
-├─ 1.8  Modified Cauchy-Schwarz approach                         pending
-│  ├─ 1.8.1  CS analysis: naive CS too weak                      pending
-│  └─ 1.8.2  Inductive approach via derivative identity          pending  ← PROMISING
-└─ 1.9  QED (conditional, HAS MAJOR CHALLENGE)                  pending
-```
+The sub-lemma `<h,alpha> >= 0` (node 1.7.2) was **disproved** by independent verification:
+- 34 counterexamples in 10,000 trials at n=4 (~0.34% failure rate)
+- Confirmed by corrector agent (~1% at n=3,4,5,6) and verifier agent independently
+- Concrete counterexample (n=4): roots_p=[-2.957,-2.657,-0.975,0.015], roots_q=[-3.461,1.388,1.688,2.668] gives <h,alpha>=-0.192
+- TRUE only at n=2 (proved analytically)
+- **Node 1.7.2 marked as FALSE in the proof tree**
 
-**Statistics:** 19 nodes total — 6 validated, 2 admitted, 11 pending. 3 open challenges.
+### CRITICAL DISCOVERY 2: Boxplus Formula Conflict Resolved
+
+Two different boxplus formulas exist in the literature:
+- **CORRECT (MSS):** `c_k = sum_{i+j=k} [(n-i)!(n-j)! / (n!(n-k)!)] * a_i * b_j` — verified against Monte Carlo (100K+ Haar unitaries)
+- **EQUIVALENT:** `g_k = sum_{i+j=k} C(n-j,i)/C(n,i) * e_i(p) * e_j(q)` — same formula, different notation
+- **WRONG:** `hat_e_k(r) = sum_j hat_e_j(p) * hat_e_{k-j}(q)` where `hat_e_k = e_k/C(n,k)` — differs for non-centered polynomials
+
+An agent claimed counterexamples at n=4 using the WRONG formula. Definitive Monte Carlo verification (100K Haar unitaries, p=q={-5,-1,1,5}) showed the correct formula gives NO violation. **The conjecture is NOT refuted.** Challenge raised on node 1.10.3.
+
+### Challenges Resolved (Session 129)
+| Challenge | Node | Resolution |
+|---|---|---|
+| ch-640cc7d38a4 (critical) | 1.6.1 | Sigma corrected to order-preserving. <h,alpha> mostly >= 0 but not always. |
+| ch-6eba2806382 (minor) | 1.5 | Positivity node 1.5.2 added. |
+| ch-94f57d6b50c (critical) | 1.7.1 | <h,alpha> >= 0 is FALSE. Node amended. |
+| ch-9007eb39a0c (major) | 1.7.3 | "CRITICAL DISCOVERY" → "OBSERVATION". Pythagorean only at n=2,3. |
+
+### Proof Approaches Attempted and Their Status
+
+| Approach | Node | Status | Why |
+|---|---|---|---|
+| <h,alpha> >= 0 sub-lemma | 1.7.2 | **DEAD** | Disproved by counterexamples |
+| Herglotz convexity | 1.7.2 | **DEAD** | omega_1 is algebraic, not rational Nevanlinna |
+| Contour integral / residues | 1.7.2 | **DEAD** | Proves <h,delta>>=0 but not <h,alpha>>=0 |
+| Induction via r'=n*(p^{(1)} boxplus q^{(1)}) | 1.10.1 | **STUCK** | Correction term has indeterminate sign (~40% negative) |
+| Direct algebraic identity for AB-h^4 | 1.10.2 | **STUCK** | No manifestly non-negative expression found |
+| AM-GM via A+B >= 2*Phi_r | 1.10.2 | **DEAD** | AM-GM goes wrong direction: (A+B)/2 >= sqrt(AB) is UPPER bound |
+| Random matrix trace inequality | 1.10.3 | **INVALID** | Used wrong boxplus formula; "refutation" withdrawn |
+
+### Useful Mathematical Facts Discovered
+
+1. **Cauchy matrix decomposition (VERIFIED):**
+   `<h,alpha> = sum_{k<l} (h_k - h_l)(phi_k - phi_l) / [(nu_k - nu_l)(lambda_k - lambda_l)]`
+   where phi_k = nu_k - lambda_k.
+
+2. **Divided difference identity (VERIFIED):**
+   `<h,alpha> = sum_{k<l} H_r[k,l] * (1/D_{kl} - 1)`
+   where H_r[k,l] is the divided difference of H_r, D_{kl} = (lambda_k-lambda_l)/(nu_k-nu_l).
+
+3. **Position displacement positivity (PROVED via contour integral):**
+   `<h, delta> >= 0` where delta_k = nu_k - lambda_k (NOT the same as <h,alpha>).
+
+4. **Generating function identity (VERIFIED):**
+   `sum_k H_r(nu_k)/(nu_k - p) = -(1/2)*r''(p)/r(p)` for p not a root of r.
+
+5. **A + B >= 2*Phi_r (NUMERICALLY TRUE, proved for n=2,3):**
+   Equivalently Phi_p + Phi_q >= 4*Phi_r. But does NOT imply AB >= Phi_r^2 via AM-GM (wrong direction).
+
+6. **Induction decomposition (EXACT):**
+   `F_n = F_{n-1} + (delta_r - delta_p - delta_q)` where delta_p = 1/Phi_n(p) - 1/Phi_{n-1}(p^{(1)}).
 
 ---
 
-## The Mathematical Situation
+## The Mathematical Situation (Updated)
 
 ### What Is Proved (validated, no gaps)
 
-1. **Partition of unity is FALSE.** omega_1'(nu_k) = omega_2'(nu_k) = 1, so their sum is 2, not 1. The original Strategy 3 from fisher_proof is wrong as stated.
-
-2. **Vector reformulation.** Define u_k = H_p(lambda_{sigma(k)}), v_k = H_q(mu_{tau(k)}), h_k = H_r(nu_k). Then:
-   - ||u||^2 = Phi_n(p), ||v||^2 = Phi_n(q), ||h||^2 = Phi_n(r)
-   - u = h + alpha, v = h + beta (from chain rule)
-   - alpha - beta = u - v (compatibility)
-
-3. **Clean reformulation.** The target inequality is equivalent to:
-   - (Phi_n(p) - Phi_n(r))(Phi_n(q) - Phi_n(r)) >= Phi_n(r)^2
-   - Equivalently AB >= ||h||^4 where A = ||u||^2 - ||h||^2, B = ||v||^2 - ||h||^2
-   - **EQUALITY holds at n=2** (proved analytically)
-
-4. **Numerical confirmation.** Inequality verified for n=2..8 across 4000+ random trials with high-precision (mpmath 100-digit) confirmation of edge cases.
-
-### What Is Conjectured (strong numerical evidence, no proof)
-
-5. **<h,alpha> >= 0 always** (sub-lemma, node 1.7.2). Equivalently sum_k H_r(nu_k) * H_p(lambda_k) >= Phi_n(r). TRUE in 800+ trials across n=2..6 with correct order-preserving sigma.
-
-6. **A > 0 and B > 0 always** (Fisher info decreases under convolution). TRUE in all trials.
+1. **Partition of unity is FALSE.** omega_1'(nu_k) = omega_2'(nu_k) = 1, sum = 2 not 1.
+2. **Vector reformulation.** u = h + alpha, v = h + beta from chain rule.
+3. **Clean reformulation.** Target: AB >= ||h||^4 where A = Phi_p - Phi_r, B = Phi_q - Phi_r.
+4. **n=2 equality.** Proved algebraically. AB = ||h||^4 exactly.
+5. **Numerical confirmation.** 0 violations in 5000+ trials with CORRECT MSS formula (verified by Monte Carlo).
+6. **<h,alpha> >= 0 is FALSE.** Counterexamples at n >= 3 (~0.3-1%).
+7. **A > 0 and B > 0 always.** Fisher info decreases under convolution.
 
 ### What Is Open (the hard part)
 
-7. **Prove AB >= ||h||^4.** This is the FULL inequality. Note:
-   - <h,alpha> >= 0 alone gives only AB >= 0 (too weak)
-   - Naive Cauchy-Schwarz gives Phi_r^2 <= Phi_p * Phi_q (also too weak — this is GM bound, we need HM bound)
-   - The ||alpha||^2 and ||beta||^2 terms are ESSENTIAL (4<h,alpha><h,beta> >= ||h||^4 fails in ~16% of cases)
-   - The full product (2<h,alpha> + ||alpha||^2)(2<h,beta> + ||beta||^2) >= ||h||^4 always holds but no proof exists
+8. **Prove AB >= ||h||^4.** No proof exists. All attempted approaches have failed or are stuck.
 
 ---
 
-## Critical Adversarial Finding: The Sigma Pairing
+## Most Promising Remaining Directions
 
-**This is the most important finding from Session 127. Read carefully.**
+### Direction 1: Schur convexity / majorization (NEW)
 
-The numerical prover (agent aea7b8e) claimed `<h,alpha> < 0` in many trials. Both the verifier (agent aac7997) and the structural prover (agent adce425) **independently** challenged this, discovering:
+The Herglotz prover discovered that for random (non-MSS) sorted point pairs, <h,alpha> >= 0 fails 71% of the time. This means the MSS structure is **essential**. The MSS convolution has the specific property that centered r-roots majorize centered p-roots. Phi is Schur-concave. Can this structure be exploited more directly?
 
-- The numerical prover used an **incorrect bijection sigma** (nearest-neighbor matching)
-- The **correct sigma is ORDER-PRESERVING** — forced by the Herglotz property of omega_1 (maps C^+ to C^+), which makes omega_1 globally monotone on R
-- With the correct sigma, `<h,alpha> >= 0` in **ALL** tested cases (800+ trials)
-- At n=2, proved symbolically: `<h,alpha> = 2(sqrt(D) - s)/(s*D) > 0` since `sqrt(s^2+t^2) > s`
+### Direction 2: n=3 direct computation (TRACTABLE)
 
-This is tracked as **critical challenge `ch-640cc7d38a4`** on node 1.6.1. The challenge should be resolved by amending node 1.6.1 to use the correct sigma.
+For n=3, the conjecture might be provable by direct algebraic computation. The Gram matrix of (h, alpha, beta) is singular at n=3 (3 vectors in R^3 with MSS constraint force linear dependence). This constraint might close the inequality.
 
-**For the next orchestrator:** When spawning numerical agents, ALWAYS specify that sigma must be order-preserving (identity permutation on sorted roots).
+### Direction 3: Two-level simultaneous argument
 
----
+The induction decomposition shows F_k >= 0 at ALL derivative levels simultaneously. Rather than proving each level from the next, look for an argument that works across ALL levels at once — perhaps via a generating function or spectral identity.
 
-## Open Challenges
+### Direction 4: Herglotz representation of omega_1
 
-| Challenge ID | Node | Severity | Issue |
-|---|---|---|---|
-| `ch-640cc7d38a4` | 1.6.1 | **critical** | Numerical prover used wrong sigma. Results about `<h,alpha> < 0` are WRONG. |
-| `ch-8d1ffefda33` | 1.9 | **major** | QED is conditional on AB >= \|\|h\|\|^4 being proved (not yet done). |
-| `ch-6eba2806382` | 1.5 | minor | Positivity of norms should be stated explicitly. Easy fix. |
+omega_1(z) = z + c_0 + sum c_j/(d_j - z) with c_j of specific signs. The positions d_j are between the roots of r. Even though individual c_j may be negative, the COMBINED effect forces AB >= ||h||^4. This is structurally similar to a positive-definite kernel argument.
 
----
+### Direction 5: Prove 1/Phi_r >= 1/Phi_p + 1/Phi_q directly
 
-## Most Promising Proof Directions
-
-### Direction 1: Inductive Approach via Derivative Identity (node 1.8.2)
-
-**The MSS derivative identity** `r'(x) = n * (p^{(1)} boxplus_{n-1} q^{(1)})(x)` is EXACT (verified numerically with error = 0). Here p^{(1)} = (1/n)p' has roots at the critical points of p.
-
-**Idea:** Base case n=2 is proved (equality). If the inequality holds at degree n-1, can it be "lifted" to degree n?
-
-**Obstacle:** The ratio Phi_n(p) / Phi_{n-1}(p^{(1)}) is NOT constant (ranges 1.6 to 6). A simple scaling argument fails. Need a formula relating Phi_n to Phi_{n-1} and the interlacing structure.
-
-**Status:** Promising but needs a key lemma connecting Phi_n and Phi_{n-1}. No one has attempted this yet.
-
-### Direction 2: Prove Sub-Lemma <h,alpha> >= 0 (node 1.7.2)
-
-**Statement:** sum_k H_r(nu_k) * H_p(lambda_k) >= sum_k H_r(nu_k)^2 = Phi_n(r)
-
-**Why it matters:** It's a necessary sub-lemma (numerically always true) that constrains the proof space. Even though it alone doesn't close AB >= ||h||^4, it's a natural intermediate step.
-
-**Possible approaches:**
-- Herglotz convexity: omega_1 maps C^+ to C^+, omega_1'(nu_k) = 1, so the "curvature" omega_1'' has constrained sign
-- Matrix model: trace inequality involving resolvent Hessian of log-determinant
-- Monotone coupling: omega_1 is globally monotone on R, so lambda_k and nu_k are "monotonically coupled"
-
-### Direction 3: Direct Algebraic Identity for AB - ||h||^4
-
-For the MSS convolution specifically, there may be a closed-form expression for AB - ||h||^4 in terms of the polynomial coefficients that is manifestly non-negative.
-
-**Key fact:** At n=2, AB - ||h||^4 = 0 EXACTLY (not just numerically). At n=3 with equally spaced roots, also equality. This suggests the "excess" AB - ||h||^4 might factor as a sum of squares or have a spectral interpretation.
-
-### Direction 4: Reformulate as Phi_r <= HM(Phi_p, Phi_q)
-
-The target inequality is equivalent to: Phi_r <= 2*Phi_p*Phi_q / (Phi_p + Phi_q) = HM(Phi_p, Phi_q).
-
-This is a single inequality about three scalars defined by root configurations. May be amenable to:
-- Matrix trace inequality (random matrix model A + UBU*)
-- Monotonicity/concavity of 1/Phi under convolution
-- Information-theoretic arguments (1/Phi is the "Fisher reciprocal")
+Skip the AB >= ||h||^4 reformulation entirely. Work directly with:
+  sum 1/(sum_{j!=i} 1/(nu_i - nu_j))^2 >= sum 1/(sum_{j!=i} 1/(lambda_i - lambda_j))^2 + sum 1/(sum_{j!=i} 1/(mu_i - mu_j))^2
+This is unwieldy but might yield to Schur-convexity or convexity of 1/Phi arguments.
 
 ---
 
-## Equality Case Structure
+## What NOT to Do (Updated Traps)
 
-**n=2:** EXACT equality always. Proved algebraically: D = (b-a)^2 + (d-c)^2, AB = 4/D^2 = Phi_2(r)^2.
-
-**n=3 with equally spaced roots:** EXACT equality. The convolution preserves equal spacing, and gap_r^2 = gap_p^2 + gap_q^2 (Pythagorean).
-
-**n >= 3 generic:** STRICT inequality. Minimum ratio AB/||h||^4 approaches 1 as p approaches q.
-
-**Interpretation:** The inequality says "the squared effective gap of the free convolution is at least the sum of the squared effective gaps." This is a finite analogue of the free Cramer-Rao inequality.
-
----
-
-## What NOT to Do (Traps)
-
-1. **Do NOT assume partition of unity.** omega_1' + omega_2' = 2, NOT 1. This is validated.
-2. **Do NOT use nearest-neighbor sigma.** The correct bijection is ORDER-PRESERVING (identity on sorted roots). Using nearest-neighbor gives wrong sign for <h,alpha>.
-3. **Do NOT expect naive Cauchy-Schwarz to close.** It gives Phi_r^2 <= Phi_p*Phi_q (GM bound). We need the strictly stronger HM bound.
-4. **Do NOT assume <h,alpha> alone suffices.** Even with <h,alpha> >= 0, you still need the ||alpha||^2, ||beta||^2 terms to close AB >= ||h||^4.
-5. **Do NOT confuse MSS convolution with Haar unitary average.** They coincide at n=2 but differ for n >= 3. The correct formula is: c_k = sum_{i+j=k} [(n-i)!(n-j)! / (n!(n-k)!)] * a_i * b_j.
+1. **Do NOT assume <h,alpha> >= 0.** It is FALSE.
+2. **Do NOT use AM-GM to go from A+B >= 2c to AB >= c^2.** AM-GM goes the wrong way.
+3. **Do NOT use the hat-e convolution formula `hat_e_k(r) = sum hat_e_j(p)*hat_e_{k-j}(q)`.** It is WRONG for non-centered polynomials. Use the MSS formula or verify against Monte Carlo.
+4. **Do NOT assume partition of unity.** omega_1' + omega_2' = 2, NOT 1.
+5. **Do NOT expect naive Cauchy-Schwarz to close.** Gives GM bound, need HM bound.
+6. **Do NOT try induction without addressing the indeterminate-sign correction term.**
 
 ---
 
 ## Orchestration Notes
 
-- **Subagent rule:** Every job must be a fresh subagent (no agent reuse). Max 5 parallel.
-- **Verifier standard:** Accept ONLY airtight steps. Challenge anything with gaps, sign errors, unstated assumptions. Look for counterexamples.
+- **Subagent rule:** Every job must be a fresh subagent. Max 5 parallel.
+- **Boxplus formula:** ALWAYS use `c_k = sum_{i+j=k} [(n-i)!(n-j)! / (n!(n-k)!)] * a_i * b_j` or equivalently `g_k = sum_{i+j=k} C(n-j,i)/C(n,i) * e_i(p) * e_j(q)`. VERIFY against Monte Carlo if in doubt.
+- **Verifier standard:** Accept ONLY airtight steps. Challenge anything with gaps.
 - **Prover standard:** Be honest about gaps. A sorry with notes beats a false claim.
-- **Sigma convention:** ALWAYS specify order-preserving sigma when spawning numerical agents.
-- All work stays in `examples6/`. Do NOT touch the Lean project files.
-
-### How to Work With af
-
-```bash
-# See what needs doing
-af jobs
-af challenges
-
-# Prover workflow
-af claim <node> --owner <name> --role prover
-af refine <node> --owner <name> -s "statement"
-af amend <node> --owner <name> --statement "corrected text"
-af resolve-challenge <challenge-id> --owner <name> --response "..."
-af release <node> --owner <name>
-
-# Verifier workflow
-af claim <node> --owner <name> --role verifier
-af accept <node> --agent <name>
-af challenge <node> --owner <name> --reason "..."
-af release <node> --owner <name>
-
-# Admit without proof (introduces taint)
-af admit <node>
-```
 
 ---
 
-## Suggested Next Session Plan
-
-### Phase 1: Resolve Critical Challenge (10 min)
-
-1. Resolve `ch-640cc7d38a4` on node 1.6.1: amend the numerical verification to use order-preserving sigma, confirm <h,alpha> >= 0.
-2. Resolve `ch-6eba2806382` on node 1.5: add explicit positivity statement.
-
-### Phase 2: Prove Sub-Lemma <h,alpha> >= 0 (node 1.7.2) (main effort)
-
-Spawn 2-3 prover agents to try different approaches in parallel:
-- **Prover A:** Herglotz convexity / omega_1'' sign argument
-- **Prover B:** Matrix model trace inequality
-- **Prover C:** Direct computation from subordination equation F(z,w) = 0
-
-Spawn 1 verifier to review any claimed proofs.
-
-### Phase 3: Attack AB >= ||h||^4 (if sub-lemma proved)
-
-Spawn provers for the inductive approach (node 1.8.2):
-- Find the relationship between Phi_n(p) and Phi_{n-1}(p^{(1)})
-- Attempt to lift the n-1 inequality to degree n
-- Look for a direct algebraic identity for AB - ||h||^4
-
----
-
-## fisher_proof Workspace (Original, for Reference)
-
-```bash
-cd examples6/fisher_proof
-af status          # 44 nodes, 61% complete
-af progress        # completion metrics
-```
-
-Key validated results to ADMIT into strategy3_proof if needed:
-- Definitions (1.1): P_n, boxplus_n, G_p, H_p, Phi_n
-- Base case n=2 (1.4): equality
-- Subordination construction (1.5): omega_1, omega_2 exist as algebraic Herglotz functions
-- Chain rule (1.6): omega_1'(nu_k) = 1, H_r = H_p - alpha
-
----
-
-## Files
+## Files (Updated)
 
 ```
-examples6/
-├── fisher_subordination_proof.md   # Source proof strategy document
-├── HANDOFF.md                      # This file
-├── fisher_proof/
-│   ├── meta.json                   # af workspace metadata
-│   ├── ledger/                     # 233 event log entries
-│   └── strategy_reports.md         # 3 proof strategies for Hard Lemma 2
-└── strategy3_proof/
-    ├── meta.json                   # af workspace metadata
-    ├── ledger/                     # 61 event log entries
-    ├── numerical_verify.py         # Main numerical verification
-    ├── verify_pairing.py           # Subordination pairing analysis
-    ├── verify_edge_cases.py        # Edge cases (degenerate, spread-out)
-    ├── verify_careful.py           # High-precision mpmath verification
-    ├── verify_formula.py           # MSS formula verification
-    ├── verify_violations.py        # False violation investigation
-    ├── investigate_correct_mss.py  # Haar vs permutation comparison
-    ├── investigate_deep.py         # Deep structural analysis
-    ├── investigate_exact.py        # Correct MSS formula tests
-    ├── investigate_final.py        # Definitive comprehensive test
-    ├── investigate_gram.py         # Gram matrix analysis
-    ├── investigate_induction.py    # Derivative identity and induction
-    ├── investigate_light.py        # Gap structure and monotone coupling
-    ├── investigate_n2_exact.py     # Exact n=2 symbolic analysis
-    └── investigate_structural.py   # Initial structural investigation
+examples6/strategy3_proof/
+  # Core
+  meta.json, ledger/
+
+  # Verification scripts (CORRECT formula)
+  verify_sigma_corrected.py        # Order-preserving sigma verification
+  verify_boxplus_definitive.py     # DEFINITIVE: all 3 formulas vs Monte Carlo
+  verify_boxplus_highprec.py       # 1M-sample Monte Carlo for edge case
+  verify_claims_171_173.py         # Verifier: nodes 1.7.1, 1.7.3
+  verify_claims_171_173_final.py   # Final version with correct MSS formula
+
+  # Investigation scripts
+  investigate_induction_v4.py      # Induction with correct boxplus (FINAL)
+  investigate_algebraic_identity.py # Direct AB - h^4 identity search
+  investigate_matrix_approach.py   # Matrix trace approach (USES WRONG FORMULA)
+  investigate_AplusB.py            # A+B >= 2*Phi_r investigation
+  investigate_herglotz*.py         # Herglotz convexity attempts
+
+  # Proof writeups
+  proof_h_alpha_herglotz.md        # Herglotz approach (BLOCKED)
+  proof_h_alpha_residues.md        # Residue approach (useful identities found)
+  verification_wave1_proofs.md     # Verifier report on Wave 1 proofs
+  findings_induction.md            # Induction findings (correct formula)
+  findings_algebraic.md            # Algebraic identity findings
+  findings_matrix_info.md          # Matrix approach (WRONG FORMULA - see challenge)
+  findings_AplusB.md               # A+B >= 2*Phi_r findings
 ```
