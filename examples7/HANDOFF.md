@@ -102,23 +102,94 @@ where `⊞_n` is the MSS finite free additive convolution and
 
 ---
 
-## 6. Next Steps (Priority Order)
+## 6. Orchestrator Assessment: The Polynomial Approach Has Hit a Wall
 
-1. **Full R_4 analytical proof** — The key open problem
-   - Try SDP/SOS on gap numerator polynomial
-   - Try generalized matrix Cauchy-Schwarz (2x2 or 3x3)
-   - Try perturbation from proved k3=0 case
+**Node requiring radical revision: 1.5.2.6** (R_4 superadditivity)
 
-2. **General R_n proof** — Would close the conjecture for all n
-   - Induction on n?
-   - Universal structure in R_n?
+The current approach — decompose R_n into polynomials, then prove non-negativity
+of the gap polynomial via algebraic manipulation — has been exhaustively tried
+by 4 prover agents and **every standard technique has failed**:
 
-3. **DO NOT RETRY**: Joint concavity, Titu/Engel, perspective function, term-by-term partial fractions
+| Technique | Result | Why it fails |
+|-----------|--------|--------------|
+| Joint concavity of -R_4 | FAILED | Hessian is indefinite |
+| SOS on gap numerator | FAILED | Mixed-sign cross terms |
+| Perspective function | BLOCKED | Denominator not linear in k4 |
+| Titu/Engel Cauchy-Schwarz | INAPPLICABLE | Denominator nonlinear (degree 10) |
+| Partial fraction subadditivity | FAILED | -K4/(24K2) term not subadditive |
+| Term_A + Term_B decomposition | FAILED | Neither piece individually subadditive |
+
+This pattern — where the inequality is numerically rock-solid (0/2M+ violations)
+but resists all polynomial-level proofs — strongly suggests **the inequality is
+true for structural reasons that pure algebraic manipulation cannot access.**
+
+### The analogy with classical information theory
+
+The classical analog, Stam's inequality (1/I(X+Y) >= 1/I(X) + 1/I(Y)), is NOT
+proved by expanding in cumulants and doing polynomial arithmetic. It's proved via:
+- **de Bruijn's identity** (Fisher info = derivative of entropy along heat flow)
+- **Data processing inequality** (Fisher info decreases under channels)
+- **Optimal transport** arguments
+
+The finite free version likely needs a similarly structural argument.
+
+### Directions for novel prover agents
+
+The next orchestrator should spawn provers that explore **non-polynomial** approaches:
+
+1. **Finite free heat flow / Ornstein-Uhlenbeck**: Is there a discrete analog of
+   de Bruijn's identity for Phi_n? The MSS convolution with a Gaussian polynomial
+   should monotonically decrease Phi_n — if this can be established, it may yield
+   the inequality via a semigroup argument.
+
+2. **Monotonicity under natural operations**: Does Phi_n satisfy a data processing
+   inequality? If there's a "channel" operation on polynomials that contracts Phi_n,
+   and MSS convolution factors through it, the inequality follows.
+
+3. **Representation theory of S_n**: MSS convolution comes from expected
+   characteristic polynomials of random matrices. The cumulants kappa_k have
+   algebraic meaning in terms of S_n representations. Perhaps R_n superadditivity
+   follows from a representation-theoretic identity.
+
+4. **Log-convexity / Schur-convexity of root gaps**: The inequality may follow
+   from properties of the root interlacing that MSS convolution guarantees,
+   rather than from the cumulant expansion.
+
+5. **Direct n=4 via different parametrization**: Instead of (k2,k3,k4), use
+   the roots directly. Phi_4 has a clean expression in terms of root gaps
+   delta_ij = lambda_i - lambda_j. The MSS convolution has known root interlacing
+   properties. Perhaps the inequality follows from these geometric constraints.
+
+6. **McCrimmon-style operator identity**: In Jordan algebra theory, many
+   identities that resist direct polynomial proof follow from operator identities
+   (U, T, L operators). Is there an operator framework for Phi_n?
+
+### What to preserve from current work
+
+The cumulant decomposition framework IS correct and useful:
+- C_n = 4/(n^2(n-1)) is validated
+- The reduction to R_n superadditivity is clean
+- The k3=0 case and n=3 case are proved and can serve as base cases
+- The numerical infrastructure is solid for testing new ideas
+
+The framework should be KEPT but the proof strategy for the core inequality
+needs to come from outside the "polynomial gap non-negativity" paradigm.
 
 ---
 
-## 7. Previous Sessions
+## 7. DO NOT RETRY (exhaustively failed approaches)
 
-### Session 131 (this): Wave 3 — 2 verifiers validated, 1 prover didn't close
+- Joint concavity of -R_4 or f(u,v)
+- Titu/Engel or standard Cauchy-Schwarz on the fraction
+- Perspective function / convex conjugate
+- Term-by-term partial fraction subadditivity
+- Direct SOS decomposition of gap numerator in (s,t,u,v,m,w) variables
+- Any approach that starts with "expand the gap polynomial and show it's non-negative"
+
+---
+
+## 8. Previous Sessions
+
+### Session 131 (this): Wave 3 — 2 verifiers validated, 1 prover didn't close. Orchestrator assessment added.
 ### Session 130: Wave 2 — k3=0 proved, C_n verified, R_n pattern confirmed
 ### Session 129: Crashed orchestrator recovery, Wave 1 results collected
