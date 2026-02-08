@@ -141,16 +141,23 @@ theorem eq258_xCons_yCons_lt (k i j : ℕ) (hik : i < k) (v : FreeJordanAlg) :
   rw [show M_op (xCons k one) (xCons i (yCons j one)) v =
     U (pow x (i + 1)) (U_bilinear (pow x (k - i)) (pow y (j + 1)) v) from by
     rw [M_op.eq_def]; simp only [ge_iff_le]; rw [dif_pos (by omega : i ≤ k)]
-    simp only [show ¬(k = i) from by omega, ↓reduceIte, M_op.eq_def]; congr 2; omega] at hge
+    simp only [show ¬(k = i) from by omega, ↓reduceIte]
+    simp only [M_op.eq_def, show k - i - 1 + 1 = k - i from by omega]] at hge
   simp only [T_apply] at hge ⊢
   -- Step 4: Apply power_formula_245 with l=k-i, m=n=i+1
   have h245 := @JordanAlgebra.power_formula_245 FreeJordanAlg _
     FreeJordanAlg.x (mul (pow y (j + 1)) v) (k - i) (i + 1) (i + 1)
   simp only [JordanAlgebra.triple_def, FJ_jmul_eq_mul, FJ_jpow_eq_pow] at h245
   rw [show i + 1 + (k - i) = k + 1 from by omega] at h245
-  -- Step 5: Expand everything to mul and close with linarith
-  simp only [U_bilinear_apply, U] at *
-  linarith
+  -- Step 5: Substitute hge into h247v, then close
+  -- TODO: linarith broke in Lean 4.26 because mul terms aren't canonicalized
+  -- by commutativity. Need: either (a) manually rewrite with mul_comm to canonical
+  -- order before linarith, or (b) use operator-level rewrites (h247v, hge, h245)
+  -- to close without expanding to mul level. See HANDOFF.md for analysis.
+  simp only [T_apply] at h247v
+  rw [hge] at h247v
+  simp only [U_bilinear_apply, U] at h247v h245 ⊢
+  sorry
 
 /-! ### Linearity of T over sub/smul — needed for weight > 1 proofs -/
 
