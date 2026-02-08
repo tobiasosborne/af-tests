@@ -125,7 +125,7 @@ theorem FJ_U_pow_comp (a : FreeJordanAlg) (m n : ℕ) (w : FreeJordanAlg) :
   rw [← FJ_U_eq, ← FJ_U_eq, ← FJ_U_eq,
       ← FJ_jpow_eq_pow, ← FJ_jpow_eq_pow, ← FJ_jpow_eq_pow]
   simp only [JordanAlgebra.U_jpow]
-  rw [← pow_add]
+  rw [pow_add]; rfl
 
 /-! ### Property (iii) general: U_{x^k} ∘ M_{p,q} = M_{x^k·p, x^k·q}
     H-O lines 1290-1302. -/
@@ -149,8 +149,8 @@ theorem M_op_U_prependX (k : ℕ) (p q : FreeAssocMono) (v : FreeJordanAlg) :
       rw [M_op.eq_def (xCons k one) (xCons (k + 1 + j) s)]
       simp only [ge_iff_le]
       rw [dif_neg (by omega : ¬(k + 1 + j ≤ k))]
-      simp only [show ¬(k + 1 + j = k) from by omega, ite_false]
-      congr 2; omega
+      simp only [show ¬(k + 1 + j = k) from by omega, ↓reduceIte]
+      rw [show k + 1 + j - k - 1 = j from by omega]
   | yCons i r =>
     cases q with
     | one => simp only [prependX]; rw [M_op_xCons_xCons]
@@ -161,8 +161,8 @@ theorem M_op_U_prependX (k : ℕ) (p q : FreeAssocMono) (v : FreeJordanAlg) :
       rw [M_op.eq_def (xCons k (yCons i r)) (xCons (k + 1 + j) s)]
       simp only [ge_iff_le]
       rw [dif_neg (by omega : ¬(k + 1 + j ≤ k))]
-      simp only [show ¬(k + 1 + j = k) from by omega, ite_false]
-      congr 2; omega
+      simp only [show ¬(k + 1 + j = k) from by omega, ↓reduceIte]
+      rw [show k + 1 + j - k - 1 = j from by omega]
   | xCons i r =>
     cases q with
     | one =>
@@ -171,16 +171,16 @@ theorem M_op_U_prependX (k : ℕ) (p q : FreeAssocMono) (v : FreeJordanAlg) :
       rw [M_op.eq_def (xCons (k + 1 + i) r) (xCons k one)]
       simp only [ge_iff_le]
       rw [dif_pos (by omega : k ≤ k + 1 + i)]
-      simp only [(by omega : ¬(k + 1 + i = k)), ite_false]
-      congr 2; omega
+      simp only [show ¬(k + 1 + i = k) from by omega, ↓reduceIte]
+      rw [show k + 1 + i - k - 1 = i from by omega]
     | yCons j s =>
       show U (pow x (k + 1)) (M_op (xCons i r) (yCons j s) v) =
         M_op (xCons (k + 1 + i) r) (xCons k (yCons j s)) v
       rw [M_op.eq_def (xCons (k + 1 + i) r) (xCons k (yCons j s))]
       simp only [ge_iff_le]
       rw [dif_pos (by omega : k ≤ k + 1 + i)]
-      simp only [(by omega : ¬(k + 1 + i = k)), ite_false]
-      congr 2; omega
+      simp only [show ¬(k + 1 + i = k) from by omega, ↓reduceIte]
+      rw [show k + 1 + i - k - 1 = i from by omega]
     | xCons j s =>
       -- Both in X₀: needs U-power composition (H-O line 1294-1296)
       show U (pow x (k + 1)) (M_op (xCons i r) (xCons j s) v) =
@@ -217,28 +217,28 @@ theorem M_op_U_prependY (l : ℕ) (p q : FreeAssocMono) (v : FreeJordanAlg) :
   cases p with
   | one =>
     cases q with
-    | one => rw [M_op_yCons_yCons]
-    | xCons j s => rw [M_op_yCons_yCons]
+    | one => simp only [prependY]; rw [M_op_yCons_yCons]
+    | xCons j s => simp only [prependY]; rw [M_op_yCons_yCons]
     | yCons j s =>
       show U (pow y (l + 1)) (M_op one (yCons j s) v) =
         M_op (yCons l one) (yCons (l + 1 + j) s) v
       rw [M_op.eq_def (yCons l one) (yCons (l + 1 + j) s)]
       simp only [ge_iff_le]
       rw [dif_neg (by omega : ¬(l + 1 + j ≤ l))]
-      simp only [(by omega : ¬(l + 1 + j = l)), ite_false]
-      congr 2; omega
+      simp only [show ¬(l + 1 + j = l) from by omega, ↓reduceIte]
+      rw [show l + 1 + j - l - 1 = j from by omega]
   | xCons i r =>
     cases q with
-    | one => rw [M_op_yCons_yCons]
-    | xCons j s => rw [M_op_yCons_yCons]
+    | one => simp only [prependY]; rw [M_op_yCons_yCons]
+    | xCons j s => simp only [prependY]; rw [M_op_yCons_yCons]
     | yCons j s =>
       show U (pow y (l + 1)) (M_op (xCons i r) (yCons j s) v) =
         M_op (yCons l (xCons i r)) (yCons (l + 1 + j) s) v
       rw [M_op.eq_def (yCons l (xCons i r)) (yCons (l + 1 + j) s)]
       simp only [ge_iff_le]
       rw [dif_neg (by omega : ¬(l + 1 + j ≤ l))]
-      simp only [(by omega : ¬(l + 1 + j = l)), ite_false]
-      congr 2; omega
+      simp only [show ¬(l + 1 + j = l) from by omega, ↓reduceIte]
+      rw [show l + 1 + j - l - 1 = j from by omega]
   | yCons i r =>
     cases q with
     | one =>
@@ -247,16 +247,16 @@ theorem M_op_U_prependY (l : ℕ) (p q : FreeAssocMono) (v : FreeJordanAlg) :
       rw [M_op.eq_def (yCons (l + 1 + i) r) (yCons l one)]
       simp only [ge_iff_le]
       rw [dif_pos (by omega : l ≤ l + 1 + i)]
-      simp only [(by omega : ¬(l + 1 + i = l)), ite_false]
-      congr 2; omega
+      simp only [show ¬(l + 1 + i = l) from by omega, ↓reduceIte]
+      rw [show l + 1 + i - l - 1 = i from by omega]
     | xCons j s =>
       show U (pow y (l + 1)) (M_op (yCons i r) (xCons j s) v) =
         M_op (yCons (l + 1 + i) r) (yCons l (xCons j s)) v
       rw [M_op.eq_def (yCons (l + 1 + i) r) (yCons l (xCons j s))]
       simp only [ge_iff_le]
       rw [dif_pos (by omega : l ≤ l + 1 + i)]
-      simp only [(by omega : ¬(l + 1 + i = l)), ite_false]
-      congr 2; omega
+      simp only [show ¬(l + 1 + i = l) from by omega, ↓reduceIte]
+      rw [show l + 1 + i - l - 1 = i from by omega]
     | yCons j s =>
       show U (pow y (l + 1)) (M_op (yCons i r) (yCons j s) v) =
         M_op (yCons (l + 1 + i) r) (yCons (l + 1 + j) s) v
