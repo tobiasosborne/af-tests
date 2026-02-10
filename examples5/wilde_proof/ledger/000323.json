@@ -1,0 +1,1 @@
+{"type":"challenge_raised","timestamp":"2026-02-10T19:45:23.434576777Z","challenge_id":"ch-4accfda6b330ce76","node_id":"1.7.6","target":"statement","reason":"QED for MAIN. Must be updated to conclude MAIN' (two-term formula) instead of MAIN (single-term).","severity":"critical","raised_by":""}

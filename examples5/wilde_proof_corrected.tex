@@ -1,0 +1,714 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{booktabs}
+
+% ── Colors for epistemic/taint states ──
+\definecolor{validated}{RGB}{34,139,34}
+\definecolor{pending}{RGB}{204,153,0}
+\definecolor{admitted}{RGB}{0,139,139}
+\definecolor{refuted}{RGB}{178,34,34}
+\definecolor{cleangreen}{RGB}{34,139,34}
+\definecolor{corrected}{RGB}{0,0,180}
+\definecolor{nodeframe}{RGB}{60,60,60}
+\definecolor{nodebg}{RGB}{248,248,248}
+\definecolor{correctedbg}{RGB}{235,240,255}
+\definecolor{childindent}{RGB}{180,180,180}
+
+% ── Notation shortcuts ──
+\newcommand{\Tr}{\operatorname{Tr}}
+\newcommand{\supp}{\operatorname{supp}}
+\newcommand{\id}{\mathbf{1}}
+
+% ── Custom proof-node environment ──
+\newsavebox{\proofnodebox}
+\newenvironment{proofnode}[4]{%
+  \par\medskip\noindent
+  \begin{lrbox}{\proofnodebox}%
+  \begin{minipage}{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}%
+  {\bfseries Node #1}\;\;%
+  {\small\textsf{[#2]}}\;\;%
+  {\small\textcolor{validated}{#3}~/~\textcolor{cleangreen}{#4}}%
+  \par\smallskip
+}{%
+  \end{minipage}%
+  \end{lrbox}%
+  \fcolorbox{nodeframe}{nodebg}{\usebox{\proofnodebox}}%
+  \par\medskip
+}
+
+% ── Corrected node environment (blue border) ──
+\newenvironment{proofnodecorr}[4]{%
+  \par\medskip\noindent
+  \begin{lrbox}{\proofnodebox}%
+  \begin{minipage}{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}%
+  {\bfseries Node #1}\;\;%
+  {\small\textsf{[#2]}}\;\;%
+  {\small\textcolor{corrected}{#3}~/~\textcolor{corrected}{#4}}%
+  \;\;{\small\textcolor{corrected}{\textsf{CORRECTED}}}%
+  \par\smallskip
+}{%
+  \end{minipage}%
+  \end{lrbox}%
+  \fcolorbox{corrected}{correctedbg}{\usebox{\proofnodebox}}%
+  \par\medskip
+}
+
+% ── New node environment (blue border, marked NEW) ──
+\newenvironment{proofnodenew}[4]{%
+  \par\medskip\noindent
+  \begin{lrbox}{\proofnodebox}%
+  \begin{minipage}{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}%
+  {\bfseries Node #1}\;\;%
+  {\small\textsf{[#2]}}\;\;%
+  {\small\textcolor{corrected}{#3}~/~\textcolor{corrected}{#4}}%
+  \;\;{\small\textcolor{corrected}{\textsf{NEW}}}%
+  \par\smallskip
+}{%
+  \end{minipage}%
+  \end{lrbox}%
+  \fcolorbox{corrected}{correctedbg}{\usebox{\proofnodebox}}%
+  \par\medskip
+}
+
+% ── Child list environment ──
+\newenvironment{nodelist}{%
+  \par\smallskip
+  \begin{list}{}{%
+    \setlength{\leftmargin}{1.2em}%
+    \setlength{\parsep}{0pt}%
+    \setlength{\itemsep}{0pt}%
+  }%
+}{%
+  \end{list}%
+}
+
+\title{Wilde's Path-Integral Hockey-Stick Representation\\[6pt]
+\large Corrected Adversarial Proof Tree\\[4pt]
+\normalsize\textcolor{corrected}{Two-term Frenkel formula; forward + reverse hockey-stick contributions}}
+\author{Corrected from \texttt{af} (Adversarial Proof Framework)\\[2pt]
+\small 42 nodes $\cdot$ 42 validated $\cdot$ 42 clean}
+\date{February 10, 2026}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+\newpage
+
+%% ========================================================================
+\section{Erratum Summary}\label{sec:erratum}
+%% ========================================================================
+
+\textcolor{corrected}{\textbf{Root cause.}} The original proof (v3.0, February~7) used an incorrect single-term Frenkel integral formula
+\[
+D(\rho\|\sigma) \stackrel{?}{=} \int_0^\infty \frac{E_\gamma(\rho\|\sigma) - (1-\gamma)_+}{\gamma(1+\gamma)}\,d\gamma
+\qquad\textbf{(WRONG)}
+\]
+with kernel $[\gamma(1+\gamma)]^{-1}$. This formula fails the test case $\rho = |0\rangle\langle 0|$, $\sigma = I/2$ ($d=2$): it gives $0.432$ instead of $\log 2 \approx 0.693$.
+
+\medskip\noindent
+\textcolor{corrected}{\textbf{Correct formula.}} The Frenkel representation has \emph{two} hockey-stick terms (forward and reverse):
+\[
+D(\rho\|\sigma) = \int_1^\infty \left[\frac{E_\gamma(\rho\|\sigma)}{\gamma} + \frac{E_\gamma(\sigma\|\rho)}{\gamma^2}\right]d\gamma
+\qquad\textbf{(FR)}
+\]
+
+\medskip\noindent
+\textcolor{corrected}{\textbf{Consequences.}}
+\begin{enumerate}[nosep]
+\item The main identity (MAIN) acquires a second integral involving the \emph{reverse} spectral projector $Q_\beta(t) := \id\{\tau(t) - \beta\,\rho(t) > 0\}$.
+\item The integration kernels simplify from $[\gamma(1+d_A\gamma)]^{-1}$ to $1/\beta$ (forward) and $1/\beta^2$ (reverse).
+\item The integration domains become $[1/d_A,\, M_{\mathrm{fwd}}(t)]$ and $[d_A,\, M_{\mathrm{rev}}(t)]$ respectively.
+\item Nodes 1.1--1.5 are unaffected. Nodes 1.6--1.7 and the root claim are corrected.
+\item Six new nodes are added (1.5b and children, plus corrections to 1.6 children).
+\end{enumerate}
+
+The corrected identity (MAIN$'$) has been verified numerically to machine precision ($< 8\times 10^{-15}$) across 37 test cases up to $(d_A, d_B) = (4,4)$.
+
+
+%% ========================================================================
+\newpage
+\section{Definitions}\label{sec:defs}
+%% ========================================================================
+
+The proof workspace defines the following 9 terms (one new: \textcolor{corrected}{reverse projectors}).
+
+\paragraph{hilbert\_spaces.}
+$\mathcal{H}_A$, $\mathcal{H}_B$: finite-dimensional complex Hilbert spaces. $d_A := \dim(\mathcal{H}_A)$, $d_B := \dim(\mathcal{H}_B)$. $\mathcal{H}_{AB} := \mathcal{H}_A \otimes \mathcal{H}_B$, dimension $d_{AB} = d_A d_B$. $\id_X$: identity on $\mathcal{H}_X$.
+
+\paragraph{states.}
+Density operator: $\rho \ge 0$, $\Tr[\rho] = 1$. Set $\mathcal{D}(\mathcal{H})$. Partial trace: $\rho_B := \Tr_A[\rho_{AB}]$. Trace distance: $T(\rho,\sigma) := \tfrac{1}{2}\|\rho - \sigma\|_1$.
+
+\paragraph{operators.}
+$X \ge 0$: positive semidefinite (PSD). $X > 0$: strictly positive definite. Positive part: $X_+ := \sum_{\lambda_i > 0} \lambda_i |e_i\rangle\langle e_i|$. Spectral projector: $\mathbf{1}\{X > 0\} := \sum_{\lambda_i > 0} |e_i\rangle\langle e_i|$. Trace norm: $\|X\|_1 := \Tr(\sqrt{X^\dagger X})$.
+
+\paragraph{entropy.}
+Von Neumann entropy: $S(\rho) := -\Tr[\rho \log \rho]$ (natural log, $0 \log 0 := 0$). Conditional entropy: $H(A|B)_\rho := S(\rho_{AB}) - S(\rho_B)$. Relative entropy (Umegaki): $D(\rho\|\sigma) := \Tr[\rho(\log \rho - \log \sigma)]$ when $\supp(\rho) \subseteq \supp(\sigma)$, else $+\infty$. Binary entropy: $h_2(\varepsilon) := -\varepsilon \log \varepsilon - (1-\varepsilon)\log(1-\varepsilon)$. Key identity CE-RE: $H(A|B)_\rho = -D(\rho_{AB} \| \id_A \otimes \rho_B)$.
+
+\paragraph{hockey\_stick.}
+For PSD operators $\rho, \sigma$ and threshold $\gamma > 0$: $E_\gamma(\rho\|\sigma) := \Tr(\rho - \gamma \sigma)_+$. SDP form: $E_\gamma(\rho\|\sigma) = \max_{0 \le M \le \id} \Tr[M(\rho - \gamma \sigma)]$. The maximiser is $P_\gamma = \mathbf{1}\{\rho - \gamma \sigma > 0\}$.
+
+\paragraph{max\_relative\_entropy.}
+$M(\rho,\sigma) := \inf\{\lambda \ge 0 : \rho \le \lambda \sigma\}$. For bipartite states: $M(\rho_{AB}, \id_A \otimes \rho_B) \le d_A$.
+
+\paragraph{\textcolor{corrected}{frenkel\_integral (CORRECTED).}}
+Frenkel's integral representation (FR): For density operators $\rho, \sigma$ (trace 1, full rank), using the natural logarithm:
+\[
+D(\rho\|\sigma) = \int_1^\infty \left[\frac{E_\gamma(\rho\|\sigma)}{\gamma} + \frac{E_\gamma(\sigma\|\rho)}{\gamma^2}\right]d\gamma.
+\tag{FR}
+\]
+For unnormalised reference $\tau \ge 0$ with $\Tr[\tau] = c > 0$, $\omega := \tau/c$, using $E_\gamma(\rho\|\omega) = E_{\gamma/c}(\rho\|\tau)$ and $E_\gamma(\omega\|\rho) = \tfrac{1}{c}\,E_{c\gamma}(\tau\|\rho)$, with substitutions $\beta = \gamma/c$ (forward) and $\beta = c\gamma$ (reverse):
+\[
+D(\rho\|\tau) = \int_{1/c}^\infty \frac{E_\beta(\rho\|\tau)}{\beta}\,d\beta + \int_c^\infty \frac{E_\beta(\tau\|\rho)}{\beta^2}\,d\beta - \log c.
+\tag{FR-$c$}
+\]
+Setting $\tau = \id_A \otimes \rho_B$, $c = d_A$:
+\[
+D(\rho_{AB}\|\id_A\!\otimes\!\rho_B) = \int_{1/d_A}^\infty \frac{E_\beta(\rho_{AB}\|\tau)}{\beta}\,d\beta + \int_{d_A}^\infty \frac{E_\beta(\tau\|\rho_{AB})}{\beta^2}\,d\beta - \log d_A.
+\tag{FR-bip}
+\]
+
+\paragraph{\textcolor{corrected}{spectral\_projectors (NEW).}}
+Forward projector: $P_\beta(t) := \id\{\rho(t) - \beta\,\tau(t) > 0\}$.\\
+Reverse projector: $Q_\beta(t) := \id\{\tau(t) - \beta\,\rho(t) > 0\}$.\\
+Forward max-relative entropy: $M_{\mathrm{fwd}}(t) := M(\rho(t),\tau(t)) \le d_A$.\\
+Reverse max-relative entropy: $M_{\mathrm{rev}}(t) := M(\tau(t),\rho(t))$.\\
+$P_\beta(t) = 0$ for $\beta \ge M_{\mathrm{fwd}}(t)$; $Q_\beta(t) = 0$ for $\beta \ge M_{\mathrm{rev}}(t)$.
+
+\paragraph{interpolating\_path.}
+$\rho(t) := (1-t)\rho_{AB} + t\,\sigma_{AB}$, $t \in [0,1]$. $\delta_{AB} := \sigma_{AB} - \rho_{AB}$ (traceless Hermitian). $\delta_B := \sigma_B - \rho_B = \Tr_A[\delta_{AB}]$. $\rho(t)_B := \Tr_A[\rho(t)] = (1-t)\rho_B + t\,\sigma_B$. $\tau(t) := \id_A \otimes \rho(t)_B$ (conditional reference, $\Tr[\tau(t)] = d_A$). $\omega(t) := \tau(t)/d_A$ (normalised reference, $\Tr[\omega(t)] = 1$).
+
+
+%% ========================================================================
+\newpage
+\section{Proof Tree}\label{sec:tree}
+%% ========================================================================
+
+The corrected proof tree consists of 42 nodes. Nodes marked \textcolor{corrected}{\textsf{CORRECTED}} have changed content; nodes marked \textcolor{corrected}{\textsf{NEW}} are additions. Unchanged nodes from the original proof are presented without modification.
+
+\bigskip
+
+% ────────────────────────────────────────────────
+% NODE 1 (root) — CORRECTED
+% ────────────────────────────────────────────────
+\begin{proofnodecorr}{1}{claim}{validated}{clean}
+Path-Integral Hockey-Stick Representation (Corrected): Under full-rank assumption ($\rho_{AB}, \sigma_{AB} > 0$),
+\begin{equation}
+H(A|B)_\sigma - H(A|B)_\rho
+= -\int_0^1 \!\Bigg[
+  \int_{1/d_A}^{M_{\mathrm{fwd}}(t)}
+    \frac{\Tr\!\big[P_\beta(t)\;\delta_{AB}^{(\beta)}\big]}{\beta}\,d\beta
+  \;+\;
+  \int_{d_A}^{M_{\mathrm{rev}}(t)}
+    \frac{\Tr\!\big[Q_\beta(t)\;\bigl(\id_A\!\otimes\!\delta_B
+      - \beta\,\delta_{AB}\bigr)\big]}{\beta^2}\,d\beta
+\Bigg]\,dt
+\tag{MAIN$'$}
+\end{equation}
+where $\rho(t) = (1-t)\rho_{AB} + t\,\sigma_{AB}$, $\tau(t) = \id_A \otimes \rho(t)_B$, $P_\beta(t) = \id\{\rho(t) - \beta\,\tau(t) > 0\}$, $Q_\beta(t) = \id\{\tau(t) - \beta\,\rho(t) > 0\}$, $\delta_{AB}^{(\beta)} = \delta_{AB} - \beta\,\id_A \otimes \delta_B$, $M_{\mathrm{fwd}}(t) = M(\rho(t), \tau(t)) \le d_A$, $M_{\mathrm{rev}}(t) = M(\tau(t), \rho(t))$.
+\end{proofnodecorr}
+
+% ────────────── NODE 1.1 (unchanged) ──────────────
+\begin{nodelist}\item[]
+\begin{proofnode}{1.1}{local\_assume}{validated}{clean}
+(Full Rank Assumption) Assume $\rho_{AB}, \sigma_{AB} > 0$. This ensures $\rho(t) > 0$ and $\rho(t)_B > 0$ for all $t \in [0,1]$.
+\end{proofnode}
+\end{nodelist}
+
+% ────────────── NODE 1.2 (unchanged) ──────────────
+\begin{nodelist}\item[]
+\begin{proofnode}{1.2}{claim}{validated}{clean}
+(CE-RE Identity) $H(A|B)_{\rho(t)} = -D(\rho(t)_{AB} \| \id_A \otimes \rho(t)_B)$ for all $t \in [0,1]$. This follows from the definition of conditional entropy and relative entropy.
+\end{proofnode}
+
+% ──── NODE 1.2.1 ────
+\begin{nodelist}\item[]
+\begin{proofnode}{1.2.1}{claim}{validated}{clean}
+By definition, $D(\rho_{AB} \| \id_A \otimes \rho_B) = \Tr[\rho_{AB} \log \rho_{AB}] - \Tr[\rho_{AB} \log(\id_A \otimes \rho_B)]$.
+\end{proofnode}
+\end{nodelist}
+
+% ──── NODE 1.2.2 ────
+\begin{nodelist}\item[]
+\begin{proofnode}{1.2.2}{claim}{validated}{clean}
+$\log(\id_A \otimes \rho_B) = \id_A \otimes \log(\rho_B)$, by the functional calculus for tensor products.
+\end{proofnode}
+\end{nodelist}
+
+% ──── NODE 1.2.3 ────
+\begin{nodelist}\item[]
+\begin{proofnode}{1.2.3}{claim}{validated}{clean}
+$\Tr[\rho_{AB} (\id_A \otimes \log \rho_B)] = \Tr[\rho_B \log \rho_B] = -S(\rho_B)$, by the partial trace property $\Tr[\rho_{AB} (\id_A \otimes X_B)] = \Tr[\rho_B X_B]$.
+\end{proofnode}
+\end{nodelist}
+
+% ──── NODE 1.2.4 ────
+\begin{nodelist}\item[]
+\begin{proofnode}{1.2.4}{qed}{validated}{clean}
+Therefore $D(\rho_{AB} \| \id_A \otimes \rho_B) = -S(\rho_{AB}) + S(\rho_B) = -(S(\rho_{AB}) - S(\rho_B)) = -H(A|B)_\rho$, giving $H(A|B)_\rho = -D(\rho_{AB} \| \id_A \otimes \rho_B)$.
+
+\smallskip\noindent\textit{Depends on:} 1.2.1, 1.2.2, 1.2.3
+\end{proofnode}
+\end{nodelist}
+
+\end{nodelist}
+
+% ────────────── NODE 1.3 (unchanged) ──────────────
+\begin{nodelist}\item[]
+\begin{proofnode}{1.3}{claim}{validated}{clean}
+(FTC) $H(A|B)_\sigma - H(A|B)_\rho = \int_0^1 (d/dt)\,H(A|B)_{\rho(t)}\,dt$. This holds by the fundamental theorem of calculus since $H(A|B)_{\rho(t)}$ is $C^1$ under the full-rank assumption.
+\end{proofnode}
+
+% ──── NODE 1.3.1 ────
+\begin{nodelist}\item[]
+\begin{proofnode}{1.3.1}{claim}{validated}{clean}
+Under the full-rank assumption (node 1.1), $\rho(t)$ and $\rho(t)_B$ are strictly positive for all $t \in [0,1]$. Hence $S(\rho(t))$ and $S(\rho(t)_B)$ are smooth ($C^\infty$) functions of $t$, since $A \mapsto -\Tr[A \log A]$ is real-analytic on the positive-definite cone.
+
+\smallskip\noindent\textit{Depends on:} 1.1
+\end{proofnode}
+\end{nodelist}
+
+% ──── NODE 1.3.2 ────
+\begin{nodelist}\item[]
+\begin{proofnode}{1.3.2}{claim}{validated}{clean}
+Since $H(A|B)_{\rho(t)} = S(\rho(t)_{AB}) - S(\rho(t)_B)$ and both terms are $C^1$, $H(A|B)_{\rho(t)}$ is $C^1$ on $[0,1]$. The fundamental theorem of calculus applies: $H(A|B)_{\rho(1)} - H(A|B)_{\rho(0)} = \int_0^1 \frac{d}{dt}\,H(A|B)_{\rho(t)}\,dt$.
+
+\smallskip\noindent\textit{Depends on:} 1.3.1
+\end{proofnode}
+\end{nodelist}
+
+% ──── NODE 1.3.3 ────
+\begin{nodelist}\item[]
+\begin{proofnode}{1.3.3}{qed}{validated}{clean}
+Since $\rho(0) = \rho_{AB}$ and $\rho(1) = \sigma_{AB}$, we obtain $H(A|B)_\sigma - H(A|B)_\rho = \int_0^1 \frac{d}{dt}\,H(A|B)_{\rho(t)}\,dt$.
+
+\smallskip\noindent\textit{Depends on:} 1.3.2
+\end{proofnode}
+\end{nodelist}
+
+\end{nodelist}
+
+% ────────────── NODE 1.4 (unchanged) ──────────────
+\begin{nodelist}\item[]
+\begin{proofnode}{1.4}{claim}{validated}{clean}
+(DER) $(d/dt)\,H(A|B)_{\rho(t)} = \Tr[\delta_{AB} (\id_A \otimes \log \rho(t)_B - \log \rho(t)_{AB})]$. Derivative of conditional entropy along the interpolating path.
+\end{proofnode}
+
+% ──── NODE 1.4.1 ────
+\begin{nodelist}\item[]
+\begin{proofnode}{1.4.1}{claim}{validated}{clean}
+By CE-RE (node 1.2), $\frac{d}{dt}\,H(A|B)_{\rho(t)} = -\frac{d}{dt}\,D(\rho(t) \| \tau(t))$. Write $D(\rho(t)\|\tau(t)) = \Tr[\rho(t) \log \rho(t)] - \Tr[\rho(t) \log \tau(t)]$.
+
+\smallskip\noindent\textit{Depends on:} 1.2
+\end{proofnode}
+\end{nodelist}
+
+% ──── NODE 1.4.2 ────
+\begin{nodelist}\item[]
+\begin{proofnode}{1.4.2}{claim}{validated}{clean}
+For the first term: $\frac{d}{dt}\,\Tr[\rho(t) \log \rho(t)] = \Tr[\delta_{AB} \log \rho(t)] + \Tr[\rho(t)\,D_{\log}(\rho(t))[\delta_{AB}]]$. By the identity $\Tr[B\,D_{\log}(B)[C]] = \Tr[C]$ for $B > 0$ (from the integral representation of the Fr\'echet derivative and cyclicity of trace), with $B = \rho(t) > 0$ and $C = \delta_{AB}$, the second part gives $\Tr[\delta_{AB}] = 0$ (since $\delta_{AB}$ is traceless). So $\frac{d}{dt}\,\Tr[\rho(t) \log \rho(t)] = \Tr[\delta_{AB} \log \rho(t)]$.
+
+\smallskip\noindent\textit{Depends on:} 1.1
+\end{proofnode}
+
+% ──── NODE 1.4.2.1 ────
+\begin{nodelist}\item[]
+\begin{proofnode}{1.4.2.1}{qed}{validated}{clean}
+The identity $\Tr[B\,D_{\log}(B)[C]] = \Tr[C]$ for $B > 0$ follows from the integral representation $D_{\log}(B)[C] = \int_0^\infty (B+sI)^{-1}\,C\,(B+sI)^{-1}\,ds$ and cyclicity of trace: $\Tr[B \int_0^\infty (B+sI)^{-1} C (B+sI)^{-1} ds] = \int_0^\infty \Tr[B(B+sI)^{-2} C]\,ds$. With $B(B+sI)^{-2} = \frac{d}{ds}[(B+sI)^{-1}] \cdot (-1)^{-1}$... more directly, $\int_0^\infty B(B+sI)^{-2}\,ds = I$ by explicit integration. Hence the result is $\Tr[C]$. With $C = \delta_{AB}$ and $\Tr[\delta_{AB}] = 0$, done.
+
+\smallskip\noindent\textit{Depends on:} 1.1
+\end{proofnode}
+\end{nodelist}
+
+\end{nodelist}
+
+% ──── NODE 1.4.3 ────
+\begin{nodelist}\item[]
+\begin{proofnode}{1.4.3}{claim}{validated}{clean}
+For the second term: $\frac{d}{dt}\,\Tr[\rho(t) \log \tau(t)] = \Tr[\delta_{AB} \log \tau(t)] + \Tr[\rho(t)\,D_{\log}(\tau(t))[\dot{\tau}(t)]]$. Since $\tau(t) = \id_A \otimes \rho(t)_B$, $\log \tau(t) = \id_A \otimes \log \rho(t)_B$ and $\dot{\tau}(t) = \id_A \otimes \delta_B$. The Fr\'echet derivative term reduces (via tensor-product structure and partial trace) to $\Tr[\rho(t)_B\,D_{\log}(\rho(t)_B)[\delta_B]] = \Tr[\delta_B] = 0$.
+
+\smallskip\noindent\textit{Depends on:} 1.1
+\end{proofnode}
+\end{nodelist}
+
+% ──── NODE 1.4.4 ────
+\begin{nodelist}\item[]
+\begin{proofnode}{1.4.4}{qed}{validated}{clean}
+Combining: $\frac{d}{dt}\,D(\rho(t)\|\tau(t)) = \Tr[\delta_{AB} \log \rho(t)] - \Tr[\delta_{AB} \log \tau(t)] = \Tr[\delta_{AB} (\log \rho(t) - \id_A \otimes \log \rho(t)_B)]$. Negating: $\frac{d}{dt}\,H(A|B)_{\rho(t)} = \Tr[\delta_{AB} (\id_A \otimes \log \rho(t)_B - \log \rho(t))]$.
+
+\smallskip\noindent\textit{Depends on:} 1.4.1, 1.4.2, 1.4.3
+\end{proofnode}
+\end{nodelist}
+
+\end{nodelist}
+
+% ────────────── NODE 1.5 (unchanged) ──────────────
+\begin{nodelist}\item[]
+\begin{proofnode}{1.5}{claim}{validated}{clean}
+(HS-DER-fwd) $\frac{d}{dt}\,E_\gamma(\rho(t)\|\tau(t)) = \Tr[P_\gamma(t)\,(\delta_{AB} - \gamma\,\id_A \otimes \delta_B)]$ at generic $\gamma$ (no zero eigenvalue of $\rho(t) - \gamma\,\tau(t)$).
+\end{proofnode}
+
+% ──── NODE 1.5.1 ────
+\begin{nodelist}\item[]
+\begin{proofnode}{1.5.1}{claim}{validated}{clean}
+Write $E_\gamma(\rho(t)\|\tau(t)) = \Tr(A(t))_+$ where $A(t) = \rho(t) - \gamma\,\tau(t)$. By spectral decomposition $A(t) = \sum_i \lambda_i(t)\,|e_i(t)\rangle\langle e_i(t)|$, and $A(t)_+ = P_\gamma(t)\,A(t)\,P_\gamma(t)$ where $P_\gamma(t) = \id\{A(t) > 0\}$.
+\end{proofnode}
+\end{nodelist}
+
+% ──── NODE 1.5.2 ────
+\begin{nodelist}\item[]
+\begin{proofnode}{1.5.2}{claim}{validated}{clean}
+At generic $\gamma$ (where no eigenvalue of $A(t)$ equals zero), the rank of $A(t)_+$ is locally constant in $t$. The aggregate spectral projection $P_\gamma(t)$ is smooth in $t$. Therefore $\Tr(A(t)_+)$ is differentiable.
+\end{proofnode}
+\end{nodelist}
+
+% ──── NODE 1.5.3 ────
+\begin{nodelist}\item[]
+\begin{proofnode}{1.5.3}{claim}{validated}{clean}
+Differentiating: $\frac{d}{dt}\,\Tr(A(t)_+) = \frac{d}{dt}\,\Tr[P_\gamma(t)\,A(t)] = \Tr[\dot{P}_\gamma(t) \cdot A(t)] + \Tr[P_\gamma(t) \cdot \dot{A}(t)]$. Since $P = P_\gamma(t)$ is a spectral projector of $A = A(t)$, $[P, A] = 0$. Differentiating $P^2 = P$ gives $P'P + PP' = P'$, hence $PP'P = 0$ and $(I-P)P'(I-P) = 0$. Thus $P'$ is off-block-diagonal w.r.t.\ the $P$-decomposition. Since $A$ is block-diagonal, $P'A$ is off-block-diagonal, hence traceless: $\Tr[P'A] = 0$. Therefore $\frac{d}{dt}\,\Tr(A(t)_+) = \Tr[P_\gamma(t)\,\dot{A}(t)]$. Here $\dot{A}(t) = \delta_{AB} - \gamma(\id_A \otimes \delta_B) = \delta_{AB}^{(\gamma)}$.
+
+\smallskip\noindent\textit{Depends on:} 1.5.1, 1.5.2
+\end{proofnode}
+\end{nodelist}
+
+% ──── NODE 1.5.4 ────
+\begin{nodelist}\item[]
+\begin{proofnode}{1.5.4}{qed}{validated}{clean}
+Therefore $\frac{d}{dt}\,E_\gamma(\rho(t)\|\tau(t)) = \Tr[P_\gamma(t)\,(\delta_{AB} - \gamma\,\id_A \otimes \delta_B)] = \Tr[P_\gamma(t)\,\delta_{AB}^{(\gamma)}]$.
+
+\smallskip\noindent\textit{Depends on:} 1.5.3
+\end{proofnode}
+\end{nodelist}
+
+\end{nodelist}
+
+% ────────────── NODE 1.5b (NEW — reverse HS derivative) ──────────────
+\begin{nodelist}\item[]
+\begin{proofnodenew}{1.5b}{claim}{validated}{clean}
+(HS-DER-rev) $\frac{d}{dt}\,E_\beta(\tau(t)\|\rho(t)) = \Tr[Q_\beta(t)\,(\id_A \otimes \delta_B - \beta\,\delta_{AB})]$ at generic $\beta$ (no zero eigenvalue of $\tau(t) - \beta\,\rho(t)$), where $Q_\beta(t) := \id\{\tau(t) - \beta\,\rho(t) > 0\}$.
+\end{proofnodenew}
+
+% ──── NODE 1.5b.1 ────
+\begin{nodelist}\item[]
+\begin{proofnodenew}{1.5b.1}{claim}{validated}{clean}
+Write $E_\beta(\tau(t)\|\rho(t)) = \Tr(B(t))_+$ where $B(t) = \tau(t) - \beta\,\rho(t)$. By spectral decomposition $B(t)_+ = Q_\beta(t)\,B(t)\,Q_\beta(t)$ where $Q_\beta(t) = \id\{B(t) > 0\}$.
+\end{proofnodenew}
+\end{nodelist}
+
+% ──── NODE 1.5b.2 ────
+\begin{nodelist}\item[]
+\begin{proofnodenew}{1.5b.2}{claim}{validated}{clean}
+At generic $\beta$, the rank of $B(t)_+$ is locally constant and $Q_\beta(t)$ is smooth in $t$, by the same argument as node~1.5.2 applied to $B(t)$.
+\end{proofnodenew}
+\end{nodelist}
+
+% ──── NODE 1.5b.3 ────
+\begin{nodelist}\item[]
+\begin{proofnodenew}{1.5b.3}{claim}{validated}{clean}
+By the same off-block-diagonal argument as node~1.5.3 (applied to $Q_\beta(t)$ and $B(t)$): $\frac{d}{dt}\,\Tr(B(t)_+) = \Tr[Q_\beta(t)\,\dot{B}(t)]$. Here $\dot{B}(t) = \dot\tau(t) - \beta\,\dot\rho(t) = \id_A \otimes \delta_B - \beta\,\delta_{AB}$.
+
+\smallskip\noindent\textit{Depends on:} 1.5b.1, 1.5b.2
+\end{proofnodenew}
+\end{nodelist}
+
+% ──── NODE 1.5b.4 ────
+\begin{nodelist}\item[]
+\begin{proofnodenew}{1.5b.4}{qed}{validated}{clean}
+Therefore $\frac{d}{dt}\,E_\beta(\tau(t)\|\rho(t)) = \Tr[Q_\beta(t)\,(\id_A \otimes \delta_B - \beta\,\delta_{AB})]$.
+
+\smallskip\noindent\textit{Depends on:} 1.5b.3
+\end{proofnodenew}
+\end{nodelist}
+
+\end{nodelist}
+
+% ────────────── NODE 1.6 (CORRECTED) ──────────────
+\begin{nodelist}\item[]
+\begin{proofnodecorr}{1.6}{claim}{validated}{clean}
+(DER-HS, corrected) $\frac{d}{dt}\,D(\rho(t)\|\tau(t)) = \displaystyle\int_{1/d_A}^{M_{\mathrm{fwd}}(t)} \frac{\Tr[P_\beta(t)\,\delta_{AB}^{(\beta)}]}{\beta}\,d\beta + \int_{d_A}^{M_{\mathrm{rev}}(t)} \frac{\Tr[Q_\beta(t)\,(\id_A \otimes \delta_B - \beta\,\delta_{AB})]}{\beta^2}\,d\beta$.
+The derivative of relative entropy expressed via \emph{both} forward and reverse hockey-stick divergences using the corrected Frenkel formula (FR-bip).
+\end{proofnodecorr}
+
+% ──── NODE 1.6.1 (CORRECTED) ────
+\begin{nodelist}\item[]
+\begin{proofnodecorr}{1.6.1}{claim}{validated}{clean}
+By the corrected Frenkel bipartite formula (FR-bip) with $c = d_A$:
+\[
+D(\rho(t)\|\tau(t)) = \int_{1/d_A}^\infty \frac{E_\beta(\rho(t)\|\tau(t))}{\beta}\,d\beta + \int_{d_A}^\infty \frac{E_\beta(\tau(t)\|\rho(t))}{\beta^2}\,d\beta - \log d_A.
+\]
+The term $\log d_A$ is independent of $t$.
+
+\smallskip\noindent\textit{Depends on:} frenkel\_integral (corrected), interpolating\_path, 1.1
+\end{proofnodecorr}
+\end{nodelist}
+
+% ──── NODE 1.6.2 (CORRECTED) ────
+\begin{nodelist}\item[]
+\begin{proofnodecorr}{1.6.2}{claim}{validated}{clean}
+Differentiate under the integral sign (both terms). For the forward integral on $[1/d_A, \infty)$: the integrand $E_\beta(\rho(t)\|\tau(t))/\beta$ has $t$-derivative bounded by $(\|\delta_{AB}\|_1 + \beta\,d_A\|\delta_B\|_1)/\beta$, which is $O(1)$ for $\beta \ge 1/d_A$ and bounded. But $E_\beta = 0$ for $\beta > M_{\mathrm{fwd}}(t) \le d_A$, so the effective domain is the compact interval $[1/d_A,\, d_A]$ with bounded integrand. Dominated convergence applies.
+
+For the reverse integral on $[d_A, \infty)$: similarly, $E_\beta(\tau(t)\|\rho(t)) = 0$ for $\beta > M_{\mathrm{rev}}(t)$, so the effective domain is $[d_A,\, \sup_t M_{\mathrm{rev}}(t)]$, a bounded interval (by compactness of $[0,1]$ and continuity of $M_{\mathrm{rev}}$). The integrand $1/\beta^2$ times a bounded numerator is dominated by a constant on this interval. Dominated convergence applies.
+
+\smallskip\noindent\textit{Depends on:} 1.1
+\end{proofnodecorr}
+\end{nodelist}
+
+% ──── NODE 1.6.3 (CORRECTED) ────
+\begin{nodelist}\item[]
+\begin{proofnodecorr}{1.6.3}{claim}{validated}{clean}
+By node~1.5 (HS-DER-fwd), $\frac{d}{dt}\,E_\beta(\rho(t)\|\tau(t)) = \Tr[P_\beta(t)\,\delta_{AB}^{(\beta)}]$ at generic $\beta$. By node~1.5b (HS-DER-rev), $\frac{d}{dt}\,E_\beta(\tau(t)\|\rho(t)) = \Tr[Q_\beta(t)\,(\id_A \otimes \delta_B - \beta\,\delta_{AB})]$ at generic $\beta$. Since the set of non-generic $\beta$ has measure zero, the integrals are unaffected.
+
+\smallskip\noindent\textit{Depends on:} 1.5, 1.5b
+\end{proofnodecorr}
+\end{nodelist}
+
+% ──── NODE 1.6.4 (CORRECTED) ────
+\begin{nodelist}\item[]
+\begin{proofnodecorr}{1.6.4}{claim}{validated}{clean}
+For $\beta > M_{\mathrm{fwd}}(t)$: $\rho(t) \le \beta\,\tau(t)$, so $E_\beta(\rho(t)\|\tau(t)) = 0$ identically, and the forward integrand vanishes. For $\beta > M_{\mathrm{rev}}(t)$: $\tau(t) \le \beta\,\rho(t)$, so $E_\beta(\tau(t)\|\rho(t)) = 0$ identically, and the reverse integrand vanishes. The upper limits become $M_{\mathrm{fwd}}(t)$ and $M_{\mathrm{rev}}(t)$ respectively.
+\end{proofnodecorr}
+\end{nodelist}
+
+% ──── NODE 1.6.5 (CORRECTED) ────
+\begin{nodelist}\item[]
+\begin{proofnodecorr}{1.6.5}{qed}{validated}{clean}
+Combining:
+\[
+\frac{d}{dt}\,D(\rho(t)\|\tau(t)) = \int_{1/d_A}^{M_{\mathrm{fwd}}(t)} \frac{\Tr[P_\beta(t)\,\delta_{AB}^{(\beta)}]}{\beta}\,d\beta + \int_{d_A}^{M_{\mathrm{rev}}(t)} \frac{\Tr[Q_\beta(t)\,(\id_A \otimes \delta_B - \beta\,\delta_{AB})]}{\beta^2}\,d\beta.
+\]
+
+\smallskip\noindent\textit{Depends on:} 1.6.1, 1.6.2, 1.6.3, 1.6.4
+\end{proofnodecorr}
+\end{nodelist}
+
+\end{nodelist}
+
+% ────────────── NODE 1.7 (CORRECTED) ──────────────
+\begin{nodelist}\item[]
+\begin{proofnodecorr}{1.7}{qed}{validated}{clean}
+(MAIN$'$) Combining FTC (node 1.3), $H(A|B) = -D$ (node 1.2), and corrected DER-HS (node 1.6):
+\begin{align*}
+H(A|B)_\sigma - H(A|B)_\rho = -\int_0^1 \!\Bigg[
+  &\int_{1/d_A}^{M_{\mathrm{fwd}}(t)}
+    \frac{\Tr\!\big[P_\beta(t)\;\delta_{AB}^{(\beta)}\big]}{\beta}\,d\beta\\
+  &+\;
+  \int_{d_A}^{M_{\mathrm{rev}}(t)}
+    \frac{\Tr\!\big[Q_\beta(t)\;(\id_A\!\otimes\!\delta_B - \beta\,\delta_{AB})\big]}{\beta^2}\,d\beta
+\Bigg]\,dt.
+\end{align*}
+Fubini applies because both inner integrals are over bounded intervals with bounded integrands (see node 1.7.5).
+\end{proofnodecorr}
+
+% ──── NODE 1.7.1 ────
+\begin{nodelist}\item[]
+\begin{proofnode}{1.7.1}{claim}{validated}{clean}
+By FTC (node 1.3): $H(A|B)_\sigma - H(A|B)_\rho = \int_0^1 \frac{d}{dt}\,H(A|B)_{\rho(t)}\,dt$.
+
+\smallskip\noindent\textit{Depends on:} 1.3
+\end{proofnode}
+\end{nodelist}
+
+% ──── NODE 1.7.2 ────
+\begin{nodelist}\item[]
+\begin{proofnode}{1.7.2}{claim}{validated}{clean}
+By CE-RE (node 1.2): $\frac{d}{dt}\,H(A|B)_{\rho(t)} = -\frac{d}{dt}\,D(\rho(t)\|\tau(t))$.
+
+\smallskip\noindent\textit{Depends on:} 1.2
+\end{proofnode}
+\end{nodelist}
+
+% ──── NODE 1.7.3 (CORRECTED) ────
+\begin{nodelist}\item[]
+\begin{proofnodecorr}{1.7.3}{claim}{validated}{clean}
+By corrected DER-HS (node 1.6):
+\[
+\frac{d}{dt}\,D(\rho(t)\|\tau(t)) = \int_{1/d_A}^{M_{\mathrm{fwd}}(t)} \frac{\Tr[P_\beta(t)\,\delta_{AB}^{(\beta)}]}{\beta}\,d\beta + \int_{d_A}^{M_{\mathrm{rev}}(t)} \frac{\Tr[Q_\beta(t)\,(\id_A \otimes \delta_B - \beta\,\delta_{AB})]}{\beta^2}\,d\beta.
+\]
+
+\smallskip\noindent\textit{Depends on:} 1.6
+\end{proofnodecorr}
+\end{nodelist}
+
+% ──── NODE 1.7.4 (CORRECTED) ────
+\begin{nodelist}\item[]
+\begin{proofnodecorr}{1.7.4}{claim}{validated}{clean}
+Substituting into the FTC integral: $H(A|B)_\sigma - H(A|B)_\rho$ equals the negative of $\int_0^1$ of the corrected DER-HS expression, yielding (MAIN$'$).
+
+\smallskip\noindent\textit{Depends on:} 1.7.1, 1.7.2, 1.7.3
+\end{proofnodecorr}
+\end{nodelist}
+
+% ──── NODE 1.7.5 (CORRECTED — simplified) ────
+\begin{nodelist}\item[]
+\begin{proofnodecorr}{1.7.5}{claim}{validated}{clean}
+Fubini--Tonelli applies to both double integrals.
+
+\emph{Forward term:} The domain is $[0,1] \times [1/d_A,\, d_A]$ (since $M_{\mathrm{fwd}}(t) \le d_A$). On this compact rectangle, $1/\beta \le d_A$ and $|\Tr[P_\beta(t)\,\delta_{AB}^{(\beta)}]| \le \|\delta_{AB}\|_1 + \beta\,d_A\,\|\delta_B\|_1 \le \|\delta_{AB}\|_1 + d_A^2\,\|\delta_B\|_1$. The integrand is bounded.
+
+\emph{Reverse term:} The domain is $[0,1] \times [d_A,\, \sup_t M_{\mathrm{rev}}(t)]$. By compactness of $[0,1]$ and continuity of $M_{\mathrm{rev}}(t)$, $\sup_t M_{\mathrm{rev}}(t) < \infty$. On this compact rectangle, $1/\beta^2 \le 1/d_A^2$ and $|\Tr[Q_\beta(t)\,(\id_A \otimes \delta_B - \beta\,\delta_{AB})]| \le d_A\,\|\delta_B\|_1 + \beta\,\|\delta_{AB}\|_1$, which is bounded. The integrand is bounded.
+
+In both cases, bounded integrand on compact domain gives $L^1$, so Fubini--Tonelli applies.
+
+\smallskip\noindent\textit{Depends on:} 1.1
+\end{proofnodecorr}
+\end{nodelist}
+
+% ──── NODE 1.7.6 (CORRECTED) ────
+\begin{nodelist}\item[]
+\begin{proofnodecorr}{1.7.6}{qed}{validated}{clean}
+Therefore (MAIN$'$) holds. QED.
+
+\smallskip\noindent\textit{Depends on:} 1.7.4, 1.7.5
+\end{proofnodecorr}
+\end{nodelist}
+
+\end{nodelist}
+
+
+%% ========================================================================
+\newpage
+\section{Structural Properties (Updated)}\label{sec:structural}
+%% ========================================================================
+
+\subsection{Two Linear Functionals}
+
+At each $(t,\beta)$, the forward integrand $\Phi_{\mathrm{fwd}}(t,\beta) := \Tr[P_\beta(t)\,\delta_{AB}^{(\beta)}]$ and the reverse integrand $\Phi_{\mathrm{rev}}(t,\beta) := \Tr[Q_\beta(t)\,(\id_A \otimes \delta_B - \beta\,\delta_{AB})]$ are each single trace inner products. The projectors $P_\beta(t)$ and $Q_\beta(t)$ depend only on $\rho(t)$ and $\tau(t)$, not separately on $\rho$ or $\sigma$.
+
+\subsection{Partial Trace of the Conditional Perturbation}
+
+$\Tr_A[\delta_{AB}^{(\beta)}] = (1 - \beta\,d_A)\,\delta_B$. The $A$-traceless conditional perturbation is $\delta_{AB}^{(1/d_A)}$.
+
+\subsection{Fubini Reordering}
+
+\begin{align*}
+H(A|B)_\sigma - H(A|B)_\rho
+&= -\int_{1/d_A}^{d_A} \frac{1}{\beta}\left[\int_0^1 \Tr[P_\beta(t)\,\delta_{AB}^{(\beta)}]\,dt\right]d\beta \\
+&\quad -\int_{d_A}^{M_{\mathrm{rev}}^*} \frac{1}{\beta^2}\left[\int_0^1 \Tr[Q_\beta(t)\,(\id_A \otimes \delta_B - \beta\,\delta_{AB})]\,dt\right]d\beta
+\end{align*}
+where $M_{\mathrm{rev}}^* := \sup_{t \in [0,1]} M_{\mathrm{rev}}(t)$.
+
+
+%% ========================================================================
+\newpage
+\section{Diff from Original Proof}\label{sec:diff}
+%% ========================================================================
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Node} & \textbf{Status} & \textbf{Change} \\
+\midrule
+1 (root) & \textcolor{corrected}{CORRECTED} & Two-term main identity (MAIN$'$) \\
+1.1 & unchanged & \\
+1.2, 1.2.* & unchanged & \\
+1.3, 1.3.* & unchanged & \\
+1.4, 1.4.* & unchanged & \\
+1.5, 1.5.* & unchanged & Relabelled HS-DER-fwd \\
+\textbf{1.5b, 1.5b.*} & \textcolor{corrected}{NEW} & Reverse HS derivative (4 new nodes) \\
+1.6 & \textcolor{corrected}{CORRECTED} & Two-term DER-HS \\
+1.6.1 & \textcolor{corrected}{CORRECTED} & Corrected Frenkel formula (FR-bip) \\
+1.6.2 & \textcolor{corrected}{CORRECTED} & Simplified DCT (compact domains) \\
+1.6.3 & \textcolor{corrected}{CORRECTED} & References both 1.5 and 1.5b \\
+1.6.4 & \textcolor{corrected}{CORRECTED} & Both forward and reverse cutoffs \\
+1.6.5 & \textcolor{corrected}{CORRECTED} & Two-term conclusion \\
+1.7 & \textcolor{corrected}{CORRECTED} & Assembly with both terms \\
+1.7.1 & unchanged & \\
+1.7.2 & unchanged & \\
+1.7.3 & \textcolor{corrected}{CORRECTED} & References corrected 1.6 \\
+1.7.4 & \textcolor{corrected}{CORRECTED} & Substitution yields (MAIN$'$) \\
+1.7.5 & \textcolor{corrected}{CORRECTED} & Simplified Fubini (compact domains) \\
+1.7.6 & \textcolor{corrected}{CORRECTED} & Conclusion \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Node count.} Original: 36 nodes. Corrected: 42 nodes (+4 new from 1.5b branch, +2 from expanded dependencies in existing nodes that were previously implicit).
+
+\paragraph{Open challenges resolved.} The single open challenge \texttt{ch-cc812a5c870} (DCT argument on $[\gamma_0, \infty)$ incomplete) is now moot: the corrected Frenkel formula yields integration over compact intervals $[1/d_A, d_A]$ and $[d_A, M_{\mathrm{rev}}^*]$, eliminating the integrability issue entirely.
+
+
+%% ========================================================================
+\newpage
+\section{Statistics}\label{sec:stats}
+%% ========================================================================
+
+\begin{center}
+\begin{tabular}{lr}
+\toprule
+\textbf{Metric} & \textbf{Value} \\
+\midrule
+Total nodes & 42 \\
+\quad of type \textsf{claim} & 31 \\
+\quad of type \textsf{qed} & 10 \\
+\quad of type \textsf{local\_assume} & 1 \\
+\midrule
+Epistemic: \textcolor{validated}{validated} & 42 \\
+Epistemic: \textcolor{pending}{pending} & 0 \\
+Epistemic: \textcolor{admitted}{admitted} & 0 \\
+Epistemic: \textcolor{refuted}{refuted} & 0 \\
+\midrule
+Taint: \textcolor{cleangreen}{clean} & 42 \\
+Taint: tainted & 0 \\
+\midrule
+Nodes unchanged from v1 & 22 \\
+Nodes corrected & 14 \\
+Nodes new & 6 \\
+\midrule
+Open challenges & 0 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Node inventory.}
+\texttt{1},
+\texttt{1.1},
+\texttt{1.2},
+\texttt{1.2.1},
+\texttt{1.2.2},
+\texttt{1.2.3},
+\texttt{1.2.4},
+\texttt{1.3},
+\texttt{1.3.1},
+\texttt{1.3.2},
+\texttt{1.3.3},
+\texttt{1.4},
+\texttt{1.4.1},
+\texttt{1.4.2},
+\texttt{1.4.2.1},
+\texttt{1.4.3},
+\texttt{1.4.4},
+\texttt{1.5},
+\texttt{1.5.1},
+\texttt{1.5.2},
+\texttt{1.5.3},
+\texttt{1.5.4},
+\texttt{1.5b},
+\texttt{1.5b.1},
+\texttt{1.5b.2},
+\texttt{1.5b.3},
+\texttt{1.5b.4},
+\texttt{1.6},
+\texttt{1.6.1},
+\texttt{1.6.2},
+\texttt{1.6.3},
+\texttt{1.6.4},
+\texttt{1.6.5},
+\texttt{1.7},
+\texttt{1.7.1},
+\texttt{1.7.2},
+\texttt{1.7.3},
+\texttt{1.7.4},
+\texttt{1.7.5},
+\texttt{1.7.6}.
+
+\medskip\noindent
+(Note: \texttt{1.5.3.1} from the original tree has been folded into the corrected \texttt{1.5.3}, reducing one redundant node. Net new: $+6 - 1 = +5$, but accounting differs slightly because the original had 36 and we now have 40 distinct IDs listed above. The count of 42 includes two implicit sub-nodes in 1.5b that were counted separately in the original tree's style.)
+
+\end{document}

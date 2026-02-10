@@ -1,0 +1,1 @@
+{"type":"challenge_raised","timestamp":"2026-02-10T19:45:12.366560185Z","challenge_id":"ch-546af41e2c5f3477","node_id":"1.6.4","target":"statement","reason":"Only discusses forward vanishing (gamma \u003e M(t)). Corrected version needs both: forward E_beta(rho||tau)=0 for beta\u003eM_fwd(t) AND reverse E_beta(tau||rho)=0 for beta\u003eM_rev(t).","severity":"major","raised_by":""}

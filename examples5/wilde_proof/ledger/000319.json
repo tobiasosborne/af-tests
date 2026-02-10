@@ -1,0 +1,1 @@
+{"type":"challenge_raised","timestamp":"2026-02-10T19:45:14.00755149Z","challenge_id":"ch-6ac917e283fd5302","node_id":"1.6.5","target":"statement","reason":"QED for DER-HS references single integral. Must be corrected to combine both forward and reverse integrals into the two-term DER-HS formula.","severity":"critical","raised_by":""}

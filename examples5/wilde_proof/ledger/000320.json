@@ -1,0 +1,1 @@
+{"type":"challenge_raised","timestamp":"2026-02-10T19:45:19.820928621Z","challenge_id":"ch-be9726f86e54da0e","node_id":"1.7.3","target":"statement","reason":"References single-integral DER-HS from node 1.6. Must be updated to cite the corrected two-term DER-HS with both forward and reverse integrals.","severity":"critical","raised_by":""}

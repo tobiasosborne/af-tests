@@ -1,0 +1,8 @@
+{
+  "id": "bb47eca2ce63e437",
+  "name": "liu_hirche_cheng_2025",
+  "source": "Liu-Hirche-Cheng (2025): Layer Cake Representations for Quantum Divergences, arXiv:2507.07065v2. Independent derivation of the two-term Frenkel formula (FR) and generalisations. Confirms D(rho||sigma) = integral_1^infty [E_gamma(rho||sigma)/gamma + E_gamma(sigma||rho)/gamma^2] dgamma.",
+  "content_hash": "f21ccaa2ecc7c850a1ef626e7a271dd76c695183a4c47925fbc28aa44f66917e",
+  "created": "2026-02-10T19:45:53.048584232Z",
+  "notes": ""
+}

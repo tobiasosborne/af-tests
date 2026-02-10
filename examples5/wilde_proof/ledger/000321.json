@@ -1,0 +1,1 @@
+{"type":"challenge_raised","timestamp":"2026-02-10T19:45:20.813564821Z","challenge_id":"ch-cd99c7c3bf44de6e","node_id":"1.7.4","target":"statement","reason":"Substitution into FTC uses single-integral DER-HS. Must produce the two-term MAIN' formula with both forward and reverse double-integrals.","severity":"critical","raised_by":""}
