@@ -9,11 +9,16 @@
   - **Key finding**: quantum 6j symbols have EXPONENTIAL asymptotics for fixed q>0 q≠1
     (Taylor-Woodward 2005, Costantino 2007, Belletti-Yang 2025), NOT polynomial 1/√j.
     This destroys melonic dominance at generic q — a qualitative change, not a deformation.
-- **v2 revised conjecture** (`quantum_group_proof_v2/`): 9-node tree, 3 geometric regimes
-  - Part 0: Well-definedness & SUSY (ESTABLISHED from v1)
-  - Part I: Euclidean regime q=1 (KNOWN — original BLM paper)
-  - Part II: **Hyperbolic regime** q>0 q≠1 (NEW — Volume Conjecture connection)
-  - Part III: Topological regime q=root of unity (Turaev-Viro/Chern-Simons)
+- **v2 revised conjecture** (`quantum_group_proof_v2/`): 12-node tree, 3 geometric regimes
+  - Part 0 (1.1): Well-definedness & SUSY (ESTABLISHED from v1)
+    - 1.1.1: Braided fermion / U_q covariance open problem (from v1 node 1.1.3)
+    - 1.1.2: Correct q-melonic self-energy / vertex normalization (from v1 node 1.2.2)
+  - Part I (1.2): Euclidean regime q=1 (KNOWN — original BLM paper)
+  - Part II (1.3): **Hyperbolic regime** q>0 q≠1 (NEW — Volume Conjecture connection)
+    - 1.3.1-1.3.4: Exponential asymptotics, melonic breakdown, phase transition, Volume Conjecture
+    - 1.3.5: BPS survival at q≠1 — OPEN (from v1 nodes 1.3.2, 1.3.3)
+  - Part III (1.4): Topological regime q=root of unity (Turaev-Viro/Chern-Simons)
+  - v1 tree retained as archive (challenge ledger = evidence trail for v2)
 - Phase 4: Parallel sector diagonalization via `Threads.@threads`
 - `parallel_ground_states(j)` diagonalizes all (n, j3) sectors in parallel
 - j=11 with 4 threads: 2048 sectors processed (1042 full diag, 1006 Lanczos)
