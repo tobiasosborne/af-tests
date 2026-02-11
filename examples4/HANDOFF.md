@@ -1,13 +1,19 @@
 # HANDOFF: BLM Model — Numerics + Quantum Group Generalization
 
-## Status: Numerics Phases 1-4 complete; Quantum Group proof tree initialized
+## Status: v1 proof tree fully verified (5/23 validated, 18/23 challenged); v2 revised conjecture initialized
 
 **Latest**:
-- **Quantum group proof tree**: 23-node `af` proof tree in `quantum_group_proof/`
-  - Conjecture: U_q(su(2)) generalization of BLM model
-  - 4 main parts: SUSY, melonic dominance, q-BPS, Turaev-Viro
-  - 5 definitions, 3 external references, all 23 nodes pending
-  - Run `cd quantum_group_proof && af status` to see full tree
+- **v1 proof tree COMPLETE** (`quantum_group_proof/`): 23/23 nodes verified
+  - **5 validated**: 1.1 (SUSY), 1.1.2, 1.1.4, 1.2.1 (q-bubble), 1.2.4 (q-9j vanishing)
+  - **18 challenged**: Parts 2-4 fundamentally broken
+  - **Key finding**: quantum 6j symbols have EXPONENTIAL asymptotics for fixed q>0 q≠1
+    (Taylor-Woodward 2005, Costantino 2007, Belletti-Yang 2025), NOT polynomial 1/√j.
+    This destroys melonic dominance at generic q — a qualitative change, not a deformation.
+- **v2 revised conjecture** (`quantum_group_proof_v2/`): 9-node tree, 3 geometric regimes
+  - Part 0: Well-definedness & SUSY (ESTABLISHED from v1)
+  - Part I: Euclidean regime q=1 (KNOWN — original BLM paper)
+  - Part II: **Hyperbolic regime** q>0 q≠1 (NEW — Volume Conjecture connection)
+  - Part III: Topological regime q=root of unity (Turaev-Viro/Chern-Simons)
 - Phase 4: Parallel sector diagonalization via `Threads.@threads`
 - `parallel_ground_states(j)` diagonalizes all (n, j3) sectors in parallel
 - j=11 with 4 threads: 2048 sectors processed (1042 full diag, 1006 Lanczos)
@@ -55,7 +61,8 @@ The Hamiltonian uses O_{j,m} which projects onto ℓ = j. For fermion antisymmet
 | `numerics/src/sector_ed.jl` | Direct sector + Lanczos + parallel (Phase 2-4) |
 | `numerics/src/itensor_dmrg.jl` | MPO + DMRG with QN conservation |
 | `numerics/run_parallel_ed.jl` | Phase 4 test script |
-| `quantum_group_proof/` | **af proof tree** — 23-node quantum group generalization |
+| `quantum_group_proof/` | **af proof tree v1** — 23-node original conjecture (5 validated, 18 challenged) |
+| `quantum_group_proof_v2/` | **af proof tree v2** — 9-node revised conjecture (3 geometric regimes) |
 | `quantum_group_proof/README.md` | Proof tree overview, structure, next steps |
 | `quantum_group_proof/proof_tree.md` | Exported full proof in markdown |
 
@@ -79,16 +86,21 @@ println("BPS states: ", count(e -> abs(e) < 1e-6, evals))
 
 ## Next Steps
 
-### Quantum Group Generalization (NEW — priority)
-1. **Verifier pass**: Run adversarial verification on the 23-node proof tree
-   - `cd quantum_group_proof && af jobs --role verifier`
-   - Priority targets: 1.1.1 (q-3j antisymmetry), 1.2.1 (q-bubble identity), 1.3.1 (q-Witten index)
+### Revised Conjecture v2 (priority)
+1. **Verify v2 proof tree**: Run adversarial verification on `quantum_group_proof_v2/`
+   - Part 0 (1.1): should validate quickly (results established in v1)
+   - Part I (1.2): review node citing BLM paper
+   - Part II (1.3): key new claims — verify 1.3.1 (exponential asymptotics),
+     1.3.2 (melonic breakdown), 1.3.3 (phase transition), 1.3.4 (Volume Conjecture)
+   - Part III (1.4): verify Turaev-Viro formula (corrected from v1)
 2. **q-deformed numerics**: Modify Julia ED code to use quantum 3j symbols
    - Replace `wigner3j(j,j,j,m1,m2,m3)` with `q_wigner3j(j,j,j,m1,m2,m3,q)`
    - Validate: q→1 limit recovers original spectrum
    - Test BPS count stability under q-deformation
+   - **NEW**: Compute non-melonic diagram ratios at q≠1 to check exponential growth
 3. **Root-of-unity investigation**: Implement truncated model at q = exp(2πi/r)
-4. **Deeper leaf refinement**: Nodes 1.2.3-1.2.5 need explicit asymptotic calculations
+4. **Resolve v1 challenges**: 3 prover jobs on v1 tree (1.1.1, 1.1.3, 1.2.2) could be
+   refined with corrected statements
 
 ### Phase 5 - SU(2) symmetry exploitation
 Use J² block decomposition for additional speedup (see SYMMETRY_IMPLEMENTATION_PLAN.md).
