@@ -1,0 +1,787 @@
+\documentclass[11pt,a4paper]{article}
+
+% --- Packages ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usetikzlibrary{trees,arrows.meta,positioning}
+
+% --- Theorem environments ---
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+% --- Macros ---
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Uq}{U_q(\mathfrak{su}(2))}
+\DeclareMathOperator{\SU}{SU}
+\DeclareMathOperator{\Tr}{Tr}
+\DeclareMathOperator{\sgn}{sgn}
+
+% --- Colors for status ---
+\definecolor{proved}{RGB}{0,128,0}
+\definecolor{pending}{RGB}{200,150,0}
+\definecolor{refuted}{RGB}{200,0,0}
+\definecolor{archived}{RGB}{128,128,128}
+\definecolor{refined}{RGB}{0,100,180}
+\definecolor{conjectural}{RGB}{180,100,0}
+
+% --- Title ---
+\title{\textbf{Report on the Quantum Group Generalization\\of the BLM Melonic Model}\\[6pt]
+\large Adversarial Proof Framework Analysis}
+\author{Generated from the \texttt{af} proof workspace\\
+AF-Tests Project}
+\date{February 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This report documents the adversarial proof investigation of a conjectured quantum group generalization of the Biggs--Lin--Maldacena (BLM) melonic quantum mechanical model.
+The BLM model is an $N=2$ supersymmetric quantum mechanics of $N = 2j+1$ complex fermions with deterministic interactions governed by $\SU(2)$ Wigner 3j symbols.
+The conjecture proposes that replacing $\SU(2)$ 3j symbols with $\Uq$ quantum 3j symbols yields a one-parameter family $H_q = \{Q_q, Q_q^\dagger\}$ exhibiting three distinct large-$j$ geometric regimes:
+(I)~$q=1$: Euclidean 3D gravity (Ponzano--Regge) with melonic dominance;
+(II)~fixed $q > 0$, $q \neq 1$: hyperbolic regime with Volume Conjecture physics;
+(III)~$q = e^{2\pi i/r}$: topological 3D gravity (Turaev--Viro / Chern--Simons).
+Over two versions of the proof tree, we have constructed a 17-node v2 proof tree with 11~nodes validated, 5~refined (awaiting re-verification), and 1~archived.
+A critical error in the original treatment of SUSY at roots of unity was discovered and corrected.
+The established results (Part~0 and Part~I) rest on firm mathematical ground, while Parts~II and~III remain largely conjectural with clearly identified open problems.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%======================================================================
+\section{Problem Statement}
+\label{sec:problem}
+%======================================================================
+
+\subsection{The BLM Model}
+
+The Biggs--Lin--Maldacena (BLM) model~\cite{BLM25} is an $N=2$ supersymmetric quantum mechanical model of $N = 2j+1$ complex fermions $\psi_m$ ($m = -j, \ldots, j$) with deterministic three-body interactions governed by the $\SU(2)$ Wigner 3j symbol.
+
+\begin{definition}[BLM supercharge and Hamiltonian]
+\label{def:blm}
+Let $j$ be a positive odd integer and $N = 2j + 1$.  Let $C^j_{m_1 m_2 m_3}$ denote the Wigner 3j symbol $\begin{pmatrix} j & j & j \\ m_1 & m_2 & m_3 \end{pmatrix}$.
+The supercharge is
+\[
+  Q = \frac{1}{3!}\sqrt{2JN} \sum_{m_1, m_2, m_3} C^j_{m_1 m_2 m_3}\, \psi_{m_1}\, \psi_{m_2}\, \psi_{m_3},
+\]
+and the Hamiltonian is $H = \{Q, Q^\dagger\}$, where $J > 0$ is a coupling constant.
+\end{definition}
+
+\begin{remark}
+The parameter $j$ must be \emph{odd}.  The fermion pair angular momentum $\ell = 1, 3, \ldots, 2j-1$ must be odd for antisymmetry, so $j$ must be odd.  Even $j$ values give unphysical negative energies.
+\end{remark}
+
+The model possesses $\SU(2)$ symmetry, a $U(1)_R$ R-symmetry ($R = N_\psi / 3$), and charge conjugation invariance.  The normal-ordered form of the Hamiltonian is
+\[
+  H = \frac{J}{3}\Bigl[(2j+1) - 3\bigl(N_\psi + j + \tfrac{1}{2}\bigr) + 3 \sum_m O^\dagger_{j,m} O_{j,m}\Bigr],
+\]
+where $O_{\ell,m}$ projects fermion pairs onto angular momentum $\ell$.  Only the $\ell = j$ Haldane pseudopotential channel contributes~--- a connection to quantum Hall physics on the fuzzy sphere.
+
+Key established properties of the BLM model include:
+\begin{itemize}
+\item $N=2$ SUSY algebra: $Q^2 = 0$, $(Q^\dagger)^2 = 0$, $H \geq 0$.
+\item BPS state degeneracy: $D^{\text{BPS}}(j, R=\pm 1/6) = 3^j$ (numerically verified for $j = 1, 3, 5, 7, 9, 11$).
+\item Melonic dominance at large $j$: bubble diagrams dominate, with non-melonic corrections suppressed as $(\log j)/j$.
+\item Emergent 2D CFT at large $\SU(2)$ charge, with BPS partition function $Z^{\text{BPS}}_q(j) = 2 \prod_{m=1}^j (1 + q_{\text{BPS}}^m + q_{\text{BPS}}^{2m})$.
+\end{itemize}
+
+
+\subsection{The Quantum Group Generalization}
+
+\begin{conjecture}[q-deformed BLM model]
+\label{conj:main}
+Replacing $\SU(2)$ Wigner 3j symbols $C^j_{m_1 m_2 m_3}$ with $\Uq$ quantum 3j symbols $C^j_{m_1 m_2 m_3}(q)$ in the supercharge yields a one-parameter family of $N=2$ SUSY quantum mechanical models $H_q = \{Q_q, Q_q^\dagger\}$ ($q > 0$ real) exhibiting three distinct large-$j$ geometric regimes:
+\begin{enumerate}[label=(\Roman*)]
+\item \textbf{$q = 1$ (Euclidean):} Recovery of the original BLM model.  Ponzano--Regge 3D Euclidean gravity.  Melonic dominance with SYK-like Schwinger--Dyson equations.
+\item \textbf{Fixed $q > 0$, $q \neq 1$ (Hyperbolic):} Breakdown of melonic dominance due to exponential growth of quantum 6j symbols governed by hyperbolic tetrahedron volumes (Volume Conjecture regime).
+\item \textbf{$q = e^{2\pi i/r}$ root of unity (Topological):} Topological 3D gravity described by the Turaev--Viro state sum / Chern--Simons theory at level $k = r-2$, with spin truncation $j \leq (r-2)/2$.
+\end{enumerate}
+\end{conjecture}
+
+\subsection{Why This Is Hard}
+
+Several features make this conjecture non-trivial:
+\begin{enumerate}
+\item The quantum 3j symbols satisfy different symmetry properties from their classical counterparts; total antisymmetry for $j$ odd survives, but the behavior under column permutations involves phase factors dependent on $q$.
+\item The classical melonic dominance relies on 3j orthogonality (bubble identity) and 6j asymptotic suppression.  At $q \neq 1$, the 6j asymptotics change qualitatively: they grow exponentially rather than oscillating, governed by the volume of the associated hyperbolic tetrahedron.
+\item At roots of unity, the representation theory truncates ($j \leq (r-2)/2$), and fundamental questions about SUSY preservation arise.  The original treatment contained a critical error confusing conjugated coefficients $\bar{Q}$ with the Fock adjoint $Q^\dagger$.
+\item The $q \leftrightarrow q^{-1}$ symmetry of quantum 6j symbols constrains which asymptotic formulas are valid: the Costantino--Murakami formula (log-polynomial growth) holds only at roots of unity, while the fixed-real-$q$ asymptotics remain conjectural.
+\end{enumerate}
+
+
+%======================================================================
+\section{Proof Strategy}
+\label{sec:strategy}
+%======================================================================
+
+The v2 proof tree is organized into four parts, corresponding to progressively less established claims.
+
+\subsection{Part 0: Well-Definedness and SUSY (Nodes 1.1, 1.1.1, 1.1.2)}
+
+\paragraph{Node 1.1 --- Established Foundation.}
+For all $q > 0$ real: $Q_q^2 = 0$ (by total antisymmetry of $q$-3j symbols), $Q_q^\dagger$ is the true Hermitian adjoint ($q$-3j symbols are real for $q > 0$), and $H_q \geq 0$.  The $q$-bubble identity $\sum_{m_1,m_2} C^j(q) C^j(q) = \delta/[2j+1]_q$ holds.  The $q$-9j symbol with all spins $j$ (odd) vanishes.
+
+\textbf{Status:} \textcolor{proved}{VALIDATED.}  Established from v1 proof tree (nodes 1.1, 1.1.2, 1.1.4, 1.2.1, 1.2.4).
+
+\paragraph{Node 1.1.1 --- Braided Fermion / $U_q$ Covariance.}
+The q-deformed supercharge transforms covariantly under $\Uq$.  This requires understanding the braided tensor product structure of the fermion Fock space.
+
+\textbf{Status:} \textcolor{proved}{VALIDATED.}  An open problem for the full braided framework, but the basic covariance is established.
+
+\paragraph{Node 1.1.2 --- $q$-Melonic Self-Energy.}
+The $q$-melonic self-energy is $\Sigma_{\text{melonic}}(q) = J \delta_{m,m'} / [N]_q$, with the quantum dimension $[N]_q$ replacing $N$.
+
+\textbf{Status:} \textcolor{proved}{VALIDATED.}
+
+\subsection{Part I: Euclidean Regime $q = 1$ (Node 1.2)}
+
+\paragraph{Node 1.2 --- Original BLM Paper.}
+At $q = 1$, the model reduces to the original BLM construction.  Melonic dominance, SYK-like physics, Ponzano--Regge state sum interpretation, and BPS state counting are all established in~\cite{BLM25}.
+
+\textbf{Status:} \textcolor{proved}{VALIDATED.}
+
+\subsection{Part II: Hyperbolic Regime (Nodes 1.3, 1.3.1--1.3.5)}
+
+\paragraph{Node 1.3 --- Phase Structure at $q \neq 1$.}
+For fixed $q > 0$, $q \neq 1$, the quantum 6j asymptotics change qualitatively: the Ponzano--Regge oscillatory regime is replaced by exponential growth governed by hyperbolic tetrahedron volumes.  This signals a qualitative change in the model's large-$j$ behavior.
+
+\textbf{Status:} \textcolor{proved}{VALIDATED.}
+
+\paragraph{Node 1.3.1 --- 6j Asymptotics.}
+The quantum 6j symbol asymptotics split by regime:
+\begin{itemize}
+\item Root of unity: Costantino--Murakami formula (established).
+\item Fixed real $q > 0$: $q \leftrightarrow q^{-1}$ symmetry constrains the asymptotics; the exponential growth conjecture remains open.
+\end{itemize}
+
+\textbf{Status:} \textcolor{proved}{VALIDATED.}
+
+\paragraph{Node 1.3.2 --- Non-Melonic Scaling.}
+Classical melonic dominance established; $q$-deformed non-melonic scaling is conjectural.
+
+\textbf{Status:} \textcolor{proved}{VALIDATED.}
+
+\paragraph{Nodes 1.3.3, 1.3.4 --- Qualitative Change and Volume Conjecture.}
+Node~1.3.3: The qualitative change at $q=1$ is conjectural, conditional on 1.3.1/1.3.2.
+Node~1.3.4: The Volume Conjecture provides a motivating \emph{analogy}, not mathematical equivalence.
+
+\textbf{Status:} \textcolor{proved}{VALIDATED} (both).
+
+\paragraph{Node 1.3.5 --- BPS Survival at $q \neq 1$.}
+Whether BPS states survive $q$-deformation remains an open question.
+
+\textbf{Status:} \textcolor{proved}{VALIDATED.}
+
+
+\subsection{Part III: Root-of-Unity Regime (Nodes 1.4, 1.4.1--1.4.4)}
+
+\paragraph{Node 1.4 --- Root-of-Unity Framework.}
+At $q = e^{2\pi i/r}$, the representation theory truncates to $j \leq (r-2)/2$.  The regime connects to Turaev--Viro / Chern--Simons topology.  Restructured with epistemic labels after critical SUSY correction.
+
+\textbf{Status:} \textcolor{refined}{REFINED} (awaiting re-verification).
+
+\paragraph{Node 1.4.1 --- Turaev--Viro State Sum.}
+The Turaev--Viro state sum at level $r$ is established mathematics: it computes a topological invariant of 3-manifolds equivalent to $|Z_{\text{CS}}|^2$.  The TV normalization $D_r^{-2|V|}$ and the admissibility constraint $j \leq (r-2)/2$ are standard.
+
+\textbf{Status:} \textcolor{refined}{REFINED} (TV normalization, $\Lambda = 4\pi^2/r^2$, conventions updated).
+
+\paragraph{Node 1.4.2 --- Boulatov GFT Analogy.}
+The Boulatov group field theory provides a structural analogy with the BLM model (both use 3j-symbol vertices), but this is \emph{not} a mathematical equivalence.
+
+\textbf{Status:} \textcolor{proved}{VALIDATED.}
+
+\paragraph{Node 1.4.3 --- SUSY at Root of Unity.}
+
+\textbf{Critical Discovery:} The original claim that SUSY breaks at roots of unity was \textbf{wrong}.  The error confused $\bar{Q}$ (conjugated coefficients) with $Q^\dagger$ (Fock adjoint).  In fact, $\{Q, Q^\dagger\} \geq 0$ holds \emph{tautologically} for any operator $Q$:
+\[
+  \langle v | \{Q, Q^\dagger\} | v \rangle = \|Q^\dagger v\|^2 + \|Q v\|^2 \geq 0.
+\]
+The correct obstruction is \emph{representation-theoretic}: at roots of unity, the admissibility constraint $j \leq (r-2)/2$ restricts the model, and the interplay between SUSY and truncation requires careful analysis.
+
+\textbf{Status:} \textcolor{refined}{REFINED} (rewritten with correct analysis).
+
+\paragraph{Node 1.4.4 --- Open Problems and $r \to \infty$ Limit.}
+The $r \to \infty$ limit should recover the $q = 1$ model.  The precise rate of convergence and the behavior of BPS states in this limit are open questions.
+
+\textbf{Status:} \textcolor{refined}{REFINED} (awaiting re-verification).
+
+
+%======================================================================
+\section{Numerical Results}
+\label{sec:numerics}
+%======================================================================
+
+Exact diagonalization of the BLM Hamiltonian ($q = 1$) has been performed using a Julia implementation with sector-resolved construction and Krylov (Lanczos) eigensolvers.
+
+\subsection{Computational Scaling}
+
+\begin{center}
+\begin{tabular}{@{}cccccl@{}}
+\toprule
+$j$ & Sites $N$ & Full dim & Largest sector & Build $H$ & Eigensolve \\
+\midrule
+7 & 15 & 32,768 & 289 & 0.2s & full diag \\
+9 & 19 & 524,288 & 2,934 & 0.5s & $\sim$30s (Lanczos) \\
+11 & 23 & 8,388,608 & 32,540 & 6s & $\sim$80s (Lanczos) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Phase~4 implementation uses parallel sector diagonalization via Julia threads; at $j=11$ with 4 threads, all 2048 sectors are processed (1042 by full diagonalization, 1006 by Lanczos).
+
+\subsection{BPS State Verification}
+
+\begin{center}
+\begin{tabular}{@{}cccc@{}}
+\toprule
+$j$ & Observed BPS & Predicted $2 \times 3^j$ & Match \\
+\midrule
+1 & 6 & 6 & $\checkmark$ \\
+3 & 54 & 54 & $\checkmark$ \\
+5 & 486 & 486 & $\checkmark$ \\
+7 & 4,374 & 4,374 & $\checkmark$ \\
+9 & 39,366 & 39,366 & $\checkmark$ \\
+11 & 354,294 & 354,294 & $\checkmark$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+All BPS states lie at $R = \pm 1/6$ (fermion numbers $n = j$ and $n = j+1$).
+
+\subsection{Hamiltonian Validation}
+
+Hermiticity, positive semi-definiteness, vacuum energy $E_{\text{vac}} = J(2j+1)/3$, and commutators $[H, J_3] = [H, N_\psi] = 0$ have been verified numerically.  MPO vs.\ ED matrix comparison at $j=1$ gives Frobenius norm error $\sim 10^{-15}$.
+
+
+%======================================================================
+\section{Current Status}
+\label{sec:status}
+%======================================================================
+
+\subsection{Proof Tree Evolution}
+
+The proof tree has undergone two major revisions:
+
+\begin{center}
+\begin{tabular}{@{}lccl@{}}
+\toprule
+\textbf{Version} & \textbf{Nodes} & \textbf{Validated} & \textbf{Outcome} \\
+\midrule
+v1 & 23 & 5 & 18 challenged $\to$ archived \\
+v2 & 17 & 11 & 5 refined, 1 archived \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The v1 tree was overly optimistic, claiming established results for regimes where the physics is genuinely conjectural.  The v2 tree introduces epistemic labels distinguishing three levels:
+\begin{itemize}
+\item \textbf{Part~0/I (Established):} Results proven in the literature or by direct computation.
+\item \textbf{Part~II (Conjectural):} Plausible claims supported by analogy but lacking rigorous proof.
+\item \textbf{Part~III (Mixed):} Established mathematics (Turaev--Viro) combined with open problems (SUSY boundary, $r \to \infty$ limit).
+\end{itemize}
+
+\subsection{Node Statistics (v2)}
+
+\begin{center}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Epistemic State} & \textbf{Count} & \textbf{Meaning} \\
+\midrule
+\textcolor{proved}{Validated} & 11 & Passed adversarial verification \\
+\textcolor{refined}{Refined} & 5 & Challenges resolved, awaiting re-verification \\
+\textcolor{archived}{Archived} & 1 & Duplicate (1.3.1.1) \\
+\midrule
+\textbf{Total} & \textbf{17} & \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Validated Nodes}
+
+\begin{center}
+\begin{tabular}{@{}llc@{}}
+\toprule
+\textbf{Node} & \textbf{Content} & \textbf{Status} \\
+\midrule
+1.1 & Well-definedness and SUSY (Part~0) & \textcolor{proved}{VALIDATED} \\
+1.1.1 & Braided fermion / $U_q$ covariance & \textcolor{proved}{VALIDATED} \\
+1.1.2 & $q$-melonic self-energy & \textcolor{proved}{VALIDATED} \\
+1.2 & Euclidean regime $q=1$ (Part~I) & \textcolor{proved}{VALIDATED} \\
+1.3 & Phase structure at $q \neq 1$ & \textcolor{proved}{VALIDATED} \\
+1.3.1 & 6j asymptotics ($q \leftrightarrow q^{-1}$ constraint) & \textcolor{proved}{VALIDATED} \\
+1.3.2 & Non-melonic scaling & \textcolor{proved}{VALIDATED} \\
+1.3.3 & Qualitative change at $q=1$ & \textcolor{proved}{VALIDATED} \\
+1.3.4 & Volume Conjecture analogy & \textcolor{proved}{VALIDATED} \\
+1.3.5 & BPS survival at $q \neq 1$ & \textcolor{proved}{VALIDATED} \\
+1.4.2 & Boulatov GFT analogy & \textcolor{proved}{VALIDATED} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Refined Nodes (Awaiting Re-Verification)}
+
+\begin{center}
+\begin{tabular}{@{}llp{7.5cm}@{}}
+\toprule
+\textbf{Node} & \textbf{Content} & \textbf{Refinement Summary} \\
+\midrule
+1 & Root conjecture & Epistemic labels added (I=established, II=conjectural, III=mixed) \\
+1.4 & Root-of-unity framework & Part~III no longer claims TV/CS equivalence \\
+1.4.1 & Turaev--Viro state sum & TV normalization $D_r^{-2|V|}$, $\Lambda = 4\pi^2/r^2$, admissibility \\
+1.4.3 & SUSY at root of unity & Critical rewrite: SUSY preserved, representation-theoretic constraints \\
+1.4.4 & Open problems / $r \to \infty$ & Updated with corrected SUSY analysis \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+
+%======================================================================
+\section{Critical Discovery: SUSY at Roots of Unity}
+\label{sec:susy}
+%======================================================================
+
+The most significant outcome of the adversarial verification process was the discovery and correction of a fundamental error in the treatment of SUSY at roots of unity.
+
+\subsection{The Error}
+
+The original v1 proof tree (Node~1.4.3) claimed that SUSY \emph{breaks} at $q = e^{2\pi i/r}$ because the quantum 3j symbols become complex, so $Q_q^\dagger \neq \bar{Q}_q$.  This was used to argue that $H_q = \{Q_q, Q_q^\dagger\}$ could fail to be positive semi-definite.
+
+\subsection{The Correction}
+
+This argument confused two different operations:
+\begin{itemize}
+\item $\bar{Q}$: obtained by conjugating the \emph{coefficients} $C^j_{m_1 m_2 m_3}(q)$.
+\item $Q^\dagger$: the Fock-space adjoint, defined by $\langle Q^\dagger v, w \rangle = \langle v, Q w \rangle$.
+\end{itemize}
+The Fock adjoint $Q^\dagger$ satisfies $\{Q, Q^\dagger\} \geq 0$ \emph{tautologically} for any linear operator $Q$:
+\[
+  \langle v, \{Q, Q^\dagger\} v \rangle = \|Q^\dagger v\|^2 + \|Q v\|^2 \geq 0.
+\]
+Thus SUSY ($H \geq 0$) is \emph{preserved} at roots of unity.  The genuine obstruction is representation-theoretic: the spin truncation $j \leq (r-2)/2$ at roots of unity restricts the Hilbert space, and the interplay between the supercharge structure and this truncation requires careful analysis that has not been completed.
+
+\subsection{Impact}
+
+This correction propagated through the entire Part~III of the proof tree, requiring rewrites of nodes 1, 1.4, 1.4.1, 1.4.3, and 1.4.4.  All five have been refined and await re-verification.
+
+
+%======================================================================
+\section{Session History}
+\label{sec:sessions}
+%======================================================================
+
+\subsection{v1 Proof Tree Construction}
+
+\begin{itemize}
+\item Initial 23-node proof tree created covering all four parts of the conjecture.
+\item Organized into: Part~1.1 (well-definedness, 4 children), Part~1.2 (melonic dominance, 5 children), Part~1.3 ($q$-BPS states, 4 children), Part~1.4 (Turaev--Viro, 5 children).
+\item 5 nodes validated: basic SUSY properties, 3j antisymmetry, bubble identity, 9j vanishing, positive semi-definiteness.
+\item 18 nodes challenged: primarily for overclaiming established status on conjectural results.
+\item Key finding: the $q \leftrightarrow q^{-1}$ symmetry of quantum 6j symbols constrains the Taylor--Woodward asymptotic formula to roots of unity only.
+\end{itemize}
+
+\subsection{v2 Proof Tree: First Verification Wave}
+
+\begin{itemize}
+\item Restructured into 17 nodes with explicit epistemic labels.
+\item Part~II (hyperbolic regime) relabeled as conjectural throughout.
+\item Part~III restructured into 4 children (TV state sum, Boulatov analogy, SUSY obstruction, open problems).
+\item 11 nodes validated on first pass.
+\end{itemize}
+
+\subsection{v2 Proof Tree: Prover Fixes}
+
+\begin{itemize}
+\item 5 nodes challenged by adversarial verifiers; all challenges resolved by provers.
+\item \textbf{Critical fix:} SUSY at roots of unity (see Section~\ref{sec:susy}).
+\item Node~1.4.1: TV normalization, cosmological constant, admissibility conditions corrected.
+\item Root node: epistemic labels added, Part~III no longer claims TV/CS equivalence.
+\item All 5 refined nodes await re-verification.
+\end{itemize}
+
+
+%======================================================================
+\section{Open Problems and Gaps}
+\label{sec:gaps}
+%======================================================================
+
+The remaining open problems cluster into four categories.
+
+\subsection{Gap 1: Fixed-Real-$q$ Asymptotics of Quantum 6j Symbols}
+\label{sec:6j}
+
+\textbf{Affected nodes:} 1.3.1, 1.3.2, 1.3.3.
+
+\textbf{The problem:}
+The quantum 6j symbol asymptotics at fixed real $q > 0$ are not rigorously established.  The Costantino--Murakami formula~\cite{CM09} gives log-polynomial growth $\sim \exp(c \cdot r)$ at roots of unity $q = e^{2\pi i/r}$, but this formula does not apply at fixed real $q$.  The expected exponential growth governed by hyperbolic tetrahedron volumes (the ``Volume Conjecture regime'') lacks a rigorous asymptotic formula.
+
+\textbf{Status:}
+This is correctly labeled as \textcolor{conjectural}{CONJECTURAL} in the v2 proof tree.  No repair is needed; the gap is acknowledged.
+
+\textbf{What would resolve it:}
+A rigorous asymptotic formula for quantum 6j symbols at fixed real $q$, extending the Ponzano--Regge ($q=1$) and Costantino--Murakami (root of unity) results.
+
+\subsection{Gap 2: Representation-Theoretic SUSY Constraints at Roots of Unity}
+\label{sec:susy_gap}
+
+\textbf{Affected nodes:} 1.4.3, 1.4.4.
+
+\textbf{The problem:}
+While $H_q \geq 0$ is tautological, the spin truncation $j \leq (r-2)/2$ at roots of unity restricts which representations appear.  The questions are:
+\begin{enumerate}
+\item Does $Q_q^2 = 0$ still hold in the truncated Hilbert space?
+\item How do BPS states behave under truncation?
+\item What is the $r \to \infty$ limit of the truncated spectrum?
+\end{enumerate}
+
+\textbf{Status:}
+Node~1.4.3 has been rewritten to pose these as open questions rather than claiming false answers.  The correct formulation is in place; the mathematics remains to be done.
+
+\subsection{Gap 3: $q$-Deformed Melonic Dominance}
+\label{sec:melonic}
+
+\textbf{Affected nodes:} 1.3.2.
+
+\textbf{The problem:}
+At $q = 1$, melonic dominance follows from 3j orthogonality (bubble identity) and the $1/\sqrt{j}$ suppression of the tetrahedron (6j) diagram.  At $q \neq 1$, the bubble identity generalizes to $q$-bubble with $[2j+1]_q$ replacing $2j+1$, but the 6j suppression fails: the quantum 6j symbols grow exponentially rather than being suppressed.
+
+\textbf{Status:}
+Correctly labeled conjectural.  The classical ($q=1$) melonic dominance is established; the $q$-deformed version is a genuine open question about whether an entirely different large-$j$ regime emerges.
+
+\subsection{Gap 4: BPS State Survival Under $q$-Deformation}
+\label{sec:bps}
+
+\textbf{Affected nodes:} 1.3.5.
+
+\textbf{The problem:}
+The $\Z_3$-graded Witten index $W_r = \omega^{-(2j+1)/2} (1 - \omega^r)^{2j+1}$ is $q$-independent (it depends only on SUSY algebra, not on the specific Hamiltonian).  However, the \emph{detailed} BPS spectrum (which states are BPS, at which R-charges) could change under $q$-deformation.
+
+\textbf{Status:}
+This is an open question requiring $q$-deformed numerics (implementing quantum 3j symbols in the Julia ED code).
+
+
+%======================================================================
+\section{Assessment of Correctness}
+\label{sec:assessment}
+%======================================================================
+
+\subsection{What Is Secure}
+
+\begin{center}
+\begin{tabular}{@{}lp{7cm}c@{}}
+\toprule
+\textbf{Part} & \textbf{Content} & \textbf{Confidence} \\
+\midrule
+Part~0 & Well-definedness, SUSY, $q$-bubble identity, $q$-9j vanishing & \textbf{High} \\
+Part~I & Euclidean regime ($q=1$) = original BLM & \textbf{High} \\
+Node~1.4.2 & Boulatov GFT is a structural analogy & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+These results rest on established quantum group theory and the published BLM paper.  They have survived adversarial verification without challenge.
+
+\subsection{What Is Plausible but Conjectural}
+
+\begin{center}
+\begin{tabular}{@{}lp{7cm}c@{}}
+\toprule
+\textbf{Part} & \textbf{Content} & \textbf{Confidence} \\
+\midrule
+Part~II & Hyperbolic regime, Volume Conjecture physics & \textbf{Medium} \\
+1.3.1 & 6j asymptotics at fixed $q$ & \textbf{Medium} \\
+1.3.2--1.3.4 & Non-melonic scaling, phase change, VC analogy & \textbf{Medium--Low} \\
+1.3.5 & BPS survival at $q \neq 1$ & \textbf{Open} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Part~II is correctly labeled conjectural in the v2 tree.  The physical intuition is compelling (the quantum 6j symbols \emph{do} encode hyperbolic geometry), but rigorous asymptotic results are lacking for fixed real $q$.
+
+\subsection{What Faces Fundamental Obstacles}
+
+\begin{center}
+\begin{tabular}{@{}lp{7cm}c@{}}
+\toprule
+\textbf{Part} & \textbf{Content} & \textbf{Confidence} \\
+\midrule
+Part~III & Root-of-unity regime as a whole & \textbf{Mixed} \\
+1.4.1 & TV state sum mathematics & \textbf{High} \\
+1.4.3 & SUSY boundary at truncation & \textbf{Open} \\
+1.4.4 & $r \to \infty$ limit convergence & \textbf{Open} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The Turaev--Viro mathematics is established, but connecting it to the BLM model's physics (SUSY, BPS states, melonic structure) at roots of unity involves genuinely open mathematical questions.
+
+\subsection{Overall Assessment}
+
+The v2 proof tree is \emph{honest}: it clearly distinguishes established results from conjectures and open problems.  The adversarial verification process successfully identified and corrected a critical error (SUSY at roots of unity) and forced the removal of overclaimed equivalences (TV/CS not equivalent to BLM, Boulatov is analogy not identity).  The 11 validated nodes form a solid foundation; the 5 refined nodes need only re-verification of the corrected statements, not new mathematical content.
+
+
+%======================================================================
+\section{Prospects and Recommended Next Steps}
+\label{sec:prospects}
+%======================================================================
+
+\subsection{Most Promising Directions}
+
+\subsubsection{Direction A: $q$-Deformed Numerics}
+
+Modify the Julia ED code to use quantum 3j symbols $C^j_{m_1 m_2 m_3}(q)$.  Validate: $q \to 1$ limit recovers original spectrum.  Then:
+\begin{enumerate}
+\item Test BPS count stability under $q$-deformation (Gap~4).
+\item Compute non-melonic diagram ratios at $q \neq 1$ to test exponential growth (Gap~3).
+\item Measure spectral statistics at various $q$ to detect phase transitions.
+\end{enumerate}
+\textbf{Difficulty:} Low--Medium.  Requires implementing $q$-deformed Clebsch--Gordan coefficients, which are available in closed form.
+
+\subsubsection{Direction B: Root-of-Unity Investigation}
+
+Implement the truncated model at $q = e^{2\pi i/r}$ with $j \leq (r-2)/2$:
+\begin{enumerate}
+\item Verify $Q_q^2 = 0$ numerically in the truncated Hilbert space (Gap~2).
+\item Count BPS states and compare with $q=1$ prediction $2 \times 3^j$.
+\item Study the $r \to \infty$ limit empirically.
+\end{enumerate}
+\textbf{Difficulty:} Medium.  Complex coefficients require careful numerics; the truncated Hilbert space is smaller, easing computation.
+
+\subsubsection{Direction C: Rigorous 6j Asymptotics}
+
+The missing ingredient for Part~II is a rigorous asymptotic formula for quantum 6j symbols at fixed real $q$.  This is a problem in asymptotic analysis / special functions, independent of the BLM model.
+\textbf{Difficulty:} Hard.  This is an open problem in quantum topology.
+
+\subsubsection{Direction D: Re-Verify Refined Nodes}
+
+Run adversarial verifiers on the 5 refined nodes.  Since the challenges have been resolved and the mathematical content corrected, re-verification should proceed smoothly.
+\textbf{Difficulty:} Low.  Automated process.
+
+\subsection{Recommended Priority Order}
+
+\begin{enumerate}
+\item \textbf{Priority 1:} Re-verify the 5 refined nodes (Direction~D).  Cost: minimal.  Clears the backlog.
+\item \textbf{Priority 2:} Implement $q$-deformed numerics (Direction~A).  This is the fastest path to new physics results and tests the core conjecture directly.
+\item \textbf{Priority 3:} Root-of-unity investigation (Direction~B).  Addresses the most novel part of the conjecture (topological gravity connection).
+\item \textbf{Priority 4:} Rigorous 6j asymptotics (Direction~C).  Long-term mathematical goal; not on critical path for numerical validation.
+\end{enumerate}
+
+
+%======================================================================
+\section{Key References}
+\label{sec:refs}
+%======================================================================
+
+\begin{thebibliography}{99}
+
+\bibitem{BLM25}
+A.~Biggs, L.~L.~Lin, and J.~Maldacena,
+\emph{A melonic quantum mechanical model without disorder},
+arXiv:2601.08908 (2025).
+
+\bibitem{SY93}
+S.~Sachdev and J.~Ye,
+\emph{Gapless spin-fluid ground state in a random quantum Heisenberg magnet},
+Phys.\ Rev.\ Lett.\ \textbf{70} (1993), 3339.
+
+\bibitem{Kit15}
+A.~Kitaev,
+\emph{A simple model of quantum holography},
+talks at KITP (2015).
+
+\bibitem{FGMS17}
+S.~Fu, D.~Gaiotto, J.~Maldacena, and S.~Sachdev,
+\emph{Supersymmetric Sachdev-Ye-Kitaev models},
+Phys.\ Rev.\ D \textbf{95} (2017), 026009.
+
+\bibitem{PR68}
+G.~Ponzano and T.~Regge,
+\emph{Semiclassical limit of Racah coefficients},
+in \emph{Spectroscopic and Group Theoretical Methods in Physics}, North-Holland, 1968.
+
+\bibitem{TV92}
+V.~Turaev and O.~Viro,
+\emph{State sum invariants of 3-manifolds and quantum 6j-symbols},
+Topology \textbf{31} (1992), 865--902.
+
+\bibitem{CM09}
+F.~Costantino and J.~Murakami,
+\emph{On the $\SL(2,\C)$ quantum 6j-symbols and their relation to the hyperbolic volume},
+Quantum Topology \textbf{4} (2013), 303--351.
+
+\bibitem{Kas95}
+C.~Kassel,
+\emph{Quantum Groups},
+Graduate Texts in Mathematics \textbf{155}, Springer, 1995.
+
+\bibitem{Wit89}
+E.~Witten,
+\emph{Quantum field theory and the Jones polynomial},
+Commun.\ Math.\ Phys.\ \textbf{121} (1989), 351--399.
+
+\bibitem{Bou92}
+D.~Boulatov,
+\emph{A model of three-dimensional lattice gravity},
+Mod.\ Phys.\ Lett.\ A \textbf{7} (1992), 1629--1646.
+
+\bibitem{Hal83}
+F.~D.~M.~Haldane,
+\emph{Fractional quantization of the Hall effect: A hierarchy of incompressible quantum fluid states},
+Phys.\ Rev.\ Lett.\ \textbf{51} (1983), 605.
+
+\bibitem{SW17}
+D.~Stanford and E.~Witten,
+\emph{Fermionic localization of the Schwarzian theory},
+JHEP \textbf{10} (2017), 008.
+
+\end{thebibliography}
+
+
+\newpage
+%======================================================================
+\appendix
+\section{Full Proof Tree (v2)}
+\label{app:tree}
+%======================================================================
+
+The complete v2 proof tree as maintained in the adversarial proof framework.
+Status key: \textcolor{proved}{\textbf{V}}~=~validated,
+\textcolor{refined}{\textbf{R}}~=~refined (awaiting re-verification),
+\textcolor{archived}{\textbf{A}}~=~archived.
+
+{\small\begin{verbatim}
+1 [R] Root conjecture: The q-deformed BLM model H_q = {Q_q, Q_q†}
+  |  exhibits three distinct large-j geometric regimes:
+  |  (I) q=1 Euclidean, (II) fixed q>0 hyperbolic, (III) root of unity topological.
+  |  Epistemic labels: I=established, II=conjectural, III=mixed.
+  |
+  +-- PART 0: WELL-DEFINEDNESS AND SUSY (ESTABLISHED)
+  |
+  +-- 1.1 [V] For all q > 0: Q_q^2 = 0, Q_q† is Hermitian adjoint,
+  |   |  H_q >= 0. q-bubble identity, q-9j vanishing hold.
+  |   |
+  |   +-- 1.1.1 [V] Braided fermion / U_q covariance
+  |   |
+  |   +-- 1.1.2 [V] q-melonic self-energy: Sigma = J delta / [N]_q
+  |
+  +-- PART I: EUCLIDEAN REGIME q=1 (ESTABLISHED)
+  |
+  +-- 1.2 [V] q=1 recovers original BLM. Ponzano-Regge, melonic
+  |      dominance, SYK-like SD equations all established.
+  |
+  +-- PART II: HYPERBOLIC REGIME q>0, q≠1 (CONJECTURAL)
+  |
+  +-- 1.3 [V] Phase structure at fixed q != 1.
+  |   |  6j asymptotics change qualitatively. q<->q^{-1} constraint.
+  |   |
+  |   +-- 1.3.1 [V] 6j asymptotics: root-of-unity proven (CM),
+  |   |      fixed-real-q conjectural.
+  |   |
+  |   +-- 1.3.2 [V] Non-melonic scaling: classical established,
+  |   |      q-deformed conjectural.
+  |   |
+  |   +-- 1.3.3 [V] Qualitative change at q=1: conjectural,
+  |   |      conditional on 1.3.1/1.3.2.
+  |   |
+  |   +-- 1.3.4 [V] Volume Conjecture: motivating analogy,
+  |   |      NOT mathematical equivalence.
+  |   |
+  |   +-- 1.3.5 [V] BPS survival at q != 1: OPEN.
+  |
+  +-- PART III: ROOT-OF-UNITY REGIME (MIXED)
+  |
+  +-- 1.4 [R] Root-of-unity framework. q = exp(2πi/r),
+      |  spin truncation j <= (r-2)/2.
+      |
+      +-- 1.4.1 [R] Turaev-Viro state sum (established math).
+      |      D_r^{-2|V|} normalization, Λ = 4π²/r².
+      |
+      +-- 1.4.2 [V] Boulatov GFT: structural analogy, NOT equivalence.
+      |
+      +-- 1.4.3 [R] SUSY preserved at root of unity.
+      |      {Q,Q†} >= 0 tautological. Representation-theoretic
+      |      constraints from spin truncation are the real issue.
+      |
+      +-- 1.4.4 [R] Open problems: r -> infinity limit, BPS under
+             truncation, convergence rate.
+
+  1.3.1.1 [A] Archived (duplicate of 1.3.1).
+\end{verbatim}}
+
+
+\newpage
+%======================================================================
+\section{Key Definitions}
+\label{app:defs}
+%======================================================================
+
+\subsection*{Quantum 3j Symbol}
+
+The $\Uq$ quantum 3j symbol $C^j_{m_1 m_2 m_3}(q)$ is the $q$-analog of the Wigner 3j symbol $\begin{pmatrix} j & j & j \\ m_1 & m_2 & m_3 \end{pmatrix}$, defined via the quantum Clebsch--Gordan decomposition of $V_j^{\otimes 3}$.  For $q > 0$ real, $C^j(q)$ is real-valued; for $j$ odd, it is totally antisymmetric under column permutation.
+
+\subsection*{Quantum Dimension}
+
+$[n]_q = \frac{q^{n/2} - q^{-n/2}}{q^{1/2} - q^{-1/2}}$.  At $q = 1$: $[n]_1 = n$.  At $q = e^{2\pi i/r}$: $[n]_q$ vanishes when $n \equiv 0 \pmod{r}$, which drives the spin truncation.
+
+\subsection*{Turaev--Viro State Sum}
+
+For a triangulation $\mathcal{T}$ of a closed 3-manifold $M$ with $|V|$ vertices and $|E|$ edges:
+\[
+  Z_{\text{TV}}(M; r) = D_r^{-2|V|} \sum_{\text{colorings}} \prod_{\text{edges}} [2j_e + 1]_q \prod_{\text{tetrahedra}} \begin{Bmatrix} j_1 & j_2 & j_3 \\ j_4 & j_5 & j_6 \end{Bmatrix}_q,
+\]
+where $D_r^2 = \sum_{j=0}^{(r-2)/2} [2j+1]_q^2$ and the sum is over admissible colorings ($j_e \leq (r-2)/2$).
+
+\subsection*{BPS States}
+
+A state $|v\rangle$ is BPS if $H|v\rangle = 0$, equivalently $Q|v\rangle = Q^\dagger|v\rangle = 0$.  The BPS degeneracy is counted by the $\Z_3$-graded Witten index:
+\[
+  W_r = \Tr\bigl[(-1)^F \omega^{rR}\bigr] = \omega^{-(2j+1)/2} (1 - \omega^r)^{2j+1},
+  \qquad \omega = e^{2\pi i/3}.
+\]
+
+
+\newpage
+%======================================================================
+\section{Physics Summary Table}
+\label{app:physics}
+%======================================================================
+
+\begin{center}
+\begin{tabular}{@{}lp{3.5cm}p{3.5cm}p{3.5cm}@{}}
+\toprule
+\textbf{Feature} & \textbf{$q=1$ (Euclidean)} & \textbf{$q > 0$, $q \neq 1$ (Hyperbolic)} & \textbf{$q = e^{2\pi i/r}$ (Root of unity)} \\
+\midrule
+3D gravity & Ponzano--Regge & Hyperbolic volume & Turaev--Viro / CS \\
+Melonic dom. & Yes ($1/\sqrt{j}$) & Breaks (exp.\ growth) & Truncated ($j \leq (r-2)/2$) \\
+SUSY & $H \geq 0$, $Q^2 = 0$ & $H \geq 0$, $Q^2 = 0$ & $H \geq 0$ tautological; $Q^2 = 0$ open \\
+BPS count & $2 \times 3^j$ & Open & Open \\
+6j asymptotics & PR oscillatory & Conjectural exp.\ growth & CM log-polynomial \\
+$q \leftrightarrow q^{-1}$ & Trivial & Constraining & N/A \\
+\midrule
+\textbf{Status} & \textcolor{proved}{Established} & \textcolor{conjectural}{Conjectural} & \textcolor{refined}{Mixed} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+
+\end{document}
