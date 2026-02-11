@@ -1,14 +1,20 @@
 # HANDOFF: BLM Model — Numerics + Quantum Group Generalization
 
-## Status: v2 proof tree first pass complete — 5/17 validated, 11 refined, 1 archived
+## Status: v2 proof tree second-pass verification COMPLETE — 11/17 validated, 5 challenged, 1 archived
 
 **Latest**:
-- **v2 proof tree** (`quantum_group_proof_v2/`): 17 nodes (12 original + 4 new 1.4 children + 1 archived)
-  - **5 validated**: 1.1, 1.1.1, 1.1.2, 1.2, 1.3.5
-  - **11 pending** (refined after challenges, awaiting re-verification): 1, 1.3, 1.3.1-1.3.4, 1.4, 1.4.1-1.4.4
+- **v2 proof tree** (`quantum_group_proof_v2/`): all 17 nodes verified (breadth-first, 6 rounds)
+  - **11 validated**: 1.1, 1.1.1, 1.1.2, 1.2, 1.3, 1.3.1, 1.3.2, 1.3.3, 1.3.4, 1.3.5, 1.4.2
+  - **5 challenged** (need prover refinement): 1 (root), 1.4, 1.4.1, 1.4.3, 1.4.4
   - **1 archived**: 1.3.1.1 (duplicate)
-- **Critical discovery**: q↔q⁻¹ symmetry DISPROVES q>1 growth / q<1 decay dichotomy
-- **Key correction**: Taylor-Woodward/Costantino/Belletti-Yang prove root-of-unity results ONLY
+- **CRITICAL DISCOVERY**: SUSY obstruction at root of unity is WRONG
+  - {Q,Q†} ≥ 0 holds tautologically for ANY operator Q (||Q†v||² + ||Qv||² ≥ 0)
+  - Nodes 1.4, 1.4.3, 1.4.4 confuse Q̄ (conjugated coefficients) with Q† (Fock adjoint)
+  - N=2 SUSY is PRESERVED at root of unity — invalidates Part III central claim
+  - 3 independent verifiers confirmed this error
+- **Node 1.4.1 challenges**: TV normalization D_r^{-2} should be D_r^{-2|V|}; cosmological constant formula misattributed
+- **Root node challenges**: Part II presented as established (should be conjectural); Part III overclaims "topological 3D gravity"
+- **Previous discoveries still valid**: q↔q⁻¹ symmetry, Taylor-Woodward root-of-unity only
 - **Node 1.4 restructured** into 4 children: TV math, Boulatov analogy, SUSY obstruction, open problems
 - **v1 proof tree** (`quantum_group_proof/`): archived (23/23 verified, 5 validated, 18 challenged)
 - v2 Part 0 (1.1): Well-definedness & SUSY (ESTABLISHED from v1)
