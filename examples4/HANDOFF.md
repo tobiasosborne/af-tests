@@ -1,24 +1,31 @@
 # HANDOFF: BLM Model — Numerics + Quantum Group Generalization
 
-## Status: v1 proof tree fully verified (5/23 validated, 18/23 challenged); v2 revised conjecture initialized
+## Status: v2 proof tree first pass complete — 5/17 validated, 11 refined, 1 archived
 
 **Latest**:
-- **v1 proof tree COMPLETE** (`quantum_group_proof/`): 23/23 nodes verified
-  - **5 validated**: 1.1 (SUSY), 1.1.2, 1.1.4, 1.2.1 (q-bubble), 1.2.4 (q-9j vanishing)
-  - **18 challenged**: Parts 2-4 fundamentally broken
-  - **Key finding**: quantum 6j symbols have EXPONENTIAL asymptotics for fixed q>0 q≠1
-    (Taylor-Woodward 2005, Costantino 2007, Belletti-Yang 2025), NOT polynomial 1/√j.
-    This destroys melonic dominance at generic q — a qualitative change, not a deformation.
-- **v2 revised conjecture** (`quantum_group_proof_v2/`): 12-node tree, 3 geometric regimes
-  - Part 0 (1.1): Well-definedness & SUSY (ESTABLISHED from v1)
+- **v2 proof tree** (`quantum_group_proof_v2/`): 17 nodes (12 original + 4 new 1.4 children + 1 archived)
+  - **5 validated**: 1.1, 1.1.1, 1.1.2, 1.2, 1.3.5
+  - **11 pending** (refined after challenges, awaiting re-verification): 1, 1.3, 1.3.1-1.3.4, 1.4, 1.4.1-1.4.4
+  - **1 archived**: 1.3.1.1 (duplicate)
+- **Critical discovery**: q↔q⁻¹ symmetry DISPROVES q>1 growth / q<1 decay dichotomy
+- **Key correction**: Taylor-Woodward/Costantino/Belletti-Yang prove root-of-unity results ONLY
+- **Node 1.4 restructured** into 4 children: TV math, Boulatov analogy, SUSY obstruction, open problems
+- **v1 proof tree** (`quantum_group_proof/`): archived (23/23 verified, 5 validated, 18 challenged)
+- v2 Part 0 (1.1): Well-definedness & SUSY (ESTABLISHED from v1)
     - 1.1.1: Braided fermion / U_q covariance open problem (from v1 node 1.1.3)
     - 1.1.2: Correct q-melonic self-energy / vertex normalization (from v1 node 1.2.2)
   - Part I (1.2): Euclidean regime q=1 (KNOWN — original BLM paper)
-  - Part II (1.3): **Hyperbolic regime** q>0 q≠1 (NEW — Volume Conjecture connection)
-    - 1.3.1-1.3.4: Exponential asymptotics, melonic breakdown, phase transition, Volume Conjecture
-    - 1.3.5: BPS survival at q≠1 — OPEN (from v1 nodes 1.3.2, 1.3.3)
-  - Part III (1.4): Topological regime q=root of unity (Turaev-Viro/Chern-Simons)
-  - v1 tree retained as archive (challenge ledger = evidence trail for v2)
+  - Part II (1.3): **Hyperbolic regime** q>0 q≠1 — NOW CORRECTLY LABELED CONJECTURAL
+    - 1.3.1: 6j asymptotics — root-of-unity proven, fixed-real-q conjectural, q↔q⁻¹ constraint
+    - 1.3.2: Non-melonic scaling — classical established, q-deformed conjectural
+    - 1.3.3: Qualitative change at q=1 — conjectural, conditional on 1.3.1/1.3.2
+    - 1.3.4: Volume Conjecture — motivating analogy, NOT mathematical equivalence
+    - 1.3.5: BPS survival at q≠1 — OPEN (VALIDATED)
+  - Part III (1.4): Root-of-unity regime — restructured into 4 children
+    - 1.4.1: Turaev-Viro state sum (established math)
+    - 1.4.2: Boulatov GFT analogy (structural, not equivalence)
+    - 1.4.3: SUSY breaks at root of unity (critical obstruction)
+    - 1.4.4: Open problems and r→∞ limit
 - Phase 4: Parallel sector diagonalization via `Threads.@threads`
 - `parallel_ground_states(j)` diagonalizes all (n, j3) sectors in parallel
 - j=11 with 4 threads: 2048 sectors processed (1042 full diag, 1006 Lanczos)
@@ -92,17 +99,15 @@ println("BPS states: ", count(e -> abs(e) < 1e-6, evals))
 ## Next Steps
 
 ### Revised Conjecture v2 (priority)
-1. **Verify v2 proof tree**: Run adversarial verification on `quantum_group_proof_v2/`
-   - Part 0 (1.1): should validate quickly (results established in v1)
-   - Part I (1.2): review node citing BLM paper
-   - Part II (1.3): key new claims — verify 1.3.1 (exponential asymptotics),
-     1.3.2 (melonic breakdown), 1.3.3 (phase transition), 1.3.4 (Volume Conjecture)
-   - Part III (1.4): verify Turaev-Viro formula (corrected from v1)
+1. **Re-verify refined nodes**: 11 nodes refined after challenges, need re-verification
+   - 1.3, 1.3.1-1.3.4: all relabeled as conjectural, q↔q⁻¹ constraint added
+   - 1.4, 1.4.1-1.4.4: restructured with SUSY obstruction and Boulatov analogy
+   - Root node 1: needs update to reflect conjectural status of Parts II-III
 2. **q-deformed numerics**: Modify Julia ED code to use quantum 3j symbols
    - Replace `wigner3j(j,j,j,m1,m2,m3)` with `q_wigner3j(j,j,j,m1,m2,m3,q)`
    - Validate: q→1 limit recovers original spectrum
    - Test BPS count stability under q-deformation
-   - **NEW**: Compute non-melonic diagram ratios at q≠1 to check exponential growth
+   - Compute non-melonic diagram ratios at q≠1 to check exponential growth
 3. **Root-of-unity investigation**: Implement truncated model at q = exp(2πi/r)
 4. **Resolve v1 challenges**: 3 prover jobs on v1 tree (1.1.1, 1.1.3, 1.2.2) could be
    refined with corrected statements
