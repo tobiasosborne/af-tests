@@ -1,11 +1,15 @@
-# HANDOFF: BLM Model Numerical Work
+# HANDOFF: BLM Model — Numerics + Quantum Group Generalization
 
-## Status: Phases 1-4 complete
+## Status: Numerics Phases 1-4 complete; Quantum Group proof tree initialized
 
 **Latest**:
+- **Quantum group proof tree**: 23-node `af` proof tree in `quantum_group_proof/`
+  - Conjecture: U_q(su(2)) generalization of BLM model
+  - 4 main parts: SUSY, melonic dominance, q-BPS, Turaev-Viro
+  - 5 definitions, 3 external references, all 23 nodes pending
+  - Run `cd quantum_group_proof && af status` to see full tree
 - Phase 4: Parallel sector diagonalization via `Threads.@threads`
 - `parallel_ground_states(j)` diagonalizes all (n, j3) sectors in parallel
-- `print_spectrum_summary(results)` for formatted output
 - j=11 with 4 threads: 2048 sectors processed (1042 full diag, 1006 Lanczos)
 
 ## ⚠️ CRITICAL: j must be ODD
@@ -51,6 +55,9 @@ The Hamiltonian uses O_{j,m} which projects onto ℓ = j. For fermion antisymmet
 | `numerics/src/sector_ed.jl` | Direct sector + Lanczos + parallel (Phase 2-4) |
 | `numerics/src/itensor_dmrg.jl` | MPO + DMRG with QN conservation |
 | `numerics/run_parallel_ed.jl` | Phase 4 test script |
+| `quantum_group_proof/` | **af proof tree** — 23-node quantum group generalization |
+| `quantum_group_proof/README.md` | Proof tree overview, structure, next steps |
+| `quantum_group_proof/proof_tree.md` | Exported full proof in markdown |
 
 ## Running
 
@@ -71,6 +78,17 @@ println("BPS states: ", count(e -> abs(e) < 1e-6, evals))
 ```
 
 ## Next Steps
+
+### Quantum Group Generalization (NEW — priority)
+1. **Verifier pass**: Run adversarial verification on the 23-node proof tree
+   - `cd quantum_group_proof && af jobs --role verifier`
+   - Priority targets: 1.1.1 (q-3j antisymmetry), 1.2.1 (q-bubble identity), 1.3.1 (q-Witten index)
+2. **q-deformed numerics**: Modify Julia ED code to use quantum 3j symbols
+   - Replace `wigner3j(j,j,j,m1,m2,m3)` with `q_wigner3j(j,j,j,m1,m2,m3,q)`
+   - Validate: q→1 limit recovers original spectrum
+   - Test BPS count stability under q-deformation
+3. **Root-of-unity investigation**: Implement truncated model at q = exp(2πi/r)
+4. **Deeper leaf refinement**: Nodes 1.2.3-1.2.5 need explicit asymptotic calculations
 
 ### Phase 5 - SU(2) symmetry exploitation
 Use J² block decomposition for additional speedup (see SYMMETRY_IMPLEMENTATION_PLAN.md).
