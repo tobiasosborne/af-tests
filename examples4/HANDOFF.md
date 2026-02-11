@@ -1,21 +1,20 @@
 # HANDOFF: BLM Model — Numerics + Quantum Group Generalization
 
-## Status: v2 proof tree second-pass verification COMPLETE — 11/17 validated, 5 challenged, 1 archived
+## Status: v2 proof tree verification + prover fixes COMPLETE — 11 validated, 5 refined (awaiting re-verification), 1 archived
 
 **Latest**:
-- **v2 proof tree** (`quantum_group_proof_v2/`): all 17 nodes verified (breadth-first, 6 rounds)
+- **v2 proof tree** (`quantum_group_proof_v2/`): all 17 nodes verified, 5 fixed by provers
   - **11 validated**: 1.1, 1.1.1, 1.1.2, 1.2, 1.3, 1.3.1, 1.3.2, 1.3.3, 1.3.4, 1.3.5, 1.4.2
-  - **5 challenged** (need prover refinement): 1 (root), 1.4, 1.4.1, 1.4.3, 1.4.4
+  - **5 refined** (all challenges resolved, awaiting re-verification): 1 (root), 1.4, 1.4.1, 1.4.3, 1.4.4
   - **1 archived**: 1.3.1.1 (duplicate)
-- **CRITICAL DISCOVERY**: SUSY obstruction at root of unity is WRONG
+- **CRITICAL DISCOVERY + FIX**: SUSY obstruction at root of unity was WRONG, now corrected
   - {Q,Q†} ≥ 0 holds tautologically for ANY operator Q (||Q†v||² + ||Qv||² ≥ 0)
-  - Nodes 1.4, 1.4.3, 1.4.4 confuse Q̄ (conjugated coefficients) with Q† (Fock adjoint)
-  - N=2 SUSY is PRESERVED at root of unity — invalidates Part III central claim
-  - 3 independent verifiers confirmed this error
-- **Node 1.4.1 challenges**: TV normalization D_r^{-2} should be D_r^{-2|V|}; cosmological constant formula misattributed
-- **Root node challenges**: Part II presented as established (should be conjectural); Part III overclaims "topological 3D gravity"
+  - Original error confused Q̄ (conjugated coefficients) with Q† (Fock adjoint)
+  - Node 1.4.3 rewritten: "SUSY preserved, representation-theoretic constraints"
+  - Admissibility constraint j ≤ (r-2)/2 added throughout Part III
+- **Node 1.4.1 fixed**: TV normalization D_r^{-2|V|}, Λ=4π²/r², admissibility conditions, conventions
+- **Root node fixed**: epistemic labels (I=established, II=conjectural, III=mixed), Part III no longer claims TV/CS equivalence
 - **Previous discoveries still valid**: q↔q⁻¹ symmetry, Taylor-Woodward root-of-unity only
-- **Node 1.4 restructured** into 4 children: TV math, Boulatov analogy, SUSY obstruction, open problems
 - **v1 proof tree** (`quantum_group_proof/`): archived (23/23 verified, 5 validated, 18 challenged)
 - v2 Part 0 (1.1): Well-definedness & SUSY (ESTABLISHED from v1)
     - 1.1.1: Braided fermion / U_q covariance open problem (from v1 node 1.1.3)
