@@ -1,27 +1,25 @@
 # HANDOFF: BLM Model — Numerics + Quantum Group Generalization
 
-## Status: v3 verification wave — 12 validated, 5 pending (2 newly refined), 2 archived — 73% complete
+## Status: v4 wave — 13 validated, 4 pending, 2 archived — 78% complete
 
-**Latest (v3 session)**:
-- **v3 breadth-first verification**: launched 6 parallel verifiers, then 3 parallel provers
-  - **Node 1.4.1 VALIDATED** (was pending) — all items verified correct
-  - **Node 1.4.5 ARCHIVED** — exact duplicate of parent 1.4 (same content hash)
-  - **Node 1.4.3 REFINED** — 11 challenges resolved by prover:
-    - Corrected admissibility bound: r ≥ 3j+2 (from Racah formula [3j+1]! in (j,j,j) triangle)
-    - Fixed false boundary singularity claim: 1/[2j+1]_q = 1 at q=exp(2πi/r), NOT singular
-    - Corrected j list to odd integers only (BLM fermion antisymmetry)
-    - Added dependencies on nodes 1.1, 1.4.1, 1.4.2
-  - **Node 1.4.4 REFINED** via new child 1.4.4.1:
-    - Corrected boundary behavior: genuine issue is [r]_q = 0, not 1/[2j+1]_q
-    - Added TV level truncation with two-regime analysis (r ≥ 3j+2 vs 2j+2 ≤ r < 3j+2)
-    - Fixed fermionic GFT reference and "generic q" language
-  - **Nodes 1, 1.4**: conditionally accepted, blocked by unvalidated children
+**Latest (v4 session — prover+verifier wave)**:
+- **Node 1.4 AMENDED** by prover-14-wave2:
+  - Fixed (C1) admissibility: now r ≥ 3j+2 (Condition B from Racah formula), distinguished from weaker r ≥ 2j+2 (Condition A)
+  - Corrected all examples: j=1→r≥5, j=3→r≥11, j=5→r≥17
+  - Added (-1)^{2l} sign factor to TV formula with convention note
+  - All 6 challenges on 1.4 now resolved. Needs re-verification.
+- **Node 1.4.3 VALIDATED** by verifier-143-w2:
+  - All 3 major claims confirmed correct (nilpotency, PSD, admissibility r≥3j+2)
+  - 3 new non-blocking challenges (nilpotency justification oversimplified, formal deps not declared, verification record)
+- **Node 1.4.4 CHALLENGED** by verifier-144-w2 — NOT accepted:
+  - 3 blocking challenges: wrong admissibility (still r≥2j+3), false 1/[2j+1]_q divergence claim, formal deps not declared
+  - 2 minor: OP3 missing level truncation, L1 "generic q" imprecision
+  - Child 1.4.4.1 has all corrections; parent 1.4.4 needs prover to amend
 - **Critical path**: 1 → 1.4 → 1.4.4 → 1.4.4.1 (depth 4)
-- **Key discovery**: correct BLM admissibility at root of unity is r ≥ 3j+2 (not r ≥ 2j+2)
 
 **Current tree (19 nodes)**:
-- **12 validated**: 1.1, 1.1.1, 1.1.2, 1.2, 1.3, 1.3.1, 1.3.2, 1.3.3, 1.3.4, 1.3.5, 1.4.1, 1.4.2
-- **5 pending** (refined, awaiting re-verification): 1 (root), 1.4, 1.4.3, 1.4.4, 1.4.4.1
+- **13 validated**: 1.1, 1.1.1, 1.1.2, 1.2, 1.3, 1.3.1, 1.3.2, 1.3.3, 1.3.4, 1.3.5, 1.4.1, 1.4.2, **1.4.3**
+- **4 pending**: 1 (root), 1.4, 1.4.4, 1.4.4.1
 - **2 archived**: 1.3.1.1, 1.4.5 (duplicates)
 
 **Previous discoveries (still valid)**:
@@ -121,15 +119,12 @@ println("BPS states: ", count(e -> abs(e) < 1e-6, evals))
 
 ## Next Steps
 
-### Proof tree v2 — next verification wave (priority)
-1. **Re-verify 5 pending nodes**: all refined, need fresh verifier pass
-   - 1.4.3: corrected admissibility r ≥ 3j+2, odd j only — verify prover fixes
-   - 1.4.4: refined via child 1.4.4.1 — verify parent still coherent
-   - 1.4.4.1: new child node — needs first verification
-   - 1.4: conditionally accepted, will auto-validate when children pass
-   - 1 (root): conditionally accepted, will auto-validate when 1.4 passes
-2. **Fix admissibility inconsistency**: parent 1.4 still says r ≥ 2j+3, child 1.4.3 says r ≥ 3j+2
-   - These differ for j ≥ 3 — need to align (3j+2 is correct per Racah formula)
+### Proof tree v2 — next wave (priority)
+1. **Prover for 1.4.4**: fix 3 blocking challenges (admissibility r≥2j+3→r≥3j+2, false 1/[2j+1]_q divergence, formal deps). Child 1.4.4.1 has all corrections.
+2. **Verifier for 1.4.4.1**: first verification of new child node (never verified)
+3. **Re-verify 1.4**: prover amended this session, needs fresh verifier pass
+4. **Root node 1**: synthesis check — will auto-validate once 1.4 chain completes
+5. **Admissibility inconsistency FIXED in 1.4** (v4 session): now says r≥3j+2, matching child 1.4.3
 3. **q-deformed numerics**: Modify Julia ED code to use quantum 3j symbols
    - Replace `wigner3j(j,j,j,m1,m2,m3)` with `q_wigner3j(j,j,j,m1,m2,m3,q)`
    - Validate: q→1 limit recovers original spectrum
