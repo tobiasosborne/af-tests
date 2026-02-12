@@ -1,0 +1,219 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{bm}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage[dvipsnames]{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=purple,urlcolor=blue]{hyperref}
+\usepackage[capitalise,nameinlink]{cleveref}
+\usepackage{cite}
+
+%% ============================================================
+%% Theorem Environments
+%% ============================================================
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{openproblem}[theorem]{Open Problem}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{notation}[theorem]{Notation}
+\newtheorem*{erratum}{Erratum}
+
+%% ============================================================
+%% Custom Commands
+%% ============================================================
+\newcommand{\Hilbert}{\mathcal{H}}
+\newcommand{\Fock}{\mathcal{F}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\half}{\tfrac{1}{2}}
+\newcommand{\qint}[1]{[#1]_q}             % quantum integer
+\newcommand{\qfact}[1]{[#1]_q!}           % quantum factorial
+\newcommand{\qdim}[1]{d_{#1}}             % quantum dimension
+\newcommand{\sixj}[6]{\begin{Bmatrix} #1 & #2 & #3 \\ #4 & #5 & #6 \end{Bmatrix}}
+\newcommand{\threej}[6]{\begin{pmatrix} #1 & #2 & #3 \\ #4 & #5 & #6 \end{pmatrix}}
+\newcommand{\TV}{\ensuremath{\mathrm{TV}}}
+\newcommand{\PR}{\ensuremath{\mathrm{PR}}}
+\newcommand{\CS}{\ensuremath{\mathrm{CS}}}
+\newcommand{\GFT}{\ensuremath{\mathrm{GFT}}}
+\newcommand{\BLM}{\ensuremath{\mathrm{BLM}}}
+\newcommand{\SYK}{\ensuremath{\mathrm{SYK}}}
+\newcommand{\SD}{\ensuremath{\mathrm{SD}}}
+\newcommand{\BPS}{\ensuremath{\mathrm{BPS}}}
+\newcommand{\Vol}{\ensuremath{\mathrm{Vol}}}
+\DeclareMathOperator{\Tr}{Tr}
+\DeclareMathOperator{\tr}{tr}
+\DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\Pf}{Pf}
+\DeclareMathOperator{\kernel}{ker}
+
+%% AF node cross-reference command
+%% Usage: \afnode{1.3.2} produces a margin note + hyperlink
+\newcommand{\afnode}[1]{\marginpar{\tiny\textsf{AF:#1}}\label{af:#1}}
+\newcommand{\afref}[1]{(AF node~#1, p.~\pageref{af:#1})}
+
+%% Epistemic status markers
+\newcommand{\established}{\textsf{\small [ESTABLISHED]}}
+\newcommand{\conjectural}{\textsf{\small [CONJECTURAL]}}
+\newcommand{\mixedstatus}{\textsf{\small [MIXED STATUS]}}
+\newcommand{\openstatus}{\textsf{\small [OPEN]}}
+
+%% ============================================================
+%% Title
+%% ============================================================
+\title{\textbf{The $q$-Deformed BLM Model:\\Quantum Groups, SUSY, and 3D Gravity}\\[0.5em]
+\large A Self-Contained Account with Adversarial Verification}
+\author{Generated from AF Proof Tree v2}
+\date{\today}
+
+%% ============================================================
+%% Document
+%% ============================================================
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We present a comprehensive account of the $q$-deformed BLM (Biggs--Lin--Maldacena) model,
+a supersymmetric quantum mechanical system whose supercharge is constructed from
+quantum $3j$ symbols of $U_q(\mathfrak{su}(2))$.
+The model exhibits three geometric regimes of decreasing epistemic certainty:
+(I)~the Euclidean regime at $q=1$, where melonic dominance yields SYK-type solvability
+with Ponzano--Regge (flat 3D gravity) asymptotics;
+(II)~the hyperbolic regime at fixed real $q \neq 1$, where exponential growth of
+quantum recoupling symbols is \emph{conjectured} to break melonic dominance;
+(III)~the root-of-unity regime $q = e^{2\pi i/r}$, where the model connects to
+Turaev--Viro topological invariants and 3D gravity with positive cosmological constant.
+All claims have been subjected to adversarial prover--verifier review, with each
+result traced to its corresponding node in the proof tree.
+This paper is self-contained and assumes only a graduate-level physics background.
+\end{abstract}
+
+\setcounter{tocdepth}{2}
+\tableofcontents
+\newpage
+
+%% ============================================================
+%% Sections (each in a separate file)
+%% ============================================================
+
+\input{sections/01_introduction}
+
+\input{sections/02_model_definition}
+
+\input{sections/03_part1_euclidean}
+
+\input{sections/04_part2_hyperbolic}
+
+\input{sections/05_part3_root_of_unity}
+
+\input{sections/06_open_problems}
+
+\input{sections/07_conclusion}
+
+\input{sections/appendix_af_tree}
+
+%% ============================================================
+%% Bibliography
+%% ============================================================
+\begin{thebibliography}{99}
+
+\bibitem{BLM} A.~Biggs, L.~L.~Lin, and J.~Maldacena,
+``A melonic quantum mechanical model without disorder,''
+arXiv:2601.08908 [hep-th] (2026).
+
+\bibitem{SYK-Fu} W.~Fu, D.~Gaiotto, J.~Maldacena, and S.~Sachdev,
+``Supersymmetric Sachdev-Ye-Kitaev models,''
+Phys.\ Rev.\ D \textbf{95}, 026009 (2017), arXiv:1610.08917.
+
+\bibitem{TV92} V.~G.~Turaev and O.~Ya.~Viro,
+``State sum invariants of 3-manifolds and quantum 6j-symbols,''
+Topology \textbf{31}, 865--902 (1992).
+
+\bibitem{TuraevWalker} V.~G.~Turaev,
+``Quantum invariants of knots and 3-manifolds,''
+de Gruyter Studies in Mathematics \textbf{18} (1994).
+
+\bibitem{PonzanoRegge} G.~Ponzano and T.~Regge,
+``Semiclassical limit of Racah coefficients,''
+in \emph{Spectroscopic and Group Theoretical Methods in Physics},
+ed.~F.~Bloch et al., North-Holland (1968).
+
+\bibitem{Boulatov} D.~V.~Boulatov,
+``A model of three-dimensional lattice gravity,''
+Mod.\ Phys.\ Lett.\ A \textbf{7}, 1629 (1992).
+
+\bibitem{Freidel} L.~Freidel,
+``Group field theory: An overview,''
+Int.\ J.\ Theor.\ Phys.\ \textbf{44}, 1769 (2005), arXiv:hep-th/0505016.
+
+\bibitem{BellettiYang} S.~Belletti and T.~Yang,
+``Asymptotics of quantum 6j symbols,''
+J.\ Topology \textbf{18} (2025), arXiv:2308.13864.
+
+\bibitem{Costantino} F.~Costantino,
+``6j-symbols, hyperbolic structures and the volume conjecture,''
+Geom.\ Topol.\ \textbf{11}, 1831--1854 (2007).
+
+\bibitem{TaylorWoodward} Y.~U.~Taylor and C.~T.~Woodward,
+``6j symbols for $U_q(\mathfrak{sl}_2)$ and non-Euclidean tetrahedra,''
+Selecta Math.\ (N.S.) \textbf{11}, 539--571 (2005).
+
+\bibitem{Kashaev} R.~M.~Kashaev,
+``The hyperbolic volume of knots from the quantum dilogarithm,''
+Lett.\ Math.\ Phys.\ \textbf{39}, 269--275 (1997).
+
+\bibitem{MurakamiMurakami} H.~Murakami and J.~Murakami,
+``The colored Jones polynomials and the simplicial volume of a knot,''
+Acta Math.\ \textbf{186}, 85--104 (2001).
+
+\bibitem{MizoguchiTada} S.~Mizoguchi and T.~Tada,
+``Three-dimensional gravity from the Turaev-Viro invariant,''
+Phys.\ Rev.\ Lett.\ \textbf{68}, 1795 (1992).
+
+\bibitem{BenGelounBonzom} J.~Ben Geloun and V.~Bonzom,
+``Radiative corrections in the Boulatov-Ooguri tensor model,''
+Nucl.\ Phys.\ B \textbf{867}, 399 (2013), arXiv:1101.4294.
+
+\bibitem{BenGelounRivasseau} J.~Ben Geloun and V.~Rivasseau,
+``A renormalizable SYK-type tensor field theory,''
+Ann.\ Henri Poincar\'e \textbf{19}, 3357 (2018), arXiv:1711.05967.
+
+\bibitem{Faddeev} L.~D.~Faddeev,
+``Modular double of quantum group,''
+Math.\ Phys.\ Stud.\ \textbf{21}, 149--156 (2000), arXiv:math/9912078.
+
+\bibitem{PonsotTeschner} B.~Ponsot and J.~Teschner,
+``Liouville bootstrap via harmonic analysis on a noncompact quantum group,''
+arXiv:hep-th/9911110 (1999).
+
+\bibitem{TeschnerVartanov} J.~Teschner and G.~S.~Vartanov,
+``Supersymmetric gauge theories, quantization of $\mathcal{M}_\mathrm{flat}$,
+and conformal field theory,''
+Adv.\ Theor.\ Math.\ Phys.\ \textbf{19}, 1--135 (2015), arXiv:1302.3572.
+
+\bibitem{BDKY} S.~Belletti, R.~Detcherry, E.~Kalfagianni, and T.~Yang,
+``Growth of quantum 6j-symbols and applications to the Volume Conjecture,''
+J.\ Diff.\ Geom.\ \textbf{120}, 199--248 (2022).
+
+\end{thebibliography}
+
+\end{document}

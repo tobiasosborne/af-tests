@@ -1,0 +1,425 @@
+%% Section 6: Open Problems and the r -> infinity Limit
+%% Corresponds to AF Nodes 1.4.4 and 1.4.4.1.  Epistemic status: OPEN.
+
+\section{Open Problems and the $r \to \infty$ Limit}
+\label{sec:open}
+\afnode{1.4.4}
+\openstatus
+
+The preceding sections have established a coherent picture of the $q$-deformed
+BLM model across three geometric regimes, with epistemic status ranging from
+\emph{established} (Part~I) through \emph{conjectural} (Part~II) to
+\emph{mixed} (Part~III).  In this section we collect the principal open problems
+that have emerged from the adversarial verification process, and we analyze
+the $r \to \infty$ limit in which the root-of-unity model is expected to
+recover the original BLM construction of Part~I.
+
+Throughout this section, we work at a root of unity $q = e^{2\pi i/r}$ with
+integer $r \geq 5$, and the spin parameter $j$ is an odd integer satisfying
+the operative admissibility constraint
+\begin{equation}\label{eq:admissibility-recap}
+  j \;\leq\; \frac{r-2}{3}\,,
+  \qquad\text{equivalently}\qquad
+  r \;\geq\; 3j + 2\,.
+\end{equation}
+Recall from \cref{sec:root-of-unity} that this bound is dictated by the Racah
+formula for the $(j,j,j)$ quantum $3j$ symbol: the triangle coefficient
+$\Delta(j,j,j)$ involves $\qfact{3j+1}$ in the denominator, and the
+condition $r > 3j+1$ ensures that no factor $\qint{n}$ with $1 \leq n \leq 3j+1$
+vanishes (since $\qint{n} = 0$ if and only if $r \mid n$).  This Racah bound
+is strictly stronger than the representation-admissibility condition
+$j \leq (r-2)/2$ (which merely ensures $\qint{2j+1} \neq 0$) and coincides
+exactly with the Turaev--Viro level truncation $3j \leq r-2$ for the coloring
+$(j,j,j)$.  Concretely: $j = 1$ requires $r \geq 5$; $j = 3$ requires $r \geq 11$;
+$j = 5$ requires $r \geq 17$.
+
+As established in \cref{sec:root-of-unity}, the $\mathcal{N} = 2$ SUSY
+structure---$Q_q^2 = 0$ and $H_q = \{Q_q, Q_q^\dagger\} \geq 0$---is
+preserved at root of unity for all admissible~$j$.  The positivity $H_q \geq 0$
+is a tautological consequence of the definition of the Hilbert space adjoint
+and holds for \emph{any} operator $Q_q$ on a Hilbert space, regardless of
+whether its matrix elements are real or complex.
+
+\medskip
+
+We now state the three open problems and the $r \to \infty$ analysis.
+
+%% ==================================================================
+\subsection{Open Problem 1: The BLM-to-TV map}\label{sec:OP1}
+
+\begin{openproblem}[BLM-to-TV correspondence]\label{op:blm-tv}
+\afnode{1.4.4.1}
+Is there a precise mathematical relationship between the BLM Feynman diagram
+expansion at root-of-unity $q$ and the Turaev--Viro topological
+invariants~\cite{TV92}?
+\end{openproblem}
+
+The BLM model at $q = e^{2\pi i/r}$ and the Turaev--Viro state sum share the
+same algebraic building blocks: both are constructed from the quantum $3j$ and
+$6j$ symbols of $U_q(\mathfrak{su}(2))$ at root of unity.  However, the two
+objects are structurally very different.  An individual BLM Feynman diagram at
+fixed spin~$j$ involves a product of quantum $3j$ symbols contracted according
+to the diagram topology, yielding a quantum $3nj$ symbol.  The Turaev--Viro
+invariant $\TV_r(M)$ of a closed $3$-manifold~$M$, by contrast, is a sum
+over \emph{all} admissible colorings of \emph{all} edges in a triangulation
+of~$M$, weighted by products of quantum dimensions and quantum $6j$ symbols
+over \emph{all} tetrahedra~\cite{TV92}.
+
+A potential approach to bridging this gap is to embed the BLM model into a
+Boulatov-type group field theory (GFT)~\cite{Boulatov, Freidel} by promoting
+the fixed spin~$j$ to a dynamical variable summed over all admissible spins
+$l \leq (r-2)/2$.  This would require three steps, none of which has been
+carried out:
+\begin{enumerate}[label=(\alph*)]
+  \item \textbf{Multi-spin generalization.}
+    Define a multi-spin BLM model in which different fermion species carry
+    different spin labels.  A fundamental obstacle is that BLM uses
+    \emph{fermions}, while the standard Boulatov model uses a
+    \emph{bosonic} field on $\mathrm{SU}(2)^{\times 3}$.  A fermionic GFT
+    extension would be needed.  The existing literature includes fermionic
+    tensor field theories (Ben Geloun--Bonzom~\cite{BenGelounBonzom} for
+    radiative corrections in colored bosonic tensor models,
+    Ben Geloun--Rivasseau~\cite{BenGelounRivasseau} for renormalizable
+    fermionic tensor field theory), but a fermionic GFT specifically
+    adapted for BLM embedding---with the correct vertex structure matching
+    quantum $3j$ symbols at fixed spin---has not been constructed.
+
+  \item \textbf{Feynman expansion $=$ TV state sum.}
+    Show that the resulting GFT Feynman expansion reproduces the Turaev--Viro
+    state sum~\cite{TV92} (in the same sense that the Boulatov GFT generates
+    the Ponzano--Regge partition function~\cite{Boulatov}).
+
+  \item \textbf{Single-spin sector.}
+    Understand what the original single-spin BLM model computes as a
+    sector of the full GFT.
+\end{enumerate}
+
+A further obstacle concerns triangulation independence.  The topological
+invariance of the TV state sum relies on the completeness of the sum over
+all admissible representations.  Restricting the admissible spins in the
+GFT sum---for instance, to the odd integers $j \geq 1$ used by BLM---would
+generically \emph{break} triangulation independence, since the Pachner move
+identities that guarantee topological invariance require contributions from
+all spins in the admissible set.
+
+
+%% ==================================================================
+\subsection{Open Problem 2: Root-of-unity spectral behavior}\label{sec:OP2}
+
+\begin{openproblem}[Spectral and boundary behavior at root of unity]
+\label{op:spectral}
+What is the detailed spectral structure of $H_q = \{Q_q, Q_q^\dagger\}$ at
+$q = e^{2\pi i/r}$, particularly near the admissibility boundary and as a
+function of~$r$?
+\end{openproblem}
+
+Although the SUSY algebra ($Q_q^2 = 0$, $H_q \geq 0$) is preserved at root
+of unity for admissible~$j$, this does \emph{not} mean the root-of-unity
+model is trivially identical to the real-$q$ model.  We identify four
+genuine open problems.
+
+\paragraph{(a) Boundary behavior near the Racah bound $j = (r-2)/3$.}
+At the Racah boundary $j = (r-2)/3$, the quantum dimension is
+\begin{equation}\label{eq:qdim-racah-boundary}
+  \qint{2j+1} \;=\; \qint{(2r-1)/3}
+  \;=\; \frac{\sin\bigl(\frac{(2r-1)\pi}{3r}\bigr)}{\sin(\pi/r)}\,,
+\end{equation}
+which is nonzero (and generically not equal to~$1$) for all $r \geq 5$.
+The bubble identity normalization $1/\qint{2j+1}$ is therefore perfectly
+finite at this boundary.  However, the \emph{next} quantum integer
+$\qint{2j+2} = \qint{(2r+2)/3}$ approaches the dangerous point
+$\qint{r} = 0$ as~$j$ increases.  More precisely, the genuine complications
+arise at the \emph{representation} boundary $j = (r-2)/2$ (outside the
+BLM admissibility domain), where $\qint{2j+2} = \qint{r} = 0$.  This
+causes the following effects:
+\begin{itemize}[nosep]
+  \item Recoupling identities involving sums over intermediate spins
+    up to $j+1$---such as the Biedenharn--Elliott identity and
+    orthogonality relations for $6j$ symbols---encounter vanishing quantum
+    dimensions in their summation range.
+  \item Quantum $6j$ symbols whose entries involve spins at or beyond the
+    truncation bound may have singular Racah formula evaluations,
+    since quantum factorials $\qfact{n}$ with $n \geq r$ contain vanishing
+    factors ($\qint{r} = 0$).
+\end{itemize}
+For spins in the range $(r-2)/3 < j \leq (r-2)/2$, the spin-$j$
+representation of $U_q(\mathfrak{su}(2))$ exists, but the BLM supercharge
+is not well-defined via the Racah formula.  A natural question is whether
+there is a well-defined limiting procedure as $j$ approaches $(r-2)/3$
+from below, and what the BLM spectrum looks like near this boundary.
+
+\paragraph{(b) Spectral gap dependence on~$r$.}
+For fixed admissible~$j$, how does the spectral gap of
+$H_q = \{Q_q, Q_q^\dagger\}$ depend on the level~$r$?  In particular:
+does the gap remain bounded away from zero for all $r \geq 3j+2$,
+or does it close as $r$ decreases toward the admissibility bound?
+Since $q \to 1$ as $r \to \infty$, one expects the gap to approach
+the $q = 1$ value in this limit; the question concerns the behavior at
+small~$r$.
+
+\paragraph{(c) BPS degeneracy at root of unity.}
+The Witten index $\Tr\bigl((-1)^F\bigr)$ is a topological invariant of
+the SUSY algebra and should be independent of~$q$ (and hence of~$r$).
+However, the \emph{detailed} BPS spectrum---not just the index but the
+multiplicities of BPS multiplets---may change at root of unity.  Are the
+BPS multiplicities at $q = e^{2\pi i/r}$ the same as for real $q > 0$?
+
+\paragraph{(d) Perturbative expansion and reality of $q$-$3j$ symbols.}
+At first sight, the root-of-unity $q$-$3j$ symbols appear to be generically
+complex.  However, closer inspection reveals that the quantum $3j$ symbols
+$C_q^j(m_1, m_2, m_3)$ are in fact \emph{real-valued} for admissible~$j$.
+The argument is as follows.  Under the admissibility condition $r \geq 3j+2$,
+every quantum integer $\qint{n}$ appearing in the Racah formula satisfies
+$1 \leq n \leq 3j+1 < r$.  Since
+\begin{equation}\label{eq:qint-positivity}
+  \qint{n} \;=\; \frac{\sin(n\pi/r)}{\sin(\pi/r)}
+\end{equation}
+and $0 < n\pi/r < \pi$ for $1 \leq n < r$, each such quantum integer is
+\emph{positive real}.  The quantum factorials, being products of positive
+real numbers, are positive real.  The triangle coefficient $\Delta(j,j,j)$
+is a square root of a ratio of positive reals and is therefore itself real.
+The Racah formula sum, which involves only ratios of such quantum factorials
+multiplied by the alternating sign $(-1)^s$, produces real values.
+
+This reality has three consequences.  First, the perturbative expansion is
+better behaved than the naive ``complex $3j$'' picture would suggest.
+Second, the combinatorial interpretation of individual Feynman diagram
+amplitudes is preserved.  Three open sub-questions remain:
+\begin{enumerate}[label=(\roman*)]
+  \item \emph{Weight modification:} the quantum dimensions $\qint{2j+1}$
+    differ from their classical values $2j+1$, modifying the weight of each
+    Feynman diagram relative to the $q = 1$ case.  What is the effect on
+    the melonic dominance hierarchy?
+  \item \emph{Finite truncation effects:} the spin sum in the BLM Feynman
+    expansion is truncated at $j \leq (r-2)/3$, whereas the $q = 1$ sum
+    extends to infinity.  Do the truncation effects produce qualitatively
+    new phenomena (e.g., oscillatory corrections, modified SD equations)?
+  \item \emph{Sign structure:} while the $q$-$3j$ symbols are real, they need
+    not be positive.  Is the sign structure of the root-of-unity Feynman
+    diagrams the same as at $q = 1$, or does it differ?
+\end{enumerate}
+
+
+%% ==================================================================
+\subsection{Open Problem 3: Spin content reconciliation}\label{sec:OP3}
+
+\begin{openproblem}[Spin content mismatch]\label{op:spin-content}
+The BLM model uses only odd integer spins $j \geq 1$.  The Turaev--Viro
+state sum uses all half-integer spins $l = 0, \tfrac{1}{2}, 1, \tfrac{3}{2},
+\ldots, (r-2)/2$.  How can a BLM-to-TV connection account for this mismatch?
+\end{openproblem}
+
+One natural proposal is to interpret the BLM model at fixed odd integer~$j$
+as a \emph{single-coloring sector} of a TV-like state sum, in which all
+edge labels in a triangulation equal~$j$.  For this interpretation to be
+consistent, the coloring $(j, j, j)$ must be TV-admissible.  The three
+TV admissibility conditions are:
+\begin{enumerate}[label=(\roman*)]
+  \item \emph{Triangle inequality:} $|a - b| \leq c \leq a + b$.  For
+    $(j, j, j)$, this reduces to $0 \leq j \leq 2j$, which is trivially
+    satisfied.
+  \item \emph{Integrality:} $a + b + c \in \Z$.  Since $3j$ is an integer
+    for integer~$j$, this is satisfied.
+  \item \emph{Level truncation:} $a + b + c \leq r - 2$.  For $(j, j, j)$,
+    this requires
+    \begin{equation}\label{eq:TV-level-truncation}
+      3j \;\leq\; r - 2\,,
+      \qquad\text{i.e.,}\qquad
+      j \;\leq\; \frac{r-2}{3}\,.
+    \end{equation}
+\end{enumerate}
+
+\noindent
+A key observation is that this level truncation condition \emph{coincides
+exactly} with the BLM operative admissibility bound~\eqref{eq:admissibility-recap}.
+Consequently, for every BLM-admissible~$j$, the single-coloring $(j, j, j)$
+is automatically TV-admissible, and the single-coloring sector interpretation
+is consistent at the level of admissibility.
+
+The range of representation-admissible but BLM-inadmissible spins
+($(r-2)/3 < j \leq (r-2)/2$) is the regime where the spin-$j$ representation
+exists but the BLM supercharge is \emph{not} well-defined via the Racah formula.
+\begin{example}
+Consider $r = 9$, $j = 3$.  This is an odd integer satisfying
+$j \leq 3.5 = (r-2)/2$, so the spin-$3$ representation of
+$U_q(\mathfrak{su}(2))$ exists.  However, $3j = 9 > 7 = r-2$, so
+$(3, 3, 3)$ is \emph{not} TV-admissible.  Moreover, $\qfact{3j+1} = \qfact{10}$
+contains the factor $\qint{9} = \qint{r} = 0$, making $\Delta(3,3,3)$
+undefined.  In this regime, the BLM-to-TV question does not arise because the
+BLM model itself is not well-defined.
+\end{example}
+
+Even within the admissible range $j \leq (r-2)/3$, the single-coloring
+sector interpretation faces two caveats:
+\begin{enumerate}[label=(C\arabic*)]
+  \item \textbf{Topology mismatch.}
+    A single-coloring sector of a TV state sum applied to a specific
+    triangulation gives a single amplitude.  The BLM model, by contrast,
+    produces a perturbative series summing over all Feynman diagram
+    topologies.  Any comparison must account for the sum over diagram
+    topologies on the BLM side and triangulations on the TV side.
+
+  \item \textbf{No triangulation independence.}
+    A TV state sum restricted to a single coloring is \emph{not}
+    triangulation-independent.  The topological invariance of the full TV
+    state sum relies on the completeness of the sum over all admissible
+    colorings.  Therefore, the single-coloring sector interpretation does
+    \emph{not} yield a topological invariant.
+\end{enumerate}
+
+The precise nature of the BLM-to-TV relationship thus remains open, even
+for admissible spins.
+
+
+%% ==================================================================
+\subsection{The $r \to \infty$ limit}\label{sec:r-limit}
+
+As $r \to \infty$, we have $q = e^{2\pi i/r} \to 1$.  In this limit, the
+root-of-unity model should recover the $q = 1$ BLM model of Part~I
+(\cref{sec:euclidean}).  We now describe the three features of this limit
+precisely.
+
+\subsubsection*{(L1) Representation truncation disappears}
+
+The Racah admissibility bound $(r-2)/3 \to \infty$ and the representation
+bound $(r-2)/2 \to \infty$, so both constraints become vacuous for any
+fixed~$j$.  As $q \to 1$, all $q$-deformed quantities converge to their
+classical $q = 1$ values:
+\begin{equation}\label{eq:classical-limits}
+  \qint{2l+1} \;\longrightarrow\; 2l+1\,,
+  \qquad
+  \threej{j}{j}{j}{m_1}{m_2}{m_3}_{\!q}
+  \;\longrightarrow\;
+  \threej{j}{j}{j}{m_1}{m_2}{m_3},
+  \qquad
+  \sixj{a}{b}{c}{d}{e}{f}_{\!q}
+  \;\longrightarrow\;
+  \sixj{a}{b}{c}{d}{e}{f}.
+\end{equation}
+The truncated representation category of $U_q(\mathfrak{su}(2))$ at root of
+unity is replaced by the unrestricted classical representation theory of
+$\mathfrak{su}(2)$.  In particular, the root-of-unity-specific complications
+---boundary effects from $\qint{r} = 0$, level truncation---vanish
+identically.
+
+\subsubsection*{(L2) Turaev--Viro regularization is removed}
+
+The Turaev--Viro state sum $\TV_r(M)$ provides a finite regularization of
+the (divergent) Ponzano--Regge partition function $Z_{\PR}(M)$.  As
+$r \to \infty$, the regularization is removed: the truncation of the spin
+sum is lifted, and the quantum dimensions $\qint{2l+1} \to 2l+1$.  The
+Ponzano--Regge sum
+\begin{equation}\label{eq:PR-divergent}
+  Z_{\PR}(\mathcal{T})
+  \;=\;
+  \sum_{\{j_e\}} \prod_e (-1)^{2j_e}(2j_e + 1)
+  \prod_t \sixj{j_1}{j_2}{j_3}{j_4}{j_5}{j_6}_{\!t}
+\end{equation}
+is formally divergent for closed $3$-manifolds and requires independent
+regularization; the TV sum at finite~$r$ \emph{is} the standard such
+regularization~\cite{TV92, PonzanoRegge}.
+
+The cosmological constant of the associated $3$-dimensional gravity
+is~\cite{MizoguchiTada}
+\begin{equation}\label{eq:cosmological-constant}
+  \Lambda \;=\; \frac{4\pi^2}{(r-2)^2}
+  \;=\; \frac{4\pi^2}{k^2} + O(k^{-4})\,,
+\end{equation}
+where $k = r - 2$ is the Chern--Simons level in standard TV conventions.
+As $r \to \infty$, $\Lambda \to 0$, recovering flat three-dimensional
+Euclidean gravity (the Ponzano--Regge regime).
+
+\subsubsection*{(L3) BLM model recovery}
+
+For the BLM model with fixed admissible~$j$, as $q \to 1$:
+\begin{itemize}[nosep]
+  \item The $q$-$3j$ symbols $C_q^j \to C^j$, the classical (real-valued)
+    Clebsch--Gordan coefficients.
+  \item The supercharge $Q_q \to Q$, the $q = 1$ supercharge of
+    Part~I.
+  \item The Hamiltonian $H_q \to H = \{Q, Q^\dagger\}$ of the original
+    BLM SUSY quantum mechanics.
+\end{itemize}
+
+\begin{remark}[SUSY is not ``recovered'']
+\label{rem:susy-all-q}
+The SUSY structure $H_q \geq 0$ is present at \emph{all} values of $q$,
+including roots of unity (per the admissibility analysis of
+\cref{sec:root-of-unity}).  It does not need to be ``recovered'' in the
+$r \to \infty$ limit.  What \emph{is} recovered is the specific algebraic
+simplifications of the $q = 1$ case: the reality of all $3j$ coefficients
+(which, as discussed in \cref{sec:OP2}, already holds at root of unity for
+admissible~$j$), the absence of any truncation constraints, and the
+polynomial (rather than modified) asymptotics of the $6j$ symbols.
+\end{remark}
+
+\begin{remark}[Fixed $j$, no thermodynamic limit]
+\label{rem:fixed-j}
+The BLM model parameter $j$ remains \emph{fixed} throughout the
+$r \to \infty$ limit; it does not scale with~$r$.  The limit therefore does
+not involve any thermodynamic or continuum limit in the BLM model itself.
+It is the surrounding gravitational interpretation---TV versus PR, positive
+versus zero cosmological constant---that changes as $r$ increases.
+\end{remark}
+
+
+%% ==================================================================
+\subsection{Summary of open problems}\label{sec:open-summary}
+
+We collect the status of the three open problems and the $r \to \infty$
+limit in~\cref{tab:open-summary}.
+
+\begin{table}[ht]
+\centering
+\caption{Summary of open problems and the $r \to \infty$ limit.}
+\label{tab:open-summary}
+\begin{tabular}{lp{7cm}l}
+  \toprule
+  \textbf{Label} & \textbf{Question} & \textbf{Status} \\
+  \midrule
+  OP1 & BLM Feynman diagrams $\leftrightarrow$ TV invariants &
+    Open (requires fermionic GFT) \\
+  OP2(a) & Boundary behavior near $j = (r-2)/3$ &
+    Open \\
+  OP2(b) & Spectral gap dependence on $r$ &
+    Open \\
+  OP2(c) & BPS degeneracy at root of unity &
+    Open (Witten index protected) \\
+  OP2(d) & Reality and sign structure of perturbative expansion &
+    Reality established; sub-questions open \\
+  OP3 & Spin content reconciliation (BLM vs.\ TV) &
+    Admissibility coincidence established; \\
+       & & caveats (C1)--(C2) unresolved \\
+  \midrule
+  L1 & Truncation $\to$ vacuous &
+    Established \\
+  L2 & TV $\to$ PR (divergent) &
+    Established \\
+  L3 & $q$-BLM $\to$ BLM &
+    Established \\
+  \bottomrule
+\end{tabular}
+\end{table}
+
+\begin{remark}[Erratum on the original OP2]
+\label{rem:erratum-op2}
+An earlier version of node~1.4.4 in the AF proof tree contained an Open
+Problem~2 asking whether the $q$-BLM model can be given a consistent
+quantum-mechanical interpretation at root of unity, presupposing that SUSY
+breaks.  This was based on the false premise that $\{Q_q, Q_q^\dagger\}$
+can have negative eigenvalues at root of unity.  As corrected in the AF
+ledger (node~1.4.3), the positivity $\{Q_q, Q_q^\dagger\} \geq 0$ is a
+tautological consequence of the definition of the Hilbert space adjoint
+and holds for \emph{all}~$q$.  The three ``remedies'' proposed in the
+original---modifying the inner product, using $Q^2 = 0$ cohomologically
+without $H \geq 0$, and restricting to real $q$-$3j$ symbols---were all
+addressing a non-problem.  The revised OP2 above identifies the genuine
+open problems at root of unity, which are representation-theoretic and
+spectral in nature.
+
+Additionally, the original OP2(a) claimed that $1/\qint{2j+1}$ diverges
+at $j = (r-2)/2$; this was false since $\qint{2j+1} = \qint{r-1} = 1$
+at that boundary.  The corrected OP2(a) identifies the genuine boundary
+mechanism: $\qint{2j+2} = \qint{r} = 0$, which affects recoupling
+identities and $6j$ symbol evaluations near the truncation bound.
+\end{remark}

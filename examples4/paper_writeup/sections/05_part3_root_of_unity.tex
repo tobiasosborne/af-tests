@@ -1,0 +1,551 @@
+%% Section 5: Part III — Root-of-Unity Regime (q = e^{2\pi i/r})
+%% Corresponds to AF Nodes 1.4, 1.4.1, 1.4.2, 1.4.3.
+%% Epistemic status: MIXED (established mathematics + open connections).
+
+\section{Part~III: The Root-of-Unity Regime ($q = e^{2\pi i/r}$)}
+\label{sec:root-of-unity}
+\afnode{1.4}
+\mixedstatus
+
+When the deformation parameter $q$ is specialized to a root of unity
+$q = e^{2\pi i/r}$ with $r \geq 3$ an integer, the representation theory of
+$U_q(\mathfrak{su}(2))$ undergoes a qualitative change: the tower of
+spin-$l$ representations truncates to a finite set $l = 0, \half, 1, \ldots,
+(r-2)/2$, and the quantum recoupling symbols become the building blocks of
+the Turaev--Viro topological invariant~\cite{TV92} --- a mathematically
+rigorous state sum for three-dimensional gravity with positive cosmological
+constant.
+
+The content of this section divides into three layers of decreasing
+epistemic certainty.
+\begin{enumerate}[label=(\Alph*),nosep]
+  \item \textbf{Established mathematics} (\cref{sec:TV}):
+    the Turaev--Viro state sum, its independence of triangulation, and the
+    Turaev--Walker identification with Chern--Simons theory at level
+    $k = r-2$.  This is textbook material.
+  \item \textbf{Structural analogy} (\cref{sec:boulatov}):
+    the relationship between BLM Feynman diagrams and the Boulatov group
+    field theory (GFT).  The analogy is precise at the level of algebraic
+    building blocks but does \emph{not} constitute a duality.
+  \item \textbf{SUSY at root of unity} (\cref{sec:susy-root}):
+    the survival of $\mathcal{N}=2$ supersymmetry, the admissibility bound
+    $r \geq 3j+2$, and the finite truncation of the model.  These results
+    are established but emerged only after correcting a significant error in
+    the original formulation (see the erratum in \cref{sec:erratum}).
+\end{enumerate}
+
+
+%% ==================================================================
+\subsection{The Turaev--Viro state sum}
+\label{sec:TV}
+\afnode{1.4.1}
+\established
+
+We begin by recalling the representation theory of $U_q(\mathfrak{su}(2))$
+at a root of unity, and then state the Turaev--Viro invariant.
+
+\subsubsection{Quantum integers at root of unity}
+
+Set $A = e^{i\pi/r}$, so that $q = A^2 = e^{2\pi i/r}$ is a primitive
+$r$-th root of unity.  Throughout this section we use the quantum integer
+convention
+\begin{equation}\label{eq:qint-A}
+  \qint{n}_{\!A}
+  \;=\; \frac{A^n - A^{-n}}{A - A^{-1}}
+  \;=\; \frac{\sin(n\pi/r)}{\sin(\pi/r)}\,.
+\end{equation}
+This coincides with the convention
+$\qint{n}_q = (q^{n/2} - q^{-n/2})/(q^{1/2} - q^{-1/2})$ used
+elsewhere in this paper.  The key property at root of unity is that
+$\qint{r}_{\!A} = 0$, so any quantum factorial $\qfact{n}$ with $n \geq r$
+vanishes.  This forces the truncation of the representation category.
+
+At this root of unity, $U_q(\mathfrak{su}(2))$ admits finitely many
+irreducible representations, labelled by spin $l = 0, \half, 1, \ldots,
+(r-2)/2$.  The quantum dimension of the spin-$l$ representation is
+\begin{equation}\label{eq:qdim-root}
+  \qdim{l}
+  \;:=\; \qint{2l+1}_{\!A}
+  \;=\; \frac{\sin\bigl((2l+1)\pi/r\bigr)}{\sin(\pi/r)}\,,
+\end{equation}
+which is \emph{strictly positive} for all admissible $l \in \{0, \half,
+\ldots, (r-2)/2\}$, since $0 < (2l+1)\pi/r < \pi$ in this range.
+
+\begin{notation}\label{not:l-vs-j}
+  The TV coloring labels $l = 0, \half, 1, \ldots, (r-2)/2$ are
+  \emph{distinct} from the BLM model parameter $j$ (a fixed odd integer
+  $\geq 1$).  We reserve $l$ for TV colorings and $j$ for the BLM spin
+  throughout this section.
+\end{notation}
+
+
+\subsubsection{Admissibility and the state sum}
+
+\begin{definition}[TV admissibility]\label{def:TV-admissible}
+  Let $\mathcal{T}$ be a triangulation of a closed oriented 3-manifold $M$,
+  with edge set~$E$.  A coloring
+  $f\colon E \to \{0, \half, 1, \ldots, (r-2)/2\}$ is \emph{admissible}
+  if, for every 2-face (triangle) of $\mathcal{T}$ with edge labels
+  $(a, b, c)$:
+  \begin{enumerate}[label=(\roman*),nosep]
+    \item the triangle inequality holds: $|a - b| \leq c \leq a + b$;
+    \item $a + b + c \in \Z$ (parity condition);
+    \item $a + b + c \leq r - 2$ (level truncation).
+  \end{enumerate}
+\end{definition}
+
+Condition~(iii) is the hallmark of the root-of-unity regime: it has no
+analogue in the $q = 1$ Ponzano--Regge theory, where the spin sum is
+unrestricted (and divergent).
+
+\begin{definition}[Turaev--Viro invariant {\cite{TV92}}]
+\label{def:TV-invariant}
+  Let $\mathcal{T}$ be a triangulation of a closed oriented 3-manifold $M$,
+  with vertex set~$V$, edge set~$E$, and tetrahedron set~$\mathrm{Tet}$.
+  Define the total quantum order
+  \begin{equation}\label{eq:Dr-squared}
+    D_r^2
+    \;=\; \sum_{l=0}^{(r-2)/2} \qdim{l}^{\,2}
+    \;=\; \sum_{l=0}^{(r-2)/2} \qint{2l+1}_{\!A}^2\,.
+  \end{equation}
+  The \emph{Turaev--Viro invariant} is
+  \begin{equation}\label{eq:TV-invariant}
+    \TV_r(M)
+    \;=\; D_r^{-2|V|}
+    \sum_{\substack{f\colon E \to \{0,\ldots,(r-2)/2\}\\f\;\text{admissible}}}
+    \;\prod_{e \in E} \qdim{f(e)}
+    \;\prod_{t \in \mathrm{Tet}}
+    \sixj{j_1}{j_2}{j_3}{j_4}{j_5}{j_6}_{\!\!q}^{\!(t,f)},
+  \end{equation}
+  where $|V|$ is the number of vertices, the edge weight is the quantum
+  dimension $\qdim{f(e)}$, and
+  $\{6j\}_q^{(t,f)}$ denotes the quantum $6j$ symbol of tetrahedron~$t$
+  with coloring~$f$.  The per-vertex normalization $D_r^{-2|V|}$ follows
+  the convention of Turaev--Viro~\cite{TV92}, eq.~(1.1).
+\end{definition}
+
+\begin{remark}[Sign conventions]\label{rem:sign-conv}
+  The original Turaev--Viro formula uses edge weights
+  $w_l = (-1)^{2l}\qint{2l+1}_{\!A}$, where the sign factor
+  $(-1)^{2l}$ equals $+1$ for integer~$l$ and $-1$ for half-integer~$l$.
+  Some references (e.g., Kauffman--Lins) absorb this sign into the $6j$
+  symbol normalization via Theta-net conventions.  For the BLM model, which
+  uses only \emph{integer} $j$, this sign is always $+1$ and the
+  distinction is immaterial.
+\end{remark}
+
+The fundamental result is that $\TV_r(M)$ is independent of the choice
+of triangulation~$\mathcal{T}$; this was the main theorem
+of~\cite{TV92}.  The invariance under Pachner moves (bistellar flips)
+relies on the Biedenharn--Elliott identity for quantum $6j$ symbols and the
+orthogonality relations, both of which hold at root of unity for admissible
+colorings.
+
+
+\subsubsection{Turaev--Walker theorem and the Chern--Simons connection}
+
+The Turaev--Viro invariant is not merely a combinatorial curiosity: it
+is the norm-squared of a much deeper invariant.
+
+\begin{theorem}[Turaev--Walker {\cite{TuraevWalker}}]
+\label{thm:TW}
+  For any closed oriented 3-manifold $M$,
+  \begin{equation}\label{eq:TW}
+    \TV_r(M) \;=\; |\tau_r(M)|^2\,,
+  \end{equation}
+  where $\tau_r(M)$ is the Reshetikhin--Turaev invariant of $M$ --- the
+  mathematically rigorous version of the $\mathrm{SU}(2)$ Chern--Simons
+  partition function at level $k_{\CS} = r - 2$.
+\end{theorem}
+
+This theorem establishes the physical interpretation: the Turaev--Viro
+state sum computes the partition function of three-dimensional Chern--Simons
+gauge theory.  Since the Chern--Simons partition function can also be
+interpreted as a discretized path integral for 3D gravity with positive
+cosmological constant, we obtain the following semiclassical result.
+
+\begin{proposition}[Semiclassical limit {\cite{MizoguchiTada}}]
+\label{prop:semiclassical}
+  In the limit $r \to \infty$, the Turaev--Viro state sum recovers a
+  discretized path integral for Euclidean three-dimensional gravity with
+  positive cosmological constant
+  \begin{equation}\label{eq:Lambda-TV}
+    \Lambda
+    \;=\; \frac{4\pi^2}{r^2} + O(r^{-4})\,.
+  \end{equation}
+\end{proposition}
+
+The relation~\eqref{eq:Lambda-TV} uses the convention $A^{2r} = 1$
+(i.e., the Mizoguchi--Tada parameter $k_{\mathrm{MT}} = r$).  Equivalently,
+in terms of the Chern--Simons level $k_{\CS} = r - 2$, this reads
+$\Lambda = 4\pi^2/(k_{\CS} + 2)^2 + O((k_{\CS}+2)^{-4})$.  As $r \to
+\infty$ (equivalently $\Lambda \to 0$), the TV state sum formally approaches
+the Ponzano--Regge state sum of Part~I, though the latter is divergent and
+requires regularization --- TV \emph{is} the regularization.
+
+
+%% ==================================================================
+\subsection{Boulatov GFT and the structural analogy}
+\label{sec:boulatov}
+\afnode{1.4.2}
+
+The Boulatov group field theory (GFT) provides a tantalizing framework in
+which Feynman diagrams of a field theory on a group manifold are dual to
+triangulations of three-manifolds, and each Feynman amplitude equals the
+corresponding state sum amplitude.
+
+\begin{definition}[Boulatov model {\cite{Boulatov}}]
+\label{def:boulatov}
+  The Boulatov GFT is a field theory of a complex scalar field
+  $\phi(g_1, g_2, g_3)$ on $\mathrm{SU}(2)^3$, subject to gauge invariance
+  $\phi(g_1 h, g_2 h, g_3 h) = \phi(g_1, g_2, g_3)$ for all $h \in
+  \mathrm{SU}(2)$.  The action consists of a free (quadratic) term and a
+  cubic interaction:
+  \begin{equation}\label{eq:boulatov-action}
+    S[\phi]
+    \;=\; \int \phi^2
+    \;+\; \frac{\lambda}{4!}
+    \int \prod_{i=1}^{4}\!\bigl[dg_i^{(1)} dg_i^{(2)} dg_i^{(3)}\bigr]\;
+    \phi(g_1^{(1)},g_1^{(2)},g_1^{(3)})
+    \cdots
+    \phi(g_4^{(1)},g_4^{(2)},g_4^{(3)})\;
+    \mathcal{V}\,,
+  \end{equation}
+  where $\mathcal{V}$ encodes the combinatorial pattern of argument sharing
+  that implements a tetrahedral contraction.
+\end{definition}
+
+The Feynman diagrams of this model are dual to three-dimensional
+triangulations, and each Feynman amplitude equals the Ponzano--Regge
+($q = 1$) amplitude of the dual triangulation~\cite{Boulatov,Freidel}.
+The GFT framework thus provides a ``third quantization'' of
+three-dimensional gravity in which spacetime emerges from the Feynman
+expansion.
+
+\subsubsection{What the BLM model is and is not}
+
+It is natural to ask whether the BLM model \emph{is} a GFT, or at least
+a sector thereof.  The answer is \textbf{no}, for three precise reasons:
+
+\begin{enumerate}[label=(\roman*),nosep]
+  \item \textbf{Fixed spin vs.\ spin sum.}\;
+    The BLM model uses a \emph{single fixed} spin $j$ (with $N = 2j+1$
+    fermion modes).  The Boulatov GFT sums over \emph{all} admissible
+    spins in each Feynman amplitude.
+  \item \textbf{0+1d QM vs.\ field theory on a group manifold.}\;
+    The BLM model is a quantum mechanical system in $0+1$ dimensions.
+    The Boulatov model is a field theory on $\mathrm{SU}(2)^3$ (or its
+    quantum group generalization).
+  \item \textbf{Vertex structure.}\;
+    The BLM cubic vertex involves $3j$ symbols at a single spin~$j$.
+    The Boulatov cubic vertex involves group integration
+    (or Peter--Weyl expansion over all spins).
+\end{enumerate}
+
+\begin{remark}[What IS shared]\label{rem:shared-symbols}
+  Despite these differences, the two frameworks share the same
+  \emph{algebraic building blocks}: individual non-melonic BLM Feynman
+  diagrams (tetrahedron, cube, etc.) involve products of quantum $6j$ and
+  higher recoupling symbols that are the \emph{same} objects appearing as
+  TV/PR weights.  The structural relationship is:
+  \[
+    \text{BLM diagrams}
+    \;=\; \text{products of recoupling symbols at \emph{fixed} } j\,,
+  \]
+  \[
+    \text{TV state sums}
+    \;=\; \text{products of the \emph{same} symbols,
+           \emph{summed} over all admissible } l \leq (r-2)/2\,.
+  \]
+  The precise map from BLM Feynman amplitudes to TV-type invariants remains
+  an \textbf{open problem}.
+\end{remark}
+
+
+%% ==================================================================
+\subsection{SUSY at root of unity}
+\label{sec:susy-root}
+\afnode{1.4.3}
+\established
+
+We now turn to the most delicate aspect of the root-of-unity regime: the
+status of $\mathcal{N}=2$ supersymmetry.  The key results are that (i) SUSY
+is \emph{preserved} --- not broken --- at roots of unity, and (ii) the
+BLM spin parameter $j$ must satisfy a strict admissibility bound for the
+model to be well-defined.
+
+\subsubsection{Nilpotency}
+
+\begin{proposition}[Nilpotency at root of unity]
+\label{prop:nilpotency-root}
+  At $q = e^{2\pi i/r}$, the supercharge satisfies $Q_q^2 = 0$, provided
+  the quantum $3j$ symbols $C^j_q(m_1, m_2, m_3)$ are well-defined
+  (i.e., $j$ is admissible).
+\end{proposition}
+
+\begin{proof}
+  The proof is purely algebraic and identical to the $q > 0$ case: $Q_q^2$
+  is a sum of terms $C^j_q(m_1,m_2,m_3)\,C^j_q(m_4,m_5,m_6)$
+  contracted with products of six fermionic operators.  The total
+  antisymmetry of the $q$-$3j$ symbol under column permutations (an
+  algebraic identity valid for \emph{all} $q$ where the symbols are defined,
+  not depending on reality of coefficients) combined with Grassmann
+  anticommutation forces each term to cancel.  No reality condition on $q$
+  is needed.
+\end{proof}
+
+
+\subsubsection{Positive semi-definiteness}
+
+\begin{proposition}[PSD at root of unity]
+\label{prop:psd-root}
+  At $q = e^{2\pi i/r}$, the Hamiltonian
+  $H_q = \{Q_q, Q_q^\dagger\} \geq 0$ is positive semi-definite.
+\end{proposition}
+
+\begin{proof}
+  This is \emph{tautological}.  For \textbf{any} operator $Q$ on
+  \textbf{any} Hilbert space $\Hilbert$, and any state $|v\rangle \in
+  \Hilbert$:
+  \begin{equation}\label{eq:psd-tautology}
+    \langle v | \{Q, Q^\dagger\} | v \rangle
+    \;=\; \| Q^\dagger v \|^2 + \| Q v \|^2
+    \;\geq\; 0\,.
+  \end{equation}
+  This holds regardless of whether $Q$ has real or complex matrix elements.
+  The argument depends only on the fact that $Q_q^\dagger$ is the
+  \emph{Fock space adjoint} of $Q_q$ (defined by the inner product on
+  $\Fock$), not on any relationship between $Q_q^\dagger$ and the
+  coefficient-conjugated operator $\overline{Q}_q$.
+\end{proof}
+
+
+\subsubsection{Erratum: the $Q^\dagger$ vs.\ $\overline{Q}$ confusion}
+\label{sec:erratum}
+
+\begin{erratum}
+  The original formulation of AF node~1.4.3 claimed that
+  $\{Q_q, Q_q^\dagger\}$ could have \emph{negative} eigenvalues at root of
+  unity.  This was mathematically false.
+
+  The error arose from conflating two distinct operations:
+  \begin{itemize}[nosep]
+    \item $\overline{Q}_q$: the operator obtained by conjugating the
+      $q$-$3j$ coefficients while keeping the same fermion operator ordering.
+    \item $Q_q^\dagger$: the Fock space adjoint, which reverses the fermion
+      ordering and conjugates the coefficients.
+  \end{itemize}
+  For the cubic supercharge, reversing the order of three anticommuting
+  creation/annihilation operators requires $\binom{3}{2} = 3$ transpositions,
+  producing a sign $(-1)^3 = -1$.  Hence $Q_q^\dagger = -\overline{Q}_q$,
+  and
+  \begin{equation}\label{eq:Q-Qbar-relation}
+    \{Q_q, Q_q^\dagger\}
+    \;=\; -\{Q_q, \overline{Q}_q\}\,.
+  \end{equation}
+  The original argument incorrectly suggested that $\{Q_q, \overline{Q}_q\}$
+  could have positive eigenvalues, making $-\{Q_q, \overline{Q}_q\}$
+  negative.  In fact, $\{Q_q, \overline{Q}_q\}$ must have all eigenvalues
+  $\leq 0$, precisely because $-\{Q_q, \overline{Q}_q\} = \{Q_q,
+  Q_q^\dagger\} \geq 0$ by the tautological norm
+  argument~\eqref{eq:psd-tautology}.
+\end{erratum}
+
+
+\subsubsection{Admissibility bounds}
+\label{sec:admissibility}
+
+At root of unity, the BLM spin parameter $j$ (an odd integer $\geq 1$)
+cannot be arbitrary.  There are two constraints, the stricter of which is
+operative.
+
+\begin{definition}[Admissibility conditions for the $q$-BLM model]
+\label{def:admissibility}
+  Let $q = e^{2\pi i/r}$ with $r \geq 3$.
+  \begin{description}[style=nextline,labelwidth=13em,leftmargin=14em]
+    \item[Condition A (representation)]
+      The spin-$j$ representation of $U_q(\mathfrak{su}(2))$ exists with
+      nonzero quantum dimension: $\qint{2j+1}_{\!A} \neq 0$, which requires
+      \begin{equation}\label{eq:cond-A}
+        r \;\geq\; 2j + 2\,.
+      \end{equation}
+    \item[Condition B (Racah formula)]
+      The quantum $3j$ symbol $(j,j,j;\,m_1,m_2,m_3)$ is well-defined via
+      the Racah formula.  The triangle coefficient $\Delta(j,j,j)$ contains
+      in its denominator the factorial $\qfact{3j+1} = \qint{1}_{\!A}\,
+      \qint{2}_{\!A} \cdots \qint{3j+1}_{\!A}$.  For no factor to vanish,
+      we need $\qint{n}_{\!A} \neq 0$ for all $n = 1, \ldots, 3j+1$, which
+      requires
+      \begin{equation}\label{eq:cond-B}
+        r \;\geq\; 3j + 2\,.
+      \end{equation}
+  \end{description}
+\end{definition}
+
+Since $3j + 2 > 2j + 2$ for all $j \geq 1$, Condition~B is strictly
+stronger than Condition~A.  The BLM supercharge requires the $(j,j,j)$ $3j$
+symbol, so \textbf{Condition~B is the operative constraint}.
+
+\begin{remark}[TV level truncation]\label{rem:TV-truncation}
+  Condition~B is \emph{identical} to the Turaev--Viro admissibility condition
+  for the triple $(j,j,j)$: the level truncation $a + b + c \leq r - 2$
+  applied to $(a,b,c) = (j,j,j)$ gives $3j \leq r - 2$, i.e.,
+  $r \geq 3j + 2$.  This is not a coincidence: both constraints arise from
+  the requirement that all quantum factorials in the $6j$ (or $3j$) symbol
+  formulae are well-defined.
+\end{remark}
+
+\begin{example}[Concrete bounds]\label{ex:concrete-bounds}
+  For the first few admissible odd integers $j$:
+  \begin{center}
+  \begin{tabular}{ccc}
+    \toprule
+    $j$ & Condition A: $r \geq 2j+2$ & Condition B: $r \geq 3j+2$ \\
+    \midrule
+    $1$ & $r \geq 4$ & $r \geq 5$ \\
+    $3$ & $r \geq 8$ & $r \geq 11$ \\
+    $5$ & $r \geq 12$ & $r \geq 17$ \\
+    $7$ & $r \geq 16$ & $r \geq 23$ \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  In each case, Condition~B is the binding constraint.
+\end{example}
+
+
+\subsubsection{Reality of $q$-$3j$ symbols for admissible $j$}
+\label{sec:reality}
+
+An important consequence of the admissibility bound $r \geq 3j + 2$ is
+that the $q$-$3j$ symbols at the BLM coupling are \emph{real-valued}.
+
+\begin{proposition}[Reality of admissible $q$-$3j$ symbols]
+\label{prop:reality}
+  For $j$ satisfying $r \geq 3j + 2$, every quantum integer $\qint{n}_{\!A}$
+  appearing in the Racah formula for the $(j,j,j)$ $3j$ symbol has
+  $1 \leq n \leq 3j + 1 < r$, and therefore
+  \begin{equation}\label{eq:qint-positive}
+    \qint{n}_{\!A}
+    \;=\; \frac{\sin(n\pi/r)}{\sin(\pi/r)}
+    \;>\; 0
+    \qquad\text{for all } 1 \leq n \leq 3j+1\,.
+  \end{equation}
+  Since the Racah formula for the $3j$ symbol involves only quantum integers,
+  quantum factorials, and rational functions thereof --- all built from the
+  strictly positive quantities~\eqref{eq:qint-positive} --- the resulting
+  $q$-$3j$ symbols $C^j_q(m_1, m_2, m_3)$ are real for all admissible~$j$.
+\end{proposition}
+
+This reality has important implications: when the $3j$ symbols are real,
+$\overline{Q}_q = Q_q$, and the distinction between $Q_q^\dagger$ and
+$\overline{Q}_q$ that caused the erratum (see \cref{sec:erratum}) becomes
+$Q_q^\dagger = -Q_q$, matching the structure of the $q = 1$ theory
+up to sign conventions.
+
+
+\subsubsection{Finite truncation and full SUSY}
+
+\begin{theorem}[$\mathcal{N}=2$ SUSY for admissible $j$]
+\label{thm:susy-root}
+  For any odd integer $j \geq 1$ satisfying $r \geq 3j + 2$, the
+  root-of-unity $q$-BLM model is a well-defined $\mathcal{N}=2$
+  supersymmetric quantum mechanics:
+  \begin{enumerate}[label=(\alph*),nosep]
+    \item the supercharge $Q_q$ satisfies $Q_q^2 = 0$;
+    \item the Hamiltonian $H_q = \{Q_q, Q_q^\dagger\} \geq 0$;
+    \item BPS ground states are
+      $\ker H_q = \ker Q_q \cap \ker Q_q^\dagger$;
+    \item the Witten index $\Tr\bigl((-1)^F e^{-\beta H_q}\bigr)$ has its
+      standard SUSY interpretation.
+  \end{enumerate}
+\end{theorem}
+
+Unlike the $q > 0$ real case (Parts~I and~II), where $j$ can be any odd
+positive integer, the root-of-unity model exists for only finitely many
+values of~$j$.
+
+\begin{definition}[Finite truncation]
+\label{def:finite-trunc}
+  The root-of-unity $q$-BLM model exists for odd integers
+  $j = 1, 3, 5, \ldots, j_{\max}(r)$, where
+  \begin{equation}\label{eq:jmax}
+    j_{\max}(r)
+    \;=\; \text{largest odd integer} \leq \frac{r-2}{3}\,.
+  \end{equation}
+\end{definition}
+
+\begin{example}[Admissible models]\label{ex:trunc}
+  \begin{center}
+  \begin{tabular}{rrl}
+    \toprule
+    $r$ & $j_{\max}$ & Admissible models \\
+    \midrule
+    $5$ & $1$ & $j = 1$ only \\
+    $11$ & $3$ & $j = 1,\, 3$ \\
+    $17$ & $5$ & $j = 1,\, 3,\, 5$ \\
+    $20$ & $5$ & $j = 1,\, 3,\, 5$ \quad ($j = 7$ needs $r \geq 23$) \\
+    $23$ & $7$ & $j = 1,\, 3,\, 5,\, 7$ \\
+    \bottomrule
+  \end{tabular}
+  \end{center}
+  This is much sparser than the TV coloring set
+  $\{0, \half, 1, \ldots, (r-2)/2\}$, both because $j$ must be a positive
+  odd integer and because the Racah bound $j \leq (r-2)/3$ is stricter than
+  the representation bound $l \leq (r-2)/2$.
+\end{example}
+
+
+%% ==================================================================
+\subsection{The $r \to \infty$ limit}
+\label{sec:r-to-infty}
+
+As the root-of-unity order $r$ tends to infinity, the deformation parameter
+$q = e^{2\pi i/r} \to 1$, and three things happen:
+\begin{enumerate}[label=(\roman*),nosep]
+  \item The admissibility bound $r \geq 3j+2$ becomes vacuous for any fixed
+    $j$, recovering the unrestricted representation theory of
+    $\mathrm{SU}(2)$ at $q = 1$.
+  \item The Turaev--Viro state sum formally approaches the Ponzano--Regge
+    state sum of Part~I (though the latter is divergent and requires
+    regularization; the TV sum at finite~$r$ \emph{is} the regularization).
+  \item For the BLM model at fixed~$j$, the root-of-unity model smoothly
+    recovers the $q = 1$ model: all representation-theoretic constraints
+    become vacuous, and the $q$-$3j$ symbols continuously approach their
+    classical values.
+\end{enumerate}
+The cosmological constant $\Lambda = 4\pi^2/r^2 \to 0$, so the $r \to
+\infty$ limit simultaneously decompactifies the geometry from positive
+curvature ($\TV$) to flat ($\PR$), in agreement with the physical picture
+of Part~I.
+
+
+%% ==================================================================
+\subsection{Summary}
+\label{sec:root-summary}
+
+\begin{center}
+\begin{tabular}{lll}
+  \toprule
+  \textbf{Result} & \textbf{AF Node} & \textbf{Status} \\
+  \midrule
+  TV state sum and invariance       & 1.4.1 & \established \\
+  Turaev--Walker: $\TV_r = |\tau_r|^2$ & 1.4.1 & \established \\
+  Semiclassical: $\Lambda = 4\pi^2/r^2$ & 1.4.1 & \established \\
+  Boulatov GFT analogy              & 1.4.2 & Structural (not a duality) \\
+  BLM $\neq$ GFT                    & 1.4.2 & \established \\
+  $Q_q^2 = 0$ at root of unity      & 1.4.3 & \established \\
+  $\{Q_q,Q_q^\dagger\} \geq 0$      & 1.4.3 & \established{} (tautological) \\
+  Admissibility: $r \geq 3j+2$      & 1.4.3 & \established \\
+  Finite truncation                  & 1.4.3 & \established \\
+  Reality of $q$-$3j$ symbols        & 1.4.3 & \established \\
+  BLM $\leftrightarrow$ TV precise map & 1.4 & \textbf{Open} \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+The root-of-unity regime presents a rich interplay between established
+topological quantum field theory (the TV/RT framework) and the specific
+structure of the BLM model.  The SUSY structure survives intact for
+admissible spins, but the precise relationship between individual BLM
+Feynman amplitudes and TV invariants of specific triangulations remains the
+central open problem of this regime.

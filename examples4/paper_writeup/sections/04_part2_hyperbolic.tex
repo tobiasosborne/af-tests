@@ -1,0 +1,471 @@
+%% ============================================================
+%% Section 4: Part II — The Hyperbolic Regime
+%% AF Nodes: 1.3, 1.3.1, 1.3.2, 1.3.3, 1.3.4, 1.3.5
+%% Epistemic status: CONJECTURAL throughout
+%% ============================================================
+
+\section{Part~II: The Hyperbolic Regime (Fixed $q > 0$, $q \neq 1$)}
+\label{sec:hyperbolic}
+\conjectural
+\afnode{1.3}
+
+In Part~I we established that the $q=1$ BLM model exhibits melonic dominance,
+SYK-type solvability, and Ponzano--Regge (flat 3D gravity) asymptotics---all on
+firm mathematical footing.  We now turn to the regime of fixed real $q > 0$,
+$q \neq 1$, where the situation is fundamentally different.
+
+\medskip
+\noindent\textbf{Epistemic warning.}
+\emph{This entire section is conjectural.}
+The arguments below depend on a chain of conditional claims, each of which
+carries significant caveats.  We adopt an ``IF\ldots THEN\ldots'' structure
+throughout and flag every open step explicitly.
+No claim in this section should be read as an established result unless
+accompanied by an \established\ tag.
+
+The logical structure is as follows.
+\begin{enumerate}[label=(\Alph*)]
+  \item \textbf{Foundation} (\S\ref{ssec:6j-asymptotics}):
+        The root-of-unity asymptotics of quantum 6j symbols are
+        \emph{proven}; the extension to fixed real $q$ is an
+        \emph{open conjecture}.
+  \item \textbf{Non-melonic scaling} (\S\ref{ssec:melonic-breakdown}):
+        \emph{Conditional} on~(A), polynomial suppression of non-melonic
+        diagrams may fail.
+  \item \textbf{Qualitative change} (\S\ref{ssec:phase-transition}):
+        \emph{Conditional} on (A) and~(B), the Schwinger--Dyson equation
+        structure changes qualitatively at $q = 1$.
+  \item \textbf{Volume Conjecture analogy} (\S\ref{ssec:volume-conjecture}):
+        A \emph{motivating analogy}, not a mathematical equivalence.
+  \item \textbf{BPS survival} (\S\ref{ssec:bps-survival}):
+        An \emph{open problem}, independent of (A)--(C).
+\end{enumerate}
+
+%% ------------------------------------------------------------------
+\subsection{Quantum 6j asymptotics: what is proven and what is not}
+\label{ssec:6j-asymptotics}
+\afnode{1.3.1}
+
+The classical ($q=1$) Ponzano--Regge formula gives the large-spin asymptotics
+of the Wigner 6j symbol in terms of the Euclidean geometry of the associated
+tetrahedron~\cite{PonzanoRegge}.  For quantum groups, the picture is richer: the
+relevant geometry becomes \emph{hyperbolic}, and the asymptotics involve
+the \emph{volume} of a generalized hyperbolic tetrahedron.
+
+\subsubsection{The root-of-unity regime (proven)}
+\established
+
+For $q = e^{2\pi i/r}$ a root of unity, with spins $j_i$ scaling
+proportionally with $r$ subject to Turaev--Viro admissibility
+constraints, the following result is established:
+
+\begin{theorem}[Belletti--Yang~\cite{BellettiYang}, Costantino~\cite{Costantino}]
+\label{thm:root-of-unity-6j}
+Let $q = e^{2\pi i/r}$ and let $j_1, \ldots, j_6$ scale linearly with~$r$
+under TV admissibility.  Then
+\begin{equation}
+  \label{eq:root-of-unity-6j}
+  \lim_{r \to \infty} \frac{2\pi}{r}
+  \ln \bigl| \sixj{j_1}{j_2}{j_3}{j_4}{j_5}{j_6}_{\!q = e^{2\pi i/r}} \bigr|
+  = \Vol(\Delta_{\mathrm{hyp}}),
+\end{equation}
+where $\Delta_{\mathrm{hyp}}$ is the generalized hyperbolic tetrahedron
+determined by the scaled spin ratios and $\Vol$ denotes the hyperbolic
+volume.
+\end{theorem}
+
+The volume $\Vol(\Delta_{\mathrm{hyp}})$ can be positive (exponential growth),
+zero (power-law behavior), or negative (exponential decay), depending on the
+spin configuration.
+
+\begin{remark}[The $q \leftrightarrow q^{-1}$ symmetry]
+\label{rem:q-symmetry}
+The quantum integer satisfies $\qint{n} = \qint{n}\big|_{q \to q^{-1}}$,
+which implies
+\begin{equation}
+  \sixj{j_1}{j_2}{j_3}{j_4}{j_5}{j_6}_{\!q}
+  = \sixj{j_1}{j_2}{j_3}{j_4}{j_5}{j_6}_{\!q^{-1}}.
+\end{equation}
+Any growth rate function $V(q)$ extracted from the asymptotics must therefore
+satisfy $V(q) = V(q^{-1})$.  This constraint is automatically satisfied
+in the root-of-unity setting (where $q = e^{2\pi i/r}$ and
+$q^{-1} = e^{-2\pi i/r}$ lie on the unit circle), but it imposes a
+non-trivial consistency condition on any proposed extension to real~$q$.
+\end{remark}
+
+\subsubsection{The fixed-real-$q$ regime (open conjecture)}
+\openstatus
+
+The root-of-unity regime and the fixed-real-$q$ regime are
+\emph{mathematically distinct}:
+\begin{itemize}
+  \item \textbf{Root of unity:}
+        $q = e^{2\pi i/r}$ lies on the unit circle, $|q| = 1$,
+        and both $q$ and the spins scale together as $r \to \infty$.
+        The representation theory is that of a \emph{finite-dimensional}
+        quotient of $U_q(\mathfrak{su}(2))$.
+  \item \textbf{Fixed real $q$:}
+        $q > 0$, $q \neq 1$ is a fixed real number, and only the spins
+        $j \to \infty$.  The representation theory is that of the
+        \emph{full} quantum group $U_q(\mathfrak{su}(2))$, which for
+        $q > 1$ is non-compact.
+\end{itemize}
+
+The extension of \cref{thm:root-of-unity-6j} to this regime is an open
+conjecture:
+
+\begin{conjecture}[Fixed-real-$q$ asymptotics; cf.~Taylor--Woodward~{\cite[Section~9]{TaylorWoodward}}]
+\label{conj:fixed-q-6j}
+For fixed real $q > 0$, $q \neq 1$, and spins $j_i = n \cdot \hat{j}_i$
+with $n \to \infty$,
+\begin{equation}
+  \label{eq:fixed-q-6j}
+  \lim_{n \to \infty} \frac{1}{n}
+  \ln \bigl| \sixj{n\hat{j}_1}{n\hat{j}_2}{n\hat{j}_3}
+              {n\hat{j}_4}{n\hat{j}_5}{n\hat{j}_6}_{\!q} \bigr|
+  = V_{\mathrm{hyp}}(q, \hat{j}_i),
+\end{equation}
+where $V_{\mathrm{hyp}} > 0$ for $q > 1$ (exponential growth) and
+$V_{\mathrm{hyp}} < 0$ for $0 < q < 1$ (exponential decay), consistent with
+the $q \leftrightarrow q^{-1}$ symmetry.
+\end{conjecture}
+
+\begin{remark}
+The cited references---Taylor--Woodward~\cite{TaylorWoodward},
+Costantino~\cite{Costantino}, and Belletti--Yang~\cite{BellettiYang}---all
+work in the root-of-unity setting.  Taylor--Woodward~\cite[Section~9]{TaylorWoodward}
+explicitly flags the fixed-real-$q$ asymptotics as an open problem.
+\Cref{conj:fixed-q-6j} is motivated by, but not implied by,
+\cref{thm:root-of-unity-6j}.
+\end{remark}
+
+%% ------------------------------------------------------------------
+\subsection{Non-melonic scaling: conditional analysis}
+\label{ssec:melonic-breakdown}
+\afnode{1.3.2}
+
+In the classical BLM model ($q = 1$), non-melonic diagrams are suppressed
+relative to melonic ones.  The key example is the cube diagram (a 12j
+symbol with 8~vertices), which is the first non-vanishing non-melonic
+vacuum diagram in the oriented BLM model.  Its scaling relative to the
+melonic vacuum is suppressed by a factor of $(\log j)/j$, establishing
+melonic dominance in the large-$j$ limit~\cite{BLM}.
+
+\subsubsection{The classical suppression mechanism ($q = 1$)}
+\established
+
+At $q = 1$, the suppression is \emph{polynomial}: the 6j symbol decays as
+$j^{-3/2}$ (Ponzano--Regge), while vertex factors contribute powers of
+$(2j+1)$.  The net effect is that non-melonic vacuum diagrams carry an
+overall power-law suppression relative to the melonic vacuum.
+
+\subsubsection{The conjectured failure at $q \neq 1$}
+\conjectural
+
+\begin{conjecture}[Non-melonic scaling at $q \neq 1$]
+\label{conj:melonic-breakdown}
+IF \cref{conj:fixed-q-6j} holds, THEN for fixed $q > 1$, non-melonic
+vacuum diagrams are no longer polynomially suppressed relative to melonic
+ones: both types of diagram grow exponentially in $j$, and their ratio
+is itself exponential rather than power-law.
+\end{conjecture}
+
+The reasoning is as follows.  IF the quantum 6j symbol grows as
+$|{6j}_q| \sim \exp(j \cdot V_{\mathrm{hyp}})$ with $V_{\mathrm{hyp}} > 0$
+for $q > 1$, then no polynomial prefactor from vertex normalization can
+compensate for the exponential growth.  A polynomial times an
+exponential is still exponential; hence the $1/\sqrt{j}$-type
+suppression of the $q = 1$ case is overwhelmed.
+
+\begin{remark}[Caveats] \label{rem:melonic-caveats}
+This argument has several significant caveats that prevent it from
+being a proof, even conditional on \cref{conj:fixed-q-6j}:
+\begin{enumerate}[label=(\roman*)]
+  \item \textbf{Vertex normalization.}
+        The BLM model admits two natural vertex normalizations
+        (classical $\sqrt{2J(2J+1)}$ and $q$-adapted $\sqrt{2J\qint{2J+1}}$).
+        The vertex factors entering non-melonic diagrams are normalization-dependent,
+        and the exponential rate of the ratio (non-melonic)/(melonic) changes
+        accordingly.  In particular, the $q$-adapted normalization introduces
+        additional factors of $\qint{2j+1} \sim q^{2j}$ at each vertex,
+        which modify the exponential competition.
+
+  \item \textbf{Higher recoupling symbols.}
+        The first non-vanishing non-melonic diagram in the oriented BLM model
+        is the cube (a 12j symbol), not the tetrahedron (a 6j symbol).
+        The large-$j$ asymptotics of quantum 12j symbols at fixed real
+        $q \neq 1$ are \emph{completely unknown}.  The 6j analysis provides a
+        heuristic guide, but the actual non-melonic diagrams involve
+        more complicated recoupling symbols.
+
+  \item \textbf{Sign cancellations.}
+        Even if individual non-melonic diagrams grow exponentially, the
+        \emph{sum} over non-melonic diagrams may exhibit sign cancellations
+        that reduce the net contribution.  No analysis of such cancellations
+        exists.
+
+  \item \textbf{Combinatorial multiplicity.}
+        The number of diagrams at each order has not been accounted for.
+        Combinatorial prefactors could alter the balance between melonic
+        and non-melonic sectors.
+
+  \item \textbf{The $0 < q < 1$ regime.}
+        For $0 < q < 1$, \cref{conj:fixed-q-6j} predicts $V_{\mathrm{hyp}} < 0$
+        (exponential \emph{decay} of the 6j symbol), while the quantum
+        dimension $\qint{2j+1} \sim q^{-2j}/(q^{-1} - q)$ grows
+        exponentially.  In this regime, the normalization factors
+        may \emph{enhance} rather than undermine melonic dominance,
+        potentially reversing the conclusion.  The asymmetry between
+        $q > 1$ and $0 < q < 1$ is a substantive issue that the present
+        analysis does not resolve.
+\end{enumerate}
+\end{remark}
+
+
+%% ------------------------------------------------------------------
+\subsection{Qualitative change at $q = 1$: loss of SD-equation solvability}
+\label{ssec:phase-transition}
+\afnode{1.3.3}
+\conjectural
+
+In the $q = 1$ BLM model, the Schwinger--Dyson (SD) equations close on
+the melonic sector, yielding an exactly solvable integral equation for the
+two-point function---the hallmark of SYK-type models.  This solvability is a
+direct consequence of melonic dominance: only melonic diagrams contribute at
+leading order, and these have a recursive self-similar structure.
+
+\begin{conjecture}[Loss of SD solvability]
+\label{conj:sd-breakdown}
+IF \cref{conj:melonic-breakdown} holds (non-melonic diagrams are not
+suppressed for $q > 1$), THEN the SD equations of the $q$-deformed BLM
+model do not close on the melonic sector.  The large-$j$ dynamics is no
+longer described by a single integral equation but requires summation
+over an exponentially growing family of diagram topologies.
+\end{conjecture}
+
+This is conditional on both \cref{conj:fixed-q-6j} and
+\cref{conj:melonic-breakdown}, and therefore doubly conjectural.
+
+\begin{remark}[Not a phase transition in the technical sense]
+We emphasize that the term ``phase transition'' is used loosely here.  The
+$q = 1$ point is \emph{not} a thermodynamic phase transition in the sense of a
+non-analyticity of a free energy.  Rather, it is a \emph{qualitative change
+in the structure of the perturbative expansion}: the point at which a
+tractable (melonic) truncation ceases to capture the leading behavior.
+A more precise analogy is to a \emph{critical point in a matrix model},
+where the genus expansion breaks down and a double-scaling limit is required.
+Whether the $q$-deformed BLM model admits a new solvable limit (controlled by
+a dominant hyperbolic saddle, for instance) is entirely open.
+\end{remark}
+
+\begin{remark}[BPS sector across the transition]
+The BPS sector ($\ker H_q$) is expected to vary smoothly with $q$ (since
+supersymmetry is preserved for all $q > 0$), but the non-BPS spectrum may
+change qualitatively.  See \S\ref{ssec:bps-survival} for further discussion.
+\end{remark}
+
+
+%% ------------------------------------------------------------------
+\subsection{Connection to the Volume Conjecture: analogy, not equivalence}
+\label{ssec:volume-conjecture}
+\afnode{1.3.4}
+\conjectural
+
+The appearance of hyperbolic volumes in the asymptotics of quantum 6j symbols
+is reminiscent of the celebrated Volume Conjecture for knot invariants.
+We describe this connection carefully, emphasizing that it is a
+\emph{motivating analogy} rather than a mathematical equivalence.
+
+\subsubsection{The Kashaev--Murakami--Murakami Volume Conjecture}
+
+\begin{conjecture}[Volume Conjecture; Kashaev~\cite{Kashaev}, Murakami--Murakami~\cite{MurakamiMurakami}]
+\label{conj:volume-conjecture}
+For a hyperbolic knot $K \subset S^3$, the colored Jones polynomial
+$J_N(K; q)$ evaluated at $q = e^{2\pi i/N}$ satisfies
+\begin{equation}
+  \label{eq:volume-conjecture}
+  \lim_{N \to \infty} \frac{2\pi}{N}
+  \ln |J_N(K;\, e^{2\pi i/N})| = \Vol(S^3 \setminus K),
+\end{equation}
+where $\Vol$ denotes the hyperbolic volume of the knot complement.
+\end{conjecture}
+
+\subsubsection{Shared algebraic building blocks}
+
+The Volume Conjecture and the $q$-BLM model share a common algebraic
+ingredient: quantum 6j symbols of $U_q(\mathfrak{su}(2))$.  The colored
+Jones polynomial can be expressed as a state sum over quantum 6j symbols
+(via the Kauffman bracket and its relation to the Reshetikhin--Turaev
+invariant), and the $q$-BLM Hamiltonian is constructed from quantum 3j
+symbols, whose products yield 6j symbols through the recoupling theory.
+
+\subsubsection{Different regimes}
+
+Despite these shared building blocks, the two settings involve
+\emph{different asymptotic regimes}:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+& \textbf{Volume Conjecture} & \textbf{$q$-BLM model} \\
+\midrule
+Parameter $q$ & $q = e^{2\pi i/N}$ (varies with $N$) & $q > 0$ fixed \\
+$|q|$ & $|q| = 1$ (unit circle) & $q \in \R_{>0}$ \\
+Scaling & $q$ and spins scale together & only spins $j \to \infty$ \\
+Rep.\ theory & finite-dim.\ quotient & full quantum group \\
+Observable & colored Jones polynomial & vacuum diagrams \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{remark}
+The fact that both the Volume Conjecture and the conjectured $q$-BLM
+asymptotics involve hyperbolic volumes of tetrahedra is \emph{suggestive}---it
+points to a deep connection between quantum recoupling theory and hyperbolic
+3-geometry that manifests across different asymptotic regimes.  However, one
+should not conflate the two: the Volume Conjecture concerns the colored Jones
+polynomial $J_N(K; e^{2\pi i/N})$ (a topological invariant of a knot),
+while the $q$-BLM model concerns sums of products of quantum 6j symbols
+at fixed real $q$ (a dynamical quantity in quantum mechanics).  Passing from
+one regime to the other requires analytic continuation and limit interchange
+arguments that are not currently available.
+\end{remark}
+
+
+%% ------------------------------------------------------------------
+\subsection{BPS sector at $q \neq 1$: an open problem}
+\label{ssec:bps-survival}
+\afnode{1.3.5}
+\openstatus
+
+At $q = 1$, the BPS degeneracy of the BLM model is~\cite{BLM}
+\begin{equation}
+  \label{eq:bps-q1}
+  D^{\BPS}_{q=1} = 2 \times 3^j.
+\end{equation}
+Whether this formula persists for all $q > 0$ is an open question with
+two distinct components.
+
+\subsubsection{$Q_q$ annihilation: topological}
+
+The supercharge $Q_q$ annihilates the maximal-spin states (those with
+all fermion magnetic quantum numbers at their maximum values).  This
+annihilation is \emph{topological}: it follows from the selection rule
+$m_1 + m_2 + m_3 = 0$ for the quantum 3j symbol, which blocks the
+destruction of highest-$m$ fermions.  This selection rule is a
+consequence of angular momentum conservation and holds for all $q > 0$.
+
+\begin{proposition}[$Q_q$ annihilation is $q$-independent]
+\label{prop:Qq-annihilation}
+For all $q > 0$, the maximal-spin states lie in $\ker Q_q$.
+\end{proposition}
+
+This is established by the same argument as at $q = 1$: the relevant
+matrix elements of $Q_q$ vanish by the $m$-selection rule, which is
+algebraic and $q$-independent.
+
+\subsubsection{$Q_q^\dagger$ annihilation: not topological}
+\openstatus
+
+The adjoint supercharge $Q_q^\dagger$ annihilation of maximal-spin states
+is \emph{not} topological.  At $q = 1$, this annihilation relies on a
+delicate cancellation involving the bubble identity
+\begin{equation}
+  \label{eq:bubble-classical-recall}
+  \sum_{m} (-1)^{j-m}
+  \threej{j}{j}{0}{m}{-m}{0}
+  = \frac{1}{2j+1}\,,
+\end{equation}
+and sign-sector symmetries of the 3j symbols.  For $q \neq 1$, the
+bubble identity becomes
+\begin{equation}
+  \label{eq:bubble-quantum}
+  \text{(bubble)}_q = \frac{1}{\qint{2j+1}}\,,
+\end{equation}
+and the required cancellation involves $q$-deformed signs and phases
+whose behavior is not guaranteed by any topological argument.
+
+\begin{openproblem}[$Q_q^\dagger$ annihilation]
+\label{op:Qdagger}
+Does $Q_q^\dagger$ annihilate the maximal-spin states for all $q > 0$?
+Equivalently, does the delicate cancellation involving~\eqref{eq:bubble-quantum}
+and the $q$-deformed sign-sector symmetries persist away from $q = 1$?
+\end{openproblem}
+
+\subsubsection{The Witten index: necessary but not sufficient}
+
+The Witten index provides a $q$-independent lower bound.  For the
+BLM model with $N = 2j+1$ fermion flavors and $\Z_r$ grading~\cite{BLM},
+\begin{equation}
+  \label{eq:witten-index}
+  W(r) = \omega^{-N/2}(1 - \omega^r)^N, \qquad \omega = e^{2\pi i/(2j+1)},
+\end{equation}
+which depends only on the fermion number~$N$ and the grading parameter~$r$,
+not on the coupling constants (and hence not on~$q$).  However, the
+Witten index counts BPS states \emph{with signs}; it provides only
+$|W(r)| \leq D^{\BPS}_q$.  The \emph{unsigned} BPS degeneracy $D^{\BPS}_q$
+is not protected by the index alone.
+
+\begin{openproblem}[BPS degeneracy at $q \neq 1$]
+\label{op:bps-count}
+Does $D^{\BPS}_q = 2 \times 3^j$ for all $q > 0$?  A proof would
+require either:
+\begin{enumerate}[label=(\alph*)]
+  \item explicit computation of $\ker H_q$ for general~$q$,
+  \item a spectral gap argument showing that BPS states cannot
+        pair up and lift as $q$ varies, or
+  \item a wall-crossing analysis demonstrating the absence of
+        walls of marginal stability in the $q > 0$ half-line.
+\end{enumerate}
+None of these approaches has been carried out.
+\end{openproblem}
+
+
+%% ------------------------------------------------------------------
+\subsection{Summary of the hyperbolic regime}
+\label{ssec:hyp-summary}
+
+We collect the logical dependencies and epistemic status of the claims
+in this section:
+
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+\textbf{Node} & \textbf{Claim} & \textbf{Status} & \textbf{Depends on} \\
+\midrule
+1.3.1 & Root-of-unity 6j asymptotics
+      & \established
+      & --- \\
+1.3.1 & Fixed-real-$q$ 6j asymptotics (\cref{conj:fixed-q-6j})
+      & \conjectural
+      & --- \\
+1.3.2 & Non-melonic scaling (\cref{conj:melonic-breakdown})
+      & \conjectural
+      & 1.3.1 (conjectural part) \\
+1.3.3 & Loss of SD solvability (\cref{conj:sd-breakdown})
+      & \conjectural
+      & 1.3.1, 1.3.2 \\
+1.3.4 & Volume Conjecture connection
+      & analogy
+      & --- \\
+1.3.5 & BPS survival (\cref{op:bps-count})
+      & \openstatus
+      & --- \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent
+The central message of this section is a conditional one:
+\emph{IF} quantum 6j symbols at fixed real $q > 1$ grow exponentially
+with the spins (as they do at roots of unity), \emph{THEN} the
+polynomial suppression mechanism underlying melonic dominance in the
+$q = 1$ BLM model breaks down, and the large-$j$ dynamics enters
+a qualitatively different regime.  Whether this regime admits any form of
+solvability---perhaps controlled by a dominant hyperbolic saddle
+or a double-scaling limit---remains entirely open.
+
+The BPS sector presents a separate set of open questions: while
+$Q_q$~annihilation of maximal-spin states is topologically protected,
+$Q_q^\dagger$~annihilation is not, and the persistence of the
+BPS degeneracy $D^{\BPS} = 2 \times 3^j$ away from $q = 1$ is unproven.
