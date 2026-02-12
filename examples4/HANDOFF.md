@@ -1,26 +1,30 @@
 # HANDOFF: BLM Model — Numerics + Quantum Group Generalization
 
-## Status: v4 wave — 13 validated, 4 pending, 2 archived — 78% complete
+## Status: v5 wave — 13 validated, 4 pending, 2 archived — 78% complete
 
-**Latest (v4 session — prover+verifier wave)**:
-- **Node 1.4 AMENDED** by prover-14-wave2:
-  - Fixed (C1) admissibility: now r ≥ 3j+2 (Condition B from Racah formula), distinguished from weaker r ≥ 2j+2 (Condition A)
-  - Corrected all examples: j=1→r≥5, j=3→r≥11, j=5→r≥17
-  - Added (-1)^{2l} sign factor to TV formula with convention note
-  - All 6 challenges on 1.4 now resolved. Needs re-verification.
-- **Node 1.4.3 VALIDATED** by verifier-143-w2:
-  - All 3 major claims confirmed correct (nilpotency, PSD, admissibility r≥3j+2)
-  - 3 new non-blocking challenges (nilpotency justification oversimplified, formal deps not declared, verification record)
-- **Node 1.4.4 CHALLENGED** by verifier-144-w2 — NOT accepted:
-  - 3 blocking challenges: wrong admissibility (still r≥2j+3), false 1/[2j+1]_q divergence claim, formal deps not declared
-  - 2 minor: OP3 missing level truncation, L1 "generic q" imprecision
-  - Child 1.4.4.1 has all corrections; parent 1.4.4 needs prover to amend
+**Latest (v5 session — 2 prover waves + 1 verifier wave)**:
+- **Node 1.4.4 AMENDED x2** (prover-144-v5, prover-144-v6):
+  - Fixed admissibility r≥2j+3 → r≥3j+2 throughout (preamble, OP2(b), OP3, L1)
+  - Fixed false 1/[2j+1]_q divergence → correct boundary mechanism [r]_q=0
+  - Fixed OP2(a) false equation [2j+1]_q=[r-1]_q → correct [(2r-1)/3]_q computation
+  - Added OP3 two-regime analysis + clarification that Regime II is vacuous under Racah bound
+  - Fixed L1 "generic q" → classical q=1 theory
+  - Formal deps: CLI limitation documented (no dep-add for existing nodes)
+  - **KNOWN ISSUE**: OP2(d) still claims q-3j symbols are "complex" — they are REAL for admissible j. Not yet challenged on 1.4.4 (only caught on 1.4.4.1).
+  - Only open challenges: 1 note (verification record)
+- **Node 1.4.4.1 AMENDED x2** (prover-1441-v5, prover-1441-v6):
+  - Fixed preamble admissibility to r≥3j+2 with two-condition structure (A vs B)
+  - Fixed OP2(d): q-3j symbols are REAL (not complex) for admissible j — proved rigorously via Racah formula analysis
+  - Fixed Ben Geloun-Bonzom reference (bosonic, not fermionic); added Ben Geloun-Rivasseau 2017
+  - OP3 two-regime analysis clarified (BLM/TV bounds coincide, Regime II vacuous)
+  - Only open challenges: 1 note (verification record)
+- **Verifier findings (v5)**: Key discovery that q-3j symbols at root of unity are REAL for admissible j (all [n]_q positive real for 1≤n≤3j+1<r). This invalidates OP2(d)'s premise on both nodes.
 - **Critical path**: 1 → 1.4 → 1.4.4 → 1.4.4.1 (depth 4)
 
-**Current tree (19 nodes)**:
+**Current tree (19 nodes + 1 archived child 1.4.4.2)**:
 - **13 validated**: 1.1, 1.1.1, 1.1.2, 1.2, 1.3, 1.3.1, 1.3.2, 1.3.3, 1.3.4, 1.3.5, 1.4.1, 1.4.2, **1.4.3**
 - **4 pending**: 1 (root), 1.4, 1.4.4, 1.4.4.1
-- **2 archived**: 1.3.1.1, 1.4.5 (duplicates)
+- **3 archived**: 1.3.1.1, 1.4.5, 1.4.4.2 (duplicates/accidental)
 
 **Previous discoveries (still valid)**:
 - SUSY: {Q,Q†} ≥ 0 tautological for any operator Q (original obstruction was wrong)
@@ -120,11 +124,12 @@ println("BPS states: ", count(e -> abs(e) < 1e-6, evals))
 ## Next Steps
 
 ### Proof tree v2 — next wave (priority)
-1. **Prover for 1.4.4**: fix 3 blocking challenges (admissibility r≥2j+3→r≥3j+2, false 1/[2j+1]_q divergence, formal deps). Child 1.4.4.1 has all corrections.
-2. **Verifier for 1.4.4.1**: first verification of new child node (never verified)
-3. **Re-verify 1.4**: prover amended this session, needs fresh verifier pass
-4. **Root node 1**: synthesis check — will auto-validate once 1.4 chain completes
-5. **Admissibility inconsistency FIXED in 1.4** (v4 session): now says r≥3j+2, matching child 1.4.3
+1. **Prover for 1.4.4 OP2(d)**: KNOWN BUG — OP2(d) still claims q-3j symbols are "complex"; they are REAL for admissible j. Needs prover to amend (same fix already applied to 1.4.4.1).
+2. **Verifier for 1.4.4**: Re-verify after v6 amendment (will likely catch OP2(d))
+3. **Verifier for 1.4.4.1**: Re-verify after v6 amendment (only notes remain)
+4. **Re-verify 1.4**: amended in v4, needs fresh verifier pass
+5. **Root node 1**: synthesis check + update admissibility in root statement (still says r≥2j+3)
+6. **Admissibility consistency**: Root node 1 still uses r≥2j+3 — needs prover amendment to match children
 3. **q-deformed numerics**: Modify Julia ED code to use quantum 3j symbols
    - Replace `wigner3j(j,j,j,m1,m2,m3)` with `q_wigner3j(j,j,j,m1,m2,m3,q)`
    - Validate: q→1 limit recovers original spectrum
