@@ -1,33 +1,26 @@
 # HANDOFF: BLM Model — Numerics + Quantum Group Generalization
 
-## Status: v5 wave — 13 validated, 4 pending, 2 archived — 78% complete
+## Status: v7 wave — 14 validated, 3 pending (all mathematically verified), 3 archived — 80%+ complete
 
-**Latest (v5 session — 2 prover waves + 1 verifier wave)**:
-- **Node 1.4.4 AMENDED x2** (prover-144-v5, prover-144-v6):
-  - Fixed admissibility r≥2j+3 → r≥3j+2 throughout (preamble, OP2(b), OP3, L1)
-  - Fixed false 1/[2j+1]_q divergence → correct boundary mechanism [r]_q=0
-  - Fixed OP2(a) false equation [2j+1]_q=[r-1]_q → correct [(2r-1)/3]_q computation
-  - Added OP3 two-regime analysis + clarification that Regime II is vacuous under Racah bound
-  - Fixed L1 "generic q" → classical q=1 theory
-  - Formal deps: CLI limitation documented (no dep-add for existing nodes)
-  - **KNOWN ISSUE**: OP2(d) still claims q-3j symbols are "complex" — they are REAL for admissible j. Not yet challenged on 1.4.4 (only caught on 1.4.4.1).
-  - Only open challenges: 1 note (verification record)
-- **Node 1.4.4.1 AMENDED x2** (prover-1441-v5, prover-1441-v6):
-  - Fixed preamble admissibility to r≥3j+2 with two-condition structure (A vs B)
-  - Fixed OP2(d): q-3j symbols are REAL (not complex) for admissible j — proved rigorously via Racah formula analysis
-  - Fixed Ben Geloun-Bonzom reference (bosonic, not fermionic); added Ben Geloun-Rivasseau 2017
-  - OP3 two-regime analysis clarified (BLM/TV bounds coincide, Regime II vacuous)
-  - Only open challenges: 1 note (verification record)
-- **Verifier findings (v5)**: Key discovery that q-3j symbols at root of unity are REAL for admissible j (all [n]_q positive real for 1≤n≤3j+1<r). This invalidates OP2(d)'s premise on both nodes.
-- **Critical path**: 1 → 1.4 → 1.4.4 → 1.4.4.1 (depth 4)
+**Latest (v7 session — 2 provers + 4 verifiers)**:
+- **Node 1.4.4 AMENDED** (prover-144-v7): Fixed OP2(d) — "complex" q-3j symbols → REAL for admissible j. Added erratum v7. All previous v5/v6 fixes retained.
+- **Node 1 (root) AMENDED** (prover-root-v7): Fixed admissibility r≥2j+3 → r≥3j+2; "complex" → "real-valued"; failure mode clarified (quantum 3j undefined, not just quantum dimension).
+- **Node 1.4.4.1 VALIDATED** (verifier-1441-v7): Full re-verification, 0 blocking issues. Formally accepted.
+- **Node 1.4.4 VERIFIED** (verifier-144-v7): Mathematically sound. 2 non-blocking issues (minor numerical error in OP2(a) [7]_q≈1.563 should be ≈3.229; note about L3/OP2(d) reality tension). **Formal acceptance blocked by framework bug** (see below).
+- **Node 1.4 VERIFIED** (verifier-14-v7): Mathematically sound. 1 note (j/l notational ambiguity in section B). Formal acceptance blocked by 1.4.4 pending.
+- **Node 1 (root) VERIFIED** (verifier-root-v7): Mathematically sound. 0 errors. All 9 verification points pass. Formal acceptance blocked by 1.4 pending.
 
-**Current tree (19 nodes + 1 archived child 1.4.4.2)**:
-- **13 validated**: 1.1, 1.1.1, 1.1.2, 1.2, 1.3, 1.3.1, 1.3.2, 1.3.3, 1.3.4, 1.3.5, 1.4.1, 1.4.2, **1.4.3**
-- **4 pending**: 1 (root), 1.4, 1.4.4, 1.4.4.1
+**FRAMEWORK BUG — BLOCKING FORMAL ACCEPTANCE**:
+Archived test node 1.4.4.2 (statement: "test", created accidentally) prevents `af accept 1.4.4` because the framework requires ALL children to be validated, and archived is a terminal state. This cascades: 1.4.4 blocked → 1.4 blocked → 1 blocked. **All 4 nodes are mathematically verified with 0 blocking errors.** Fix: either (a) add an `af delete` command, (b) exclude archived nodes from child validation checks, or (c) manually edit the ledger to remove entries 000314/000316 referencing 1.4.4.2.
+
+**Current tree (20 nodes)**:
+- **14 validated**: 1.1, 1.1.1, 1.1.2, 1.2, 1.3, 1.3.1, 1.3.2, 1.3.3, 1.3.4, 1.3.5, 1.4.1, 1.4.2, 1.4.3, **1.4.4.1**
+- **3 pending (all mathematically verified)**: 1 (root), 1.4, 1.4.4
 - **3 archived**: 1.3.1.1, 1.4.5, 1.4.4.2 (duplicates/accidental)
 
 **Previous discoveries (still valid)**:
 - SUSY: {Q,Q†} ≥ 0 tautological for any operator Q (original obstruction was wrong)
+- q-3j symbols at root of unity are REAL for admissible j (all [n]_q positive real for 1≤n≤3j+1<r)
 - q↔q⁻¹ symmetry constraint, Taylor-Woodward root-of-unity only
 - Epistemic labels: I=established, II=conjectural, III=mixed
 - Part III no longer claims TV/CS equivalence
@@ -45,12 +38,12 @@
     - 1.3.3: Qualitative change at q=1 — conjectural, conditional on 1.3.1/1.3.2
     - 1.3.4: Volume Conjecture — motivating analogy, NOT mathematical equivalence
     - 1.3.5: BPS survival at q≠1 — OPEN (VALIDATED)
-  - Part III (1.4): Root-of-unity regime — 4 children + 1 grandchild
+  - Part III (1.4): Root-of-unity regime — MATHEMATICALLY VERIFIED
     - 1.4.1: Turaev-Viro state sum (established math, VALIDATED)
     - 1.4.2: Boulatov GFT analogy (structural, not equivalence, VALIDATED)
-    - 1.4.3: SUSY preserved + representation-theoretic constraints (refined, pending re-verification)
-    - 1.4.4: Open problems and r→∞ limit (refined, pending re-verification)
-      - 1.4.4.1: Detailed open problems (new child from prover, pending verification)
+    - 1.4.3: SUSY preserved + representation-theoretic constraints (VALIDATED)
+    - 1.4.4: Open problems and r→∞ limit (VERIFIED, formal accept blocked by 1.4.4.2)
+      - 1.4.4.1: Detailed open problems (VALIDATED)
 - Phase 4: Parallel sector diagonalization via `Threads.@threads`
 - `parallel_ground_states(j)` diagonalizes all (n, j3) sectors in parallel
 - j=11 with 4 threads: 2048 sectors processed (1042 full diag, 1006 Lanczos)
@@ -124,12 +117,11 @@ println("BPS states: ", count(e -> abs(e) < 1e-6, evals))
 ## Next Steps
 
 ### Proof tree v2 — next wave (priority)
-1. **Prover for 1.4.4 OP2(d)**: KNOWN BUG — OP2(d) still claims q-3j symbols are "complex"; they are REAL for admissible j. Needs prover to amend (same fix already applied to 1.4.4.1).
-2. **Verifier for 1.4.4**: Re-verify after v6 amendment (will likely catch OP2(d))
-3. **Verifier for 1.4.4.1**: Re-verify after v6 amendment (only notes remain)
-4. **Re-verify 1.4**: amended in v4, needs fresh verifier pass
-5. **Root node 1**: synthesis check + update admissibility in root statement (still says r≥2j+3)
-6. **Admissibility consistency**: Root node 1 still uses r≥2j+3 — needs prover amendment to match children
+1. **FRAMEWORK BUG FIX**: Remove or handle archived test node 1.4.4.2 so `af accept 1.4.4` works. Options: ledger edit (remove entries 000314+000316), or patch af tool to skip archived children. Once fixed, run: `af accept 1.4.4 --agent verifier-144-v7 --confirm`, then `af accept 1.4 --agent verifier-14-v7 --confirm`, then `af accept 1 --agent verifier-root-v7 --confirm`.
+2. **Minor fixes** (non-blocking, can be done by provers):
+   - 1.4.4 OP2(a): numerical value [7]_q≈1.563 should be ≈3.229 (ch-aa76f96055ed26d1)
+   - 1.4.4 L3: "reality of all coefficients" tension with OP2(d) (ch-60b08cda85732b25)
+   - 1.4 section (B): j/l notational ambiguity (ch-5d1df7b3464755ff)
 3. **q-deformed numerics**: Modify Julia ED code to use quantum 3j symbols
    - Replace `wigner3j(j,j,j,m1,m2,m3)` with `q_wigner3j(j,j,j,m1,m2,m3,q)`
    - Validate: q→1 limit recovers original spectrum
