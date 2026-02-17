@@ -1,0 +1,1 @@
+{"type":"challenge_raised","timestamp":"2026-02-17T22:09:42.185700321Z","challenge_id":"ch-f8aa0d8844bbfa1f","node_id":"1.1.2","target":"dependencies","reason":"This node derives d(tau) from the fusion rule tau x tau = 1 + tau (node 1.1.1), but declares no dependency on 1.1.1. Logically it should.","severity":"minor","raised_by":""}

@@ -1,0 +1,41 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "fib2s2.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/FFib1.png"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/FFib2.png"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/Fsymbols.png"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/LassoAlgebra.png"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/axioms.png"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figures/bubble.png"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "utphys.bst"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

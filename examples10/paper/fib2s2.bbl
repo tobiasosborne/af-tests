@@ -1,0 +1,276 @@
+\providecommand{\href}[2]{#2}\begingroup\raggedright\begin{thebibliography}{10}
+
+\bibitem{Belavin:1984vu}
+A.~A. Belavin, A.~M. Polyakov, and A.~B. Zamolodchikov, ``{Infinite Conformal
+  Symmetry in Two-Dimensional Quantum Field Theory},''
+  \href{http://dx.doi.org/10.1016/0550-3213(84)90052-X}{{\em Nucl. Phys. B}
+  {\bfseries 241} (1984) 333--380}.
+
+\bibitem{Verlinde:1988sn}
+E.~P. Verlinde, ``{Fusion Rules and Modular Transformations in 2D Conformal
+  Field Theory},'' \href{http://dx.doi.org/10.1016/0550-3213(88)90603-7}{{\em
+  Nucl. Phys. B} {\bfseries 300} (1988) 360--376}.
+
+\bibitem{Moore:1988qv}
+G.~W. Moore and N.~Seiberg, ``{Classical and Quantum Conformal Field Theory},''
+  \href{http://dx.doi.org/10.1007/BF01238857}{{\em Commun. Math. Phys.}
+  {\bfseries 123} (1989) 177}.
+
+\bibitem{Vafa:1988ag}
+C.~Vafa, ``{Toward Classification of Conformal Theories},''
+  \href{http://dx.doi.org/10.1016/0370-2693(88)91603-6}{{\em Phys. Lett. B}
+  {\bfseries 206} (1988) 421--426}.
+
+\bibitem{Antunes:2022vtb}
+A.~Antunes and C.~Behan, ``{Coupled Minimal Conformal Field Theory Models
+  Revisited},'' \href{http://dx.doi.org/10.1103/PhysRevLett.130.071602}{{\em
+  Phys. Rev. Lett.} {\bfseries 130} no.~7, (2023) 071602},
+  \href{http://arxiv.org/abs/2211.16503}{{\ttfamily arXiv:2211.16503
+  [hep-th]}}.
+
+\bibitem{Antunes:2024mfb}
+A.~Antunes and C.~Behan, ``{Coupled minimal models revisited II: Constraints
+  from permutation symmetry},''
+  \href{http://dx.doi.org/10.21468/SciPostPhys.18.4.132}{{\em SciPost Phys.}
+  {\bfseries 18} no.~4, (2025) 132},
+  \href{http://arxiv.org/abs/2412.21107}{{\ttfamily arXiv:2412.21107
+  [hep-th]}}.
+
+\bibitem{Antunes:2025erb}
+A.~Antunes and N.~Suchel, ``{Taxonomy of coupled minimal models from finite
+  groups},'' \href{http://arxiv.org/abs/2512.23664}{{\ttfamily arXiv:2512.23664
+  [hep-th]}}.
+
+\bibitem{Dotsenko:1995dy}
+V.~Dotsenko, M.~Picco, and P.~Pujol, ``{Two critical models with disorder},''
+  \href{http://arxiv.org/abs/hep-th/9512087}{{\ttfamily arXiv:hep-th/9512087}}.
+
+\bibitem{Dotsenko:1998gyp}
+V.~Dotsenko, J.~L. Jacobsen, M.-A. Lewis, and M.~Picco, ``{Coupled Potts
+  models: Self-duality and fixed point structure},''
+  \href{http://dx.doi.org/10.1016/S0550-3213(99)00097-8}{{\em Nucl. Phys. B}
+  {\bfseries 546} (1999) 505--557},
+  \href{http://arxiv.org/abs/cond-mat/9812227}{{\ttfamily
+  arXiv:cond-mat/9812227}}.
+
+\bibitem{Dotsenko:2001zb}
+V.~S. Dotsenko, X.~S. Nguyen, and R.~Santachiara, ``{Models WD(n) in the
+  presence of disorder and the coupled models},''
+  \href{http://dx.doi.org/10.1016/S0550-3213(01)00392-3}{{\em Nucl. Phys. B}
+  {\bfseries 613} (2001) 445--471},
+  \href{http://arxiv.org/abs/hep-th/0104197}{{\ttfamily arXiv:hep-th/0104197}}.
+
+\bibitem{Chang:2018iay}
+C.-M. Chang, Y.-H. Lin, S.-H. Shao, Y.~Wang, and X.~Yin, ``{Topological Defect
+  Lines and Renormalization Group Flows in Two Dimensions},''
+  \href{http://dx.doi.org/10.1007/JHEP01(2019)026}{{\em JHEP} {\bfseries 01}
+  (2019) 026}, \href{http://arxiv.org/abs/1802.04445}{{\ttfamily
+  arXiv:1802.04445 [hep-th]}}.
+
+\bibitem{Bhardwaj:2017xup}
+L.~Bhardwaj and Y.~Tachikawa, ``{On finite symmetries and their gauging in two
+  dimensions},'' \href{http://dx.doi.org/10.1007/JHEP03(2018)189}{{\em JHEP}
+  {\bfseries 03} (2018) 189}, \href{http://arxiv.org/abs/1704.02330}{{\ttfamily
+  arXiv:1704.02330 [hep-th]}}.
+
+\bibitem{Antunes:2025huk}
+A.~Antunes and J.~Rong, ``{Irrational CFTs from coupled anyon chains with
+  non-invertible symmetries?},''
+  \href{http://arxiv.org/abs/2507.14280}{{\ttfamily arXiv:2507.14280
+  [hep-th]}}.
+
+\bibitem{Feiguin:2006ydp}
+A.~Feiguin, S.~Trebst, A.~W.~W. Ludwig, M.~Troyer, A.~Kitaev, Z.~Wang, and
+  M.~H. Freedman, ``{Interacting anyons in topological quantum liquids: The
+  golden chain},'' \href{http://dx.doi.org/10.1103/PhysRevLett.98.160409}{{\em
+  Phys. Rev. Lett.} {\bfseries 98} (2007) 160409},
+  \href{http://arxiv.org/abs/cond-mat/0612341}{{\ttfamily
+  arXiv:cond-mat/0612341}}.
+
+\bibitem{Rattazzi:2008pe}
+R.~Rattazzi, V.~S. Rychkov, E.~Tonni, and A.~Vichi, ``{Bounding scalar operator
+  dimensions in 4D CFT},''
+  \href{http://dx.doi.org/10.1088/1126-6708/2008/12/031}{{\em JHEP} {\bfseries
+  12} (2008) 031}, \href{http://arxiv.org/abs/0807.0004}{{\ttfamily
+  arXiv:0807.0004 [hep-th]}}.
+
+\bibitem{Hellerman:2009bu}
+S.~Hellerman, ``{A Universal Inequality for CFT and Quantum Gravity},''
+  \href{http://dx.doi.org/10.1007/JHEP08(2011)130}{{\em JHEP} {\bfseries 08}
+  (2011) 130}, \href{http://arxiv.org/abs/0902.2790}{{\ttfamily arXiv:0902.2790
+  [hep-th]}}.
+
+\bibitem{Fitzpatrick:2023lvh}
+A.~L. Fitzpatrick and W.~Li, ``{Improving modular bootstrap bounds with
+  integrality},'' \href{http://dx.doi.org/10.1007/JHEP07(2024)058}{{\em JHEP}
+  {\bfseries 07} (2024) 058}, \href{http://arxiv.org/abs/2308.08725}{{\ttfamily
+  arXiv:2308.08725 [hep-th]}}.
+
+\bibitem{Afkhami-Jeddi:2019zci}
+N.~Afkhami-Jeddi, T.~Hartman, and A.~Tajdini, ``{Fast Conformal Bootstrap and
+  Constraints on 3d Gravity},''
+  \href{http://dx.doi.org/10.1007/JHEP05(2019)087}{{\em JHEP} {\bfseries 05}
+  (2019) 087}, \href{http://arxiv.org/abs/1903.06272}{{\ttfamily
+  arXiv:1903.06272 [hep-th]}}.
+
+\bibitem{Hartman:2019pcd}
+T.~Hartman, D.~Maz{\'a}{\v{c}}, and L.~Rastelli, ``{Sphere Packing and Quantum
+  Gravity},'' \href{http://dx.doi.org/10.1007/JHEP12(2019)048}{{\em JHEP}
+  {\bfseries 12} (2019) 048}, \href{http://arxiv.org/abs/1905.01319}{{\ttfamily
+  arXiv:1905.01319 [hep-th]}}.
+
+\bibitem{Afkhami-Jeddi:2020hde}
+N.~Afkhami-Jeddi, H.~Cohn, T.~Hartman, D.~de~Laat, and A.~Tajdini,
+  ``{High-dimensional sphere packing and the modular bootstrap},''
+  \href{http://dx.doi.org/10.1007/JHEP12(2020)066}{{\em JHEP} {\bfseries 12}
+  (2020) 066}, \href{http://arxiv.org/abs/2006.02560}{{\ttfamily
+  arXiv:2006.02560 [hep-th]}}.
+
+\bibitem{Lin:2019kpn}
+Y.-H. Lin and S.-H. Shao, ``{Anomalies and Bounds on Charged Operators},''
+  \href{http://dx.doi.org/10.1103/PhysRevD.100.025013}{{\em Phys. Rev. D}
+  {\bfseries 100} no.~2, (2019) 025013},
+  \href{http://arxiv.org/abs/1904.04833}{{\ttfamily arXiv:1904.04833
+  [hep-th]}}.
+
+\bibitem{Lin:2021udi}
+Y.-H. Lin and S.-H. Shao, ``{$\mathbb{Z}_N$ symmetries, anomalies, and the
+  modular bootstrap},''
+  \href{http://dx.doi.org/10.1103/PhysRevD.103.125001}{{\em Phys. Rev. D}
+  {\bfseries 103} no.~12, (2021) 125001},
+  \href{http://arxiv.org/abs/2101.08343}{{\ttfamily arXiv:2101.08343
+  [hep-th]}}.
+
+\bibitem{Collier:2021ngi}
+S.~Collier, D.~Mazac, and Y.~Wang, ``{Bootstrapping boundaries and branes},''
+  \href{http://dx.doi.org/10.1007/JHEP02(2023)019}{{\em JHEP} {\bfseries 02}
+  (2023) 019}, \href{http://arxiv.org/abs/2112.00750}{{\ttfamily
+  arXiv:2112.00750 [hep-th]}}.
+
+\bibitem{Lin:2023uvm}
+Y.-H. Lin and S.-H. Shao, ``{Bootstrapping noninvertible symmetries},''
+  \href{http://dx.doi.org/10.1103/PhysRevD.107.125025}{{\em Phys. Rev. D}
+  {\bfseries 107} no.~12, (2023) 125025},
+  \href{http://arxiv.org/abs/2302.13900}{{\ttfamily arXiv:2302.13900
+  [hep-th]}}.
+
+\bibitem{Albert:2025umy}
+J.~Albert, Y.~Honda, J.~Kaidi, and Y.~Zheng, ``{Haagerup Symmetry in
+  $(E_8)_1$?},'' \href{http://arxiv.org/abs/2512.08225}{{\ttfamily
+  arXiv:2512.08225 [hep-th]}}.
+
+\bibitem{Kousvos:2024dlz}
+S.~R. Kousvos, A.~Piazza, and A.~Vichi, ``{Exploring replica-Potts CFTs in two
+  dimensions},'' \href{http://dx.doi.org/10.1007/JHEP11(2024)030}{{\em JHEP}
+  {\bfseries 11} (2024) 030}, \href{http://arxiv.org/abs/2405.19416}{{\ttfamily
+  arXiv:2405.19416 [hep-th]}}.
+
+\bibitem{Choi:2024tri}
+Y.~Choi, B.~C. Rayhaun, and Y.~Zheng, ``{Generalized Tube Algebras,
+  Symmetry-Resolved Partition Functions, and Twisted Boundary States},''
+  \href{http://arxiv.org/abs/2409.02159}{{\ttfamily arXiv:2409.02159
+  [hep-th]}}.
+
+\bibitem{Meineri:2025qwz}
+M.~Meineri and B.~Radhakrishnan, ``{The Bootstrap of Points and Lines},''
+  \href{http://arxiv.org/abs/2506.17382}{{\ttfamily arXiv:2506.17382
+  [hep-th]}}.
+
+\bibitem{ocneanu1994chirality}
+A.~Ocneanu, ``Chirality for operator algebras,'' {\em Subfactors (Kyuzeso,
+  1993)} (1994) 39--63.
+
+\bibitem{Schafer-Nameki:2023jdn}
+S.~Schafer-Nameki, ``{ICTP lectures on (non-)invertible generalized
+  symmetries},'' \href{http://dx.doi.org/10.1016/j.physrep.2024.01.007}{{\em
+  Phys. Rept.} {\bfseries 1063} (2024) 1--55},
+  \href{http://arxiv.org/abs/2305.18296}{{\ttfamily arXiv:2305.18296
+  [hep-th]}}.
+
+\bibitem{Shao:2023gho}
+S.-H. Shao, ``{What's Done Cannot Be Undone: TASI Lectures on Non-Invertible
+  Symmetries},'' in {\em {Theoretical Advanced Study Institute in Elementary
+  Particle Physics 2023}: {Aspects of Symmetry}}.
+\newblock 8, 2023.
+\newblock \href{http://arxiv.org/abs/2308.00747}{{\ttfamily arXiv:2308.00747
+  [hep-th]}}.
+
+\bibitem{Lin:2022dhv}
+Y.-H. Lin, M.~Okada, S.~Seifnashri, and Y.~Tachikawa, ``{Asymptotic density of
+  states in 2d CFTs with non-invertible symmetries},''
+  \href{http://dx.doi.org/10.1007/JHEP03(2023)094}{{\em JHEP} {\bfseries 03}
+  (2023) 094}, \href{http://arxiv.org/abs/2208.05495}{{\ttfamily
+  arXiv:2208.05495 [hep-th]}}.
+
+\bibitem{Bartsch:2023wvv}
+T.~Bartsch, M.~Bullimore, and A.~Grigoletto, ``{Representation theory for
+  categorical symmetries},'' \href{http://arxiv.org/abs/2305.17165}{{\ttfamily
+  arXiv:2305.17165 [hep-th]}}.
+
+\bibitem{Aasen:2020jwb}
+D.~Aasen, P.~Fendley, and R.~S.~K. Mong, ``{Topological Defects on the Lattice:
+  Dualities and Degeneracies},''
+  \href{http://arxiv.org/abs/2008.08598}{{\ttfamily arXiv:2008.08598
+  [cond-mat.stat-mech]}}.
+
+\bibitem{GAP4}
+The GAP~Group, {\em {GAP -- Groups, Algorithms, and Programming, Version
+  4.15.1}}, 2025.
+\newblock \url{https://www.gap-system.org}.
+
+\bibitem{toappear}
+M.~Ferragatta, J.~Rong, F.~Russo, and B.~C. van Rees {\em to appear} .
+
+\bibitem{etingof2015tensor}
+P.~Etingof, S.~Gelaki, D.~Nikshych, and V.~Ostrik, {\em Tensor categories},
+  vol.~205.
+\newblock American Mathematical Soc., 2015.
+
+\bibitem{Moore:1989vd}
+G.~W. Moore and N.~Seiberg, ``{Lectures on RCFT},'' in {\em {1989 Banff NATO
+  ASI: Physics, Geometry and Topology}}, pp.~1--129.
+\newblock 9, 1989.
+
+\bibitem{dijkgraaf1989operator}
+R.~Dijkgraaf, C.~Vafa, E.~Verlinde, and H.~Verlinde, ``The operator algebra of
+  orbifold models,'' {\em Communications in Mathematical Physics} {\bfseries
+  123} no.~3, (1989) 485--526.
+
+\bibitem{etingof2009introduction}
+P.~Etingof, O.~Golberg, S.~Hensel, T.~Liu, A.~Schwendner, D.~Vaintrob, and
+  E.~Yudovina, ``Introduction to representation theory,''
+  \href{http://arxiv.org/abs/0901.0827}{{\ttfamily arXiv:0901.0827 [math.RT]}}.
+  \url{https://arxiv.org/abs/0901.0827}.
+
+\bibitem{Lootens:2022avn}
+L.~Lootens, C.~Delcamp, and F.~Verstraete, ``{Dualities in One-Dimensional
+  Quantum Lattice Models: Topological Sectors},''
+  \href{http://dx.doi.org/10.1103/PRXQuantum.5.010338}{{\em PRX Quantum}
+  {\bfseries 5} no.~1, (2024) 010338},
+  \href{http://arxiv.org/abs/2211.03777}{{\ttfamily arXiv:2211.03777
+  [quant-ph]}}.
+
+\bibitem{Bhardwaj:2023wzd}
+L.~Bhardwaj and S.~Schafer-Nameki, ``{Generalized charges, part I: Invertible
+  symmetries and higher representations},''
+  \href{http://dx.doi.org/10.21468/SciPostPhys.16.4.093}{{\em SciPost Phys.}
+  {\bfseries 16} no.~4, (2024) 093},
+  \href{http://arxiv.org/abs/2304.02660}{{\ttfamily arXiv:2304.02660
+  [hep-th]}}.
+
+\bibitem{Bhardwaj:2023ayw}
+L.~Bhardwaj and S.~Schafer-Nameki, ``{Generalized charges, part II:
+  Non-invertible symmetries and the symmetry TFT},''
+  \href{http://dx.doi.org/10.21468/SciPostPhys.19.4.098}{{\em SciPost Phys.}
+  {\bfseries 19} no.~4, (2025) 098},
+  \href{http://arxiv.org/abs/2305.17159}{{\ttfamily arXiv:2305.17159
+  [hep-th]}}.
+
+\bibitem{Thorngren:2021yso}
+R.~Thorngren and Y.~Wang, ``{Fusion category symmetry. Part II. Categoriosities
+  at c = 1 and beyond},'' \href{http://dx.doi.org/10.1007/JHEP07(2024)051}{{\em
+  JHEP} {\bfseries 07} (2024) 051},
+  \href{http://arxiv.org/abs/2106.12577}{{\ttfamily arXiv:2106.12577
+  [hep-th]}}.
+
+\end{thebibliography}\endgroup
