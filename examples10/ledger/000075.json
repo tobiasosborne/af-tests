@@ -1,0 +1,1 @@
+{"type":"node_validated","timestamp":"2026-02-18T10:35:06.365246818Z","node_id":"1.2.2","note":"Eq 2.10 (actually eq 2.21, label algebraFib2, line 225): L^{tt}_t * L^{tt}_t = -xi^{-5/2}L^{tt}_t - xi^{-1}id_t + T_t. Matches paper exactly. The sum over (m,n) in {1,tau}x{1,tau} giving 4 F-symbol products is correct."}

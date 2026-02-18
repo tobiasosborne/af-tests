@@ -1,0 +1,1 @@
+{"type":"node_validated","timestamp":"2026-02-18T10:35:11.694304115Z","node_id":"1.2.3","note":"Eq 2.11 (actually eq 2.22, label algebraFib3, line 227): T_t * T_t = xi^{-1/2}L^{tt}_t + xi^{-1}id_t. Matches paper. T_tau = L_tau^{tau,1} identification correct from line 210."}

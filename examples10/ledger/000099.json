@@ -1,0 +1,1 @@
+{"type":"challenge_raised","timestamp":"2026-02-18T10:42:10.204233932Z","challenge_id":"ch-ab88c61e4d1ffc69","node_id":"1.4.4","target":"dependencies","reason":"Node 1.4.4 should declare dependency on 1.4.1 (S matrix) and 1.4.2 (T matrix), since (ST)^3=C requires both.","severity":"minor","raised_by":""}

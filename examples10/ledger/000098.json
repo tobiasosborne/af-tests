@@ -1,0 +1,1 @@
+{"type":"challenge_raised","timestamp":"2026-02-18T10:42:10.191402838Z","challenge_id":"ch-28c1cf3b8f4cdd2f","node_id":"1.4.3","target":"dependencies","reason":"Node 1.4.3 should declare dependency on 1.4.1 (S matrix), since S^2=C requires knowing S.","severity":"minor","raised_by":""}

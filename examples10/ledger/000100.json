@@ -1,0 +1,1 @@
+{"type":"challenge_raised","timestamp":"2026-02-18T10:42:10.216702545Z","challenge_id":"ch-d1f78c9448117b5f","node_id":"1.4.4","target":"statement","reason":"The notation 'STS*T*ST = I' is ambiguous - the asterisk could be read as complex conjugation. Cleaner to write '(ST)(ST)(ST) = I' or simply '(ST)^3 = I'. The mathematical claim is correct.","severity":"note","raised_by":""}

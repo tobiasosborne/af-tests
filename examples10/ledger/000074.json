@@ -1,0 +1,1 @@
+{"type":"node_validated","timestamp":"2026-02-18T10:34:59.326098493Z","node_id":"1.2.1","note":"Statement verified against paper fib2s2.tex line 174. General tube algebra formula matches exactly. The 'eq 2.8' reference is actually eq 2.14 (see parent challenge ch-488ee3ddb1d). Generators {id_tau, T_tau, L_tau^{tt}} confirmed from fusion rule constraints."}

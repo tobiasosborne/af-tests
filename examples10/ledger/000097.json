@@ -1,0 +1,1 @@
+{"type":"challenge_raised","timestamp":"2026-02-18T10:42:00.922010091Z","challenge_id":"ch-070799566b9b4132","node_id":"1.4.2","target":"dependencies","reason":"Node 1.4.2 should declare dependency on 1.2.5 (eigenvalue verification), since the T matrix entries come from the T-network eigenvalues verified there.","severity":"minor","raised_by":""}

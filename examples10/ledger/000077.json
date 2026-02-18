@@ -1,0 +1,1 @@
+{"type":"node_validated","timestamp":"2026-02-18T10:35:17.130565938Z","node_id":"1.2.4","note":"Eq 2.12 (actually eq 2.23, label algebraFib4, line 229): L^{tt}_t * T_t = -xi^{-1}L^{tt}_t + xi^{-1/2}id_t. Matches paper. Note: T*L = L*T since algebra is commutative (simultaneously diagonalizable with 3 one-dimensional eigenspaces on a 3-dim space)."}
