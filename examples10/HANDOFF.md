@@ -63,12 +63,40 @@ line 2872: `X = 2c₇`). This creates a factor-4 discrepancy between S[22,j] and
 Rescaling row 22 by 1/2 and column 22 by 2 gives a perfectly symmetric, unitary matrix
 with quantum dimension 2ξ² for the 22nd object. S²=I and (ST)³=I hold in both bases.
 
-### TC.jl Limitations
-- `center((Fib⊠Fib)⋊S₂)` crashes (matrix inversion bug)
-- `pentagon_axiom()` fails for G-crossed products (summand ordering bug)
-- F-symbols ARE correctly computed (1800 entries, 0 discrepancies with G-crossed formula)
+### TC.jl Bugs — Root Causes Identified (NEW — this session)
 
-## Julia Verification Scripts (NEW — this session)
+See `TC_BUGS.md` for full technical analysis and debug scripts.
+
+**Bug 1: Pentagon failure (156/4096 checks fail)**
+- Root cause: `FusionCategory.jl:317-365`, non-simple `associator()` for `SixJObject`
+- The block-diagonal 6j assembly uses summand ordering (types 1,3,5,7) but the
+  `tensor_product()` function uses a different internal block ordering. When the
+  G-action permutes types (S₂⊗S₃→type6, S₂⊗S₅→type4), rows/cols 2,3 get swapped.
+- Concrete evidence: block 8 of pentagon(2,7,7,7) has `Diff = [0 0 0 0; 0 1 -1 0; 0 -1 1 0; 0 0 0 0]`
+- Stored 6j symbols ARE correct (verified independently). Bug is only in assembly.
+- Fix direction: build associator directly in tensor_product's basis (sum over simple
+  triples with `incl ∘ α_simple ∘ proj`), but naive implementation is too slow.
+  Needs optimized direct matrix construction.
+
+**Bug 2: Center crash (thread-safety race condition)**
+- Root cause: `Center.jl:1472`, `hom_by_adjunction` — `@threads` loop writes to
+  shared `mors` vector. Fix: pre-allocate per-thread storage (applied in local
+  working copy of TensorCategories.jl, NOT committed — we are not repo authors).
+- Single-threaded `hom_by_adjunction` works correctly.
+- Additional `@threads` races may exist deeper in the call stack.
+
+**F-symbols ARE correct** (1800 entries, 0 discrepancies with G-crossed formula)
+
+## Julia Debug Scripts (NEW — this session)
+| Script | Purpose | Result |
+|--------|---------|--------|
+| `debug_center.jl` | Reproduce center crash | Crash in `@threads` at `hom_by_adjunction` |
+| `debug_center2.jl` | Unwrap thread error | Single-threaded works; race condition confirmed |
+| `debug_pentagon.jl` | Trace pentagon failure | Block 8 rows/cols 2,3 swapped (P_{23} permutation) |
+| `debug_ordering.jl` | Trace block ordering | Summand vs tensor-product ordering mismatch |
+| `test_fixes.jl` | Quick test for fixes | Used for iterating on fix attempts |
+
+## Julia Verification Scripts (from prior session)
 | Script | Depends on TC.jl? | Nodes covered | Result |
 |--------|-------------------|---------------|--------|
 | `verify_fib_foundations.jl` | YES | 1.1.1–1.1.4 | ALL PASS |
@@ -78,8 +106,11 @@ with quantum dimension 2ξ² for the 22nd object. S²=I and (ST)³=I hold in bot
 
 ## Key Files
 - `paper/fib2s2.tex` — The full paper source (3200+ lines)
-- `verify_*.jl` — 4 new Julia verification scripts (this session)
-- `compute_fsymbols.jl` — TC.jl F-symbol computation (from prior session)
+- `TC_BUGS.md` — Full technical analysis of TensorCategories.jl bugs
+- `debug_*.jl` — 4 debug scripts for TC.jl bugs (this session)
+- `test_fixes.jl` — Quick test harness for fix attempts
+- `verify_*.jl` — 4 Julia verification scripts (prior session)
+- `compute_fsymbols.jl` — TC.jl F-symbol computation (prior session)
 - `fsymbols_fib2s2.txt` — 1800 computed F-symbols
 - `verify_fib2s2.jl` — Original verification script (partially uses TC.jl)
 
