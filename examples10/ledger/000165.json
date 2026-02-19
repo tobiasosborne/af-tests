@@ -1,0 +1,1 @@
+{"type":"evidence_attached","timestamp":"2026-02-19T15:49:45.82468191Z","node_id":"1.1.2","file_path":"verify_fib_foundations.jl","content_hash":"1d8861a5e36ee3750af9f065617103c554039c331cc853891a2ba40d5fc2553b","evidence_type":"verification","description":"d(𝟙)=1, d(τ)=ξ confirmed. PASS.","attached_by":"claude-verifier"}

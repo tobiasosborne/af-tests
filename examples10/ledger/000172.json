@@ -1,0 +1,1 @@
+{"type":"evidence_attached","timestamp":"2026-02-19T15:49:45.937863542Z","node_id":"1.4","file_path":"verify_modular_fib.jl","content_hash":"ad873d8264956c9f6b19e041b427e1e99c7b39b092c9b9ab7a268809834f0670","evidence_type":"verification","description":"4×4 S,T: symmetric, unitary, S²=I, (ST)³=I, Verlinde. ALL PASS.","attached_by":"claude-verifier"}

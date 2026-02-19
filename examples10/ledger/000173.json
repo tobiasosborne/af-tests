@@ -1,0 +1,1 @@
+{"type":"evidence_attached","timestamp":"2026-02-19T15:49:45.954351868Z","node_id":"1.4.1","file_path":"verify_modular_fib.jl","content_hash":"ad873d8264956c9f6b19e041b427e1e99c7b39b092c9b9ab7a268809834f0670","evidence_type":"verification","description":"S matrix eq 2.37: symmetric+unitary. PASS.","attached_by":"claude-verifier"}

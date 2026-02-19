@@ -1,0 +1,1 @@
+{"type":"evidence_attached","timestamp":"2026-02-19T15:49:46.004515524Z","node_id":"1.14","file_path":"verify_modular_22x22.jl","content_hash":"839125fec05c0a9889c52c15647dc9c358b8c54aeb9133b9a2ace54fb7afe0c6","evidence_type":"verification","description":"22×22 S: S²=I (8.7e-16), (ST)³=I (1.8e-15), real, entries match paper. PASS.","attached_by":"claude-verifier"}

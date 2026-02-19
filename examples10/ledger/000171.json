@@ -1,0 +1,1 @@
+{"type":"evidence_attached","timestamp":"2026-02-19T15:49:45.920976928Z","node_id":"1.2.7","file_path":"verify_tube_algebra.jl","content_hash":"31c7384e99e81ba2395a12b220db25756caf67aae4d7fe5d84ebf328444c1b83","evidence_type":"verification","description":"Twisted projectors: 3×3 reg rep → 3 idempotent projectors. PASS.","attached_by":"claude-verifier"}
