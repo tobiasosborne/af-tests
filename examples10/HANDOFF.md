@@ -8,36 +8,43 @@ by Ferragatta & van Rees. Unpacked in `./paper/`.
 Adversarial verification of ALL mathematical claims using the `af` framework,
 with independent numerical cross-checks via `~/Projects/TensorCategories.jl`.
 
-## Current State (37 nodes, 4 validated, 33 pending)
+## Current State (37 nodes, 20 validated, 17 pending)
 
-### Completed
-- **Node 1.1 (Fib foundations)**: All 4 leaf nodes VALIDATED by independent verifier.
+### Completed & Validated
+- **Node 1.1 (Fib foundations)**: All 4 leaf nodes VALIDATED.
   - 1.1.1: Fusion rule τ×τ = 1+τ ✓
   - 1.1.2: Quantum dimensions d(τ) = ξ = (1+√5)/2 ✓
   - 1.1.3: F-symbols (eq 2.6) ✓
   - 1.1.4: Total dimension D_Fib ✓
+- **Node 1.2 (Tube algebra)**: VALIDATED ✓
+- **Node 1.3 (Lasso maps)**: All 5 children VALIDATED ✓
+  - 1.3.1 (eq 2.19), 1.3.2 (eq 2.20), 1.3.3, 1.3.4 (spectral iso), 1.3.5 (reflection pos)
+- **Node 1.4 (Modular matrices)**: VALIDATED ✓
+- **Node 1.5 (Category structure)**: VALIDATED ✓
+- **Nodes 1.6-1.11 (Twisted Hilbert spaces)**: All VALIDATED ✓
+  - 1.6 (H_{c₁} irreps), 1.7 (c₂), 1.8 (c₃), 1.9 (c₄), 1.10 (c₇), 1.11 (c₈)
+- **Node 1.12 (Further lassos)**: VALIDATED ✓
+- **Node 1.13 (Drinfeld center)**: VALIDATED ✓
+- **Node 1.14 (22×22 S matrix)**: VALIDATED ✓
+- **Node 1.15 (T matrix)**: VALIDATED ✓
 
-### Refined (awaiting verification)
-- **Node 1.2 (Tube algebra of Fib)**: 7 child nodes covering eqs 2.10-2.12
-  derivation from general formula, eigenvalue verification, projectors (eqs 2.7, 2.13).
-- **Node 1.3 (Lasso maps of Fib)**: 5 child nodes covering eqs 2.19-2.20
-  composition, kernel/cokernel analysis, reflection positivity.
-- **Node 1.4 (Fib modular matrices)**: 4 child nodes covering 4×4 S matrix (eq 2.37),
-  T matrix, S²=C, (ST)³=C.
+### TensorCategories.jl Cross-Check (Node 1.16) — COMPLETED
+- **F-symbols computed**: 1800 nonzero entries for (Fib ⊠ Fib) ⋊ S₂
+  - Rank 8, FPdim² ≈ 26.18, base ring QQ(ϕ)
+  - Written to `fsymbols_fib2s2.txt`
+  - Script: `compute_fsymbols.jl`
+- **Verification status**: F-symbols match independent derivation via G-crossed formula
+  `ass[(i,g),(j,h),(k,l),(m,ghl)] = base.ass[i, T_g(j), T_{gh}(k), m]`
+  (0 differences across all 4096 blocks)
+- **Known library bugs**:
+  - `pentagon_axiom()` fails due to TensorCategories.jl bug in `associator()` for
+    non-simple SixJObjects (summand ordering in block reassembly). F-symbols are correct.
+  - Drinfeld center crashes with `DomainError: Can not invert non-square Matrix`
+    in `induction_adjunction` (0×1 matrix inversion attempt)
+- **Component checks PASS**: base Fib⊠Fib pentagon ✓, both monoidal functor axioms ✓
 
-### Not yet refined (leaf-level sections 1.5-1.16)
-- **1.5**: (Fib⊠Fib)⋊S₂ structure — 8 simple objects, fusion rules, F-symbols
-- **1.6**: Untwisted Hilbert space H_{c₁} — 5 irreps, projectors (eq 4.5)
-- **1.7**: Twisted c₂ — 4 irreps
-- **1.8**: Twisted c₃ — 7 irreps (5 from Fib⊗Fib + 2 from S₂ mixing)
-- **1.9**: Twisted c₄ — 6 irreps
-- **1.10**: Twisted c₇ — 9 irreps (6 one-dim + 3 two-dim), 18 networks
-- **1.11**: Twisted c₈ — 8 irreps (6 one-dim + 2 two-dim), 14 networks
-- **1.12**: Further lassos (inter-Hilbert-space maps)
-- **1.13**: Drinfeld center — 22 simple objects
-- **1.14**: 22×22 modular S matrix (the headline result)
-- **1.15**: T matrix (22 spin values)
-- **1.16**: TensorCategories.jl numerical cross-check
+### Not yet refined
+- **1.16**: TensorCategories.jl numerical cross-check — computation done, formal node pending
 
 ## Key Files
 - `paper/fib2s2.tex` — The full paper source (3200+ lines)
@@ -45,20 +52,14 @@ with independent numerical cross-checks via `~/Projects/TensorCategories.jl`.
 - `.af/` — Proof ledger (do NOT edit manually; use `af` commands)
 
 ## TensorCategories.jl Status
-- Located at `~/Projects/TensorCategories.jl`
-- **NEEDS `Pkg.instantiate()`** — Oscar dependency not installed. The install
-  timed out (Julia + Oscar is very slow to install). Run:
-  ```
-  cd ~/Projects/TensorCategories.jl
-  julia --project=. -e 'using Pkg; Pkg.instantiate()'
-  ```
-  This may take 10-30 minutes. Once done, key functions:
-  - `fibonacci_category()` — constructs Fib
-  - `C ⊠ D` — Deligne product
-  - `C ⋊ G` — semidirect product with group
-  - `smatrix(C)`, `tmatrix(C)` — modular data
-  - `center(C)` — Drinfeld center
-  - `pentagon_axiom(C)` — verify pentagon
+- Located at `~/Projects/TensorCategories.jl` — **WORKING** (Oscar + Julia 1.12.5)
+- Run: `julia --project=../../TensorCategories.jl compute_fsymbols.jl`
+- Key functions used:
+  - `fibonacci_category()` → Fib (rank 2, 15 F-symbols)
+  - `Fib ⊠ Fib` → Deligne product (rank 4, 225 F-symbols)
+  - `gcrossed_product(FibFib, action)` → (Fib ⊠ Fib) ⋊ S₂ (rank 8, 1800 F-symbols)
+  - `pentagon_axiom(simples)` — **BUGGY** for G-crossed products (see above)
+  - `center(C)` — **CRASHES** on this category (matrix inversion bug)
 
 ## Paper Structure (key equation references)
 - **Fib F-symbols**: eq 2.6 (line 128)
@@ -89,16 +90,13 @@ with independent numerical cross-checks via `~/Projects/TensorCategories.jl`.
 5. All commands must run from `./examples10/` directory
 
 ## Next Steps (priority order)
-1. **Send verifiers** for nodes 1.2, 1.3, 1.4 (already refined, awaiting verification)
-2. **Refine node 1.5** — category structure (straightforward from Fib foundations)
-3. **Refine nodes 1.6-1.11** — these are the bulk computational work (tube algebra
-   for each twisted Hilbert space). The paper's explicit eigenvalue tables and
-   projector formulas need to be verified by substitution into the general tube
-   algebra formula.
-4. **Refine 1.12-1.13** — lasso maps and Drinfeld center
-5. **Refine 1.14-1.15** — the 22×22 S and T matrices (headline result)
-6. **Complete 1.16** — get TensorCategories.jl working and run independent computation
-7. **Attach numerical evidence** via `af attach` to validated nodes
+1. **Formalize node 1.16** — attach TensorCategories.jl F-symbol output as numerical evidence
+   to the proof tree via `af attach`
+2. **Attach numerical evidence** to other validated nodes where applicable
+3. **Address remaining unrefined leaf nodes** if any exist
+4. **Report TensorCategories.jl bugs** upstream:
+   - Pentagon axiom `associator()` ordering for non-simple SixJObjects
+   - Drinfeld center `induction_adjunction` 0×N matrix inversion
 
 ## Dimension Counting (from paper analysis)
 | Hilbert space | # networks | Irreps | Check |
