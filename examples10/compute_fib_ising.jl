@@ -342,18 +342,20 @@ try
 
     println("  Computing center simples via induction...")
     flush(stdout)
-    all_center_simples = []
     for (i, s) in enumerate(S_fi)
         print("    Inducing simple $i ($(names_fi[i]))... ")
         flush(stdout)
         ind_s = induction(s)
         sub_simples = simple_subobjects(ind_s)
         println("$(length(sub_simples)) simple subobjects")
-        append!(all_center_simples, sub_simples)
+        for ss in sub_simples
+            try
+                TensorCategories.add_simple!(Z, ss)
+            catch e
+                println("      (skipped non-simple: $e)")
+            end
+        end
     end
-
-    println("  Total center simples found (before dedup): $(length(all_center_simples))")
-    TensorCategories.add_simple!(Z, all_center_simples)
 
     global n_center_simples = length(simples(Z))
     println("  Center constructed in $(round(time() - t7, digits=1))s")
