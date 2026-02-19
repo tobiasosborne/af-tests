@@ -63,38 +63,75 @@ line 2872: `X = 2c₇`). This creates a factor-4 discrepancy between S[22,j] and
 Rescaling row 22 by 1/2 and column 22 by 2 gives a perfectly symmetric, unitary matrix
 with quantum dimension 2ξ² for the 22nd object. S²=I and (ST)³=I hold in both bases.
 
-### TC.jl Bugs — Root Causes Identified (NEW — this session)
+### TC.jl Bug Investigation — Deep Dive (this session)
 
-See `TC_BUGS.md` for full technical analysis and debug scripts.
+See `TC_BUGS.md` for prior analysis. This session performed a deep code-level
+investigation with 4 parallel subagents reading the full TensorCategories.jl source.
 
-**Bug 1: Pentagon failure (156/4096 checks fail)**
-- Root cause: `FusionCategory.jl:317-365`, non-simple `associator()` for `SixJObject`
-- The block-diagonal 6j assembly uses summand ordering (types 1,3,5,7) but the
-  `tensor_product()` function uses a different internal block ordering. When the
-  G-action permutes types (S₂⊗S₃→type6, S₂⊗S₅→type4), rows/cols 2,3 get swapped.
-- Concrete evidence: block 8 of pentagon(2,7,7,7) has `Diff = [0 0 0 0; 0 1 -1 0; 0 -1 1 0; 0 0 0 0]`
-- Stored 6j symbols ARE correct (verified independently). Bug is only in assembly.
-- Fix direction: build associator directly in tensor_product's basis (sum over simple
-  triples with `incl ∘ α_simple ∘ proj`), but naive implementation is too slow.
-  Needs optimized direct matrix construction.
+**Bug 1: Pentagon failure (156/4096 checks fail) — ROOT CAUSE PRECISELY IDENTIFIED**
 
-**Bug 2: Center crash (thread-safety race condition)**
-- Root cause: `Center.jl:1472`, `hom_by_adjunction` — `@threads` loop writes to
-  shared `mors` vector. Fix: pre-allocate per-thread storage (applied in local
-  working copy of TensorCategories.jl, NOT committed — we are not repo authors).
-- Single-threaded `hom_by_adjunction` works correctly.
-- Additional `@threads` races may exist deeper in the call stack.
+Root cause confirmed by `diag_pentagon.jl` and `diag_pentagon2.jl`:
+
+The `gcrossed_product()` function in `GCrossedFusion.jl` stores 6j symbols with
+rows/columns ordered by **base-category intermediate index** (which maps to
+monotonically increasing CxG indices). But the CxG `tensor_product()` for morphisms
+in `FusionCategory.jl` visits intermediates in **(i,j) iteration order**, where `j`
+runs over CxG simple indices. When the G-action permutes base simples (σ=[1,3,2,4]
+for the swap), the intermediate CxG indices from the j-iteration are **non-monotonic**.
+
+Concrete example at block 8 of `pentagon(S[2],S[7],S[7],S[7])`:
+- `S[2]⊗S[j]` for j∈{1,3,5,7} gives intermediates p∈{2,6,4,8} (NOT monotonic)
+- 6j symbol rows are in order p∈{2,4,6,8} (monotonic base ordering)
+- Mismatch = P_{23} permutation (swap positions 2,3 ↔ CxG simples 4,6)
+- The non-simple `associator(S[2], S[7]⊗S[7], S[7])` correctly produces P_{23}
+  at block 8, but `α(S[8],S[7],S[7])` (simple, on RHS) doesn't compensate
+
+**Attempted fixes that DON'T work** (all produce the same P_{23}):
+- Rewriting `tensor_product()` for morphisms with direct matrix construction
+- Using `inv(recomp_left)` instead of `vertical_direct_sum(projections)`
+- Sum-of-terms: `Σ (inclusion ∘ simple_assoc ∘ projection)` per triple
+- The P_{23} is intrinsic to the CxG tensor_product ordering, not a code artifact
+
+**Correct fix (not yet implemented):**
+Must be in `GCrossedFusion.jl:gcrossed_product()`. After computing the 6j matrix
+`a[k]` for each `(i1,j1,i2,j2,i3,j3)` tuple, apply per-block row/column
+permutations to convert from base-intermediate ordering to CxG j-iteration ordering.
+
+The row permutation for output block k: collect the base intermediates
+`r_j = base_i1 ⊗ T_{g1}(base_j)` for j=1,...,m. The 6j rows are in r-index order
+(r=1,...,m). The CxG tensor_product visits them in j-index order, giving r-values
+`r_1, r_2, ..., r_m` which may be non-monotonic. The permutation maps from r-order
+to the order `(r_1, r_2, ..., r_m)`.
+
+Challenge: each 6j block `a[k]` has dimensions determined by the SUBSET of
+intermediates that contribute to output k (often 1×1 in this category), so the
+permutation must be computed per-block on the relevant subset, not on all m
+base simples.
+
+**Bug 2: Center crash (5 thread-safety race conditions) — ALL 5 FIXED**
+- Fix 1: `Centralizer.jl:770` — replaced `mors = [mors; B3]` race with pre-allocated
+  `thread_results[idx] = B3` pattern
+- Fix 2: `Center.jl:1631` — removed symmetric `S[i,j] = S[j,i]` write-write race;
+  now computes `val` first, assigns with `i != j` guard
+- Fix 3: `Centralizer.jl:883` — same smatrix fix as Center.jl
+- Fix 4: `Center.jl:1136` — added `ReentrantLock` around `add_induction!` Dict mutation
+- Fix 5: `Centralizer.jl:662` — same lock fix for Centralizer's `add_induction!`
+- **Status**: Applied to local copy of TensorCategories.jl. NOT committed to
+  upstream (we are not repo authors). Run `test_fixes.jl` to verify.
 
 **F-symbols ARE correct** (1800 entries, 0 discrepancies with G-crossed formula)
 
-## Julia Debug Scripts (NEW — this session)
+## Julia Debug Scripts
 | Script | Purpose | Result |
 |--------|---------|--------|
 | `debug_center.jl` | Reproduce center crash | Crash in `@threads` at `hom_by_adjunction` |
 | `debug_center2.jl` | Unwrap thread error | Single-threaded works; race condition confirmed |
 | `debug_pentagon.jl` | Trace pentagon failure | Block 8 rows/cols 2,3 swapped (P_{23} permutation) |
 | `debug_ordering.jl` | Trace block ordering | Summand vs tensor-product ordering mismatch |
-| `test_fixes.jl` | Quick test for fixes | Used for iterating on fix attempts |
+| `diag_pentagon.jl` | Deep trace of non-simple assoc | Confirms P_{23} from G-permuted intermediates |
+| `diag_pentagon2.jl` | Trace each pentagon morphism | Isolates P_{23} to α(X,Y⊗Z,W); replacing with id fixes pentagon |
+| `test_pentagon_quick.jl` | Quick pentagon regression test | Shows 156/4096 failures (known) |
+| `test_fixes.jl` | Quick test for both fixes | Used for iterating on fix attempts |
 
 ## Julia Verification Scripts (from prior session)
 | Script | Depends on TC.jl? | Nodes covered | Result |
@@ -107,7 +144,9 @@ See `TC_BUGS.md` for full technical analysis and debug scripts.
 ## Key Files
 - `paper/fib2s2.tex` — The full paper source (3200+ lines)
 - `TC_BUGS.md` — Full technical analysis of TensorCategories.jl bugs
-- `debug_*.jl` — 4 debug scripts for TC.jl bugs (this session)
+- `debug_*.jl` — 4 debug scripts for TC.jl bugs (prior session)
+- `diag_pentagon.jl`, `diag_pentagon2.jl` — Deep pentagon diagnostics (this session)
+- `test_pentagon_quick.jl` — Pentagon regression test (this session)
 - `test_fixes.jl` — Quick test harness for fix attempts
 - `verify_*.jl` — 4 Julia verification scripts (prior session)
 - `compute_fsymbols.jl` — TC.jl F-symbol computation (prior session)
