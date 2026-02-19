@@ -353,7 +353,7 @@ try
     end
 
     println("  Total center simples found (before dedup): $(length(all_center_simples))")
-    add_simple!(Z, all_center_simples)
+    TensorCategories.add_simple!(Z, all_center_simples)
 
     global n_center_simples = length(simples(Z))
     println("  Center constructed in $(round(time() - t7, digits=1))s")
