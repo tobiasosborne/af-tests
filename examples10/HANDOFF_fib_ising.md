@@ -15,12 +15,12 @@ Full categorical data for the Deligne product Fib ⊠ Ising using TensorCategori
 | Module cat 3 (Fib cond.) | 6 simples, bimodule pentagon PASS | Algebra on 𝟙⊠𝟙 ⊕ τ⊠𝟙 (took 52 min!) |
 | **Drinfeld center** | **15 simples, FPdim² exact match** | `compute_fib_ising_center_v2.jl` |
 | **S matrix** | **15×15 computed** (1085s) | See center results below |
+| **T matrix** | **15×15 computed** (114768s ≈ 31.9h) | Non-trivial twists, 3 zero entries |
 
-### Partial / still running
+### Pending
 
 | Item | Status | Issue |
 |------|--------|-------|
-| T matrix | **RUNNING (16h+)** | `braiding(S, dual(S))` too expensive for large center objects over degree-4 field |
 | Module categories (extended) | Not yet run | `compute_fib_ising_modules.jl` ready |
 
 ## Drinfeld Center Z(Fib ⊠ Ising) — CORRECTED (2026-02-20)
@@ -60,18 +60,22 @@ S[1,:] = [1, 1, ϕ, 2ϕ, ϕ, 2, 2ϕ, 2, ...]
 ```
 Full matrix in `center_v2.log`. S² computed — non-diagonal, non-trivial structure.
 
-### T matrix: BOTTLENECK
+### T matrix: COMPLETED (31.9 hours)
 
-The `tmatrix()` function computes `tr(braiding(S, dual(S)))` for each simple.
-For Z₁₅ (underlying `8⋅τ⊠X`, matrix dimension ~64×64 over degree-4 field),
-the braiding computation is extremely expensive. Running for 16+ hours with no
-sign of completion.
+| Simple | T[i,i] | Interpretation |
+|--------|--------|----------------|
+| Z₁–Z₆ | 1 | Bosonic (trivial twist) |
+| Z₇–Z₈ | −1 | Fermionic (spin ½) |
+| Z₉, Z₁₀, Z₁₅ | **0** | Degenerate — may indicate non-simple objects or field artifact |
+| Z₁₁–Z₁₃ | `1//3*x³ + 1//2*x² - 5//3*x - 7//6` | Algebraic twist (≈ e^{2πiθ} for some θ) |
+| Z₁₄ | `-(1//3*x³ + 1//2*x² - 5//3*x - 7//6)` | Conjugate twist |
 
-**Options for future work:**
-1. Compute T matrix for small simples only (Z₃, Z₅ with dim=1 should be instant)
-2. Use numerical approximation (ComplexField) instead of exact arithmetic
-3. Compute braiding for individual elements with timeout
-4. Try `--threads=auto` to parallelize (fixes applied should make this safe)
+**Note on T[9]=T[10]=T[15]=0**: These correspond to the largest center objects
+(Z₉: `4⋅𝟙⊠X ⊕ 4⋅τ⊠X`, Z₁₀: `4⋅𝟙⊠X`, Z₁₅: `8⋅τ⊠X`). The zero twist
+suggests these objects may not be truly simple, or `braiding(S, dual(S))`
+returns a traceless endomorphism. This needs further investigation — it may
+be an artifact of the degree-4 field arithmetic or the MeatAxe decomposition
+yielding non-simple indecomposables.
 
 ## Category: Fib ⊠ Ising
 
@@ -123,7 +127,8 @@ FI = Fib ⊠ Ising  # works!
 - Module cat 3 (Fib condensation): **~52 min** (Groebner basis bottleneck)
 - **Center induction (v2)**: ~142s for 15 simples
 - **S matrix (15×15)**: ~1085s (18 min)
-- **T matrix (15 elements)**: **16h+ and still running** (bottleneck: large braiding)
+- **T matrix (15 elements)**: **114,768s (31.9h)** — braiding on large objects over degree-4 field
+- **Total v2 computation**: **1939 min (32.3h)**
 
 ## TensorCategories.jl fixes applied (2026-02-20)
 
@@ -173,8 +178,9 @@ $JULIA --threads=1 --project=../../TensorCategories.jl compute_fib_ising_modules
 
 ## Next steps
 
-1. **T matrix**: Either compute per-element with timeout, use numerical field, or skip large objects
+1. **Investigate T=0 entries**: Z₉, Z₁₀, Z₁₅ have zero twist — check if truly simple or decomposable
 2. **Run module category script** to find all condensable algebras up to 4-fold sums
 3. **Verify S² structure**: Should be proportional to charge conjugation matrix
-4. **Cross-check center dimensions** against known Z(Fib) (4 anyons) and Z(Ising) (6 anyons) data
-5. **Consider numerical approach**: Use ComplexField for T matrix to avoid exact arithmetic bottleneck
+4. **Verify (ST)³**: Should equal charge conjugation — (ST)³ was computed but needs analysis
+5. **Cross-check center dimensions** against known Z(Fib) (4 anyons) and Z(Ising) (6 anyons) data
+6. **Normalize S matrix**: Divide by FPdim(C) to get unitary S matrix, check S²=C
