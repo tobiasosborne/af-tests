@@ -343,12 +343,50 @@ theorem eq258_xCons_yCons_general_ge (k i j m : ℕ) (r' : FreeAssocMono)
   -- = (1/2)•(M(xCons(k+1+i)(yCons m r'), yCons j s)(v)
   --        + M(xCons i (yCons m r'), xCons k (yCons j s))(v))
   --
-  -- Remaining steps:
-  -- a) Use M_op_U_bilinear_yCons on U_bi terms to convert to M_op
-  -- b) Use M_op_U_prependX on U terms (property iii)
-  -- c) Expand RHS M_op terms using (2.55a) = M_op_xCons_yCons_yCons
-  -- d) Cancel matching terms
-  sorry
+  -- Step 5: Simplify 2•(1/2)•X = X (avoiding norm_num which triggers simp unfolding)
+  rw [smul_smul, show (2:ℝ) * (1/2:ℝ) = 1 from by norm_num, one_smul]
+  -- Step 6: Apply M_op_U_bilinear_yCons to standalone U_bi term (property iv)
+  rw [M_op_U_bilinear_yCons (k + 1 + i) j m r' s v]
+  -- Step 7: Reduce to h_key via module arithmetic (D terms cancel)
+  suffices h_key : U (pow x (k + 1))
+      (U_bilinear (pow x (i - k)) (pow y (j + 1)) (M_op (yCons m r') s v)) =
+    (1/2 : ℝ) • (M_op (prependX k (prependY j (yCons m r'))) (xCons i s) v +
+      M_op (xCons i (yCons m r')) (xCons k (yCons j s)) v) by
+    suffices h_mod :
+        (1/2 : ℝ) • (M_op (prependX k (prependY j (yCons m r'))) (xCons i s) v +
+          M_op (xCons i (yCons m r')) (xCons k (yCons j s)) v) +
+        (1/2 : ℝ) • (M_op (xCons (k + 1 + i) (yCons m r')) (yCons j s) v +
+          M_op (prependY j (yCons m r')) (xCons (k + 1 + i) s) v) -
+        (1/2 : ℝ) • (M_op (prependX k (prependY j (yCons m r'))) (xCons i s) v +
+          M_op (prependY j (yCons m r')) (xCons (k + 1 + i) s) v) =
+      (1/2 : ℝ) • (M_op (xCons (k + 1 + i) (yCons m r')) (yCons j s) v +
+        M_op (xCons i (yCons m r')) (xCons k (yCons j s)) v) by
+      rw [h_key]; exact h_mod
+    module
+  -- Step 8: Prove h_key by cases on i = k vs i > k
+  by_cases hik' : i = k
+  · -- Case i = k: U_bi(x^0, y^{j+1})(w) = T(y^{j+1})(w)
+    -- This requires M_op composition (U applied to nested M_op)
+    subst hik'
+    simp only [Nat.sub_self, U_bilinear_one_left, T_apply]
+    sorry
+  · -- Case i > k: standard M_op conversion
+    have hgt : k < i := Nat.lt_of_le_of_ne hik (Ne.symm hik')
+    have h_iv := M_op_U_bilinear_yCons (i - k - 1) j m r' s v
+    rw [show i - k - 1 + 1 = i - k from by omega] at h_iv
+    rw [h_iv]
+    -- Distribute U over (1/2)•(A + B)
+    rw [← FJ_U_eq, JordanAlgebra.U_smul_right, JordanAlgebra.U_add_right, FJ_U_eq, FJ_U_eq]
+    -- Apply M_op_U_prependX to each M_op argument
+    rw [M_op_U_prependX, M_op_U_prependX]
+    -- After prependX, terms are in swapped order from goal. Fix with add_comm.
+    rw [add_comm]
+    -- Simplify prependX merging: k+1+(i-k-1) = i
+    rw [show prependX k (xCons (i - k - 1) (yCons m r')) = xCons i (yCons m r') from by
+      simp [prependX]; omega]
+    rw [show prependX k (xCons (i - k - 1) s) = xCons i s from by
+      simp [prependX]; omega]
+    simp only [show prependX k (yCons j s) = xCons k (yCons j s) from rfl]
 
 /-- (2.58) weight > 1, i < k case: T_{x^{k+1}} M_{x^{i+1}·(y^m·r'), y^{j+1}·s}.
     H-O lines 1369-1377. Proof structure:
