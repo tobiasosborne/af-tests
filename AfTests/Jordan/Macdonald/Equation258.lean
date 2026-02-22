@@ -250,6 +250,16 @@ theorem T_smul' (a : FreeJordanAlg) (r : ℝ) (b : FreeJordanAlg) :
     T a (r • b) = r • T a b := by
   simp only [T_apply]; exact smul_mul_right r a b
 
+/-- Y-version of eq258 base case: T_{y^{j+1}}(M_op(yCons m r')(s)(v)) =
+    ½(M_op(prependY j (yCons m r'))(s)(v) + M_op(yCons m r')(yCons j s)(v)).
+    This is the symmetric counterpart of eq258 for the y generator.
+    H-O: follows from the x↔y symmetry of the M_op construction. -/
+theorem eq258_y_base (j m : ℕ) (r' s : FreeAssocMono) (v : FreeJordanAlg) :
+    mul (pow y (j + 1)) (M_op (yCons m r') s v) =
+    (1/2 : ℝ) • (M_op (prependY j (yCons m r')) s v +
+                  M_op (yCons m r') (yCons j s) v) := by
+  sorry
+
 /-! ### Equation (2.58) weight > 1 — Inductive cases
 
 H-O lines 1346-1377. For p = x^{i+1}·r, q = y^{j+1}·s where r ∈ Y, s ∈ X,
@@ -368,8 +378,17 @@ theorem eq258_xCons_yCons_general_ge (k i j m : ℕ) (r' : FreeAssocMono)
   · -- Case i = k: U_bi(x^0, y^{j+1})(w) = T(y^{j+1})(w)
     -- This requires M_op composition (U applied to nested M_op)
     subst hik'
-    simp only [Nat.sub_self, U_bilinear_one_left, T_apply]
-    sorry
+    simp only [Nat.sub_self, pow_zero, U_bilinear_one_left, T_apply]
+    -- Goal: mul(y^{j+1})(w) = (1/2)•(E + F)
+    -- Use eq258_y_base to convert mul(y) to M_op, then fold into U
+    rw [eq258_y_base j m r' s v]
+    -- Fold RHS M_op terms via M_op_xCons_xCons
+    rw [show prependX i (prependY j (yCons m r')) =
+      xCons i (prependY j (yCons m r')) from rfl]
+    rw [M_op_xCons_xCons i (prependY j (yCons m r')) s v,
+        M_op_xCons_xCons i (yCons m r') (yCons j s) v]
+    -- Distribute U over (1/2)•(P₁ + P₂) on LHS
+    rw [← FJ_U_eq, JordanAlgebra.U_smul_right, JordanAlgebra.U_add_right, FJ_U_eq, FJ_U_eq]
   · -- Case i > k: standard M_op conversion
     have hgt : k < i := Nat.lt_of_le_of_ne hik (Ne.symm hik')
     have h_iv := M_op_U_bilinear_yCons (i - k - 1) j m r' s v
