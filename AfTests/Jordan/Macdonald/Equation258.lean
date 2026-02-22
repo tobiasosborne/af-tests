@@ -144,21 +144,96 @@ theorem eq258_xCons_yCons_lt (k i j : ℕ) (hik : i < k) (v : FreeJordanAlg) :
     simp only [show ¬(k = i) from by omega, ↓reduceIte]
     simp only [M_op.eq_def, show k - i - 1 + 1 = k - i from by omega]] at hge
   simp only [T_apply] at hge ⊢
-  -- Step 4: Proof via T∘U commutation + power_formula_245.
-  -- Proven pieces (all compile individually via multi_attempt):
-  --   hc: L commutation for powers of x (L_jpow_comm_all)
-  --   hpow: mul(x^m)(x^m) = pow x (m+m) (jpow_add)
-  --   hc2: L commutation for x^{2m} (L_jpow_comm_all)
-  --   hTU: mul(x^l)(U(x^m)(w)) = U(x^m)(mul(x^l)(w)) (expand U, distribute, commute)
-  --   h245w: mul(x^l)(U(x^m)(w)) = U_bi(x^m,x^{l+m})(w) (power_formula_245 + fold)
-  --   hkey: U_bi(x^{i+1},x^{k+1})(w) = U(x^{i+1})(mul(x^{k-i})(w)) (h245w.symm.trans hTU)
-  -- Endgame: simp [T_apply] at h247v, rw [hge, hkey] at h247v, expand U linearity, linarith
-  -- Remaining fixes needed (see HANDOFF.md):
-  --   (a) hpow: remove extra ← FJ_jpow_eq_pow (jpow=pow after ← FJ_jmul_eq_mul)
-  --   (b) hTU: bare negation -X ≠ (-1)•X, need mul_neg_right helper or neg_one_smul
-  --   (c) h245w: add FJ_U_eq to convert JordanAlgebra.U → FreeJordanAlg.U
-  --   (d) endgame: qualify JordanAlgebra.U_add_right/U_smul_right, fix sub→add pattern
-  sorry
+  -- Step 4a: T∘U commutation for powers of same element
+  -- H-O 2.4.5: L(x^l) commutes with U(x^m) since U = 2L²-L_{sq}, all L's commute
+  have hLc : ∀ (a b : ℕ) (v : FreeJordanAlg),
+      mul (pow x a) (mul (pow x b) v) = mul (pow x b) (mul (pow x a) v) := by
+    intro a b v
+    have hcomm := @JordanAlgebra.L_jpow_comm_all FreeJordanAlg _ x a b
+    -- Extract element-level from operator commutation
+    have h := LinearMap.ext_iff.mp hcomm v
+    simp only [FJ_jpow_eq_pow] at h
+    exact h
+  have hprod : ∀ (a : ℕ), mul (pow x a) (pow x a) = pow x (a + a) := by
+    intro a
+    have h := JordanAlgebra.jpow_add (J := FreeJordanAlg) x a a
+    simp only [FJ_jmul_eq_mul, FJ_jpow_eq_pow] at h
+    exact h
+  have hTU : ∀ (l m : ℕ) (w : FreeJordanAlg),
+      mul (pow x l) (U (pow x m) w) = U (pow x m) (mul (pow x l) w) := by
+    intro l m w
+    simp only [FreeJordanAlg.U]
+    -- Distribute mul(x^l) over 2•A - B
+    rw [show (2:ℝ) • mul (pow x m) (mul (pow x m) w) - mul (mul (pow x m) (pow x m)) w =
+      (2:ℝ) • mul (pow x m) (mul (pow x m) w) + (-1:ℝ) • mul (mul (pow x m) (pow x m)) w from by
+      simp [sub_eq_add_neg]]
+    rw [mul_add_right, smul_mul_right, smul_mul_right]
+    -- First term: mul(x^l)(mul(x^m)(mul(x^m)(w))) → mul(x^m)(mul(x^m)(mul(x^l)(w)))
+    rw [hLc l m (mul (pow x m) w)]
+    conv_lhs => arg 1; arg 2; arg 2; rw [hLc l m w]
+    -- Second term: mul(x^l)(mul(x^{2m})(w)) → mul(x^{2m})(mul(x^l)(w))
+    rw [hprod m]; rw [hLc l (m + m) w]; rw [← hprod m]
+    -- Now LHS = RHS, fold back sub
+    simp [sub_eq_add_neg]
+  -- Step 4b: hkey from power_formula_245 + hTU
+  -- U_bi(x^{i+1},x^{k+1})(w) = U(x^{i+1})(mul(x^{k-i})(w))
+  have hkey : ∀ w : FreeJordanAlg,
+      U_bilinear (pow x (i + 1)) (pow x (k + 1)) w =
+      U (pow x (i + 1)) (mul (pow x (k - i)) w) := by
+    intro w
+    have h245 := @JordanAlgebra.power_formula_245 FreeJordanAlg _ x w (k - i) (i + 1) (i + 1)
+    rw [JordanAlgebra.triple_self_right] at h245
+    rw [show i + 1 + (k - i) = k + 1 from by omega] at h245
+    rw [show JordanAlgebra.triple (JordanAlgebra.jpow x (k + 1)) w (JordanAlgebra.jpow x (i + 1)) =
+      JordanAlgebra.U_bilinear_linear (JordanAlgebra.jpow x (k + 1)) (JordanAlgebra.jpow x (i + 1)) w
+      from rfl] at h245
+    rw [show JordanAlgebra.triple (JordanAlgebra.jpow x (i + 1)) w (JordanAlgebra.jpow x (k + 1)) =
+      JordanAlgebra.U_bilinear_linear (JordanAlgebra.jpow x (i + 1)) (JordanAlgebra.jpow x (k + 1)) w
+      from rfl] at h245
+    simp only [FJ_jmul_eq_mul, FJ_jpow_eq_pow, FJ_U_eq, FJ_U_bilinear_eq] at h245
+    rw [U_bilinear_comm (pow x (k + 1)) (pow x (i + 1))] at h245
+    -- Cancel the factor of 2: nsmul 2 A = A + A = B + B → 2•A = 2•B → A = B
+    rw [two_nsmul] at h245
+    have h1 : mul (pow x (k - i)) (U (pow x (i + 1)) w) =
+        U_bilinear (pow x (i + 1)) (pow x (k + 1)) w := by
+      have h2 : (2:ℝ) • mul (pow x (k - i)) (U (pow x (i + 1)) w) =
+        (2:ℝ) • U_bilinear (pow x (i + 1)) (pow x (k + 1)) w := by
+        rw [two_smul, two_smul]; exact h245
+      have h3 := congr_arg ((1/2 : ℝ) • ·) h2
+      simp only [smul_smul] at h3; norm_num at h3; exact h3
+    rw [← h1, hTU (k - i) (i + 1) w]
+  -- Step 4c: Endgame — combine h247v, hge, hkey
+  simp only [T_apply] at h247v
+  rw [hge] at h247v
+  rw [show i + 1 + k + 1 = k + 1 + i + 1 from by omega] at h247v
+  rw [hkey] at h247v
+  -- Expand U linearity on goal RHS
+  have hU_sub : ∀ (a b c : FreeJordanAlg),
+      U a (b - c) = U a b - U a c := by
+    intro a b c
+    simp only [FreeJordanAlg.U]
+    rw [show b - c = b + (-1:ℝ) • c from by simp [sub_eq_add_neg]]
+    rw [mul_add_right, smul_mul_right, mul_add_right, smul_mul_right,
+        mul_add_right, smul_mul_right]
+    simp only [smul_add, smul_smul]; norm_num; abel
+  have hU_smul : ∀ (a : FreeJordanAlg) (r : ℝ) (b : FreeJordanAlg),
+      U a (r • b) = r • U a b := by
+    intro a r b
+    rw [← FJ_U_eq, ← FJ_U_eq]
+    exact JordanAlgebra.U_smul_right a r b
+  rw [hU_sub, hU_smul, U_bilinear_comm (pow y (j + 1)) (pow x (k - i))]
+  -- Endgame: from h247v and the goal, both plus (1/2)•(B+C) give E+B.
+  -- So they're equal by add_right_cancel.
+  suffices h_suff :
+      (1/2 : ℝ) • (U_bilinear (pow x (k + 1 + i + 1)) (pow y (j + 1)) v +
+          ((2:ℝ) • U (pow x (i + 1)) (mul (pow x (k - i)) (mul (pow y (j + 1)) v)) -
+            U (pow x (i + 1)) (U_bilinear (pow x (k - i)) (pow y (j + 1)) v))) +
+        (1/2 : ℝ) • (U_bilinear (pow x (k + 1 + i + 1)) (pow y (j + 1)) v +
+          U (pow x (i + 1)) (U_bilinear (pow x (k - i)) (pow y (j + 1)) v)) =
+      U (pow x (i + 1)) (mul (pow x (k - i)) (mul (pow y (j + 1)) v)) +
+        U_bilinear (pow x (k + 1 + i + 1)) (pow y (j + 1)) v by
+    exact add_right_cancel (h247v.trans h_suff.symm)
+  module
 
 /-! ### Linearity of T over sub/smul — needed for weight > 1 proofs -/
 
