@@ -1,0 +1,350 @@
+\newcommand{\epr}{\mathrm{EPR}}
+
+In this section, we formally define the random purification channel $\purifychan^{d,r}$.
+Then, we reprove \Cref{thm:acorn}, closely following the treatment given in \cite[Section 2.3]{TWZ25}.
+Finally, we prove some additional facts needed to understand the $\mixed^+$ reduction, which we use later in \Cref{sec:gps-mixed-llambda}. 
+
+The purification channel $\purifychan^{d,r}$ converts the state $\rho^{\otimes n}$
+into the mixture $\E_{\ket{\brho}} \ketbra{\brho}^{\otimes n}$.
+To do so, it is crucial to understand what these two mixed states look like in the Schur basis. For the former, this is easy, as $\rho^{\otimes n}$ is just the state $Q^d(\rho)$. As a result, we can apply Schur--Weyl duality, which states that
+\begin{equation}\label{eq:normal-sw-transform}
+    \schur^d \cdot \rho^{\otimes n} \cdot (\schur^d)^{\dagger}
+    = \sum_{\lambda \vdash n, \ell(\lambda) \leq d} \ketbra{\lambda} \otimes I_{\dim(\lambda)} \otimes \nu^d_{\lambda}(\rho).
+\end{equation}
+For the latter, this is a bit more challenging.
+To begin, let us set up some notation.
+Each state $\ket{\brho}$ lives inside $\C^d \otimes \C^r \cong \C^D$, where $D = d \cdot r$. The $n$ $d$-dimensional registers will be denoted $\reg{A_1}, \dots, \reg{A_n}$, and the $n$ $r$-dimensional registers will be denoted $\reg{B_1}, \dots, \reg{B_n}$, though these will often be dropped when clear from context. We will consider what $\E_{\ket{\brho}} \ketbra{\brho}^{\otimes n}$ looks like when we apply a Schur transform $\schur^d$ to the $n$ different $\C^d$ registers and a second Schur transform $\schur^r$ to the $n$ different $\C^r$ registers. We will abbreviate $\schur^d \otimes \schur^r$ as $\schur^{\otimes 2}$. The first Schur transform will produce a basis of the form $\ket{\lambda}_{\reg{Y}} \otimes \ket{S}_{\reg{P}} \otimes \ket{T}_{\reg{Q}}$, where $\reg{Y}$ is the Young diagram register, $\reg{P}$ is the symmetric group register, and $\reg{Q}$ is the unitary group register.
+The second Schur transform will produce a basis of the form $\ket{\lambda'}_{\reg{Y}'} \otimes \ket{S'}_{\reg{P}'} \otimes \ket{T'}_{\reg{Q}'}$.  
+
+Our first observation is that $\ketbra{\brho}^{\otimes n}$ is contained inside the symmetric subspace $\lor^n \C^D$, and so $\E_{\ket{\brho}} \ketbra{\brho}^{\otimes n}$ is in $\lor^{n} \C^D$ as well. Towards understanding the random purification channel, we now turn to characterizing~$\lor^n \C^D$. 
+
+\subsection{The symmetric subspace across two registers}
+
+We start by considering the projector onto the symmetric subspace of $(\C^d \otimes \C^r)^{\otimes n}$ in the Schur basis. \cite[Lemma 2.13]{TWZ25} gives a convenient formula for this projector, which we restate and reprove. We will need the following~definition. 
+
+\begin{definition}[Specht module EPR state]
+    Let $\lambda \vdash n$. We write $\ket{\epr_{\lambda}}$ for the pure state inside $\mathrm{Sp}_{\lambda} \otimes \mathrm{Sp}_{\lambda}$ given by
+    \begin{equation*}
+        \ket{\epr_{\lambda}} \coloneqq \frac{1}{\sqrt{\dim(\lambda)}} \cdot \sum_{S} \ket{S} \otimes \ket{S},
+    \end{equation*}
+    where the sum ranges over all SYTs of shape $\lambda$.
+\end{definition}
+
+\begin{lemma}[The projector onto the symmetric subspace in the Schur basis]\label{lem:double-schur-pi-sym}
+    \begin{equation} \label{eq:double-schur-pi-sym}
+        \schur^{\otimes 2} \cdot \Pi_{\mathrm{sym}}^{n, D} \cdot (\schur^{\otimes 2})^\dagger
+        = \sum_{\lambda \vdash n, \ell(\lambda) \leq r} \ketbra{\lambda\lambda}{\lambda\lambda}_{\reg{Y}\reg{Y'}} \otimes \ketbra{\epr_{\lambda}}{\epr_{\lambda}}_{\reg{P}\reg{P'}} \otimes I_{\reg{Q}\reg{Q'}}.
+    \end{equation}
+\end{lemma}
+
+\begin{proof}
+    By \Cref{prop:permute-factor},
+    \begin{equation*}
+        \Pi_{\mathrm{sym}}^{n, D} = \E_{\bpi \sim S_n} \big[P_{\reg{AB}}(\bpi)\big] = \E_{\bpi \sim S_n}\big[ P_{\reg{A}}(\bpi) \otimes P_{\reg{B}}(\bpi)\big].
+    \end{equation*}
+    If we now Schur transform $\reg{A}$ and $\reg{B}$, we obtain:
+    \begin{align}
+        & (\schur^d \otimes \schur^r) \cdot \Pi_{\mathrm{sym}}^{n, D} \cdot (\schur^d \otimes \schur^r)^\dagger  \nonumber \\
+        & = \E_{\bpi \sim S_n} \Big[\big(\schur^d \cdot P_{\reg{A}}(\bpi) \cdot (\schur^d)^\dagger\big) \otimes \big(\schur^r \cdot P_{\reg{B}}(\bpi) \cdot (\schur^r)^\dagger\big) \Big] \nonumber \\
+        & = \E_{\bpi \sim S_n} \Big[\Big(\sum_{\lambda \vdash n, \ell(\lambda) \leq d} \ketbra{\lambda}_{\reg{Y}} \otimes \kappa_\lambda(\bpi)_{\reg{P}} \otimes (I_{\dim(V^d_\lambda)})_{\reg{Q}}\Big) \otimes \Big(\sum_{\mu \vdash n, \ell(\mu) \leq r} \ketbra{\mu}_{\reg{Y'}} \otimes \kappa_\mu(\bpi)_{\reg{P'}} \otimes (I_{\dim(V^r_\mu)})_{\reg{Q'}}\Big)\Big] \nonumber \\
+        & = \sum_{\substack{\lambda \vdash n, \ell(\lambda) \leq d \\ \mu \vdash n, \ell(\mu) \leq r}} \ketbra{\lambda}_{\reg{Y}} \otimes \ketbra{\mu}_{\reg{Y'}} \otimes \E_{\bpi \sim S_n} \big[\kappa_\lambda(\bpi)_{\reg{P}} \otimes \kappa_\mu(\bpi)_{\reg{P'}}\big] \otimes (I_{\dim(V^d_\lambda)})_{\reg{Q}} \otimes (I_{\dim(V^r_\mu)})_{\reg{Q'}}. \label{eq:averaging_1}
+    \end{align}
+    We can simplify the operator acting on $\reg{PP'}$ using the grand orthogonality relations:
+    \begin{align*}
+        \E_{\bpi \sim S_n} \big[\kappa_\lambda(\bpi)_{\reg{P}} \otimes \kappa_\mu(\bpi)_{\reg{P'}}\big] & = \sum_{S, S', S'', S'''} \E_{\bpi \sim S_n} \big[\kappa_\lambda(\bpi)_{S,S''} \cdot \kappa_{\mu}(\bpi)_{S',S'''}\big] \cdot \ketbra{S}{S''}_{\reg{P}} \otimes \ketbra{S'}{S'''}_{\reg{P'}} \\
+        & = \sum_{S, S', S'', S'''} \E_{\bpi \sim S_n} \big[\overline{\kappa_\lambda(\bpi)_{S,S''}} \cdot \kappa_{\mu}(\bpi)_{S',S'''}\big] \cdot \ketbra{S}{S''}_{\reg{P}} \otimes \ketbra{S'}{S'''}_{\reg{P'}} \\
+        & = \sum_{S, S', S'', S'''} \frac{1}{\dim(\lambda)} \cdot \delta_{\lambda, \mu} \cdot \delta_{S,S'} \cdot \delta_{S'',S'''} \cdot \ketbra{S}{S''}_{\reg{P}} \otimes \ketbra{S'}{S'''}_{\reg{P'}} \\
+        & = \delta_{\lambda,\mu} \cdot \ketbra{\epr_\lambda}_{\reg{PP'}}.
+    \end{align*}
+    In the second equality, we have also used the fact that Young's orthogonal representation is real-valued. Plugging this back into \Cref{eq:averaging_1} yields \Cref{eq:double-schur-pi-sym}.
+\end{proof}
+
+For any pure state $\ket{u} \in \C^D$, the state $\ketbra{u}^{\otimes n} \in \lor^n \C^D$. It will be useful for us to understand what this state looks like in the Schur basis as well. 
+
+\begin{lemma}[Formula for $\ketbra{u}^{\otimes n}$ in the Schur basis]
+\label{lem:double_schur_transform_pure_state}
+    Let $\ket{u}_{\reg{A_1}\reg{B_1}} \in \C^d \otimes \C^r \cong \C^D$. Then 
+    \begin{equation} \label{eq:double_schur_n_fold_pure_state}
+        \schur^{\otimes 2} \cdot \ketbra{u}^{\otimes n}_{\reg{AB}} \cdot (\schur^{\otimes 2})^\dagger = \sum_{\substack{\lambda \vdash n, \ell(\lambda)\leq r \\ \mu \vdash n, \ell(\mu) \leq r}} \ketbra{\lambda \lambda}{\mu \mu}_{\reg{YY'}} \otimes \ketbra{\epr_\lambda}{\epr_{\mu}}_{\reg{PP'}} \otimes \ketbra{u_{\lambda \lambda}}{u_{\mu \mu}}_{\reg{QQ'}},
+    \end{equation}
+    where $\ket{u_{\lambda \lambda}}_{\reg{QQ'}}$ is some (unnormalized) vector in $V^d_\lambda \otimes V^r_\lambda$. Moreover, for each $\lambda$, \begin{equation}\label{eq:double_schur_n_fold_pure_state_partial_trace_restriction}
+        \tr_{\reg{Q'}}( \ketbra{u_{\lambda \lambda}}_{\reg{QQ'}}) = \dim(\lambda) \cdot \nu_\lambda^d(\sigma_u)_{\reg{Q}},
+    \end{equation}
+    where $\sigma_u = \tr_{\reg{B_1}}(\ketbra{u}_{\reg{A_1B_1}})$.
+\end{lemma}
+
+\begin{proof}
+    Since $\ket{u}^{\otimes n}_{\reg{AB}} \in \lor^n \C^D$, we have $\Pi_{\mathrm{sym}}^{n,D} \cdot \ket{u}^{\otimes n}_{\reg{AB}} = \ket{u}^{\otimes n}_{\reg{AB}}$, and thus 
+    \begin{align*}
+        \schur^{\otimes 2} \cdot \ket{u}^{\otimes n}_{\reg{AB}} & = \Big(\schur^{\otimes 2} \cdot \Pi_{\mathrm{sym}}^{n,D} \cdot (\schur^{\otimes 2})^\dagger\Big) \cdot  \Big(\schur^{\otimes 2} \cdot \ket{u}^{\otimes n}_{\reg{AB}}\Big) \\
+        & = \Big(\sum_{\lambda \vdash n, \ell(\lambda) \leq r} \ketbra{\lambda \lambda}_{\reg{YY'}} \otimes \ketbra{\epr_\lambda}_{\reg{PP'}} \otimes I_{\reg{QQ'}} \Big) \cdot \Big(\schur^{\otimes 2} \cdot \ket{u}_{\reg{AB}}^{\otimes n}\Big) \tag{\Cref{lem:double-schur-pi-sym}} \\ 
+        & = \sum_{\lambda \vdash n, \ell(\lambda) \leq r} \ket{\lambda\lambda}_{\reg{YY'}} \otimes \ket{\epr_\lambda}_{\reg{PP'}} \otimes \ket{u_{\lambda \lambda}}_{\reg{QQ'}},
+    \end{align*}
+    where $\ket{u_{\lambda \lambda}}_{\reg{QQ'}}$ is some (unnormalized) vector in $V^d_\lambda \otimes V^r_\lambda$. Thus, 
+    \begin{align*}
+        \schur^{\otimes 2} \cdot \ketbra{u}_{\reg{AB}}^{\otimes n} \cdot ( \schur^{\otimes 2} )^\dagger = \sum_{\substack{\lambda \vdash n, \ell(\lambda) \leq r \\ \mu \vdash n, \ell(\mu) \leq r}} \ketbra{\lambda \lambda}{\mu \mu}_{\reg{YY'}} \otimes \ketbra{\epr_\lambda}{\epr_\mu}_{\reg{PP'}} \otimes \ketbra{u_{\lambda \lambda}}{u_{\mu \mu}}_{\reg{QQ'}}. 
+    \end{align*}
+    This proves \Cref{eq:double_schur_n_fold_pure_state}. To show \Cref{eq:double_schur_n_fold_pure_state_partial_trace_restriction}, we first note that 
+\begin{align}
+    \schur^d \cdot \tr_{\reg{B}}( \ketbra{u}^{\otimes n} ) \cdot (\schur^d)^\dagger & = \schur^d \cdot \sigma_u^{\otimes n} \cdot (\schur^d)^\dagger \nonumber \\
+    & = \sum_{\lambda \vdash n, \ell(\lambda) \leq r} \ketbra{\lambda}_{\reg{Y}} \otimes (I_{\dim(\lambda)})_{\reg{P}} \otimes \nu_\lambda^d(\sigma_u)_{\reg{Q}}.\label{eq:double_schur_eq_1}
+\end{align} 
+However, we also have 
+\begin{align}
+    \schur^d \cdot \tr_{\reg{B}}( \ketbra{u}^{\otimes n} ) \cdot (\schur^d)^\dagger & = \tr_{\reg{B}} \Big(  (\schur^d \otimes \schur^r) \cdot  \ketbra{u}^{\otimes n}  \cdot (\schur^d \otimes \schur^r)^\dagger\Big) \nonumber \\
+    & = \tr_{\reg{B}} \Big( \sum_{\lambda, \mu} \ketbra{\lambda \lambda}{\mu \mu}_{\reg{YY'}} \otimes \ketbra{\epr_\lambda}{\epr_{\mu}}_{\reg{PP'}} \otimes \ketbra{u_{\lambda \lambda}}{u_{\mu \mu}}_{\reg{QQ'}} \Big) \nonumber \\
+    & = \sum_{\lambda \vdash n, \ell(\lambda) \leq r} \ketbra{\lambda} \otimes \Big( \frac{I_{\dim(\lambda)}}{\dim(\lambda)} \Big) \otimes \tr_{\reg{Q'}} (\ketbra{u_{\lambda \lambda}}_{\reg{QQ'}}). \label{eq:double_schur_eq_2}
+\end{align}
+\Cref{eq:double_schur_n_fold_pure_state_partial_trace_restriction} then follows by comparing the matrices acting on $\reg{Q}$ in \Cref{eq:double_schur_eq_1,eq:double_schur_eq_2}.
+\end{proof}
+
+\subsection{A formula for a many-copy random purification}
+
+We now apply the results from the previous section to the random purification channel. We start by understanding the output of the purification channel, $\E_{\ket{\brho}} \ketbra{\brho}^{\otimes n}$, in the Schur basis, using the fact that this state is in the symmetric subspace. 
+\cite[Lemma 2.16]{TWZ25} gives us the following formula. 
+
+\begin{lemma}[Random purification formula]\label{lem:final-formula}
+Let $\rho_{\reg{A_1}} \in \C^{d \times d}$ be a mixed state, and let $\ket{\rho_0}_{\reg{A_1B_1}} \in \C^d \otimes \C^r \cong \C^D$ be a fixed purification of $\rho$. Recall that a random purification $\ket{\brho}_{\reg{A_1B_1}}$ is obtained from $\ket{\rho_0}$ by applying a Haar random unitary $\bU \in U(r)$ to the purifying register, i.e.\ $\ket{\brho}_{\reg{A_1B_1}} = (I_d \otimes \bU) \cdot \ket{\rho_0}_{\reg{A_1B_1}}$. Then 
+\begin{equation*} 
+    \schur^{\otimes 2} \cdot\Big(\E_{\ket{\brho}} \ketbra{\brho}_{\reg{AB}}^{\otimes n}\Big) \cdot (\schur^\dagger)^{\otimes 2}
+        = \sum_{\lambda \vdash n, \ell(\lambda)\leq r} \dim(\lambda) \cdot \ketbra{\lambda\lambda}_{\reg{Y} \reg{Y'}} \otimes \ketbra{\epr_{\lambda}}_{\reg{P}\reg{P'}} \otimes \nu^d_{\lambda}(\rho)_{\reg{Q}} \otimes \Big(\frac{I_{\dim(V_{\lambda}^r)}}{\dim(V_{\lambda}^r)}\Big)_{\reg{Q'}}.
+\end{equation*}
+\end{lemma}
+
+\begin{proof}[Proof of \Cref{lem:final-formula}]
+    First, we have 
+    \begin{equation*}
+        \E_{\ket{\brho}} \ketbra{\brho}^{\otimes n}_{\reg{AB}} = \E_{\bU \sim \mathrm{Haar}} \big[ \bU_{\reg{B}}^{\otimes n} \cdot \ketbra{\rho_0}^{\otimes n}_{\reg{AB}} \cdot (\bU_{\reg{B}}^{\otimes n})^\dagger \big].
+    \end{equation*}
+    We will now rewrite everything in the Schur basis. \Cref{lem:double_schur_transform_pure_state} shows us how to rewrite $\ketbra{\rho_0}^{\otimes n}$:
+    \begin{equation*}
+        \schur^{\otimes 2} \cdot \ketbra{\rho_0}^{\otimes n}_{\reg{AB}} \cdot (\schur^{\otimes 2})^\dagger = \sum_{\substack{\lambda \vdash n, \ell(\lambda) \leq r \\ \mu \vdash n, \ell(\mu) \leq r}} \ketbra{\lambda \lambda}{\mu \mu}_{\reg{YY'}} \otimes \ketbra{\epr_{\lambda}}{\epr_{\mu}}_{\reg{PP'}} \otimes \ketbra{\rho_{0, \lambda \lambda}}{\rho_{0, \mu \mu}}_{\reg{QQ'}},\end{equation*}
+    for some unnormalized vectors $\{\ket{\rho_{0,\lambda\lambda}} \}_{\lambda}$. 
+    Conjugating this state by a Haar random unitary yields, in the Schur basis, 
+    \begin{align}
+     & \schur^{\otimes 2} \cdot\Big(\E_{\ket{\brho}} \ketbra{\brho}_{\reg{AB}}^{\otimes n}\Big) \cdot (\schur^\dagger)^{\otimes 2} \nonumber \\
+     & = \sum_{\substack{\lambda \vdash n, \ell(\lambda) \leq r \\ \mu \vdash n, \ell(\mu) \leq r}} \ketbra{\lambda \lambda}{\mu \mu}_{\reg{YY'}} \otimes \ketbra{\epr_{\lambda}}{\epr_{\mu}}_{\reg{PP'}} \otimes \E_{\bU \sim \mathrm{Haar}} \big[ \nu_{\lambda}^r(\bU)_{\reg{Q'}} \cdot \ketbra{\rho_{0, \lambda \lambda}}{\rho_{0, \mu \mu}}_{\reg{QQ'}} \cdot \nu_{\mu}^r(\bU)^\dagger_{\reg{Q'}}\big]. \label{eq:random_purification_formula_eq_1}
+    \end{align}
+    Let us focus on the operator in the unitary registers. This operator is a linear combination of terms of the form 
+    \begin{equation*} 
+        \E_{\bU \sim \mathrm{Haar}} \big[ \nu_{\lambda}^r(\bU)_{\reg{Q'}} \cdot \ketbra{T}{T''}_{\reg{Q}} \otimes \ketbra{T'}{T'''}_{\reg{Q'}} \cdot \nu_{\mu}^r(\bU)^\dagger_{\reg{Q'}}\big] = \ketbra{T}{T''}_{\reg{Q}} \otimes \E_{\bU \sim \mathrm{Haar}} \big[ \nu^r_\lambda(\bU) \cdot \ketbra{T'}{T'''} \cdot \nu^r_\mu(\bU)^\dagger]_{\reg{Q'}}.
+    \end{equation*}
+    Here, $T, T''$ are SSYTs of shape $\lambda$ and $\mu$, respectively, with alphabet $[d]$. Meanwhile, $T', T'''$ are SSYTs of shape $\lambda$ and $\mu$, respectively, with alphabet $[r]$. The operator
+    \begin{equation*}
+        \E_{\bU \sim \mathrm{Haar}} \big[ \nu^r_\lambda(\bU) \cdot \ketbra{T'}{T'''} \cdot \nu^r_\mu(\bU)^\dagger]_{\reg{Q'}}
+    \end{equation*}
+    is an intertwiner for $\nu_\lambda^r$ and $\nu_\mu^r$, and so by Schur's lemma is nonzero only when $\lambda = \mu$. In this case, we have 
+    \begin{align*}
+        \E_{\bU \sim \mathrm{Haar}} \big[ \nu^r_\lambda(\bU) \cdot \ketbra{T'}{T'''} \cdot \nu^r_\lambda(\bU)^\dagger]_{\reg{Q'}} & = \tr(\E_{\bU \sim \mathrm{Haar}} \big[ \nu^r_\lambda(\bU) \cdot \ketbra{T'}{T'''} \cdot \nu^r_\lambda(\bU)^\dagger \big]) \cdot \Big(\frac{I_{\dim(V^r_\lambda)}}{\dim(V^r_\lambda)}\Big)_{\reg{Q'}} \\
+        & = \tr( \ketbra{T'}{T'''} ) \cdot \Big(\frac{I_{\dim(V^r_\lambda)}}{\dim(V^r_\lambda)}\Big)_{\reg{Q'}}.
+    \end{align*}
+    Thus, twirling by a Haar random unitary maps 
+    $\ketbra{T}{T''}_{\reg{Q}} \otimes \ketbra{T'}{T'''}_{\reg{Q'}}$ to
+    \begin{equation*}
+    \delta_{\lambda,\mu} \cdot \ketbra{T}{T''}_{\reg{Q}} \otimes \tr(\ketbra{T'}{T'''}) \cdot \Big(\frac{I_{\dim(V^r_\lambda)}}{\dim(V^r_\lambda)}\Big)_{\reg{Q'}}  = \delta_{\lambda,\mu} \cdot \tr_{\reg{Q'}}( \ketbra{T}{T''}_{\reg{Q}} \otimes \ketbra{T'}{T'''}_{\reg{Q'}}) \otimes \Big(\frac{I_{\dim(V^r_\lambda)}}{\dim(V^r_\lambda)}\Big)_{\reg{Q'}}.\end{equation*}
+Substituting this back into \Cref{eq:random_purification_formula_eq_1} then gives:
+    \begin{equation*}
+        \eqref{eq:random_purification_formula_eq_1} = \sum_{\lambda \vdash n, \ell(\lambda) \leq r } \ketbra{\lambda \lambda}{\lambda \lambda}_{\reg{YY'}} \otimes \ketbra{\epr_{\lambda}}{\epr_{\lambda}}_{\reg{PP'}} \otimes \tr_{\reg{Q'}}( \ketbra{\rho_{0,\lambda\lambda}}_{\reg{QQ'}}) \otimes\Big(\frac{I_{\dim(V^r_\lambda)}}{\dim(V^r_\lambda)}\Big)_{\reg{Q'}}.
+    \end{equation*}
+    Finally, by \Cref{lem:double_schur_transform_pure_state}, we have $\tr_{\reg{Q'}}(\ketbra{\rho_{0,\lambda\lambda}}_{\reg{QQ'}}) = \dim(\lambda) \cdot \nu_\lambda^d(\rho)_{\reg{Q}}$. Plugging this into the above expression yields:
+    \begin{equation*} 
+    \schur^{\otimes 2} \cdot\Big(\E_{\ket{\brho}} \ketbra{\brho}_{\reg{AB}}^{\otimes n}\Big) \cdot (\schur^\dagger)^{\otimes 2}
+        = \sum_{\lambda \vdash n, \ell(\lambda)\leq r} \dim(\lambda) \cdot \ketbra{\lambda\lambda}_{\reg{Y} \reg{Y'}} \otimes \ketbra{\epr_{\lambda}}_{\reg{P}\reg{P'}} \otimes \nu^d_{\lambda}(\rho)_{\reg{Q}} \otimes \Big(\frac{I_{\dim(V_{\lambda}^r)}}{\dim(V_{\lambda}^r)}\Big)_{\reg{Q'}}.
+\end{equation*}
+This completes the proof. \qedhere
+    
+    % We also have
+    % \begin{align*}
+    %     & \schur^{\otimes 2} \cdot (I_d \otimes \bU)^{\otimes n} \cdot (\schur^{\otimes 2})^\dagger \\
+    %     & = \Big( \schur^d \cdot I_d^{\otimes n} \cdot (\schur^d)^\dagger \Big) \otimes \Big( \schur^r \cdot \bU^{\otimes n} \cdot (\schur^r)^\dagger \Big) \\
+    %     & = \Big( \sum_{\sigma \vdash n, \ell(\sigma) \leq d} \ketbra{\sigma}_{\reg{Y}} \otimes (I_{\dim(\sigma)})_{\reg{P}} \otimes (I_{\dim(V^d_\sigma)})_{\reg{Q}} \Big) \otimes \Big(\sum_{\tau \vdash n, \ell(\tau) \leq r} \ketbra{\tau}_{\reg{Y'}} \otimes (I_{\dim(\tau)})_{\reg{P'}} \otimes \nu_\tau^r(\bU)_{\reg{Q'}} \Big) \\
+    %     & = \sum_{\substack{\sigma \vdash n, \ell(\sigma) \leq d \\ \tau \vdash n, \ell(\tau) \leq r}} \ketbra{\sigma \tau}_{\reg{YY'}} \otimes (I_{\dim(\sigma)})_{\reg{P}} \otimes (I_{\dim(\tau)})_{\reg{Q}} \otimes (I_{\dim(V^d_\sigma)})_{\reg{Q}} \otimes (\nu_\tau^r(\bU))_{\reg{Q'}}. 
+    % \end{align*}
+    % Thus,
+    % \begin{align}
+    %     & \schur^{\otimes 2} \cdot\E_{\ket{\brho}} \ketbra{\brho}^{\otimes n} \cdot (\schur^\dagger)^{\otimes 2} \nonumber \\
+    %     & = \E_{\bU \sim \mathrm{Haar}} \Big[ \Big( \schur^{\otimes 2} \cdot (I_d \otimes \bU)^{\otimes n} \cdot (\schur^{\otimes 2})^\dagger\Big) \cdot \Big( \schur^{\otimes 2} \cdot \ketbra{\rho_0}^{\otimes n}_{\reg{AB}} \cdot (\schur^{\otimes 2})^\dagger \Big) \cdot \Big( \schur^{\otimes 2} \cdot (I_d \otimes \bU)^{\otimes n} \cdot (\schur^{\otimes 2})^\dagger \Big)\Big] \nonumber \\
+    %     & = \sum_{\substack{\lambda \vdash n, \ell(\lambda)\leq r \\ \mu \vdash n, \ell(\mu) \leq r}} \dim(\lambda) \cdot \ketbra{\lambda\lambda}{\mu\mu}_{\reg{Y} \reg{Y'}} \otimes \ketbra{\epr_{\lambda}}{\epr_{\mu}}_{\reg{P}\reg{P'}} \otimes (A_{\lambda \mu})_{\reg{QQ'}}, 
+    % \end{align}
+    % with 
+    % \jack{remove identities}
+    % \begin{equation*}
+    %     (A_{\lambda \mu})_{\reg{QQ'}} = \E_{\bU \sim \mathrm{Haar}}\big[(I_{\dim(V^d_\lambda)} \otimes \nu^r_{\lambda}(\bU))_{\reg{QQ'}} \cdot \ketbra{\rho_{0,\lambda\lambda}}{\rho_{0,\mu\mu}}_{\reg{QQ'}} \cdot (I_{\dim(V^d_\mu)} \otimes \nu^r_{\mu}(\bU))_{\reg{QQ'}}^\dagger\big].
+    % \end{equation*}
+    % Let us focus on the operator $A_{\lambda\mu}$. For any SSYTs $T$ of shape $\lambda$ and $T'$ of shape $\mu$, each of alphabet $[d]$, consider the operator $(B_{\lambda \mu}^{T T'})_{\reg{Q'}} \coloneq \bra{T}_{\reg{Q}} (A_{\lambda \mu})_{\reg{QQ'}} \ket{T'}_{\reg{Q}}$. We claim $B_{\lambda \mu}^{ T T'}$ is an intertwiner of $\nu_\lambda^r$ and $\nu_\mu^r$. To verify this claim, note that for any unitary $V \in U(r)$,
+    % \begin{align*}
+    %     \nu_{\lambda}^r(V)_{\reg{Q'}} \cdot (B_{\lambda \mu}^{T T'})_{\reg{Q'}}
+    %     &= \nu_{\lambda}^r(V)_{\reg{Q'}} \cdot \bra{T}_{\reg{Q}} (A_{\lambda \mu})_{\reg{QQ'}} \ket{T'}_{\reg{Q}} \\
+    %     &= \bra{T}_{\reg{Q}} \cdot \E_{\bU \sim \mathrm{Haar}}\big[(I_{\dim(V^d_\lambda)} \otimes \nu^r_{\lambda}(V\bU))_{\reg{QQ'}} \cdot \ketbra{\rho_{0,\lambda\lambda}}{\rho_{0,\mu\mu}}_{\reg{QQ'}} \cdot (I_{\dim(V^d_\mu)} \otimes \nu^r_{\mu}(\bU^\dagger))_{\reg{QQ'}}\big] \cdot \ket{T'}_{\reg{Q}} \\
+    %     &= \bra{T}_{\reg{Q}} \cdot \E_{\bU' \sim \mathrm{Haar}}\big[(I_{\dim(V^d_\lambda)} \otimes \nu^r_{\lambda}(\bU'))_{\reg{QQ'}} \cdot \ketbra{\rho_{0,\lambda\lambda}}{\rho_{0,\mu\mu}}_{\reg{QQ'}} \cdot (I_{\dim(V^d_\mu)} \otimes \nu^r_{\mu}(\bU'^\dagger V))_{\reg{QQ'}}\big] \cdot \ket{T'}_{\reg{Q}} \\
+    %     &= \bra{T}_{\reg{Q}} (A_{\lambda \mu})_{\reg{QQ'}} \ket{T'}_{\reg{Q}} \cdot \nu_{\mu}^r(V)_{\reg{Q'}} \\
+    %     & = (B_{\lambda \mu}^{ T T'})_{\reg{Q'}} \cdot \nu_{\mu}^r(V)_{\reg{Q'}}.
+    % \end{align*}
+    % Above, we have defined $\bU' = V\bU$ and used the left-invariance of the Haar distribution. Thus, by Schur's lemma, $B^{TT'}_{\lambda \mu}$ is zero unless $\lambda = \mu$, in which case,
+    % \begin{equation*}
+    %     (B_{\lambda \lambda}^{TT'})_{\reg{Q'}} = \tr(B_{\lambda \lambda}^{ T T'}) \cdot \Big(\frac{I_{\dim(V^r_\lambda)}}{\dim(V^r_\lambda)}\Big)_{\reg{Q'}}.
+    % \end{equation*}
+    % We now evaluate this trace:
+    % \begin{align*}
+    %    \tr(B_{\lambda \lambda}^{ T T'}) & = \tr(\bra{T}_{\reg{Q}} (A_{\lambda \lambda})_{\reg{QQ'}} \ket{T'}_{\reg{Q}} )\\
+    %    & = \bra{T}_{\reg{Q}} \tr_{\reg{Q'}} ((A_{\lambda \lambda})_{\reg{QQ'}} ) \ket{T'}_{\reg{Q'}} \\
+    %    & = \bra{T}_{\reg{Q}} \cdot \tr_{\reg{Q'}}\Big(\E_{\bU \sim \mathrm{Haar}}\big[(I_{\dim(V^d_\lambda)} \otimes \nu^r_{\lambda}(\bU))_{\reg{QQ'}} \cdot \ketbra{\rho_{0,\lambda\lambda}}{\rho_{0,\lambda\lambda}}_{\reg{QQ'}} \cdot (I_{\dim(V^d_\lambda)} \otimes \nu^r_{\lambda}(\bU))_{\reg{QQ'}}^\dagger\big]\Big) \cdot \ket{T'}_{\reg{Q}} \\
+    %     & = \bra{T}_{\reg{Q}} \cdot \tr_{\reg{Q'}}( \ketbra{\rho_{0,\lambda\lambda}}) \cdot \ket{T'}_{\reg{Q}} \\
+    %     & = \dim(\lambda) \cdot \bra{T}\nu_\lambda^d(\rho)\ket{T'}. \tag{\Cref{lem:double_schur_transform_pure_state}}
+    % \end{align*}
+    % Thus
+    % \begin{equation}
+    %     (B^{TT'}_{\lambda \mu})_{\reg{Q'}} = \delta_{\lambda \mu} \cdot \dim(\lambda) \cdot \bra{T} \nu_\lambda^d(\rho) \ket{T'} \cdot \Big(\frac{I_{\dim(V^r_\lambda)}}{\dim(V^r_\lambda)} \Big)_{\reg{Q'}}, \label{eq:B's_entries}
+    % \end{equation}
+    % and
+    % \begin{align*}
+    %     (A_{\lambda \mu})_{\reg{QQ'}} & = \sum_{T,T',T'',T'''} \ketbra{T}{T'}_{\reg{Q}} \otimes \ketbra{T''}{T'''}_{\reg{Q'}} \cdot \bra{T,T''} A_{\lambda \mu} \ket{T',T'''} \\
+    %     & = \sum_{T,T',T'',T'''} \ketbra{T}{T'}_{\reg{Q}} \otimes \ketbra{T''}{T'''}_{\reg{Q'}} \cdot \bra{T''} B^{TT'}_{\lambda \mu} \ket{T'''} \\
+    %     & = \sum_{T,T',T'',T'''} \ketbra{T}{T'}_{\reg{Q}} \otimes \ketbra{T''}{T'''}_{\reg{Q'}} \cdot \delta_{\lambda \mu} \cdot \dim(\lambda) \cdot \bra{T} \nu_\lambda^d(\rho) \ket{T'} \cdot \frac{\delta_{T'',T'''}}{\dim(V^r_\lambda)} \tag{\Cref{eq:B's_entries}} \\
+    %     & = \delta_{\lambda \mu} \cdot \dim(\lambda) \cdot \nu_{\lambda}^d(\rho)_{\reg{Q}} \otimes \Big(\frac{I_{\dim(V^r_\lambda)}}{\dim(V^r_\lambda)}\Big)_{\reg{Q'}}.
+    % \end{align*}
+    % Finally, substituting back into \Cref{eq:random_purification_formula_eq_1} yields the desired formula:
+    % \begin{equation*}
+    %     \schur^{\otimes 2} \cdot\E_{\ket{\brho}} \ketbra{\brho}^{\otimes n} \cdot (\schur^\dagger)^{\otimes 2} = \sum_{\lambda \vdash n, \ell(\lambda)\leq r } \dim(\lambda) \cdot \ketbra{\lambda\lambda}{\lambda\lambda}_{\reg{Y} \reg{Y'}} \otimes \ketbra{\epr_{\lambda}}{\epr_{\lambda}}_{\reg{P}\reg{P'}} \otimes \nu^d_\lambda(\rho)_{\reg{Q}} \otimes \Big(\frac{I_{\dim(V^r_\lambda)}}{\dim(V^r_\lambda)}\Big)_{\reg{Q'}}. \qedhere
+    % \end{equation*}
+\end{proof}
+
+\subsection{The random purification channel}
+
+We now define the random purification channel $\purifychan^{d,r}$. 
+
+{
+\floatstyle{boxed} 
+\restylefloat{figure}
+\begin{figure}[H]
+Given $n$ copies of $\rho$:
+\begin{enumerate}
+    \item Apply the Schur transform $\schur^d$ to $\rho^{\otimes n}$.
+    \item \label{item:intro-2} Perform weak Schur sampling. Letting $\blambda$ be the outcome, the state collapses to
+    \begin{equation*}
+        \rho|_{\blambda} \coloneqq \ketbra{\blambda}_{\reg{Y}} \otimes \Big(\frac{I_{\dim(\blambda)}}{\dim(\blambda)}\Big)_{\reg{P}} \otimes \Big(\frac{\nu^d_{\lambda}(\rho)}{s^d_{\lambda}(\rho)}\Big)_{\reg{Q}}.
+    \end{equation*}
+    \item \label{item:intro-y} Introduce a new register $\reg{Y'}$ and copy $\blambda$ into it.
+    \item \label{item:intro-p}  Introduce a new register $\reg{P}'$. Discard the contents of $\reg{P}$ and place the state $\ket{\mathrm{EPR}_{\blambda}}_{\reg{P}\reg{P}'}$ into these registers.
+    \item \label{item:intro-q}  Introduce a new register $\reg{Q}'$ initialized to the maximally mixed state $I_{\dim(V^r_{\blambda})}/\dim(V^r_{\blambda})$.
+    \item Apply the inverse Schur transform $(\schur^d \otimes \schur^r)^\dagger$ and output the resulting state.
+\end{enumerate}
+\caption{The random purification channel $\purifychan^{d,r}$.}
+\label{fig:purify-channel}
+\end{figure}
+}
+
+By \cite[Lemma 2.11]{TWZ25}, the random purification channel satisfies
+\begin{equation*}
+    \purifychan^{d,r}(\rho^{\otimes n}) = \E_{\ket{\brho}} \ketbra{\brho}^{\otimes n}.
+\end{equation*}
+Furthermore,
+it can be computed to $\delta$ error in time $\poly(n, \log(d), \log(1/\delta))$.  We now reprove these results, for completeness. 
+
+\begin{proof}[Proof of \Cref{thm:acorn}]
+    To show $\purifychan^{d,r}(\rho^{\otimes n})$ prepares a random purification, we track how our input state changes with each applied step. After Schur transforming, we have the state
+    \begin{equation*}
+        \sum_{\lambda \vdash n, \ell(\lambda) \leq r} \ketbra{\lambda}_{\reg{Y}} \otimes ( I_{\dim(\lambda)} )_{\reg{P}} \otimes \nu^d_{\lambda}(\rho)_{\reg{Q}}. 
+    \end{equation*}
+    After weak Schur sampling, we obtain outcome $\blambda \vdash n$ with probability $\dim(\blambda) \cdot s^d_{\blambda}(\rho)$, and state $\rho|_{\blambda}$. Conditioned on $\blambda$, following steps 3--5, we obtain the state
+    \begin{equation*}
+        \ketbra{\blambda\blambda}_{\reg{YY'}} \otimes \ketbra{\epr_{\blambda}}_{\reg{PP'}} \otimes \Big(\frac{\nu^d_{\blambda}(\rho)}{s^d_{\blambda}(\rho)}\Big)_{\reg{Q}} \otimes \Big( \frac{I_{\dim(V^r_{\blambda})}}{\dim(V^r_{\blambda})} \Big)_{\reg{Q'}}. 
+    \end{equation*}
+    Averaged over the outcome of weak Schur sampling, we have prepared the state
+    \begin{equation*}
+        \sum_{\lambda \vdash n, \ell(\lambda) \leq r}\dim(\lambda) \cdot \ketbra{\lambda\lambda}_{\reg{YY'}} \otimes \ketbra{\epr_{\lambda}}_{\reg{PP'}} \otimes \nu^d_{\lambda}(\rho)_{\reg{Q}} \otimes \Big( \frac{I_{\dim(V^r_{\lambda})}}{\dim(V^r_{\lambda})} \Big)_{\reg{Q'}}.
+    \end{equation*}
+    Thus, by \Cref{lem:final-formula}, the output after the sixth step is
+    \begin{equation*}
+        \purifychan^{d,r}(\rho^{\otimes n}) = \E_{\ket{\brho}} \ketbra{\brho}^{\otimes n}. 
+    \end{equation*}
+    We now turn to efficiency. The gate complexity is dominated by the cost of the two Schur transforms, each of which can be computed to $\delta$ accuracy in diamond distance in time $\poly(n, \log(d), \log(1/\delta))$ \cite{Har05}.
+\end{proof}
+
+Having defined the random purification channel, there are a couple of properties of it that we need to establish for our mixed state tomography algorithm.
+We begin by looking at its application conditioned on the Young diagram $\blambda$.
+
+\begin{notation}
+    We will slightly abuse notation by allowing the input to $\purifychan^{d,r}$ to be a state expressed in the Schur basis. In particular, when the input is $\rho|_\lambda$, we have
+    \begin{equation*}
+        \purifychan^{d,r}(\rho|_{\lambda})
+    = \ketbra{\lambda\lambda}{\lambda\lambda}_{\reg{Y} \reg{Y'}} \otimes \ketbra{\epr_{\lambda}}{\epr_{\lambda}}_{\reg{P} \reg{P'}} \otimes \Big(\frac{\nu^d_{\lambda}(\rho)}{s^d_{\lambda}(\rho)}\Big)_{\reg{Q}}  \otimes \Big(\frac{I_{\dim(V_{\lambda}^{r})}}{\dim(V_{\lambda}^{r})}\Big)_{\reg{Q'}}.
+    \end{equation*}
+    This will be convenient for us in the context of quasi-purification, where we will want to apply $\purifychan^{d,\ell(\blambda)}$, conditioned on the outcome $\blambda$ observed in weak Schur sampling. 
+\end{notation}
+
+
+
+% \begin{definition}
+% We define the \emph{$\lambda$-restricted quasi-purification channel $\purifychan^{d,r}$} to be the channel applied in \Cref{item:intro-y,item:intro-p,item:intro-q} of the random purification channel, with purifying registers of dimension $r \geq \ell(\lambda)$, and given as input a state from the $\lambda$-irrep space.
+%     When this state is $\rho|_{\lambda}$, it acts as 
+%     \begin{equation*}
+%         \purifychan^{d,r,\lambda}(\rho|_{\lambda})
+%     = \ketbra{\lambda\lambda}{\lambda\lambda}_{\reg{Y} \reg{Y'}} \otimes \ketbra{\epr_{\lambda}}{\epr_{\lambda}}_{\reg{P} \reg{P'}} \otimes \Big(\frac{\nu^d_{\lambda}(\rho)}{s^d_{\lambda}(\rho)}\Big)_{\reg{Q}}  \otimes \Big(\frac{I_{\dim(V_{\lambda}^{r})}}{\dim(V_{\lambda}^{r})}\Big)_{\reg{Q'}}.
+%     \end{equation*}
+% \end{definition}
+
+
+We now turn to a couple of properties of the random purification channel that we need to establish for our mixed state tomography algorithm. 
+
+
+% We begin by looking at its application conditioned on the Young diagram $\blambda$.
+
+% \jack{$\purifychan^{\mathrm{Sch}}$ as steps 2-6. Note that $\rho|_{\lambda}$ fixed by second step, so equivalently, this performs the post-weak Schur smapling portion of purifychan}
+
+% \jack{Added some stuff here -- maybe it's worthwhile keeping this notation, to avoid Schur transforming back and forth unnecessarily}
+
+% \begin{definition}[The $\lambda$-restricted quasi-purification channel]
+%     We define the \emph{$\lambda$-restricted quasi-purification channel $\purifychan^{d,r}$} to be the channel applied in \Cref{item:intro-y,item:intro-p,item:intro-q} of the random purification channel, with purifying registers of dimension $r \geq \ell(\lambda)$, and given as input a state from the $\lambda$-irrep space.
+%     When this state is $\rho|_{\lambda}$, it acts as 
+%     \begin{equation*}
+%         \purifychan^{d,r,\lambda}(\rho|_{\lambda})
+%     = \ketbra{\lambda\lambda}{\lambda\lambda}_{\reg{Y} \reg{Y'}} \otimes \ketbra{\epr_{\lambda}}{\epr_{\lambda}}_{\reg{P} \reg{P'}} \otimes \Big(\frac{\nu^d_{\lambda}(\rho)}{s^d_{\lambda}(\rho)}\Big)_{\reg{Q}}  \otimes \Big(\frac{I_{\dim(V_{\lambda}^{r})}}{\dim(V_{\lambda}^{r})}\Big)_{\reg{Q'}}.
+%     \end{equation*}
+% \end{definition}
+
+% This definition is for convenience, since mathematically we can already express this in terms of the random purification channel. Specifically,
+% \begin{equation*}
+%     \purifychan^{d,r,\lambda}(\rho|_{\lambda}) = \purifychan^{d,r} \Big( (\schur^d)^\dagger \cdot \rho|_{\lambda} \cdot \schur^d \Big).
+% \end{equation*}
+% That is, this notation saves us from Schur transforming back and forth unnecessarily. 
+
+% \jack{Fix the latter depending on what we do with the restricted channel}
+% It is straightforward to verify that the $\lambda$-restricted purification channel satisfies the following equation.
+
+\begin{lemma}[Partial trace of the purification channel]\label{lem:partial-trace-restriction}
+    \begin{equation*}
+        \tr_{\reg{Y}'\reg{P}'\reg{Q}'}(\purifychan^{d,r}(\rho|_{\lambda})) = \rho|_{\lambda}.
+    \end{equation*}
+\end{lemma}
+
+We will also use the following formula, which shows that  weak Schur sampling, when applied to $\rho^{\otimes n}$, is non-destructive, in that it does not perturb the state. 
+
+% \jack{I think here is a natural space for the non-destructiveness of the weak Schur sampling}
+
+% \ewin{Can we put somewhere that this measurement, when applied to $\rho^{\otimes n}$, is non-destructive, in that it does not perturb the state?}
+
+% \jack{How's this?}Note that since $\rho^{\otimes n}$ is block-diagonal in the $\lambda$-subspaces, $\rho^{\otimes n}$ is a classical mixture of states supported in individual irreps. Therefore, weak Schur sampling a state of the form $\rho^{\otimes n}$ is non-destructive, in that it does not perturb the state. \jack{maybe we can mention Lemma 3.6 formalizes this too} \angelos{Do we want to explicitly mention that $\rho^{\otimes n}$ is $Q^d(\rho)$? Because we went from the $P, Q$ representations to $n$ copies of $\rho$ with no justification in this paragraph. This is essentially the justification on the next page.}\jack{True, maybe this comes a bit too early.}
+% \ewin{Yeah, happy to move this later} \jack{It could go at the end of Section 3 I think}
+
+\begin{lemma}[Average of $\rho|_{\blambda}$]
+    \label{lem:blambda-average}
+    $
+        \E_{\blambda}[\rho|_{\blambda}]= \schur^d \cdot \rho^{\otimes n} \cdot (\schur^d)^{\dagger}.
+    $
+\end{lemma}
+\begin{proof}
+    By \Cref{eq:normal-sw-transform},
+    \begin{equation*}
+    \schur^d \cdot \rho^{\otimes n} \cdot (\schur^d)^{\dagger}
+    = \sum_{\lambda \vdash n, \ell(\lambda) \leq d} \dim(\lambda) \cdot s_{\lambda}(\rho) \cdot \rho|_{\lambda}.
+    \end{equation*}
+    For each $\lambda$, $\rho|_{\lambda}$ is a density matrix which lives inside the $\lambda$-irrep space.
+    Therefore, $\Pr[\blambda = \lambda] = \dim(\lambda) \cdot s_{\lambda}(\rho)$.
+    As a result,
+    \begin{equation*}
+        \E_{\blambda}[\rho|_{\blambda}]
+        = \sum_{\lambda \vdash n, \ell(\lambda) \leq d} \Pr[\blambda = \lambda] \cdot \rho|_{\lambda}
+        = \schur^d \cdot \rho^{\otimes n} \cdot (\schur^d)^{\dagger}.\qedhere
+    \end{equation*}
+\end{proof}

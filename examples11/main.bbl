@@ -1,0 +1,245 @@
+\newcommand{\etalchar}[1]{$^{#1}$}
+\begin{thebibliography}{DDGG20}
+
+\bibitem[ABDY22]{ABDY23}
+Srinivasan Arunachalam, Sergey Bravyi, Arkopal Dutt, and Theodore Yoder.
+\newblock Optimal algorithms for learning quantum phase states.
+\newblock In {\em Proceedings of the 18th Conference on the Theory of Quantum Computation, Communication and Cryptography}, 2022.
+
+\bibitem[BCH05]{BCH05}
+Dave Bacon, Isaac Chuang, and Aram Harrow.
+\newblock The quantum {S}chur transform: {I}. efficient qudit circuits.
+\newblock In {\em Proceedings of the 18th Annual ACM-SIAM Symposium on Discrete Algorithms}, 2005.
+
+\bibitem[BCS{\etalchar{+}}25]{BCS+25}
+Jacob Beckey, Luke Coffman, Ariel Shlosberg, Louis Schatzki, and Felix Leditzky.
+\newblock Product testing with single-copy measurements.
+\newblock Technical report, arXiv:2510.07820, 2025.
+
+\bibitem[Bel75]{Bel75}
+Viacheslav Belavkin.
+\newblock Optimal multiple quantum statistical hypothesis testing.
+\newblock {\em Stochastics: An International Journal of Probability and Stochastic Processes}, 1(1-4):315--345, 1975.
+
+\bibitem[BHH16]{BHH16}
+Fernando Brandao, Aram Harrow, and Micha{\l} Horodecki.
+\newblock Local random quantum circuits are approximate polynomial-designs.
+\newblock {\em Communications in Mathematical Physics}, 346(2):397--434, 2016.
+
+\bibitem[BK02]{BK02}
+Howard Barnum and Emanuel Knill.
+\newblock Reversing quantum dynamics with near-optimal quantum and classical fidelity.
+\newblock {\em Journal of Mathematical Physics}, 43(5):2097--2106, 2002.
+
+\bibitem[Bog07]{Bog07}
+V.I. Bogachev.
+\newblock {\em Measure Theory}.
+\newblock Mathematics and Statistics. Springer Berlin Heidelberg, 2007.
+
+\bibitem[CCHL22]{CCHL22}
+Sitan Chen, Jordan Cotler, Hsin-Yuan Huang, and Jerry Li.
+\newblock Exponential separations between learning with and without quantum memory.
+\newblock In {\em Proceedings of the 62nd Annual IEEE Symposium on Foundations of Computer Science}, pages 574--585, 2022.
+
+\bibitem[CHL{\etalchar{+}}23]{CHL+23}
+Sitan Chen, Brice Huang, Jerry Li, Allen Liu, and Mark Sellke.
+\newblock When does adaptivity help for quantum state learning?
+\newblock In {\em Proceedings of the 64th Annual IEEE Symposium on Foundations of Computer Science}, pages 391--404, 2023.
+
+\bibitem[CLL24a]{CLL24b}
+Sitan Chen, Jerry Li, and Allen Liu.
+\newblock Optimal high-precision shadow estimation.
+\newblock In {\em 27th Conference on Quantum Information Processing}, 2024.
+
+\bibitem[CLL24b]{CLL24a}
+Sitan Chen, Jerry Li, and Allen Liu.
+\newblock An optimal tradeoff between entanglement and copy complexity for state tomography.
+\newblock In {\em Proceedings of the 56th Annual ACM Symposium on Theory of Computing}, pages 1331--1342, 2024.
+
+\bibitem[CWZ24]{CWZ24}
+Kean Chen, Qisheng Wang, and Zhicheng Zhang.
+\newblock Local test for unitarily invariant properties of bipartite quantum states.
+\newblock Technical report, arXiv:2404.04599, 2024.
+
+\bibitem[DDGG20]{DGG20}
+Rafa{\l} Demkowicz-Dobrza{\'n}ski, Wojciech G{\'o}recki, and M{\u{a}}d{\u{a}}lin Gu{\c{t}}{\u{a}}.
+\newblock Multi-parameter estimation beyond quantum fisher information.
+\newblock {\em Journal of Physics A: Mathematical and Theoretical}, 53(36):363001, 2020.
+
+\bibitem[FR13]{FR13}
+Simon Foucart and Holger Rauhut.
+\newblock {\em A Mathematical Introduction to Compressive Sensing}.
+\newblock Springer, 2013.
+
+\bibitem[GKKT20]{GKKT20}
+Madalin Gu{\c{t}}{\u{a}}, Jonas Kahn, Richard Kueng, and Joel~A Tropp.
+\newblock Fast state tomography with optimal error bounds.
+\newblock {\em Journal of Physics A: Mathematical and Theoretical}, 53(20):204001, 2020.
+
+\bibitem[GLM24]{GLM24}
+Daniel Grier, Sihan Liu, and Gaurav Mahajan.
+\newblock Improved classical shadows from local symmetries in the {S}chur basis.
+\newblock Technical report, arXiv:2405.09525, 2024.
+
+\bibitem[GPS24]{GPS24}
+Daniel Grier, Hakop Pashayan, and Luke Schaeffer.
+\newblock Sample-optimal classical shadows for pure states.
+\newblock {\em Quantum}, 8:1373, 2024.
+
+\bibitem[Har05]{Har05}
+Aram Harrow.
+\newblock {\em Applications of coherent classical communication and the {S}chur transform to quantum information theory}.
+\newblock PhD thesis, Massachusetts Institute of Technology, 2005.
+
+\bibitem[Har13]{Har13}
+Aram Harrow.
+\newblock The church of the symmetric subspace.
+\newblock Technical report, arXiv:1308.6595, 2013.
+
+\bibitem[Har23]{Har23}
+Aram Harrow.
+\newblock Approximate orthogonality of permutation operators, with application to quantum information.
+\newblock {\em Letters in Mathematical Physics}, 114(1):1, 2023.
+
+\bibitem[Hay98]{Hay98}
+Masahito Hayashi.
+\newblock Asymptotic estimation theory for a finite-dimensional pure state model.
+\newblock {\em Journal of Physics A: Mathematical and General}, 31(20):4633, 1998.
+
+\bibitem[Hel67]{Hel67b}
+Carl Helstrom.
+\newblock Minimum mean-squared error of estimates in quantum statistics.
+\newblock {\em Physics letters A}, 25(2):101--102, 1967.
+
+\bibitem[HHJ{\etalchar{+}}16]{HHJ+16}
+Jeongwan Haah, Aram Harrow, Zhengfeng Ji, Xiaodi Wu, and Nengkun Yu.
+\newblock Sample-optimal tomography of quantum states.
+\newblock In {\em Proceedings of the 48th Annual ACM Symposium on Theory of Computing}, August 2016.
+\newblock Preprint.
+
+\bibitem[HJ13]{HJ13}
+Roger Horn and Charles Johnson.
+\newblock {\em Matrix analysis}.
+\newblock Cambridge University Press, 2nd edition, 2013.
+
+\bibitem[HKOT23]{HKOT23}
+Jeongwan Haah, Robin Kothari, Ryan O'Donnell, and Ewin Tang.
+\newblock Query-optimal estimation of unitary channels in diamond distance.
+\newblock In {\em Proceedings of the 64th Annual IEEE Symposium on Foundations of Computer Science}, pages 363--390, 2023.
+
+\bibitem[HKP20]{HKP20}
+Hsin-Yuan Huang, Richard Kueng, and John Preskill.
+\newblock Predicting many properties of a quantum system from very few measurements.
+\newblock {\em Nature Physics}, 16(10):1050--1057, 2020.
+
+\bibitem[HLT24]{HLT24}
+Jeongwan Haah, Yunchao Liu, and Xinyu Tan.
+\newblock Efficient approximate unitary designs from random pauli rotations.
+\newblock In {\em Proceedings of the 65th Annual IEEE Symposium on Foundations of Computer Science}, pages 463--475, 2024.
+
+\bibitem[Hol79]{Hol79}
+Alexander Holevo.
+\newblock On asymptotically optimal hypothesis testing in quantum statistics.
+\newblock {\em Theory of Probability \& Its Applications}, 23(2):411--415, 1979.
+
+\bibitem[Hol11]{Hol11}
+Alexander Holevo.
+\newblock {\em Probabilistic and statistical aspects of quantum theory}.
+\newblock Springer Science \& Business Media, 2011.
+
+\bibitem[HW94]{HW94}
+Paul Hausladen and William Wootters.
+\newblock A `pretty good' measurement for distinguishing quantum states.
+\newblock {\em Journal of Modern Optics}, 41(12):2385--2390, 1994.
+
+\bibitem[KRT14]{KRT14}
+Richard Kueng, Holger Rauhut, and Ulrich Terstiege.
+\newblock Low rank matrix recovery from rank one measurements.
+\newblock Technical report, arXiv:1410.6913, 2014.
+
+\bibitem[Low10]{Low10}
+Andrew~Richard Low.
+\newblock {\em Pseudo-randomness and Learning in Quantum Computation}.
+\newblock PhD thesis, University of Bristol, 2010.
+
+\bibitem[OSP23]{OSP23}
+Ryan O'Donnell, Rocco~A Servedio, and Pedro Paredes.
+\newblock Explicit orthogonal and unitary designs.
+\newblock In {\em Proceedings of the 64th Annual IEEE Symposium on Foundations of Computer Science}, pages 1240--1260, 2023.
+
+\bibitem[OW15]{OW15}
+Ryan O'Donnell and John Wright.
+\newblock Quantum spectrum testing.
+\newblock In {\em Proceedings of the 47th Annual ACM Symposium on Theory of Computing}, 2015.
+
+\bibitem[OW16]{OW16}
+Ryan O'Donnell and John Wright.
+\newblock Efficient quantum tomography.
+\newblock In {\em Proceedings of the 48th Annual ACM Symposium on Theory of Computing}, 2016.
+
+\bibitem[OW17]{OW17a}
+Ryan O'Donnell and John Wright.
+\newblock Efficient quantum tomography {II}.
+\newblock In {\em Proceedings of the 49th Annual ACM Symposium on Theory of Computing}, 2017.
+
+\bibitem[PSW25]{PSW25}
+Angelos Pelecanos, Jack Spilecki, and John Wright.
+\newblock The debiased {K}eyl's algorithm: a new unbiased estimator for full state tomography.
+\newblock Manuscript, 2025.
+
+\bibitem[Sko23]{Sko23}
+Maciej Skorski.
+\newblock Bernstein-type bounds for beta distribution.
+\newblock {\em Modern Stochastics: Theory and Applications}, 10(2):211--228, 2023.
+
+\bibitem[SSW25]{SSW25}
+Thilo Scharnhorst, Jack Spilecki, and John Wright.
+\newblock Optimal lower bounds for quantum state tomography.
+\newblock Manuscript, 2025.
+
+\bibitem[SW22]{SW22}
+Mehdi Soleimanifar and John Wright.
+\newblock Testing matrix product states.
+\newblock In {\em Proceedings of the 33rd Annual ACM-SIAM Symposium on Discrete Algorithms}, pages 1679--1701, 2022.
+
+\bibitem[TWZ25]{TWZ25}
+Ewin Tang, John Wright, and Mark Zhandry.
+\newblock Conjugate queries can help.
+\newblock Technical report, arXiv:2510.07622, 2025.
+
+\bibitem[Ver18]{Ver18}
+Roman Vershynin.
+\newblock {\em High-dimensional probability: an introduction with applications in data science}.
+\newblock Cambridge University Press, 2018.
+
+\bibitem[Wat18]{Wat18}
+John Watrous.
+\newblock {\em The theory of quantum information}.
+\newblock Cambridge University Press, 2018.
+
+\bibitem[Wri16]{Wri16}
+John Wright.
+\newblock {\em How to learn a quantum state}.
+\newblock PhD thesis, Carnegie Mellon University, 2016.
+
+\bibitem[Yue23]{Yue23}
+Henry Yuen.
+\newblock An improved sample complexity lower bound for (fidelity) quantum state tomography.
+\newblock {\em Quantum}, 7:890, 2023.
+
+\bibitem[ZC25]{ZC25}
+Sisi Zhou and Senrui Chen.
+\newblock Randomized measurements for multi-parameter quantum metrology.
+\newblock Technical report, arXiv:2502.03536, 2025.
+
+\bibitem[ZS00]{ZS00}
+Karol Zyczkowski and Hans-Jürgen Sommers.
+\newblock Truncations of random unitary matrices.
+\newblock {\em Journal of Physics A: Mathematical and General}, 33(10):2045–2057, March 2000.
+
+\bibitem[ZS01]{ZS01}
+Karol Zyczkowski and Hans-Jürgen Sommers.
+\newblock Induced measures in the space of mixed quantum states.
+\newblock {\em Journal of Physics A: Mathematical and General}, 34(35):7111–7125, August 2001.
+
+\end{thebibliography}

@@ -1,0 +1,138 @@
+Any tomography algorithm---whether it performs multiple measurements, introduces ancillary systems, or applies intermediate channels---is equivalent to another tomography algorithm that performs a (possibly complicated) POVM directly on the input state $\rho^{\otimes n}$.
+This raises the question: what POVMs are our algorithms performing? In this section, we show that $\mixed(\gps)$ implements a pretty good measurement (PGM) over a natural distribution known as the \emph{Hilbert--Schmidt measure} (defined below). Furthermore, we show that $\mixed^+(\gps)$ is only slightly more elaborate: it performs a PGM over one of several such distributions, conditioned on the outcome of weak Schur sampling. 
+
+Ours is not the first tomography algorithm which can be viewed as performing a PGM on the input.
+Indeed, Hayashi's pure state tomography algorithm~\cite{Hay98} can be viewed as performing a PGM over a distribution induced by a Haar random unit vector. 
+In addition, one of the two mixed state tomography algorithms in~\cite{HHJ+16} performs a PGM over a particular distribution on mixed states,
+and the other, like $\mixed^+(\gps)$, performs a PGM conditioned on the outcome of weak Schur sampling.
+To our knowledge, however, the particular choice of PGM we study, based on the Hilbert--Schmidt measure, has not appeared in the literature prior to our work.
+
+\subsection{PGM preliminaries} A PGM is defined in terms of a set of states $\{\rho_i\}$ and a prior probability distribution on these states $\{\alpha_i\}$. The corresponding PGM has measurement operators $\{M_i\}$ with 
+\begin{equation*}
+    M_i \coloneq N^{-1/2} \cdot \alpha_i \rho_i \cdot N^{-1/2},
+\end{equation*}
+where $N \coloneq \sum_{i} \alpha_i \rho_i$. Here, $N^{-1/2}$ is the \emph{Moore-Penrose pseudoinverse} of $N^{1/2}$, i.e.\ the inverse restricted to the support of $N^{1/2}$. 
+
+The PGM was originally introduced for its application to the problem of \emph{quantum state discrimination} \cite{Bel75,Hol79,HW94}. In this problem, we are given one copy of a state $\brho$ drawn randomly from the set $\{\rho_i\}$, with $\rho_i$ sampled with probability $\alpha_i$, and asked to identify the state. The pretty good measurement is \emph{pretty good} at this task. In particular, let $P_\mathrm{PGM}$ be the success probability of the algorithm that first measures $\brho$ using the PGM, obtaining outcome $\bi$, and then outputs $\rho_{\bi}$. Then $P_{\mathrm{PGM}} \geq P_{\mathrm{OPT}}^2$, where $P_{\mathrm{OPT}}$ is the optimal success probability across all possible measurement schemes \cite{BK02}.
+
+\subsection{The PGM over the Hilbert--Schmidt measure} Our PGM will have measurement outcomes indexed by mixed states $\sigma \in \C^{d \times d}$. The state indexed by $\sigma$ is the $n$-fold product $\sigma^{\otimes n}$. We will need to define a measure on mixed states to state the probability associated to this state.  
+
+\begin{definition}[Rank-$r$ Hilbert--Schmidt measure]\label{def:HS-measure}
+   The \emph{rank-$r$ Hilbert--Schmidt measure}, denoted $\mu^{d,r}_{\mathrm{HS}}$, is the measure on mixed states $\sigma \in \C^{d \times d}$ induced by the Haar measure on pure states $\ket{u}_{\reg{A_1B_1}} \in \C^d \otimes \C^r$, obtained by setting $\sigma_{\reg{A_1}} = \tr_{\reg{B_1}} ( \ketbra{u}_{\reg{A_1B_1}} )$.\footnote{This measure is also known as the \emph{induced measure} in the literature, and, in the $r = d$ special case, coincides with the \emph{Hilbert--Schmidt measure} \cite{ZS01}}
+\end{definition}
+
+Equivalently, the rank-$r$ Hilbert--Schmidt measure is the \emph{pushforward} of the Haar measure on pure states under the map $\tr_{\reg{B_1}}$. Since $\tr_{\reg{B_1}}$ is measurable, for every measurable $g$ on the space of $d\times d$ density matrices we have the change-of-variables formula
+\begin{equation}\label{eq:pushfoward_change_of_variables}
+\int_{\tr_{\reg{2}}(X)} g(\sigma) \cdot d\mu_{\mathrm{HS}}(\sigma) = \int_{X} g( \tr_{\reg{2}}(\ketbra{u} ) \cdot du,
+\end{equation}
+whenever one side is well-defined \cite[Theorem 3.6.1]{Bog07}.
+
+For our PGM, the prior probability of $\sigma^{\otimes n}$ will be $d\mu^{d,r}_{\mathrm{HS}}(\sigma)$. The measurement operators of the PGM are then given by
+\begin{equation}\label{eq:M_HS_start}
+    M^{d,r}_{\mathrm{HS}} (\sigma) \coloneq N^{-1/2} \cdot \sigma^{\otimes n} \cdot d\mu^{d,r}_{\mathrm{HS}}(\sigma) \cdot N^{-1/2}.
+\end{equation}
+We now compute $S$. Letting $\ket{u}_{\reg{A}\reg{B}} \in \C^d \otimes \C^r$ and $(\sigma_u)_{\reg{A}} \coloneq \tr_{\reg{B}}(\ketbra{u}_{\reg{A}\reg{B}})$, we have
+\begin{equation}\label{eq:S_intermediate}
+    N = \int_{\sigma} \sigma^{\otimes n} \cdot d\mu^{d,r}_{\mathrm{HS}}(\sigma) = \int_{\ket{u}} \sigma_u^{\otimes n} \cdot du = \tr_{\reg{B}_1\dots\reg{B}_n} \Big( \int_{\ket{u}} \ketbra{u}^{\otimes n} \cdot du \Big) = \tr_{\reg{B}_1\dots\reg{B}_n} \Big( \frac{1}{D[n]} \cdot \Pi_{\mathrm{sym}}^{n,D} \Big).
+\end{equation}
+Here, $D \coloneq d \cdot r$ and $D[n]=\dim(\vee^n \C^{D})$. However, by \Cref{lem:double-schur-pi-sym}, we know
+\begin{equation*}
+        (\schur^d \otimes \schur^r) \cdot \Pi_{\mathrm{sym}}^{n, D} \cdot (\schur^d \otimes \schur^r)^\dagger
+        = \sum_{\lambda \vdash n, \ell(\lambda) \leq r} \ketbra{\lambda\lambda}{\lambda\lambda}_{\reg{Y}\reg{Y'}} \otimes \ketbra{\epr_{\lambda}}{\epr_{\lambda}}_{\reg{P}\reg{P'}} \otimes I_{\reg{Q}\reg{Q'}}.
+    \end{equation*}
+Tracing out the $\reg{B}$ registers (which now correspond to $\reg{Y}'\reg{P}'\reg{Q}'$) and plugging the result back into \Cref{eq:S_intermediate} gives us an expression for $N$ in the Schur basis:
+\begin{equation}\label{eq:S_in_Schur}
+    \schur^d \cdot N \cdot (\schur^{d})^{\dagger} = \frac{1}{D[n]} \cdot \sum_{\lambda \vdash n, \ell(\lambda) \leq r} \ketbra{\lambda}_{\reg{Y}} \otimes \Big( \frac{I_{\dim(\lambda)}}{\dim(\lambda)}\Big)_{\reg{P}} \otimes \Big( \dim(V^r_\lambda) \cdot I_{\dim(V^d_\lambda)} \Big)_{\reg{Q}}.
+\end{equation}
+Moreover, $\sigma^{\otimes n}$ can also be expressed in the Schur basis as
+\begin{equation}\label{eq:sigma_in_Schur}
+    \schur^d \cdot \sigma^{\otimes n} \cdot (\schur^d)^{\dagger} = \sum_{\lambda \vdash n, \ell(\lambda) \leq r} \ketbra{\lambda}_{\reg{Y}} \otimes (I_{\dim(\lambda)})_{\reg{P}} \otimes (\nu^d_\lambda(\sigma))_{\reg{Q}}.
+\end{equation}
+Combining \Cref{eq:M_HS_start,eq:S_in_Schur,eq:sigma_in_Schur}, we get:
+\begin{align}\label{eq:M_HS_in_Schur}
+\schur^d \cdot M_{\mathrm{HS}}^{d,r}(\sigma) \cdot (\schur^d)^\dagger & = \sum_{\lambda \vdash n, \ell(\lambda) \leq r} \frac{D[n] \cdot \dim(\lambda)}{\dim(V^r_\lambda)} \cdot \ketbra{\lambda}_{\reg{Y}} \otimes (I_{\dim(\lambda)})_{\reg{P}} \otimes \nu^d_\lambda(\sigma)_{\reg{Q}} \cdot d\mu_{\mathrm{HS}}^{d,r}(\sigma).
+\end{align}
+
+We summarize this construction with the following definition. 
+
+\begin{definition}
+    The \emph{pretty good measurement over the rank-$r$ Hilbert--Schmidt measure} is a PGM with operators labeled by mixed states $\sigma \in \C^{d \times d}$. The state corresponding to $\sigma$ is $\sigma^{\otimes n}$, and the corresponding probability is $d\mu^{d,r}_{\mathrm{HS}}(\sigma)$. The resulting measurement operators are given by \Cref{eq:M_HS_in_Schur}. 
+\end{definition}
+
+\subsection{Viewing $\mixed(\gps)$ as a PGM} 
+
+In this section, we show that the measurement performed by $\mixed(\gps)$ is equivalent to the PGM over the rank-$r$ Hilbert--Schmidt measure. This PGM is also the measurement performed by $\mixed(\hayashi)$, as $\mixed(\gps)$ and $\mixed(\hayashi)$ differ only in their post-processing of the measurement outcome. 
+
+The algorithm $\mixed(\gps)$, described in \Cref{fig:gps-reduction-basic}, first applies $\purifychan^{d,r}$ to the input state, and then applies Hayashi's measurement. Recall that this is the POVM with measurement operators: 
+\begin{equation*}
+    \{ D[n] \cdot \ketbra{u}^{\otimes n} \cdot du \, : \, \ket{u} \in \C^{d} \otimes \C^r \}.
+\end{equation*}
+Finally, the algorithm proceeds by processing $\sigma_u = \tr_{\reg{2}}(\ketbra{u})$. Let $X \subseteq \C^{d\times d}$ be a subset of mixed states (measureable with respect to the Hilbert--Schmidt measure), and let $Y \subseteq \C^{D}$ be the preimage of $X$ under tracing out the second register, i.e.\ $X = \tr_{\reg{2}}(Y)$ (since $X$ is measurable, $Y$ is measurable with respect to the Haar measure). The probability that we obtain a $\bsigma \in X$ after purifying, measuring, and tracing out a given, generic, input $\psi\in \C^{d^n \times d^n}$ (i.e.\ not necessarily in the symmetric subspace) is 
+\begin{equation*}
+    \Pr_{\mixed(\gps)}[ \bsigma \in X | \psi ] =  \tr \Big( \purifychan^{d,r}( \psi ) \cdot \int_{\ket{u} \in Y} D[n] \cdot \ketbra{u}^{\otimes n}  \cdot du\Big).
+\end{equation*}
+On the other hand, the probability that our PGM obtains $\bsigma \in X$, given input $\psi$, is
+\begin{equation*}
+    \Pr_{\mathrm{PGM}} [ \bsigma \in X | \psi] = \int_{\sigma \in X} \tr\big( \psi \cdot M^{d,r}_{\mathrm{HS}}(\sigma) \big). 
+\end{equation*}
+
+\begin{proposition} \label{prop:base_implements_pgm}
+    For any input $\psi$ and any measurable set $X \subseteq \C^{d\times d}$ (measured with $\mu_{\mathrm{HS}}^{d,r}$), 
+    \begin{equation*}
+        \Pr_{\mixed(\gps)}[ \bsigma \in X| \psi ] = \Pr_{\mathrm{PGM}} [ \bsigma \in X| \psi].
+    \end{equation*}
+    Thus, $\mixed(\gps)$ implements the pretty good measurement over the rank-$r$ Hilbert--Schmidt measure. 
+\end{proposition}
+
+Before proving this statement, it will be useful to note that we can decompose $\purifychan^{d,r}$ into Kraus operators $\{K_{\lambda S T}\}$ as $\purifychan^{d,r}(\psi) = \sum_{\lambda, S, T} K_{\lambda S T} \cdot \psi \cdot K_{\lambda S T}^\dagger$ for any generic state $\psi$ written in the Schur basis of $(\C^d)^{\otimes n}$, with
+\begin{equation}
+        K_{\lambda S T} \coloneq \ket{\lambda \lambda}_{\reg{YY'}}\bra{\lambda}_{\reg{Y}} \otimes \ket{\epr_\lambda}_{\reg{PP'}}\bra{S}_{\reg{P}} \otimes \frac{\ket{T}_{\reg{Q'}}}{\sqrt{\dim(V^r_\lambda)}} \otimes (I_{\dim(V^d_\lambda)})_{\reg{Q}} . \label{eq:kraus_purifychan}
+\end{equation}
+Here, $\lambda \vdash n$ and $\ell(\lambda) \leq r$; $S$ is an SYT of shape $\lambda$; $T$ is an SSYT of shape $\lambda$ and alphabet $[r]$. We can consider the adjoint $\purifychan^{d,r,\dagger}$, which can be expanded into Kraus operators as $\purifychan^{d,r,\dagger}(\varphi) = \sum_{\lambda,S,T} K_{\lambda S T}^\dagger \cdot \varphi \cdot K_{\lambda S T}$, where $\varphi$ is a state written in the Schur basis of $(\C^D)^{\otimes n}$.
+
+\begin{lemma} \label{lem:purifychan_adjoint_on_n_fold_u}
+    For any $\ket{u} \in \C^{d} \otimes \C^r$, we have
+    \begin{equation*}\purifychan^{d,r,\dagger} \Big( (\schur^{\otimes 2}) \cdot \ketbra{u}^{\otimes n} \cdot (\schur^{\otimes 2})^\dagger \Big) = \sum_{\lambda \vdash n, \ell(\lambda)\leq r} \frac{\dim(\lambda)}{\dim(V^r_\lambda)} \cdot \ketbra{\lambda} \otimes I_{\dim(\lambda)} \otimes \nu^d_\lambda(\sigma_u).\end{equation*}
+\end{lemma}
+
+\begin{proof}
+    By \Cref{lem:double_schur_transform_pure_state}, we have 
+    \begin{equation*}
+        (\schur^{\otimes 2}) \cdot \ketbra{u}^{\otimes n} \cdot (\schur^{\otimes 2})^{\dagger} = \sum_{\substack{\lambda \vdash n, \ell(\lambda) \leq r \\ \mu \vdash n, \ell(\mu) \leq r}} \ketbra{\lambda\lambda}{\mu\mu}_{\reg{YY'}} \otimes \ketbra{\epr_\lambda}{\epr_\mu}_{\reg{PP'}} \otimes \ketbra{u_{\lambda\lambda}}{u_{\mu \mu}}_{\reg{QQ'}},
+    \end{equation*}
+    for some vectors $\ket{u_{\lambda\lambda}}_{\reg{QQ'}}$ which satisfy $\tr_{\reg{Q'}}(\ketbra{u_{\lambda\lambda}}_{\reg{QQ'}}) = \dim(\lambda) \cdot \nu_\lambda^d(\sigma_u)$, with $\sigma_u = \tr_{\reg{2}}(\ketbra{u})$. 
+We then have
+    \begin{align*}
+        & \purifychan^{d,r,\dagger}\Big( (\schur^d \otimes \schur^r) \cdot \ketbra{u}^{\otimes n} \cdot (\schur^d \otimes \schur^r)^\dagger \Big) \\
+        & = \sum_{\lambda, S, T} K_{\lambda S T}^\dagger \cdot \Big( (\schur^d \otimes \schur^r) \cdot \ketbra{u}^{\otimes n} \cdot (\schur^d \otimes \schur^r)^\dagger \Big) \cdot K_{\lambda S T} \\
+        & = \sum_{\lambda,S,T} K^\dagger_{\lambda S T} \cdot \Big( \sum_{\sigma, \tau} \ketbra{\sigma \sigma}{\tau \tau}_{\reg{YY'}} \otimes \ketbra{\epr_\sigma}{\epr_{\tau}}_{\reg{PP'}} \otimes \ketbra{u_{\sigma \sigma}}{{u_{\tau \tau}}}_{\reg{QQ'}} \Big) \cdot K_{\lambda S T} \\
+        & = \sum_{\lambda, S,T} \frac{1}{\dim(V^r_\lambda)} \cdot \ketbra{\lambda}_{\reg{Y}} \otimes \ketbra{S}_{\reg{P}} \otimes \big(\bra{T}_{\reg{Q}'}\cdot \ketbra{u_{\lambda \lambda}}_{\reg{QQ'}} \cdot \ket{T}_{\reg{Q}'}\big) \tag{\Cref{eq:kraus_purifychan}} \\
+        & = \sum_{\lambda} \frac{1}{\dim(V^r_\lambda)} \cdot \ketbra{\lambda} \otimes I_{\dim(\lambda)} \otimes \tr_{\reg{Q'}}(\ketbra{u_{\lambda \lambda}}_{\reg{QQ'}} )  \\
+        & =  \sum_{\lambda} \frac{\dim(\lambda)}{\dim(V^r_\lambda)} \cdot \ketbra{\lambda} \otimes I_{\dim(\lambda)} \otimes \nu_\lambda^d(\sigma_u).
+    \end{align*}
+    This completes the proof. 
+\end{proof}
+
+\begin{proof}[Proof of \Cref{prop:base_implements_pgm}]
+    Note that 
+    \begin{align*}
+        & \int_{\ket{u} \in Y} D[n] \cdot \purifychan^{d,r,\dagger}(\ketbra{u}^{\otimes n})  \cdot du \\
+        & = (\schur^d)^\dagger \cdot \Big(\sum_{\lambda \vdash n, \ell(\lambda) \leq r} \frac{D[n] \cdot \dim(\lambda)}{\dim(V^r_\lambda)} \cdot \ketbra{\lambda} \otimes I_{\dim(\lambda)} \otimes \int_{\ket{u} \in Y} \nu^d_\lambda(\sigma_u) \cdot du \Big) \cdot \schur^d \tag{\Cref{lem:purifychan_adjoint_on_n_fold_u}}\\
+        & = (\schur^d)^\dagger \cdot \Big(\sum_{\lambda \vdash n, \ell(\lambda) \leq r} \frac{D[n] \cdot \dim(\lambda)}{\dim(V^r_\lambda)} \cdot \ketbra{\lambda} \otimes I_{\dim(\lambda)} \otimes \int_{\sigma \in X} \nu^d_\lambda(\sigma) \cdot d\mu_{HS}^{d,r}(\sigma)  \Big) \cdot \schur^d \tag{\Cref{eq:pushfoward_change_of_variables}}\\
+        & = \int_{\sigma \in X} (\schur^d)^\dagger \cdot \Big( \sum_{\lambda \vdash n, \ell(\lambda) \leq r} \frac{D[n] \cdot \dim(\lambda)}{\dim(V^r_\lambda)} \cdot \ketbra{\lambda} \otimes I_{\dim(\lambda)} \otimes \nu^d_\lambda(\sigma) \cdot d\mu_{\mathrm{HS}}^{d,r}(\sigma)\Big) \cdot \schur^d \\
+        & = \int_{\sigma \in X} M^{d,r}_{\mathrm{HS}}(\sigma). \tag{\Cref{eq:M_HS_in_Schur}} 
+    \end{align*}
+    Thus,
+    \begin{align*}
+        \Pr_{\mixed(\gps)}[ \bsigma \in X| \psi ] & = \tr_{\reg{AB}} \Big( \purifychan^{d,r}( \psi ) \cdot \int_{\ket{u} \in Y} D[n] \cdot \ketbra{u}^{\otimes n}  \cdot du\Big) \\
+        & = \tr_{\reg{A}} \Big( \psi \cdot \int_{\ket{u} \in Y} D[n] \cdot \purifychan^{d,r,\dagger}(\ketbra{u}^{\otimes n})  \cdot du\Big) \\
+        & = \tr_{\reg{A}} \Big( \psi \cdot \int_{\sigma \in X} M^{d,r}_{\mathrm{HS}}(\bsigma) \Big) \\
+        & = \Pr_{\mathrm{PGM}} [ \bsigma \in X | \psi]. \qedhere
+    \end{align*}
+\end{proof}
+
+\paragraph{Viewing $\mixed^+(\gps)$ as a PGM.} Note that $\mixed^+(\gps)$, described in \Cref{fig:gps-reduction-improved}, can be regarded as the following two-step process: first, weak Schur sample $\rho^{\otimes n}$, to obtain $\blambda \vdash n$ and a state $\rho|_{\blambda}$;  second, apply $\mixed(\gps)$ to $\rho|_{\blambda}$ with $r$ set to $\ell(\blambda)$. As a consequence of \Cref{prop:base_implements_pgm}, we therefore have the following~result. 
+
+\begin{corollary}
+    $\mixed^+(\gps)$ implements weak Schur sampling, and, conditioned on the Young diagram $\blambda$ observed, followed by a pretty good measurement over the rank-$\ell(\blambda)$ Hilbert--Schmidt measure.
+\end{corollary}
