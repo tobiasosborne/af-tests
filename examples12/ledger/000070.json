@@ -1,0 +1,1 @@
+{"type":"evidence_attached","timestamp":"2026-03-05T18:39:57.372675276Z","node_id":"1.3","file_path":"tests/test_ricci_scalar_sector.py","content_hash":"3d1c89201e25dda3a28b29273c1a7de8524410cfb05695a6bb177a3219faf9e2","evidence_type":"verification","description":"SymPy verification of linearised Ricci tensor components in scalar gauge","attached_by":"prover-1"}

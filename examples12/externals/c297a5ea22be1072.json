@@ -1,0 +1,8 @@
+{
+  "id": "c297a5ea22be1072",
+  "name": "Gauge Invariance of Linearised Curvature",
+  "source": "Standard result: under infinitesimal diffeomorphisms h_{μν} → h_{μν} + ∂_μξ_ν + ∂_νξ_μ, the linearised Riemann tensor R^(1)_{μνρσ} is invariant. See Wald (1984) §4.4 or any standard GR textbook.",
+  "content_hash": "ebd9183c13dd138600c6fd8c4d643376bfcdb5379c74db89c418b619ec9d3d98",
+  "created": "2026-03-05T18:34:10.928386887Z",
+  "notes": ""
+}

@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-03-05T18:33:48.237385592Z","definition":{"id":"4fd03dae23ccd76a","name":"lorentzian_four_momentum_squared","definition":"p² ≡ ω² - k² denotes the Lorentzian four-momentum squared (signature (-,+,+,+)), so that □ ↔ -p² in Fourier space. Here k² = |k|² is the spatial momentum squared.","created":"2026-03-05T18:33:48.2322814Z"}}

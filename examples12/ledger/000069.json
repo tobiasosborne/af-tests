@@ -1,0 +1,1 @@
+{"type":"evidence_attached","timestamp":"2026-03-05T18:39:57.347376908Z","node_id":"1.6.4","file_path":"tests/test_matrix_inverse.py","content_hash":"4b9fbcbabe6ddf18b5ce5c10c7cfc704e8d8b5637d3ac9343e227056b1a94c36","evidence_type":"verification","description":"SymPy verification of scalar propagators via (1/2)M⁻¹","attached_by":"prover-1"}

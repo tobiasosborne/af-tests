@@ -1,0 +1,8 @@
+{
+  "id": "476bc254db134eb7",
+  "name": "Schur Orthogonality for SO(3) Irreps",
+  "source": "Standard representation theory: quadratic forms built from rotation-covariant operators have no cross-terms between different spin sectors (spin-0, spin-1, spin-2) by Schur's lemma. See e.g. Sternberg, S. (1994). Group Theory and Physics, Cambridge University Press.",
+  "content_hash": "6265cb5a6d6c6cba9e9be407eda522e000d9129f73e27001c7b44109419bac16",
+  "created": "2026-03-05T18:34:14.139185783Z",
+  "notes": ""
+}

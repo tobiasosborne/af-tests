@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-03-05T18:34:02.609960697Z","definition":{"id":"142ce18d8fee3e1d","name":"transverse_projector","definition":"P^T_{ij}(k) = δ_{ij} - k_i k_j/k², the transverse (spatial) projector satisfying k_i P^T_{ij} = 0 and P^T_{ij}P^T_{jk} = P^T_{ik}.","created":"2026-03-05T18:34:02.608558211Z"}}

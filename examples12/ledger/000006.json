@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-03-05T18:33:55.27610274Z","definition":{"id":"8bc31670a7682466","name":"linearised_ricci_tensor","definition":"2R^(1)_{μν} = ∂_λ∂_μ h^λ_ν + ∂_λ∂_ν h^λ_μ - ∂_μ∂_ν h - □h_{μν}, obtained by contracting the linearised Riemann tensor. Here h = η^{μν}h_{μν}.","created":"2026-03-05T18:33:55.274534481Z"}}

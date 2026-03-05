@@ -1,0 +1,1 @@
+{"type":"evidence_attached","timestamp":"2026-03-05T18:39:57.487189228Z","node_id":"1.7.4","file_path":"tests/test_special_cases.py","content_hash":"15c7779b374f7f737c1faa9423a73e3a879c445e264cf65876f15c4ab75cee2c","evidence_type":"verification","description":"SymPy verification of β=1/2 and β=1/3 special cases","attached_by":"prover-1"}

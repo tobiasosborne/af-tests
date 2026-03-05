@@ -1,0 +1,1 @@
+{"type":"evidence_attached","timestamp":"2026-03-05T18:39:57.519759297Z","node_id":"1.5.2","file_path":"tests/test_tensor_action.py","content_hash":"c92563c3b11ec11f32d965566c37c445db875723a21b2a761f523826b16e632f","evidence_type":"verification","description":"SymPy verification of tensor sector action I_TT = (1/4)∫(□h^TT_{ij})²","attached_by":"prover-1"}

@@ -1,0 +1,1 @@
+{"type":"evidence_attached","timestamp":"2026-03-05T18:39:57.409720033Z","node_id":"1.5.3","file_path":"tests/test_vector_action.py","content_hash":"37bb826b0241f9f798e94214adff41d5fcf3f609be901996f8932ae0c95455e7","evidence_type":"verification","description":"SymPy verification of vector sector action I_V = -(1/2)∫V_i∇²□V_i","attached_by":"prover-1"}

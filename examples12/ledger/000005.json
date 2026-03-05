@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-03-05T18:33:53.589764582Z","definition":{"id":"e240400fd2dc1cce","name":"linearised_riemann_tensor","definition":"R^(1)_{μνρσ} = (1/2)(∂_ν∂_ρ h_{μσ} + ∂_μ∂_σ h_{νρ} - ∂_μ∂_ρ h_{νσ} - ∂_ν∂_σ h_{μρ}), the linearised Riemann tensor for g_{μν} = η_{μν} + h_{μν}.","created":"2026-03-05T18:33:53.587933034Z"}}

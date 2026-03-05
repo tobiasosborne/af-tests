@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-03-05T18:34:03.670361361Z","definition":{"id":"d1ce90fe255586b2","name":"tt_projector","definition":"Π^{TT}_{ijkl} = (1/2)(P^T_{ik}P^T_{jl} + P^T_{il}P^T_{jk} - P^T_{ij}P^T_{kl}), the transverse-traceless projector on symmetric 2-tensors, satisfying Π^{TT}_{ijkl}h^{TT}_{kl} = h^{TT}_{ij}.","created":"2026-03-05T18:34:03.667895818Z"}}

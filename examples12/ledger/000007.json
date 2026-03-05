@@ -1,0 +1,1 @@
+{"type":"def_added","timestamp":"2026-03-05T18:33:56.684131723Z","definition":{"id":"53836a1f419188bd","name":"linearised_ricci_scalar","definition":"R^(1) = ∂_μ∂_ν h^{μν} - □h, the trace of the linearised Ricci tensor.","created":"2026-03-05T18:33:56.682067838Z"}}

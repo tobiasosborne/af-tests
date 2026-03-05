@@ -1,0 +1,1 @@
+{"type":"evidence_attached","timestamp":"2026-03-05T18:39:57.31192654Z","node_id":"1.6.2","file_path":"tests/test_determinant.py","content_hash":"7da02c9dc84107520e65b2ca0dccbba24bc7c02ab35a1cdf55498a74398c2d7e","evidence_type":"verification","description":"SymPy verification of det(M) = 8(1-3β)k⁴p⁴","attached_by":"prover-1"}

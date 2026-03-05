@@ -1,0 +1,8 @@
+{
+  "id": "e6a7dab3c8346cc9",
+  "name": "Zee IX.4 Linearised Ricci Tensor",
+  "source": "Zee, A. (2013). Einstein Gravity in a Nutshell. Princeton University Press, §IX.4 eq.(1), p.563: R_{μν} = -(1/2)(∂²h_{μν} - ∂_μ∂_λh^λ_ν - ∂_ν∂_λh^λ_μ + ∂_μ∂_ν h^λ_λ) + O(h²). Local: ../generalrelativity/Literature/A. Zee-Einstein gravity in a nutshell-Princeton University Press (2013).pdf",
+  "content_hash": "e66fa0497b9e3fc7ffc89bfa49055090db1ea9009e2b4b1f581f01a6b2809c6e",
+  "created": "2026-03-05T18:34:06.04535619Z",
+  "notes": "Ground truth string match (p.563 eq.(1)): 'Rμν = − 1/2 (∂²hμν − ∂μ∂λhλν − ∂ν∂λhλμ + ∂μ∂νhλλ) + O(h²)'. Local copy: refs/Zee2013.pdf"
+}
