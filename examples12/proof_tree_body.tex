@@ -1,0 +1,178 @@
+
+\section*{Node 1}
+
+\textbf{Statement:} The propagators of linearised fourth-derivative gravity (action I = ∫d⁴x [R\textasciicircum{}(1)\_\{μν\}R\textasciicircum{}\{(1)μν\} - β(R\textasciicircum{}(1))²]) decompose into scalar, vector, and tensor sectors with no cross-terms. For β ≠ 1/3, the scalar propagators are ⟨ΦΦ⟩ = 3/(4k⁴) + 1/(2k²p²) + (1-2β)/[8(1-3β)p⁴], ⟨ψψ⟩ = (1-2β)/[8(1-3β)p⁴], ⟨Φψ⟩ = -1/(4k²p²) - (1-2β)/[8(1-3β)p⁴]; the vector propagator is ⟨V\_iV\_j⟩ = P\textasciicircum{}T\_\{ij\}/(k²p²); and the tensor propagator is ⟨h\textasciicircum{}\{TT\}\_\{ij\}h\textasciicircum{}\{TT\}\_\{kl\}⟩ = 2Π\textasciicircum{}\{TT\}\_\{ijkl\}/p⁴.
+
+\textbf{Type:} claim
+
+\textbf{Inference:} assumption
+
+\textbf{Status:} validated
+
+\textbf{Taint:} clean
+
+\begin{enumerate}
+\item \textbf{Node 1.1:} Claim 1.1: The integrand equals R\textasciicircum{}(1)\_\{μν\}R\textasciicircum{}\{(1)μν\} - β(R\textasciicircum{}(1))², where R\textasciicircum{}(1)\_\{μν\} is the linearised Ricci tensor and R\textasciicircum{}(1)\} the linearised Ricci scalar. The linearised Riemann tensor is R\textasciicircum{}(1)\_\{μνρσ\} = (1/2)(∂\_ν∂\_ρ h\_\{μσ\} + ∂\_μ∂\_σ h\_\{νρ\} - ∂\_μ∂\_ρ h\_\{νσ\} - ∂\_ν∂\_σ h\_\{μρ\}). Contracting gives 2R\textasciicircum{}(1)\_\{μν\} = ∂\_λ∂\_μ h\textasciicircum{}λ\_ν + ∂\_λ∂\_ν h\textasciicircum{}λ\_μ - ∂\_μ∂\_ν h - □h\_\{μν\}, and R\textasciicircum{}(1) = ∂\_μ∂\_ν h\textasciicircum{}\{μν\} - □h. [Refs: Wald §4.4, Zee IX.4 eq.(1)]
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\begin{enumerate}
+\item \textbf{Node 1.1.1:} 1.1.1: The linearised Riemann tensor for g\_\{μν\} = η\_\{μν\} + h\_\{μν\} is R\textasciicircum{}(1)\_\{μνρσ\} = (1/2)(∂\_ν∂\_ρ h\_\{μσ\} + ∂\_μ∂\_σ h\_\{νρ\} - ∂\_μ∂\_ρ h\_\{νσ\} - ∂\_ν∂\_σ h\_\{μρ\}). [Standard, Wald §4.4]
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\item \textbf{Node 1.1.2:} 1.1.2: Contracting R\textasciicircum{}(1)\_\{μρν\}\textasciicircum{}ρ gives 2R\textasciicircum{}(1)\_\{μν\} = ∂\_λ∂\_μ h\textasciicircum{}λ\_ν + ∂\_λ∂\_ν h\textasciicircum{}λ\_μ - ∂\_μ∂\_ν h - □h\_\{μν\} where h = η\textasciicircum{}\{μν\}h\_\{μν\}. [Contract 1.1.1 with η\textasciicircum{}\{νσ\}, relabel]
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\item \textbf{Node 1.1.3:} 1.1.3: The linearised Ricci scalar is R\textasciicircum{}(1) = η\textasciicircum{}\{μν\}R\textasciicircum{}(1)\_\{μν\} = ∂\_μ∂\_ν h\textasciicircum{}\{μν\} - □h. [Trace of 1.1.2]
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\item \textbf{Node 1.1.4:} 1.1.4: The quadratic invariant R\textasciicircum{}(1)\_\{μν\}R\textasciicircum{}\{(1)μν\} is formed by contracting (1/4)(2R\textasciicircum{}(1)\_\{μν\})(2R\textasciicircum{}\{(1)μν\}), yielding R\textasciicircum{}(1)\_\{μν\}R\textasciicircum{}\{(1)μν\}. The β-term is β(R\textasciicircum{}(1))². Their difference gives the stated integrand. QED.
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\end{enumerate}
+\item \textbf{Node 1.2:} Claim 2.1: In the gauge E=0, B=0, F\_i=0, the residual metric components identify with Bardeen variables: φ=Φ, S\_i=V\_i, ψ=ψ, h\textasciicircum{}\{TT\}\_\{ij\}=h\textasciicircum{}\{TT\}\_\{ij\}. Since I is built from linearised curvature (gauge-invariant at linear order), the result in Bardeen variables holds in any gauge. [Refs: SVT Decomposition (Bardeen 1980), Gauge Invariance of Linearised Curvature]
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\begin{enumerate}
+\item \textbf{Node 1.2.1:} 2.1.1: The SVT decomposition of the metric perturbation is h\_\{00\}=2φ, h\_\{0i\}=∂\_iB+S\_i, h\_\{ij\}=2ψδ\_\{ij\}+2∂\_i∂\_jE+∂\_iF\_j+∂\_jF\_i+h\textasciicircum{}\{TT\}\_\{ij\} with ∂\_iS\_i=0, ∂\_iF\_i=0, ∂\_ih\textasciicircum{}\{TT\}\_\{ij\}=0, h\textasciicircum{}\{TT\}\_\{ii\}=0. [Standard SVT decomposition, Ref: SVT Decomposition (Bardeen 1980)]
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\item \textbf{Node 1.2.2:} 2.1.2: Under x\textasciicircum{}μ→x\textasciicircum{}μ+ξ\textasciicircum{}μ with ξ\textasciicircum{}0=T, ξ\textasciicircum{}i=∂\textasciicircum{}iL+L\textasciicircum{}i\_T (∂\_iL\textasciicircum{}i\_T=0), the gauge transformation h\_\{μν\}→h\_\{μν\}+∂\_μξ\_ν+∂\_νξ\_μ (Wald convention, eq.4.4.9) gives: φ→φ-Ṫ, B→B+T-L̇, E→E-L, ψ→ψ, S\_i→S\_i-L̇\textasciicircum{}T\_i, F\_i→F\_i-L\textasciicircum{}T\_i. [Here ξ\_0=η\_\{00\}ξ\textasciicircum{}0=-T with (-,+,+,+), so ∂\_0ξ\_0=-Ṫ and h\_\{00\}→h\_\{00\}+2∂\_0ξ\_0=2φ-2Ṫ, giving φ→φ-Ṫ.]
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\item \textbf{Node 1.2.3:} 2.1.3: The Bardeen potentials Φ=φ+Ḃ-Ë and Ψ=ψ are gauge-invariant. Verification: Ḃ-Ë→Ḃ+Ṫ-L̈-Ë+L̈=Ḃ-Ë+Ṫ, so Φ→φ-Ṫ+Ḃ-Ë+Ṫ=Φ. Vector: V\_i=S\_i-Ḟ\_i→S\_i-L̇\textasciicircum{}T\_i-Ḟ\_i+L̇\textasciicircum{}T\_i=V\_i. ✓
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\item \textbf{Node 1.2.4:} 2.1.4: In the gauge E=B=F\_i=0: Φ=φ, V\_i=S\_i, Ψ=ψ, h\textasciicircum{}\{TT\}\_\{ij\}=h\textasciicircum{}\{TT\}\_\{ij\}. [Direct substitution into 2.1.3]
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\item \textbf{Node 1.2.5:} 2.1.5: The action I is constructed from R\textasciicircum{}(1)\_\{μν\} and R\textasciicircum{}(1)\}, both gauge-invariant at linear order (the linearised Riemann tensor is invariant under h\_\{μν\}→h\_\{μν\}+∂\_μξ\_ν+∂\_νξ\_μ). Therefore I expressed in Bardeen variables is gauge-independent. QED. [Ref: Gauge Invariance of Linearised Curvature]
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\end{enumerate}
+\item \textbf{Node 1.3:} Claim 3.1: In the scalar sector gauge (h\_\{00\}=2Φ, h\_\{0i\}=0, h\_\{ij\}=2ψδ\_\{ij\}): R\_\{00\} = -∇²Φ - 3ψ̈, R\_\{0i\}|\_S = -2∂\_iψ̇, R\_\{ij\}|\_S = ∂\_i∂\_j(Φ-ψ) - □ψ δ\_\{ij\}, R\textasciicircum{}(1) = 2∇²Φ - 4∇²ψ + 6ψ̈. [Computed from linearised\_ricci\_tensor definition]
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\begin{enumerate}
+\item \textbf{Node 1.3.1:} 3.1.1 (R\_\{00\}): Set h\_\{00\}=2Φ, h\_\{0i\}=0, h\_\{ij\}=2ψδ\_\{ij\}. Then h=-2Φ+6ψ. From 1.1.2: 2R\_\{00\}=2∂\_λ∂\_0h\textasciicircum{}λ\_0-∂\_0²h-□h\_\{00\}. With h\textasciicircum{}0\_0=-2Φ, h\textasciicircum{}i\_0=0: ∂\_λ∂\_0h\textasciicircum{}λ\_0=-2Φ̈. Also ∂\_0²h=-2Φ̈+6ψ̈, □h\_\{00\}=2□Φ. Assembling: 2R\_\{00\}=-4Φ̈-(-2Φ̈+6ψ̈)-2□Φ=-2Φ̈-6ψ̈-2□Φ. Since □Φ=-Φ̈+∇²Φ: 2R\_\{00\}=-2∇²Φ-6ψ̈. Hence R\_\{00\}=-∇²Φ-3ψ̈. ✓
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\item \textbf{Node 1.3.2:} 3.1.2 (R\_\{0i\}): 2R\_\{0i\}=∂\_λ∂\_0h\textasciicircum{}λ\_i+∂\_λ∂\_ih\textasciicircum{}λ\_0-∂\_0∂\_ih-□h\_\{0i\}. With h\textasciicircum{}j\_i=2ψδ\_\{ji\}, h\textasciicircum{}0\_i=0: ∂\_λ∂\_0h\textasciicircum{}λ\_i=2∂\_iψ̇. ∂\_λ∂\_ih\textasciicircum{}λ\_0=-2∂\_iΦ̇. ∂\_0∂\_ih=-2∂\_iΦ̇+6∂\_iψ̇, □h\_\{0i\}=0. Thus 2R\_\{0i\}=2∂\_iψ̇-2∂\_iΦ̇-(-2∂\_iΦ̇+6∂\_iψ̇)=-4∂\_iψ̇. Hence R\_\{0i\}=-2∂\_iψ̇. ✓
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\item \textbf{Node 1.3.3:} 3.1.3 (R\_\{ij\}): 2R\_\{ij\}=∂\_λ∂\_ih\textasciicircum{}λ\_j+∂\_λ∂\_jh\textasciicircum{}λ\_i-∂\_i∂\_jh-□h\_\{ij\}. ∂\_λ∂\_ih\textasciicircum{}λ\_j=∂\_k∂\_i(2ψδ\_\{kj\})=2∂\_i∂\_jψ, symmetrically for second term: total 4∂\_i∂\_jψ. ∂\_i∂\_jh=∂\_i∂\_j(-2Φ+6ψ), □h\_\{ij\}=2□ψδ\_\{ij\}. Combining: 2R\_\{ij\}=4∂\_i∂\_jψ+2∂\_i∂\_jΦ-6∂\_i∂\_jψ-2□ψδ\_\{ij\}=2∂\_i∂\_j(Φ-ψ)-2□ψδ\_\{ij\}. Hence R\_\{ij\}=∂\_i∂\_j(Φ-ψ)-□ψδ\_\{ij\}. ✓
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\item \textbf{Node 1.3.4:} 3.1.4 (R\textasciicircum{}(1)): Using R\textasciicircum{}(1)=∂\_μ∂\_νh\textasciicircum{}\{μν\}-□h. ∂\_μ∂\_νh\textasciicircum{}\{μν\}=∂\_0²h\textasciicircum{}\{00\}+∂\_i∂\_jh\textasciicircum{}\{ij\}=2Φ̈+2∇²ψ. □h=(-∂\_t²+∇²)(-2Φ+6ψ)=2Φ̈-6ψ̈-2∇²Φ+6∇²ψ. Therefore R\textasciicircum{}(1)=2Φ̈+2∇²ψ-2Φ̈+6ψ̈+2∇²Φ-6∇²ψ=2∇²Φ-4∇²ψ+6ψ̈. ✓ QED.
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\end{enumerate}
+\item \textbf{Node 1.4:} Claims 4.1-4.2: Vector sector (h\_\{0i\}=V\_i, ∂\_iV\_i=0): R\_\{00\}=0, R\_\{0i\}=-(1/2)∇²V\_i, R\_\{ij\}=-(1/2)(∂\_iV̇\_j+∂\_jV̇\_i), R=0. Tensor sector (h\_\{ij\}=h\textasciicircum{}\{TT\}\_\{ij\}): R\_\{ij\}=-(1/2)□h\textasciicircum{}\{TT\}\_\{ij\}, R\_\{00\}=R\_\{0i\}=R=0. [Computed from linearised\_ricci\_tensor with transversality and tracelessness]
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\begin{enumerate}
+\item \textbf{Node 1.4.1:} 4.1.1 (Vector R\_\{00\}): Set h\_\{00\}=0, h\_\{0i\}=V\_i, h\_\{ij\}=0, h=0. 2R\_\{00\}=2∂\_λ∂\_0h\textasciicircum{}λ\_0-□h\_\{00\}. h\textasciicircum{}0\_0=0, h\textasciicircum{}i\_0=V\_i. ∂\_λ∂\_0h\textasciicircum{}λ\_0=∂\_i∂\_0V\_i=∂\_0(∂\_iV\_i)=0 (transversality). □h\_\{00\}=0. Hence R\_\{00\}=0. ✓
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\item \textbf{Node 1.4.2:} 4.1.2 (Vector R\_\{0i\}): 2R\_\{0i\}=∂\_λ∂\_0h\textasciicircum{}λ\_i+∂\_λ∂\_ih\textasciicircum{}λ\_0-□h\_\{0i\}. h\textasciicircum{}0\_i=-V\_i, h\textasciicircum{}j\_i=0. First term: ∂\_0²(-V\_i)=-V̈\_i. Second: ∂\_j∂\_iV\_j=0 (transversality). 2R\_\{0i\}=-V̈\_i-□V\_i=-V̈\_i+V̈\_i-∇²V\_i=-∇²V\_i. Hence R\_\{0i\}=-(1/2)∇²V\_i. ✓
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\item \textbf{Node 1.4.3:} 4.1.3 (Vector R\_\{ij\}): 2R\_\{ij\}=∂\_λ∂\_ih\textasciicircum{}λ\_j+∂\_λ∂\_jh\textasciicircum{}λ\_i-∂\_i∂\_jh-□h\_\{ij\}. h\textasciicircum{}0\_j=-V\_j, h\textasciicircum{}k\_j=0. ∂\_λ∂\_ih\textasciicircum{}λ\_j=-∂\_iV̇\_j, similarly -∂\_jV̇\_i. Last two vanish. Hence R\_\{ij\}=-(1/2)(∂\_iV̇\_j+∂\_jV̇\_i). ✓
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\item \textbf{Node 1.4.4:} 4.1.4 (Vector R): R=∂\_μ∂\_νh\textasciicircum{}\{μν\}-□h. h\textasciicircum{}\{00\}=0, h\textasciicircum{}\{0i\}=-V\_i, h\textasciicircum{}\{ij\}=0. ∂\_μ∂\_νh\textasciicircum{}\{μν\}=-2∂\_i∂\_0V\_i=0 (transversality). □h=0. Hence R=0. ✓
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\item \textbf{Node 1.4.5:} 4.2.1-4.2.4 (Tensor sector): Set h\_\{ij\}=h\textasciicircum{}\{TT\}\_\{ij\}, h\_\{00\}=h\_\{0i\}=0. R\_\{00\}: h\textasciicircum{}0\_0=h\textasciicircum{}i\_0=0, both terms vanish. R\_\{0i\}: ∂\_j∂\_0h\textasciicircum{}\{TT\}\_\{ji\}=∂\_0(∂\_jh\textasciicircum{}\{TT\}\_\{ji\})=0 by transversality. R\_\{ij\}: 2R\_\{ij\}=∂\_k∂\_ih\textasciicircum{}\{TT\}\_\{kj\}+∂\_k∂\_jh\textasciicircum{}\{TT\}\_\{ki\}-∂\_i∂\_jh\textasciicircum{}\{TT\}\_\{kk\}-□h\textasciicircum{}\{TT\}\_\{ij\}. First two: transversality→0. Third: tracelessness→0. Hence R\_\{ij\}=-(1/2)□h\textasciicircum{}\{TT\}\_\{ij\}. R: ∂\_i∂\_jh\textasciicircum{}\{TT\}\_\{ij\}=0 (transversality²), □(h\textasciicircum{}\{TT\}\_\{ii\})=0 (tracelessness). ✓ QED.
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\end{enumerate}
+\item \textbf{Node 1.5:} Theorem 5.1: The action splits as I = I\_\{TT\} + I\_V + I\_S with no cross-terms: I\_\{TT\} = (1/4)∫(□h\textasciicircum{}\{TT\}\_\{ij\})², I\_V = -(1/2)∫V\_i∇²□V\_i, I\_S = ∫(Φ*,ψ*)M(Φ,ψ)d⁴k/(2π)⁴ with M the 2×2 matrix. No cross-terms by Schur orthogonality for SO(3) irreps (spin-0, spin-1, spin-2). [Refs: Schur Orthogonality for SO(3) Irreps. Depends: 1.3, 1.4]
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\begin{enumerate}
+\item \textbf{Node 1.5.1:} 5.1.1 (No cross-terms): The scalar, vector, and tensor sectors transform as spin-0, spin-1, spin-2 under SO(3). Any quadratic form Q[h]=∫h\_\{μν\}O\textasciicircum{}\{μνρσ\}h\_\{ρσ\} with O rotation-covariant decomposes with no cross-terms by Schur orthogonality. [Ref: Schur Orthogonality for SO(3) Irreps]
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\item \textbf{Node 1.5.2:} 5.1.2 (Tensor sector): R\_\{μν\}R\textasciicircum{}\{μν\}|\_\{TT\}=R\_\{ij\}R\_\{ij\}|\_\{TT\} (since R\_\{00\}, R\_\{0i\} vanish by 4.2). By Claim 4.2: =(1/4)(□h\textasciicircum{}\{TT\}\_\{ij\})². The β-term vanishes since R|\_\{TT\}=0. Hence I\_\{TT\}=(1/4)∫(□h\textasciicircum{}\{TT\}\_\{ij\})². ✓
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\item \textbf{Node 1.5.3:} 5.1.3 (Vector sector): R\_\{μν\}R\textasciicircum{}\{μν\}=(R\_\{00\})²-2R\_\{0i\}R\_\{0i\}+R\_\{ij\}R\_\{ij\} with signature (-,+,+,+). R\_\{00\}²=0; R\_\{0i\}R\_\{0i\}=(1/4)(∇²V\_i)²; ∫R\_\{ij\}R\_\{ij\}=(1/2)∫(∂\_iV̇\_j)² (cross-term vanishes by transversality). After IBP: ∫R\_\{μν\}R\textasciicircum{}\{μν\}|\_V=-(1/2)∫V\_i∇²□V\_i. β-term vanishes since R|\_V=0. ✓
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\item \textbf{Node 1.5.4:} 5.1.4 (Scalar sector): Substitute curvature components from Claim 3.1 into R\_\{μν\}R\textasciicircum{}\{μν\}-βR². Pass to Fourier: ∇²→-k², □→-p². Collect all terms in |Φ|², Re(Φ*ψ), |ψ|² to obtain the matrix M. [Verified by SymPy test\_scalar\_action.py] ✓ QED.
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\end{enumerate}
+\item \textbf{Node 1.6:} Lemma 6.1 + Theorem 6.3: det(M) = 8(1-3β)k⁴p⁴. For β≠1/3, the scalar propagators are G = (1/2)M⁻¹ giving ⟨ΦΦ⟩ = 3/(4k⁴) + 1/(2k²p²) + (1-2β)/(8(1-3β)p⁴), ⟨ψψ⟩ = (1-2β)/(8(1-3β)p⁴), ⟨Φψ⟩ = -1/(4k²p²) - (1-2β)/(8(1-3β)p⁴). [Algebraic computation, verified by SymPy. Depends: 1.5]
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\begin{enumerate}
+\item \textbf{Node 1.6.1:} 6.1.1-6.1.3: Write M\_\{11\}=2(1-2β)k⁴, M\_\{12\}=4(1-3β)k²p²+2(1-2β)k⁴, M\_\{22\}=12(1-3β)p⁴+8(1-3β)k²p²+2(1-2β)k⁴. Expand M\_\{11\}M\_\{22\} and M\_\{12\}². [Algebraic computation]
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\item \textbf{Node 1.6.2:} 6.1.4-6.1.5: Subtracting M\_\{11\}M\_\{22\}-M\_\{12\}²: k⁸ terms cancel; k⁶p² terms cancel (both 16(1-2β)(1-3β)); k⁴p⁴ terms give [24(1-2β)(1-3β)-16(1-3β)²]k⁴p⁴ = 8(1-3β)[3(1-2β)-2(1-3β)]k⁴p⁴ = 8(1-3β)·1·k⁴p⁴. Hence det(M)=8(1-3β)k⁴p⁴. [Verified by SymPy test\_determinant.py] ✓
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\item \textbf{Node 1.6.3:} 6.3.1 (Normalization): Action I\_S=∫Φ*\_a M\_\{ab\} Φ\_b over all k. For real fields Φ\_a(-k)=Φ*\_a(k), so canonical form is (1/2)∫Φ(-k)A(k)Φ(k) with A=2M. Propagator G=A⁻¹=(1/2)M⁻¹. Consistency: tensor gives G=2/p⁴ ✓, vector gives G=1/(k²p²) ✓.
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\item \textbf{Node 1.6.4:} 6.3.4-6.3.7: (1/2)M⁻¹ = (1/(2detM))[[M\_\{22\},-M\_\{12\}],[-M\_\{12\},M\_\{11\}]]. ⟨ψψ⟩=M\_\{11\}/(2detM)=(1-2β)/(8(1-3β)p⁴). ⟨Φψ⟩=-M\_\{12\}/(2detM)=-1/(4k²p²)-(1-2β)/(8(1-3β)p⁴). ⟨ΦΦ⟩=M\_\{22\}/(2detM)=3/(4k⁴)+1/(2k²p²)+(1-2β)/(8(1-3β)p⁴). [Verified by SymPy test\_matrix\_inverse.py] ✓ QED.
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\end{enumerate}
+\item \textbf{Node 1.7:} Theorems 6.4-6.5 + Remarks 7.1-7.2: Vector propagator ⟨V\_iV\_j⟩ = P\textasciicircum{}T\_\{ij\}/(k²p²). Tensor propagator ⟨h\textasciicircum{}\{TT\}\_\{ij\}h\textasciicircum{}\{TT\}\_\{kl\}⟩ = 2Π\textasciicircum{}\{TT\}\_\{ijkl\}/p⁴. The 1/p⁴ poles are the hallmark of fourth-derivative gravity (massless graviton + Weyl ghost). At β=1/3, det(M)=0 (conformal gravity). At β=1/2, the scalar sector reduces to one constrained DOF. [Depends: 1.5, 1.6]
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\begin{enumerate}
+\item \textbf{Node 1.7.1:} 6.4.1-6.4.2 (Vector propagator): In Fourier, I\_V=(1/2)∫k²p²V*\_i V\_i restricted to transverse modes (k\_iV\_i=0). The operator A=k²p². The inverse on the transverse subspace: A⁻¹P\textasciicircum{}T\_\{ij\}=P\textasciicircum{}T\_\{ij\}/(k²p²). Hence ⟨V\_iV\_j⟩=P\textasciicircum{}T\_\{ij\}/(k²p²). ✓
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\item \textbf{Node 1.7.2:} 6.5.1-6.5.2 (Tensor propagator): In Fourier, I\_\{TT\}=(1/4)∫p⁴h\textasciicircum{}\{TT*\}\_\{ij\}h\textasciicircum{}\{TT\}\_\{ij\}. Identifying A/2=p⁴/4 gives A=p⁴/2, so G=2/p⁴. The TT projector Π\textasciicircum{}\{TT\}\_\{ijkl\} is the identity on TT symmetric tensors. Hence ⟨h\textasciicircum{}\{TT\}\_\{ij\}h\textasciicircum{}\{TT\}\_\{kl\}⟩=2Π\textasciicircum{}\{TT\}\_\{ijkl\}/p⁴. ✓
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\item \textbf{Node 1.7.3:} Remark 7.1: The 1/p⁴ poles correspond to a double pole at p²=0, splitting into a massless graviton and a massless Weyl ghost in the Hamiltonian decomposition. The 1/k⁴ piece in ⟨ΦΦ⟩ is instantaneous (no ω-dependence) — the fourth-derivative analogue of the Newtonian potential constraint.
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\item \textbf{Node 1.7.4:} Remark 7.2: At β=1/2: (1-2β)=0, so ⟨ψψ⟩=0, p⁻⁴ pieces in ⟨ΦΦ⟩ and ⟨Φψ⟩ vanish. ⟨Φψ⟩=-1/(4k²p²), ⟨ΦΦ⟩=3/(4k⁴)+1/(2k²p²). At β=1/3: det(M)=0, the conformal gravity point where the Weyl tensor squared action has conformal symmetry removing one scalar DOF. [Ref: Gauss-Bonnet at Linear Order. Verified by SymPy test\_special\_cases.py] ✓ QED.
+
+  Type: claim, Inference: assumption, Status: validated, Taint: clean
+
+\end{enumerate}
+\end{enumerate}
+
