@@ -4,5 +4,5 @@
   "source": "Wald, R.M. (1984). General Relativity. University of Chicago Press, §4.4. The linearised Riemann tensor R^(1)_{μνρσ} = (1/2)(∂_ν∂_ρ h_{μσ} + ∂_μ∂_σ h_{νρ} - ∂_μ∂_ρ h_{νσ} - ∂_ν∂_σ h_{μρ}). Local: ../generalrelativity/Literature/Robert M. Wald-General Relativity-University of Chicago Press (1984).djvu",
   "content_hash": "7229448f6c5f641aae4eefdd3985c2f7dff203c0e4b40157ef51e4e2c27d86d4",
   "created": "2026-03-05T18:34:02.618111921Z",
-  "notes": "Source is .djvu format (text extraction requires djvulibre-bin, not currently installed). Ground truth: §4.4 'Linearized gravity' contains the standard linearized Riemann tensor formula R^(1)_{abcd} = (1/2)(∂_b∂_c h_{ad} + ∂_a∂_d h_{bc} - ∂_a∂_c h_{bd} - ∂_b∂_d h_{ac}). Cross-verified against Zee (2013) §IX.4 eq.(1) which gives the contracted (Ricci) version."
+  "notes": "Ground truth string match (OCR from p.74, eq.(4.4.4)): 'R_ab = ∂^c ∂_a γ_cb − (1/2) ∂^c ∂_c γ_ab − (1/2) ∂_a ∂_b γ' (linearised Ricci tensor). Christoffel symbol eq.(4.4.3): 'Γ^c_ab = (1/2) η^cd (∂_a γ_db + ∂_b γ_da − ∂_d γ_ab)'. Gauge freedom eq.(4.4.9): 'γ_ab → γ_ab + ∂_a ξ_b + ∂_b ξ_a'. Source: djvu OCR via tesseract, pages 82-83 of Robert M. Wald-General Relativity-University of Chicago Press (1984).djvu"
 }
