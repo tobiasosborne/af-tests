@@ -1,0 +1,1 @@
+{"type":"node_validated","timestamp":"2026-03-05T19:09:22.228680897Z","node_id":"1.7.1","note":"Verified: vector propagator derivation. The action I_V = (1/2)int k^2 p^2 |V_i|^2 follows from Theorem 5.1. The operator A = k^2 p^2 is scalar on the transverse subspace, so A^{-1} P^T_{ij} = P^T_{ij}/(k^2 p^2). Confirmed by test_vector_action.py."}

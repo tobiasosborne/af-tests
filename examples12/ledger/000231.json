@@ -1,0 +1,1 @@
+{"type":"evidence_attached","timestamp":"2026-03-05T19:15:43.110955946Z","node_id":"1.5.4","file_path":"tests/test_scalar_action.py","content_hash":"2d8decb038212a76a790dee28926428f0eb93b7cfdd6c376c465a8811141344b","evidence_type":"verification","description":"SymPy verification of scalar sector matrix M derivation","attached_by":"prover-1"}

@@ -1,0 +1,1 @@
+{"type":"node_validated","timestamp":"2026-03-05T19:09:24.447292265Z","node_id":"1.7.2","note":"Verified: tensor propagator derivation. I_{TT} = (1/4)int p^4 |h^TT|^2. Identifying A/2 = p^4/4 gives A = p^4/2, G = 2/p^4. The TT projector restricts to the physical subspace. Confirmed by test_tensor_action.py."}

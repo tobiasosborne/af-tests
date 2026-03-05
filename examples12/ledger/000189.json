@@ -1,0 +1,1 @@
+{"type":"node_validated","timestamp":"2026-03-05T19:09:28.53120977Z","node_id":"1.7.4","note":"Verified: special cases. At beta=1/2: (1-2beta)=0, all claims about vanishing p^{-4} pieces follow. At beta=1/3: det(M)=0 confirmed. Both cases verified computationally by test_special_cases.py."}
