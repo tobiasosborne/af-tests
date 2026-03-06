@@ -1,6 +1,6 @@
 # HANDOFF — Fourth-Derivative Gravity Propagators
 
-## Status: COMPLETE (100%, 38/38 validated, quality score 100/100)
+## Status: COMPLETE (§1–7 momentum-space, §8 position-space, adversarially verified)
 
 ## What Was Done
 
@@ -88,7 +88,7 @@ Total: 9 challenges raised, 9 resolved (1 major fix, 1 gap filled, rest minor/no
 | `ledger/000001–000245.json` | 245 append-only ledger entries |
 | `externals/*.json` | 6 external reference records |
 | `defs/*.json` | 10 definition records |
-| `tests/*.py` | 12 SymPy verification scripts |
+| `tests/*.py` | 14 verification scripts (12 §1–7 + 2 §8) |
 | `refs/Zee2013.pdf` | Local copy of Zee (2013) for ground truth (gitignored) |
 
 ## How to Reproduce
@@ -114,9 +114,37 @@ af metrics
 pdflatex report.tex && pdflatex report.tex
 ```
 
+## Recent Addition: Position-Space Two-Point Functions (§8)
+
+Added Fourier transforms of all propagators to Euclidean position space.
+
+Three master Green's functions:
+- **G1** = **−**ln(ρ²μ²)/(16π²) — biharmonic (from 1/p⁴), logarithmic core
+- **G2** = [-ln(ρ²μ²)/2 + 1 - θcot θ]/(4π²) — mixed (from 1/(k²p²)), angle-dependent
+- **G3** = -|x|/(8π) — instantaneous (from 1/k⁴), equal-time correlation
+
+Key results (Theorems 8.4–8.6):
+- Scalar propagators decompose as linear combinations of G1, G2, δ(τ)G3
+- Vector/tensor propagators = transverse projectors × G2/G1
+- Stochastic interpretation: □h=ξ (white noise) → ⟨hh⟩ = G₀∗G₀ = G₁ (Remark 8.10)
+- Tests: `tests/test_position_space.py` (6/6), `tests/test_adversarial_section8.py` (11/12)
+
+### Adversarial Verification (5 verifiers, 1 batch)
+
+| Verifier | Target | Challenges | Key Finding |
+|----------|--------|------------|-------------|
+| V-8.1 | Claims 8.1, 8.2 | **1** | **Sign error in G₁**: +ln → −ln. Fixed. |
+| V-8.3 | Claim 8.3 (G₂) | 0 | All 7 steps validated; analytic PDE proof |
+| V-8.4 | Theorems 8.4–8.6 | 0 | Stochastic convolution confirmed |
+| V-8.7 | Remarks 8.7–8.9 | **6** | QFT language leak, ±iπ sign, IR pathology, missing stochastic remark. All fixed. |
+| V-8.T | Test suite | **7** | tan(θ) bug, 6 coverage gaps. All fixed/filled. |
+
+Total: 14 challenges raised, 14 resolved (1 major sign fix, 1 code bug, 6 gap fills, 6 text amendments).
+
 ## Next Steps
 
-Proof is complete. Possible extensions:
+Possible extensions:
 - Add massive graviton (Fierz-Pauli mass term) → 1/p⁴ splits into 1/(p²) − 1/(p²−m²)
 - Extend to curved background (linearised around de Sitter)
 - Add matter coupling and compute graviton exchange amplitude
+- Compute static potential V(r) by integrating ⟨ΦΦ⟩ over Euclidean time

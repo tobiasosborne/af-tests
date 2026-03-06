@@ -227,9 +227,141 @@ $$\boxed{\langle h^{TT}_{ij}(k)\,h^{TT}_{kl}(-k)\rangle = \frac{2\,\Pi^{TT}_{ijk
 
 ---
 
+## 8. Position-space two-point functions
+
+The momentum-space propagators of §6 depend on three building blocks: $1/p^4$, $1/(k^2 p^2)$, and $1/k^4$, where $p^2 = \omega^2 - \mathbf{k}^2$ (Lorentzian) and $k^2 = |\mathbf{k}|^2$. We Fourier-transform each to Euclidean position space ($p_E^2 = \omega_E^2 + k^2$, $x_E^2 = \tau^2 + |\mathbf{x}|^2$). Throughout, $\rho = |x_E| = \sqrt{\tau^2 + r^2}$ and $\theta = \arctan(r/|\tau|) \in [0,\pi/2]$ is the polar angle from the $\tau$-axis.
+
+---
+
+**Definition 8.0.** The master Green's functions are:
+
+$$\mathcal{G}_1(x) = \int \frac{d^4 p_E}{(2\pi)^4}\,\frac{e^{ip\cdot x}}{(p_E^2)^2}, \qquad \mathcal{G}_2(\tau,\mathbf{x}) = \int \frac{d^4 p_E}{(2\pi)^4}\,\frac{e^{ip\cdot x}}{k^2\,p_E^2}, \qquad \mathcal{G}_3(\mathbf{x}) = \int \frac{d^3 k}{(2\pi)^3}\,\frac{e^{i\mathbf{k}\cdot\mathbf{x}}}{k^4}$$
+
+They satisfy $\Box_E^2\,\mathcal{G}_1 = \delta^4(x)$, $\;\nabla^2\Box_E\,\mathcal{G}_2 = \delta^4(x)$, $\;\nabla^4_3\,\mathcal{G}_3 = \delta^3(\mathbf{x})$.
+
+---
+
+**Claim 8.1 (Biharmonic Green's function).**
+
+$$\boxed{\mathcal{G}_1(x) = -\frac{\ln(\rho^2\mu^2)}{16\pi^2}}$$
+
+*where $\mu$ is an IR renormalization scale.*
+
+*Proof.* In 4D Euclidean space, $\Box_E = \partial_\mu\partial_\mu$ acts on $1/\rho^2$ as $\Box_E[1/\rho^2] = -4\pi^2\delta^4(x)$ (by Gauss's theorem: $\oint_{S^3_R}\partial_\rho[1/\rho^2]\,dS = (-2/R^3)(2\pi^2 R^3) = -4\pi^2$). Hence $G_0 = -1/(4\pi^2\rho^2)$ satisfies $\Box_E G_0 = \delta^4(x)$.
+
+Using $\Box_E[\ln\rho^2] = (2d-4)/\rho^2 = 4/\rho^2$ in $d=4$:
+
+$$\Box_E\,\mathcal{G}_1 = -\frac{4}{16\pi^2\rho^2} = -\frac{1}{4\pi^2\rho^2} = G_0$$
+
+Hence $\Box_E^2\,\mathcal{G}_1 = \Box_E G_0 = \delta^4(x)$. The additive constant (carrying $\mu$) parameterises the zero mode of $\Box_E^2$. $\square$
+
+---
+
+**Claim 8.2 (Instantaneous biharmonic potential).**
+
+$$\boxed{\mathcal{G}_3(\mathbf{x}) = -\frac{|\mathbf{x}|}{8\pi}}$$
+
+*The $1/k^4$ terms carry no frequency dependence, so they contribute $\delta(\tau)\,\mathcal{G}_3(|\mathbf{x}|)$ to position-space propagators.*
+
+*Proof.* Standard formula: $\int d^dk/(2\pi)^d\,e^{i\mathbf{k}\cdot\mathbf{x}}\,(k^2)^{-\alpha} = \Gamma(d/2-\alpha)\,|\mathbf{x}|^{2\alpha-d}/(4^\alpha\pi^{d/2}\,\Gamma(\alpha))$. With $d=3$, $\alpha=2$: the coefficient is $\Gamma(-1/2)/(16\pi^{3/2}) = -2\sqrt{\pi}/(16\pi^{3/2}) = -1/(8\pi)$, and the power is $|\mathbf{x}|^1$.
+
+> Verification: $\nabla^2_3[r] = 2/r$ and $\nabla^2_3[-1/(4\pi r)] = \delta^3(\mathbf{x})$, so $\nabla^4_3[-r/(8\pi)] = \nabla^2_3[-1/(4\pi r)] = \delta^3(\mathbf{x})$. $\checkmark$ $\square$
+
+---
+
+**Claim 8.3 (Mixed Green's function).**
+
+$$\boxed{\mathcal{G}_2(\tau,\mathbf{x}) = \frac{1}{4\pi^2}\Big[-\tfrac{1}{2}\ln(\rho^2\mu^2) + 1 - \theta\cot\theta\Big]}$$
+
+*where $\theta = \arctan(|\mathbf{x}|/|\tau|)$. Equivalently, $\theta\cot\theta = (|\tau|/|\mathbf{x}|)\arctan(|\mathbf{x}|/|\tau|)$.*
+
+*Proof.*
+
+> **8.3.1.** Perform the $\omega_E$ integral first: $\int d\omega_E/(2\pi)\,e^{i\omega_E\tau}/(\omega_E^2+k^2) = e^{-k|\tau|}/(2k)$, giving
+> $$\mathcal{G}_2 = \int\frac{d^3k}{(2\pi)^3}\,\frac{e^{i\mathbf{k}\cdot\mathbf{x}}\,e^{-k|\tau|}}{2k^3}$$
+>
+> **8.3.2.** Angular average in 3D: $\int d\Omega_k/(4\pi)\,e^{i\mathbf{k}\cdot\mathbf{x}} = \sin(kr)/(kr)$. So
+> $$\mathcal{G}_2 = \frac{1}{4\pi^2 r}\int_0^\infty dk\,\frac{\sin(kr)\,e^{-k|\tau|}}{k^2}$$
+>
+> **8.3.3.** Define $I(r,\tau) = \int_0^\infty \sin(kr)\,e^{-k\tau}\,k^{-2}\,dk$ for $\tau > 0$. Using $d I/dr = \int_0^\infty \cos(kr)\,e^{-k\tau}\,k^{-1}\,dk$ and evaluating via $\partial/\partial\tau$ (yields $-\tau/(r^2+\tau^2)$, integrate from $\tau$ to $\Lambda \to \infty$):
+> $$\frac{dI}{dr} = -\frac{1}{2}\ln(\tau^2+r^2) + C_{\text{IR}}$$
+>
+> **8.3.4.** Integrate in $r$ from 0 (where $I(0,\tau)=0$):
+> $$I(r,\tau) = -\frac{r}{2}\ln(\tau^2+r^2) + r - \tau\arctan\frac{r}{\tau} + C_{\text{IR}}\,r$$
+> using $\int_0^r \ln(\tau^2+r'^2)\,dr' = r\ln(\tau^2+r^2) - 2r + 2\tau\arctan(r/\tau)$.
+>
+> **8.3.5.** Substituting and absorbing $C_{\text{IR}}$ into $\ln\mu^2$, then writing $\theta = \arctan(r/|\tau|)$:
+> $$\mathcal{G}_2 = \frac{I}{4\pi^2 r} = \frac{1}{4\pi^2}\Big[-\frac{1}{2}\ln(\rho^2\mu^2) + 1 - \theta\cot\theta\Big]$$
+> where $\theta\cot\theta$ is smooth on $[0,\pi/2]$ with $\theta\cot\theta\big|_{\theta=0}=1$ (pure temporal) and $\theta\cot\theta\big|_{\theta=\pi/2}=0$ (pure spatial). $\checkmark$ $\square$
+
+---
+
+### **Theorem 8.4 (Scalar two-point functions in position space).**
+
+*For $\beta \neq 1/3$, in Euclidean signature:*
+
+$$\boxed{\langle\Phi(x)\,\Phi(0)\rangle_E = \frac{3}{4}\,\delta(\tau)\,\mathcal{G}_3(r) \;+\; \frac{1}{2}\,\mathcal{G}_2(\tau,r) \;+\; \frac{1-2\beta}{8(1-3\beta)}\,\mathcal{G}_1(\rho)}$$
+
+$$\boxed{\langle\psi(x)\,\psi(0)\rangle_E = \frac{1-2\beta}{8(1-3\beta)}\,\mathcal{G}_1(\rho)}$$
+
+$$\boxed{\langle\Phi(x)\,\psi(0)\rangle_E = -\frac{1}{4}\,\mathcal{G}_2(\tau,r) \;-\; \frac{1-2\beta}{8(1-3\beta)}\,\mathcal{G}_1(\rho)}$$
+
+*Proof.* Each momentum-space propagator (Theorem 6.3) is a linear combination of $1/k^4$, $1/(k^2p^2)$, $1/p^4$. The first carries no $\omega$-dependence, giving $\delta(\tau)\,\mathcal{G}_3$; the remaining two Fourier-transform to $\mathcal{G}_2$ and $\mathcal{G}_1$ respectively. The coefficients match term-by-term with Theorem 6.3. $\square$
+
+---
+
+### **Theorem 8.5 (Vector two-point function in position space).**
+
+$$\boxed{\langle V_i(x)\,V_j(0)\rangle_E = P^T_{ij}(\nabla)\;\mathcal{G}_2(\tau,r)}$$
+
+*where $P^T_{ij}(\nabla) = \delta_{ij} + \partial_i\partial_j(-\nabla^2)^{-1}$ is the transverse projector as a nonlocal differential operator.*
+
+*Proof.* From Theorem 6.4: $\langle V_iV_j\rangle = P^T_{ij}/(k^2p^2)$. The scalar factor $1/(k^2p^2)$ Fourier-transforms to $\mathcal{G}_2$; the projector $P^T_{ij}(\mathbf{k}) = \delta_{ij}-k_ik_j/k^2$ becomes $P^T_{ij}(\nabla)$ in position space. $\square$
+
+---
+
+### **Theorem 8.6 (Tensor two-point function in position space).**
+
+$$\boxed{\langle h^{TT}_{ij}(x)\,h^{TT}_{kl}(0)\rangle_E = 2\,\Pi^{TT}_{ijkl}(\nabla)\;\mathcal{G}_1(\rho)}$$
+
+*where $\Pi^{TT}_{ijkl}(\nabla) = \frac{1}{2}(P^T_{ik}P^T_{jl}+P^T_{il}P^T_{jk}-P^T_{ij}P^T_{kl})$ with each $P^T$ promoted to the differential operator of Theorem 8.5.*
+
+*Proof.* From Theorem 6.5: $\langle h^{TT}_{ij}h^{TT}_{kl}\rangle = 2\Pi^{TT}_{ijkl}/p^4$. The scalar factor $1/p^4$ Fourier-transforms to $\mathcal{G}_1$; the TT projector becomes $\Pi^{TT}_{ijkl}(\nabla)$. $\square$
+
+---
+
+**Remark 8.7 (Physical structure).** The position-space propagators reveal three regimes:
+
+1. **Logarithmic core** ($\mathcal{G}_1 \sim \ln\rho$): The $1/p^4$ spectral factors produce logarithmic two-point functions, the hallmark of fourth-derivative theories. In contrast, second-derivative gravity gives $1/p^2 \to 1/\rho^2$ (power-law). The coincident-point singularity softens from $\rho^{-2}$ (power-law) to $\ln\rho$ (logarithmic), reflecting improved short-distance regularity.
+
+2. **Instantaneous constraint** ($\mathcal{G}_3 \sim r\,\delta(\tau)$): The $1/k^4$ piece in $\langle\Phi\Phi\rangle$ has no time dependence — it is a constraint, not a propagating degree of freedom. This is the fourth-derivative analogue of the Newtonian constraint ($\nabla^2\Phi = 4\pi G\rho$ gives $1/k^2 \to 1/(4\pi r)$), here replaced by $\nabla^4\Phi \sim$ source giving $1/k^4 \to -r/(8\pi)$. The linear growth of the equal-time correlation $\langle\Phi(\mathbf{x})\Phi(0)\rangle_{\tau=0} \supset -(3/32\pi)\,r$ signals that an IR regulator is needed for the theory to have a well-defined thermodynamic limit.
+
+3. **Angular anisotropy** ($\mathcal{G}_2 \sim \theta\cot\theta$): The mixed $1/(k^2p^2)$ propagator breaks the $O(4)_E$ symmetry of Euclidean space down to $SO(3) \times \mathbb{Z}_2$ (spatial rotations $\times$ time reversal), as required by the SVT decomposition. The angular function $\theta\cot\theta$ interpolates smoothly between the temporal axis ($\theta=0$, where $\mathcal{G}_2$ is purely logarithmic) and the spatial plane ($\theta=\pi/2$, where an additive constant appears).
+
+**Remark 8.8 (Special cases).**
+
+- *$\beta = 1/2$:* The coefficient $(1-2\beta)/[8(1-3\beta)]$ vanishes. All $\mathcal{G}_1$ terms drop out: $\langle\psi\psi\rangle = 0$ (the field $\psi$ is non-fluctuating) and $\langle\Phi\Phi\rangle$ loses the isotropic $\mathcal{G}_1$ logarithm, retaining only $\delta(\tau)\mathcal{G}_3$ and $\mathcal{G}_2$. Note that $\mathcal{G}_2$ itself contains an anisotropic $-\frac{1}{2}\ln(\rho^2\mu^2)$ term, so logarithmic correlations persist in $\langle\Phi\Phi\rangle$ with angular dependence via $\theta\cot\theta$.
+
+- *$\beta = 1/3$:* Conformal gravity point. The scalar matrix $M$ is singular (Remark 6.2), and the partial-fraction decomposition of Theorem 6.3 is invalid. The scalar sector must be re-analysed after quotienting by the linearised conformal gauge symmetry $h_{\mu\nu} \to h_{\mu\nu} + 2\sigma\eta_{\mu\nu}$.
+
+**Remark 8.9 (Lorentzian signature).** The Lorentzian propagators follow by Wick rotation $\tau \to it$, with the replacement $\rho^2 \to -(t^2 - r^2) + i\epsilon$ (Feynman $i\epsilon$ prescription). The logarithmic pieces become $\ln[-(t^2-r^2-i\epsilon)\mu^2]$. For timelike separation ($t^2 > r^2$), the argument is negative, giving $\ln[(t^2-r^2)\mu^2] + i\pi$; for spacelike separation the logarithm is real. The sign of the imaginary part is fixed by the Feynman $i\epsilon$.
+
+**Remark 8.10 (Classical stochastic interpretation).** The results admit a natural interpretation as correlation functions of a classical Gaussian field theory with Gibbs measure $d\mu \propto e^{-I[h]}\mathcal{D}h$. In the tensor sector, the equation of motion $\Box_E^2 h^{TT}_{ij} = 0$ can be factored as two Klein--Gordon steps. With a white-noise source $\xi_{ij}$ (representing thermal or stochastic fluctuations):
+
+$$\Box_E\, h^{TT}_{ij} = \xi_{ij}, \qquad \langle\xi_{ij}(x)\,\xi_{kl}(y)\rangle = \Pi^{TT}_{ijkl}\,\delta^4(x-y)$$
+
+the solution $h^{TT} = G_0 * \xi$ (where $G_0 = -1/(4\pi^2\rho^2)$ is the massless Green's function) gives the autocorrelation
+
+$$\langle h^{TT}_{ij}(x)\,h^{TT}_{kl}(0)\rangle = \int d^4y\;G_0(x-y)\,G_0(y)\;\Pi^{TT}_{ijkl} = (G_0 * G_0)(x)\;\Pi^{TT}_{ijkl}$$
+
+Since $\Box_E(G_0 * G_0) = (\Box_E G_0)*G_0 = \delta * G_0 = G_0$ and $\Box_E^2(G_0*G_0) = \delta$, the convolution equals $\mathcal{G}_1$, recovering Theorem 8.6 (with the factor of 2 from the action normalisation). In this picture, $1/p^4$ is the squared response $|1/p^2|^2$ of a second-order system to white noise -- there are no ghosts or negative-norm states. The logarithmic growth of $\mathcal{G}_1$ at large $\rho$ reflects the long-range correlations of a log-correlated Gaussian field, analogous to the 2D Gaussian Free Field.
+
+---
+
 ## Summary of corrections
 
 | Location | Original | Corrected | Impact |
 |---|---|---|---|
 | Claim 2.1 | $\Phi = \phi + \ddot{E} - \dot{B}$ | $\Phi = \phi + \dot{B} - \ddot{E}$ | Harmless (gauge $E=B=0$) |
 | Theorem 6.3 | $\langle\cdot\rangle = M^{-1}$ | $\langle\cdot\rangle = \frac{1}{2}M^{-1}$ | Factor of 2 in all scalar propagators |
+| Claim 8.1 | $\mathcal{G}_1 = +\ln(\rho^2\mu^2)/(16\pi^2)$ | $\mathcal{G}_1 = -\ln(\rho^2\mu^2)/(16\pi^2)$ | Sign of biharmonic Green's function; propagated to Thms 8.4--8.6 |
