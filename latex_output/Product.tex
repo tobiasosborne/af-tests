@@ -1,0 +1,73 @@
+\section{Product}
+
+\subsection{Left Multiplication Operator}
+
+\begin{definition}[L]
+The \textbf{left multiplication operator} by $a \in J$ is the $\R$-linear map $\Lop{a} : J \to J$ defined by:
+\[ \Lop{a}(b) \defas a \jmul b \]
+with linearity properties:
+\begin{itemize}
+  \item $\Lop{a}(b + c) = a \jmul b + a \jmul c$
+  \item $\Lop{a}(r \cdot b) = r \cdot (a \jmul b)$
+\end{itemize}
+\end{definition}
+
+\begin{lemma}[L\_apply]
+For all $a, b \in J$:
+\[ \Lop{a}(b) = a \jmul b \]
+\end{lemma}
+
+\begin{theorem}[L\_one]
+The left multiplication operator by the identity is the identity map:
+\[ \Lop{\jone} = \mathrm{id} \]
+\end{theorem}
+
+\begin{lemma}[L\_comm]
+For all $a \in J$:
+\[ \Lop{a} = \Lop{a} \]
+\end{lemma}
+
+\begin{definition}[Lsq]
+The \textbf{squaring map} $\mathsf{Lsq} : J \to J$ is defined by:
+\[ \mathsf{Lsq}(a) \defas \jsq{a} \]
+\end{definition}
+
+\begin{lemma}[Lsq\_eq\_L\_apply]
+For all $a \in J$:
+\[ \mathsf{Lsq}(a) = \Lop{a}(a) \]
+\end{lemma}
+
+\subsection{Jordan Identity for Operators}
+
+\begin{theorem}[L\_comm\_L\_sq]
+For all $a \in J$, the operators $\Lop{a}$ and $\Lop{\jsq{a}}$ commute:
+\[ \Lop{a} \circ \Lop{\jsq{a}} = \Lop{\jsq{a}} \circ \Lop{a} \]
+This is the operator form of the Jordan identity.
+\end{theorem}
+
+\begin{corollary}[L\_commute\_L\_sq]
+For all $a \in J$:
+\[ \mathrm{Commute}(\Lop{a}, \Lop{\jsq{a}}) \]
+\end{corollary}
+
+\subsection{Power Properties}
+
+\begin{lemma}[jpow\_add\_one]
+For all $a \in J$ and $n \in \N$:
+\[ \jpow{a}{n+1} = a \jmul \jpow{a}{n} \]
+\end{lemma}
+
+\begin{lemma}[L\_jpow\_succ]
+For all $a \in J$ and $n \in \N$:
+\[ \jpow{a}{n+1} = \Lop{a}(\jpow{a}{n}) \]
+\end{lemma}
+
+\begin{lemma}[jmul\_jpow]
+For all $a \in J$ and $n \in \N$, powers associate:
+\[ a \jmul \jpow{a}{n} = \jpow{a}{n+1} \]
+\end{lemma}
+
+\begin{lemma}[jsq\_eq\_L]
+For all $a \in J$, the square can be expressed in terms of $\Lop{}$:
+\[ \jsq{a} = \Lop{a}(a) \]
+\end{lemma}

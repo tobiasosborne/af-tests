@@ -1,0 +1,67 @@
+\section{IsCommJordan}
+
+\subsection{Multiplication Instance}
+
+\begin{definition}[instMul]
+Define multiplication on $J$ using the Jordan product:
+\[ a \cdot b \defas a \jmul b \]
+\end{definition}
+
+\begin{lemma}[mul\_eq\_jmul]
+For all $a, b \in J$:
+\[ a \cdot b = a \jmul b \]
+\end{lemma}
+
+\subsection{Ring Structure}
+
+\begin{proposition}[instNonUnitalNonAssocRing]
+$J$ is an instance of $\mathsf{NonUnitalNonAssocRing}$, with:
+\begin{itemize}
+  \item (Left distributivity) $a \cdot (b + c) = a \cdot b + a \cdot c$
+  \item (Right distributivity) $(a + b) \cdot c = a \cdot c + b \cdot c$
+  \item (Zero multiplication) $0 \cdot a = 0$ and $a \cdot 0 = 0$
+\end{itemize}
+\end{proposition}
+
+\begin{proposition}[instNonUnitalNonAssocCommRing]
+$J$ is an instance of $\mathsf{NonUnitalNonAssocCommRing}$, with:
+\begin{itemize}
+  \item (Commutativity) $a \cdot b = b \cdot a$
+\end{itemize}
+\end{proposition}
+
+\subsection{IsCommJordan Instance}
+
+\begin{proposition}[instIsCommJordan]
+$J$ is an instance of $\mathsf{IsCommJordan}$. The Jordan identity $(a \jmul b) \jmul a^2 = a \jmul (b \jmul a^2)$ is exactly what $\mathsf{IsCommJordan}$ requires.
+\end{proposition}
+
+\subsection{The Linearized Jordan Identity}
+
+\begin{theorem}[linearized\_jordan\_mathlib]
+For all $a, b, c \in J$:
+\[ 2 \cdot \bigl( [L_a, L_{b \cdot c}] + [L_b, L_{c \cdot a}] + [L_c, L_{a \cdot b}] \bigr) = 0 \]
+where $[f, g]$ denotes the Lie bracket (commutator) on $\mathsf{AddMonoid.End}$.
+\end{theorem}
+
+\begin{theorem}[linearized\_jordan\_jmul]
+For all $a, b, c \in J$:
+\[ 2 \cdot \bigl( [L_a, L_{b \jmul c}] + [L_b, L_{c \jmul a}] + [L_c, L_{a \jmul b}] \bigr) = 0 \]
+\end{theorem}
+
+\subsection{Connection: AddMonoid.End.mulLeft to L Operator}
+
+\begin{lemma}[mulLeft\_apply]
+For all $a, x \in J$:
+\[ \mathsf{mulLeft}(a)(x) = a \jmul x \]
+\end{lemma}
+
+\begin{lemma}[mulLeft\_eq\_L\_apply]
+For all $a, x \in J$:
+\[ \mathsf{mulLeft}(a)(x) = \Lop{a}(x) \]
+\end{lemma}
+
+\begin{lemma}[lie\_mulLeft\_apply]
+For all $f, g, x \in J$:
+\[ [\mathsf{mulLeft}(f), \mathsf{mulLeft}(g)](x) = f \jmul (g \jmul x) - g \jmul (f \jmul x) \]
+\end{lemma}

@@ -1,0 +1,240 @@
+\section{Peirce}
+
+\subsection{Peirce Space Definition}
+
+\begin{definition}[PeirceSpace]
+Let $e \in J$ be an element of a Jordan algebra and $\lambda \in \R$. The \textbf{Peirce $\lambda$-eigenspace} for $e$ is:
+\[ \Peirce{e}{\lambda} \defas \{ a \in J \mid e \jmul a = \lambda \cdot a \} \]
+This is a submodule of $J$ over $\R$.
+\end{definition}
+
+\begin{lemma}[mem\_peirceSpace\_iff]
+For all $e, a \in J$ and $\lambda \in \R$:
+\[ a \in \Peirce{e}{\lambda} \iff e \jmul a = \lambda \cdot a \]
+\end{lemma}
+
+\begin{definition}[PeirceSpace$_0$, PeirceSpace$_{1/2}$, PeirceSpace$_1$]
+The three standard Peirce spaces are:
+\begin{itemize}
+  \item $\Peirce{e}{0}$ --- the $0$-eigenspace
+  \item $\Peirce{e}{1/2}$ --- the $\frac{1}{2}$-eigenspace
+  \item $\Peirce{e}{1}$ --- the $1$-eigenspace
+\end{itemize}
+\end{definition}
+
+\subsection{Basic Peirce Space Properties}
+
+\begin{theorem}[peirceSpace\_zero\_eq\_ker]
+For any $e \in J$:
+\[ \Peirce{e}{0} = \ker(\Lop{e}) \]
+\end{theorem}
+
+\begin{theorem}[idempotent\_in\_peirce\_one]
+If $e$ is idempotent (i.e., $\jsq{e} = e$), then $e \in \Peirce{e}{1}$.
+\end{theorem}
+
+\begin{theorem}[orthogonal\_in\_peirce\_zero]
+If $e$ and $f$ are orthogonal (i.e., $e \jmul f = 0$), then $f \in \Peirce{e}{0}$.
+\end{theorem}
+
+\begin{theorem}[peirceSpace\_disjoint]
+For any $e \in J$ and distinct eigenvalues $\lambda_1 \ne \lambda_2$, the Peirce spaces are disjoint:
+\[ \Peirce{e}{\lambda_1} \cap \Peirce{e}{\lambda_2} = \{0\} \]
+\end{theorem}
+
+\begin{theorem}[jone\_in\_peirce\_one]
+The identity element $\jone$ is in its own Peirce $1$-space:
+\[ \jone \in \Peirce{\jone}{1} \]
+\end{theorem}
+
+\begin{theorem}[peirce\_one\_left\_id]
+If $a \in \Peirce{e}{1}$, then $e$ acts as a left identity:
+\[ e \jmul a = a \]
+\end{theorem}
+
+\begin{theorem}[peirce\_one\_right\_id]
+If $a \in \Peirce{e}{1}$, then $e$ acts as a right identity:
+\[ a \jmul e = a \]
+\end{theorem}
+
+\begin{theorem}[complement\_in\_peirce\_zero]
+If $e$ is idempotent, then $\jone - e \in \Peirce{e}{0}$.
+\end{theorem}
+
+\subsection{Helper Lemmas for Peirce Polynomial}
+
+\begin{lemma}[jmul\_jmul\_e\_x\_e]
+For any idempotent $e$ and $x \in J$:
+\[ (e \jmul x) \jmul e = e \jmul (e \jmul x) \]
+\end{lemma}
+
+\begin{lemma}[jmul\_nsmul]
+For any $a, b \in J$ and $n \in \N$:
+\[ a \jmul (n \cdot b) = n \cdot (a \jmul b) \]
+\end{lemma}
+
+\subsection{Peirce Polynomial Identity}
+
+\begin{theorem}[peirce\_polynomial\_identity]
+For any idempotent $e$, the left multiplication operator $\Lop{e}$ satisfies the Peirce polynomial:
+\[ \Lop{e} \circ \left(\Lop{e} - \frac{1}{2} \cdot \mathrm{id}\right) \circ \left(\Lop{e} - \mathrm{id}\right) = 0 \]
+Equivalently: $2\Lop{e}^3 - 3\Lop{e}^2 + \Lop{e} = 0$.
+
+This fundamental identity shows that $\Lop{e}$ has eigenvalues only in $\{0, \frac{1}{2}, 1\}$.
+\end{theorem}
+
+\subsection{Peirce Multiplication Rules}
+
+\begin{theorem}[peirce\_mult\_P0\_P0]
+If $e$ is idempotent and $a, b \in \Peirce{e}{0}$, then:
+\[ a \jmul b \in \Peirce{e}{0} \]
+\end{theorem}
+
+\begin{theorem}[peirce\_mult\_P1\_P1]
+If $e$ is idempotent and $a, b \in \Peirce{e}{1}$, then:
+\[ a \jmul b \in \Peirce{e}{1} \]
+\end{theorem}
+
+\begin{theorem}[peirce\_mult\_P0\_P1]
+If $e$ is idempotent, $a \in \Peirce{e}{0}$, and $b \in \Peirce{e}{1}$, then:
+\[ a \jmul b = 0 \]
+\end{theorem}
+
+\begin{theorem}[peirce\_mult\_P12\_P12]
+If $e$ is idempotent and $a, b \in \Peirce{e}{1/2}$, then:
+\[ a \jmul b \in \Peirce{e}{0} \oplus \Peirce{e}{1} \]
+\end{theorem}
+
+\begin{theorem}[peirce\_mult\_P0\_P12]
+If $e$ is idempotent, $a \in \Peirce{e}{0}$, and $b \in \Peirce{e}{1/2}$, then:
+\[ a \jmul b \in \Peirce{e}{1/2} \]
+\end{theorem}
+
+\begin{theorem}[peirce\_mult\_P1\_P12]
+If $e$ is idempotent, $a \in \Peirce{e}{1}$, and $b \in \Peirce{e}{1/2}$, then:
+\[ a \jmul b \in \Peirce{e}{1/2} \]
+\end{theorem}
+
+\subsection{Peirce Projection Operators}
+
+\begin{definition}[peirceProj$_0$]
+The projection onto $\Peirce{e}{0}$ is the Lagrange interpolation polynomial for eigenvalue $0$:
+\[ \pi_0 \defas 2\Lop{e}^2 - 3\Lop{e} + \mathrm{id} = 2(\Lop{e} - \tfrac{1}{2}\mathrm{id})(\Lop{e} - \mathrm{id}) \]
+\end{definition}
+
+\begin{definition}[peirceProj$_{1/2}$]
+The projection onto $\Peirce{e}{1/2}$ is the Lagrange interpolation polynomial for eigenvalue $\frac{1}{2}$:
+\[ \pi_{1/2} \defas -4\Lop{e}^2 + 4\Lop{e} = -4\Lop{e}(\Lop{e} - \mathrm{id}) \]
+\end{definition}
+
+\begin{definition}[peirceProj$_1$]
+The projection onto $\Peirce{e}{1}$ is the Lagrange interpolation polynomial for eigenvalue $1$:
+\[ \pi_1 \defas 2\Lop{e}^2 - \Lop{e} = 2\Lop{e}(\Lop{e} - \tfrac{1}{2}\mathrm{id}) \]
+\end{definition}
+
+\begin{theorem}[peirceProj\_sum]
+The three Peirce projections sum to the identity:
+\[ \pi_0 + \pi_{1/2} + \pi_1 = \mathrm{id} \]
+\end{theorem}
+
+\begin{theorem}[peirceProj$_0$\_mem]
+For any idempotent $e$ and $x \in J$:
+\[ \pi_0(x) \in \Peirce{e}{0} \]
+\end{theorem}
+
+\begin{theorem}[peirceProj$_{1/2}$\_mem]
+For any idempotent $e$ and $x \in J$:
+\[ \pi_{1/2}(x) \in \Peirce{e}{1/2} \]
+\end{theorem}
+
+\begin{theorem}[peirceProj$_1$\_mem]
+For any idempotent $e$ and $x \in J$:
+\[ \pi_1(x) \in \Peirce{e}{1} \]
+\end{theorem}
+
+\subsection{Peirce Decomposition Theorem}
+
+\begin{theorem}[peirce\_decomposition]
+For any idempotent $e$ and $a \in J$, there exist unique elements $a_0, a_{1/2}, a_1 \in J$ such that:
+\begin{enumerate}
+  \item $a_0 \in \Peirce{e}{0}$
+  \item $a_{1/2} \in \Peirce{e}{1/2}$
+  \item $a_1 \in \Peirce{e}{1}$
+  \item $a = a_0 + a_{1/2} + a_1$
+\end{enumerate}
+Moreover, $a_\lambda = \pi_\lambda(a)$ for $\lambda \in \{0, \frac{1}{2}, 1\}$.
+\end{theorem}
+
+\begin{theorem}[peirceSpace\_iSup\_eq\_top]
+For any idempotent $e$:
+\[ \Peirce{e}{0} \oplus \Peirce{e}{1/2} \oplus \Peirce{e}{1} = J \]
+\end{theorem}
+
+\begin{theorem}[peirce\_direct\_sum]
+For any idempotent $e$, the Peirce spaces form an internal direct sum:
+\[ J = \Peirce{e}{0} \oplus \Peirce{e}{1/2} \oplus \Peirce{e}{1} \]
+That is, the decomposition is both complete (spanning) and independent (unique).
+\end{theorem}
+
+\subsection{PeirceOne Algebraic Structure}
+
+\begin{definition}[PeirceOne]
+For an idempotent $e$, define $\mathsf{PeirceOne}(e) \defas \Peirce{e}{1}$ as a subtype of $J$.
+\end{definition}
+
+\begin{proposition}[peirceOneAddCommGroup]
+$\mathsf{PeirceOne}(e)$ inherits an abelian group structure from the submodule $\Peirce{e}{1}$.
+\end{proposition}
+
+\begin{proposition}[peirceOneModule]
+$\mathsf{PeirceOne}(e)$ inherits an $\R$-module structure from the submodule $\Peirce{e}{1}$.
+\end{proposition}
+
+\begin{definition}[peirceOneMul]
+For an idempotent $e$, define multiplication on $\mathsf{PeirceOne}(e)$ by restricting the Jordan product:
+\[ a \cdot b \defas a \jmul b \]
+This is well-defined by $\mathsf{peirce\_mult\_P1\_P1}$.
+\end{definition}
+
+\begin{definition}[peirceOneOne]
+For an idempotent $e$, the identity element of $\mathsf{PeirceOne}(e)$ is $e$ itself.
+\end{definition}
+
+\begin{lemma}[peirceOne\_one\_val]
+For an idempotent $e$:
+\[ 1_{\mathsf{PeirceOne}(e)} = e \]
+\end{lemma}
+
+\begin{lemma}[peirceOne\_mul\_val]
+For an idempotent $e$ and $a, b \in \mathsf{PeirceOne}(e)$:
+\[ (a \cdot b).\mathsf{val} = a.\mathsf{val} \jmul b.\mathsf{val} \]
+\end{lemma}
+
+\begin{theorem}[peirceOne\_one\_mul]
+For an idempotent $e$ and $a \in \mathsf{PeirceOne}(e)$:
+\[ 1 \cdot a = a \]
+\end{theorem}
+
+\begin{theorem}[peirceOne\_mul\_one]
+For an idempotent $e$ and $a \in \mathsf{PeirceOne}(e)$:
+\[ a \cdot 1 = a \]
+\end{theorem}
+
+\begin{theorem}[peirceOne\_left\_distrib]
+For an idempotent $e$ and $a, b, c \in \mathsf{PeirceOne}(e)$:
+\[ a \cdot (b + c) = a \cdot b + a \cdot c \]
+\end{theorem}
+
+\begin{theorem}[peirceOne\_right\_distrib]
+For an idempotent $e$ and $a, b, c \in \mathsf{PeirceOne}(e)$:
+\[ (a + b) \cdot c = a \cdot c + b \cdot c \]
+\end{theorem}
+
+\begin{theorem}[peirceOne\_mul\_comm]
+For an idempotent $e$ and $a, b \in \mathsf{PeirceOne}(e)$:
+\[ a \cdot b = b \cdot a \]
+\end{theorem}
+
+\begin{proposition}[peirceOneFiniteDimensional]
+If $J$ is a finite-dimensional Jordan algebra, then $\mathsf{PeirceOne}(e)$ is finite-dimensional.
+\end{proposition}

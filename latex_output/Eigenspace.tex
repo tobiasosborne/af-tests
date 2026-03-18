@@ -1,0 +1,95 @@
+\section{Eigenspace}
+
+\subsection{Eigenspace Definition}
+
+\begin{definition}[eigenspace]
+Let $J$ be a Jordan algebra, $a \in J$, and $\mu \in \R$. The \textbf{$\mu$-eigenspace} of left multiplication by $a$ is defined as:
+\[ \mathsf{eigenspace}(a, \mu) \defas \ker(\Lop{a} - \mu \cdot \mathrm{id}) \]
+This is a submodule of $J$ consisting of elements $v$ such that $a \jmul v = \mu \cdot v$.
+\end{definition}
+
+\begin{lemma}[mem\_eigenspace\_iff]
+For $a, v \in J$ and $\mu \in \R$:
+\[ v \in \mathsf{eigenspace}(a, \mu) \iff a \jmul v = \mu \cdot v \]
+\end{lemma}
+
+\begin{lemma}[eigenspace\_zero]
+For $a \in J$:
+\[ \mathsf{eigenspace}(a, 0) = \ker(\Lop{a}) \]
+\end{lemma}
+
+\begin{theorem}[eigenspace\_eq\_peirceSpace]
+For $a \in J$ and $\mu \in \R$:
+\[ \mathsf{eigenspace}(a, \mu) = \Peirce{a}{\mu} \]
+\end{theorem}
+
+\subsection{Eigenvalue and Spectrum Definitions}
+
+\begin{definition}[IsEigenvalue]
+Let $a \in J$ and $\mu \in \R$. We say $\mu$ \textbf{is an eigenvalue of} $a$ if the $\mu$-eigenspace of $\Lop{a}$ is nontrivial:
+\[ \mathsf{IsEigenvalue}(a, \mu) \defas \mathsf{eigenspace}(a, \mu) \ne \bot \]
+\end{definition}
+
+\begin{lemma}[isEigenvalue\_iff]
+For $a \in J$ and $\mu \in \R$:
+\[ \mathsf{IsEigenvalue}(a, \mu) \iff \mathsf{eigenspace}(a, \mu) \ne \bot \]
+\end{lemma}
+
+\begin{lemma}[isEigenvalue\_iff\_exists\_eigenvector]
+For $a \in J$ and $\mu \in \R$:
+\[ \mathsf{IsEigenvalue}(a, \mu) \iff \exists v \ne 0,\, a \jmul v = \mu \cdot v \]
+\end{lemma}
+
+\begin{definition}[eigenvalueSet]
+The \textbf{eigenvalue set} of $a \in J$ is the set of all eigenvalues of $\Lop{a}$:
+\[ \mathsf{eigenvalueSet}(a) \defas \{ \mu \in \R \mid \mathsf{IsEigenvalue}(a, \mu) \} \]
+\end{definition}
+
+\begin{lemma}[mem\_eigenvalueSet\_iff]
+For $a \in J$ and $\mu \in \R$:
+\[ \mu \in \mathsf{eigenvalueSet}(a) \iff \mathsf{IsEigenvalue}(a, \mu) \]
+\end{lemma}
+
+\subsection{Basic Eigenvalue Properties}
+
+\begin{theorem}[eigenspace\_jone\_one]
+The eigenspace of the identity element $\jone$ at eigenvalue $1$ is the entire algebra:
+\[ \mathsf{eigenspace}(\jone, 1) = \top \]
+\end{theorem}
+
+\begin{theorem}[isEigenvalue\_jone\_one]
+Let $J$ be a nontrivial Jordan algebra. Then $1$ is an eigenvalue of $\jone$:
+\[ \mathsf{IsEigenvalue}(\jone, 1) \]
+\end{theorem}
+
+\begin{theorem}[eigenvalueSet\_jone]
+Let $J$ be a nontrivial Jordan algebra. The eigenvalue set of $\jone$ is exactly $\{1\}$:
+\[ \mathsf{eigenvalueSet}(\jone) = \{1\} \]
+\end{theorem}
+
+\subsection{Connection to Peirce Decomposition}
+
+\begin{theorem}[idempotent\_eigenvalues\_subset]
+Let $e \in J$ be an idempotent (i.e., $\jsq{e} = e$). Then the eigenvalues of $e$ are restricted to $\{0, \tfrac{1}{2}, 1\}$:
+\[ \mathsf{eigenvalueSet}(e) \subseteq \left\{0, \tfrac{1}{2}, 1\right\} \]
+This is a consequence of the Peirce polynomial identity $\Lop{e} \circ (\Lop{e} - \tfrac{1}{2}\mathrm{id}) \circ (\Lop{e} - \mathrm{id}) = 0$.
+\end{theorem}
+
+\subsection{Eigenspace Orthogonality}
+
+\begin{theorem}[eigenspace\_orthogonal]
+Let $J$ be a Jordan algebra with trace $\tau$. Let $a \in J$ and let $r, s \in \R$ with $r \ne s$. If $v \in \mathsf{eigenspace}(a, r)$ and $w \in \mathsf{eigenspace}(a, s)$, then $v$ and $w$ are orthogonal with respect to the trace inner product:
+\[ \langle v, w \rangle_\tau = 0 \]
+\end{theorem}
+
+\begin{corollary}[eigenspace\_traceInner\_zero]
+Let $J$ be a Jordan algebra with trace. For any $a \in J$ and distinct eigenvalues $r \ne s$:
+\[ \forall v \in \mathsf{eigenspace}(a, r),\, \forall w \in \mathsf{eigenspace}(a, s),\, \langle v, w \rangle_\tau = 0 \]
+\end{corollary}
+
+\subsection{Finiteness in Finite Dimensions}
+
+\begin{theorem}[eigenvalueSet\_finite]
+Let $J$ be a finite-dimensional Jordan algebra. For any $a \in J$, the eigenvalue set is finite:
+\[ \mathsf{eigenvalueSet}(a) \text{ is finite} \]
+\end{theorem}

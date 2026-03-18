@@ -1,0 +1,84 @@
+\section{Ideal}
+
+\begin{definition}[JordanIdeal]
+A \textbf{Jordan ideal} of a Jordan algebra $J$ consists of:
+\begin{itemize}
+  \item $\mathsf{carrier} : \mathcal{P}(J)$ — a subset of $J$
+  \item $\mathsf{add\_mem'}$ : $\forall a, b \in \mathsf{carrier},\ a + b \in \mathsf{carrier}$
+  \item $\mathsf{zero\_mem'}$ : $0 \in \mathsf{carrier}$
+  \item $\mathsf{smul\_mem'}$ : $\forall r \in \R,\ \forall a \in \mathsf{carrier},\ r \cdot a \in \mathsf{carrier}$
+  \item $\mathsf{neg\_mem'}$ : $\forall a \in \mathsf{carrier},\ -a \in \mathsf{carrier}$
+  \item $\mathsf{jmul\_mem'}$ : $\forall a \in J,\ \forall b \in \mathsf{carrier},\ a \jmul b \in \mathsf{carrier}$
+\end{itemize}
+\end{definition}
+
+\begin{proposition}
+$\mathsf{JordanIdeal}\ J$ is an instance of $\mathsf{SetLike}$.
+\end{proposition}
+
+\begin{lemma}[mem\_carrier]
+For $I : \mathsf{JordanIdeal}\ J$ and $x : J$:
+\[ x \in I.\mathsf{carrier} \iff x \in I \]
+\end{lemma}
+
+\begin{theorem}[add\_mem]
+For $I : \mathsf{JordanIdeal}\ J$ and $a, b \in J$: if $a \in I$ and $b \in I$, then $a + b \in I$.
+\end{theorem}
+
+\begin{theorem}[zero\_mem]
+For $I : \mathsf{JordanIdeal}\ J$: $0 \in I$.
+\end{theorem}
+
+\begin{theorem}[smul\_mem]
+For $I : \mathsf{JordanIdeal}\ J$, $r \in \R$, and $a \in J$: if $a \in I$, then $r \cdot a \in I$.
+\end{theorem}
+
+\begin{theorem}[neg\_mem]
+For $I : \mathsf{JordanIdeal}\ J$ and $a \in J$: if $a \in I$, then $-a \in I$.
+\end{theorem}
+
+\begin{theorem}[jmul\_mem]
+For $I : \mathsf{JordanIdeal}\ J$, $a \in J$, and $b \in J$: if $b \in I$, then $a \jmul b \in I$.
+\end{theorem}
+
+\begin{theorem}[jmul\_mem\_left]
+For $I : \mathsf{JordanIdeal}\ J$, $a \in J$, and $b \in J$: if $a \in I$, then $a \jmul b \in I$.
+\end{theorem}
+
+\begin{theorem}[sub\_mem]
+For $I : \mathsf{JordanIdeal}\ J$ and $a, b \in J$: if $a \in I$ and $b \in I$, then $a - b \in I$.
+\end{theorem}
+
+\begin{definition}[toAddSubgroup]
+For $I : \mathsf{JordanIdeal}\ J$, define $I.\mathsf{toAddSubgroup} : \mathsf{AddSubgroup}\ J$ with carrier $I.\mathsf{carrier}$, inheriting the additive group structure from $I$.
+\end{definition}
+
+\begin{definition}[toSubmodule]
+For $I : \mathsf{JordanIdeal}\ J$, define $I.\mathsf{toSubmodule} : \mathsf{Submodule}\ \R\ J$ with carrier $I.\mathsf{carrier}$, inheriting the $\R$-module structure from $I$.
+\end{definition}
+
+\begin{proposition}
+$\mathsf{JordanIdeal}\ J$ is an instance of $\mathsf{Bot}$.
+\end{proposition}
+
+\begin{definition}[bot]
+The \textbf{zero ideal} $\bot : \mathsf{JordanIdeal}\ J$ is defined by:
+\[ \mathsf{carrier} \defas \{0\} \]
+\end{definition}
+
+\begin{proposition}
+$\mathsf{JordanIdeal}\ J$ is an instance of $\mathsf{Top}$.
+\end{proposition}
+
+\begin{definition}[top]
+The \textbf{whole algebra ideal} $\top : \mathsf{JordanIdeal}\ J$ is defined by:
+\[ \mathsf{carrier} \defas J \]
+\end{definition}
+
+\begin{lemma}[mem\_bot]
+For $a \in J$: $a \in \bot \iff a = 0$.
+\end{lemma}
+
+\begin{lemma}[mem\_top]
+For $a \in J$: $a \in \top$.
+\end{lemma}

@@ -1,0 +1,118 @@
+\section{Basic}
+
+\begin{definition}[JordanAlgebra]
+A \textbf{Jordan algebra} over $\R$ is a type $J$ with an additive commutative group structure and an $\R$-module structure, equipped with:
+\begin{itemize}
+  \item A bilinear product $\jmul : J \times J \to J$
+  \item An identity element $\jone \in J$
+\end{itemize}
+satisfying:
+\begin{enumerate}
+  \item (Commutativity) $\forall a, b \in J$: $a \jmul b = b \jmul a$
+  \item (Jordan identity) $\forall a, b \in J$: $(a \jmul b) \jmul (a \jmul a) = a \jmul (b \jmul (a \jmul a))$
+  \item (Left identity) $\forall a \in J$: $\jone \jmul a = a$
+  \item (Left distributivity) $\forall a, b, c \in J$: $a \jmul (b + c) = (a \jmul b) + (a \jmul c)$
+  \item (Scalar compatibility) $\forall r \in \R$, $\forall a, b \in J$: $(r \cdot a) \jmul b = r \cdot (a \jmul b)$
+\end{enumerate}
+\end{definition}
+
+\subsection{Basic Properties}
+
+\begin{lemma}[jmul\_jone]
+For all $a \in J$: $a \jmul \jone = a$.
+\end{lemma}
+
+\begin{lemma}[add\_jmul]
+For all $a, b, c \in J$: $(a + b) \jmul c = (a \jmul c) + (b \jmul c)$.
+\end{lemma}
+
+\begin{lemma}[smul\_jmul]
+For all $r \in \R$ and $a, b \in J$: $a \jmul (r \cdot b) = r \cdot (a \jmul b)$.
+\end{lemma}
+
+\begin{lemma}[jmul\_zero]
+For all $a \in J$: $a \jmul 0 = 0$.
+\end{lemma}
+
+\begin{lemma}[zero\_jmul]
+For all $a \in J$: $0 \jmul a = 0$.
+\end{lemma}
+
+\begin{lemma}[jmul\_neg]
+For all $a, b \in J$: $a \jmul (-b) = -(a \jmul b)$.
+\end{lemma}
+
+\begin{lemma}[neg\_jmul]
+For all $a, b \in J$: $(-a) \jmul b = -(a \jmul b)$.
+\end{lemma}
+
+\begin{lemma}[jmul\_sub]
+For all $a, b, c \in J$: $a \jmul (b - c) = (a \jmul b) - (a \jmul c)$.
+\end{lemma}
+
+\begin{lemma}[sub\_jmul]
+For all $a, b, c \in J$: $(a - b) \jmul c = (a \jmul c) - (b \jmul c)$.
+\end{lemma}
+
+\subsection{Square and Powers}
+
+\begin{definition}[jsq]
+The \textbf{Jordan square} of an element $a \in J$ is:
+\[ \jsq{a} \defas a \jmul a \]
+\end{definition}
+
+\begin{lemma}[jsq\_def]
+For all $a \in J$: $\jsq{a} = a \jmul a$.
+\end{lemma}
+
+\begin{theorem}[jordan\_identity']
+For all $a, b \in J$:
+\[ (a \jmul b) \jmul \jsq{a} = a \jmul (b \jmul \jsq{a}) \]
+\end{theorem}
+
+\begin{definition}[jpow]
+The \textbf{Jordan power} of an element $a \in J$ is defined recursively:
+\begin{align*}
+\jpow{a}{0} &\defas \jone \\
+\jpow{a}{n+1} &\defas a \jmul \jpow{a}{n}
+\end{align*}
+\end{definition}
+
+\begin{lemma}[jpow\_zero]
+For all $a \in J$: $\jpow{a}{0} = \jone$.
+\end{lemma}
+
+\begin{lemma}[jpow\_succ]
+For all $a \in J$ and $n \in \N$: $\jpow{a}{n+1} = a \jmul \jpow{a}{n}$.
+\end{lemma}
+
+\begin{lemma}[jpow\_one]
+For all $a \in J$: $\jpow{a}{1} = a$.
+\end{lemma}
+
+\begin{lemma}[jpow\_two]
+For all $a \in J$: $\jpow{a}{2} = \jsq{a}$.
+\end{lemma}
+
+\subsection{Idempotents}
+
+\begin{definition}[IsIdempotent]
+An element $e \in J$ is \textbf{idempotent} if:
+\[ \jsq{e} = e \]
+\end{definition}
+
+\begin{lemma}[IsIdempotent.jsq\_eq\_self]
+If $e \in J$ is idempotent, then $\jsq{e} = e$.
+\end{lemma}
+
+\begin{theorem}[isIdempotent\_zero]
+The zero element $0 \in J$ is idempotent.
+\end{theorem}
+
+\begin{theorem}[isIdempotent\_jone]
+The identity element $\jone \in J$ is idempotent.
+\end{theorem}
+
+\begin{theorem}[IsIdempotent.complement]
+If $e \in J$ is idempotent, then $\jone - e$ is also idempotent.
+\end{theorem}

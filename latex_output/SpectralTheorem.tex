@@ -1,0 +1,89 @@
+\section{SpectralTheorem}
+
+\subsection{Spectrum Definition}
+
+\begin{definition}[spectrum]
+The \textbf{spectrum} of an element $a \in J$ is the set of eigenvalues of $\Lop{a}$:
+\[ \mathrm{spectrum}(a) \defas \mathrm{eigenvalueSet}(a) \]
+In finite dimensions, this is a finite set of real numbers.
+\end{definition}
+
+\begin{lemma}[mem\_spectrum\_iff]
+For $a \in J$ and $r \in \R$:
+\[ r \in \mathrm{spectrum}(a) \iff \mathrm{IsEigenvalue}(a, r) \]
+\end{lemma}
+
+\begin{theorem}[spectrum\_finite]
+Let $J$ be a finite-dimensional Jordan algebra. For any $a \in J$, $\mathrm{spectrum}(a)$ is finite.
+\end{theorem}
+
+\subsection{Spectral Decomposition Existence}
+
+\begin{theorem}[spectral\_decomposition\_exists]
+Let $J$ be a finite-dimensional formally real Jordan algebra with trace. For every $a \in J$, there exists a spectral decomposition $\mathsf{sd}$ of $a$ such that for all $i$, $\mathsf{sd}.\mathsf{csoi}.\mathsf{idem}(i)$ is primitive.
+\end{theorem}
+
+\begin{theorem}[spectral\_decomposition\_finset]
+Let $J$ be a finite-dimensional formally real Jordan algebra with trace. For every $a \in J$, there exist:
+\begin{itemize}
+  \item A finite set $S \subseteq \R$
+  \item A function $e : \R \to J$
+\end{itemize}
+such that:
+\begin{enumerate}
+  \item For all $r \in S$, $e(r)$ is idempotent
+  \item For all $r, s \in S$ with $r \ne s$, $e(r)$ and $e(s)$ are orthogonal
+  \item $\displaystyle\sum_{r \in S} e(r) = \jone$
+  \item $\displaystyle a = \sum_{r \in S} r \cdot e(r)$
+\end{enumerate}
+\end{theorem}
+
+\subsection{Uniqueness Results}
+
+\begin{theorem}[spectrum\_eq\_eigenvalueSet]
+Let $J$ be a finite-dimensional formally real Jordan algebra with trace. For $a \in J$ and any spectral decomposition $\mathsf{sd}$ of $a$:
+\[ \mathrm{jordanSpectrum}(a, \mathsf{sd}) = \mathrm{spectrum}(a) \]
+\end{theorem}
+
+\begin{theorem}[spectral\_decomp\_eigenvalues\_eq\_spectrum]
+Let $J$ be a finite-dimensional formally real Jordan algebra with trace. For $a \in J$ and spectral decomposition $\mathsf{sd}$:
+\[ \mathrm{range}(\mathsf{sd}.\mathrm{eigenvalues}) = \mathrm{spectrum}(a) \]
+\end{theorem}
+
+\subsection{Square Eigenvalue Theorem}
+
+\begin{lemma}[sum\_jmul]
+For a finite index set $\iota$, elements $f : \iota \to J$, scalars $r : \iota \to \R$, and $e \in J$:
+\[ \left(\sum_{i \in s} r_i \cdot f_i\right) \jmul e = \sum_{i \in s} r_i \cdot (f_i \jmul e) \]
+\end{lemma}
+
+\begin{theorem}[jsq\_sum\_orthog\_idem]
+Let $c$ be a complete system of orthogonal idempotents of size $n$, and let $\mathrm{coef} : \mathrm{Fin}(n) \to \R$. Then:
+\[ \jsq{\left(\sum_i \mathrm{coef}_i \cdot c.\mathrm{idem}(i)\right)} = \sum_i \mathrm{coef}_i^2 \cdot c.\mathrm{idem}(i) \]
+\end{theorem}
+
+\begin{theorem}[spectral\_sq]
+Let $J$ be a finite-dimensional formally real Jordan algebra with trace. For $a \in J$ with spectral decomposition $\mathsf{sd}$, there exists a spectral decomposition $\mathsf{sd\_sq}$ of $\jsq{a}$ with the same size:
+\[ \mathsf{sd\_sq}.n = \mathsf{sd}.n \]
+
+The spectral decomposition of $\jsq{a}$ uses the same complete system of orthogonal idempotents with squared eigenvalues. If $a = \sum_i \lambda_i \cdot e_i$ with orthogonal idempotents, then:
+\[ \jsq{a} = \left(\sum_i \lambda_i \cdot e_i\right)^2 = \sum_i \lambda_i^2 \cdot e_i \]
+since $e_i \jmul e_j = 0$ for $i \ne j$ and $\jsq{e_i} = e_i$.
+\end{theorem}
+
+\begin{theorem}[spectrum\_sq]
+Let $J$ be a finite-dimensional formally real Jordan algebra with trace. For $a \in J$:
+\[ \mathrm{spectrum}(\jsq{a}) = \{r^2 : r \in \mathrm{spectrum}(a)\} \]
+\end{theorem}
+
+\subsection{Positivity of Square Eigenvalues}
+
+\begin{theorem}[sq\_eigenvalues\_nonneg]
+Let $J$ be a finite-dimensional formally real Jordan algebra with trace. For $a \in J$ and any spectral decomposition $\mathsf{sd}$ of $\jsq{a}$:
+\[ \forall i,\; 0 \le \mathsf{sd}.\mathrm{eigenvalues}(i) \]
+\end{theorem}
+
+\begin{theorem}[spectrum\_sq\_nonneg]
+Let $J$ be a finite-dimensional formally real Jordan algebra with trace. For $a \in J$:
+\[ \forall r \in \mathrm{spectrum}(\jsq{a}),\; 0 \le r \]
+\end{theorem}

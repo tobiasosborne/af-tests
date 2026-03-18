@@ -1,0 +1,52 @@
+\section{Formally Real: Square Roots}
+
+\subsection{Square Root Predicate}
+
+\begin{definition}[IsPositiveSqrt]
+Let $a, b \in J$. We say $b$ is a \textbf{positive square root} of $a$ if
+\[ \jsq{b} = a \quad \land \quad b \in \mathsf{PositiveElement}(J). \]
+\end{definition}
+
+\begin{definition}[HasPositiveSqrt]
+An element $a \in J$ \textbf{has a positive square root} if
+\[ \exists\, b \in J \text{ such that } \mathsf{IsPositiveSqrt}(a, b). \]
+\end{definition}
+
+\subsection{Basic Properties}
+
+\begin{lemma}[isPositiveSqrt\_def]
+For $a, b \in J$:
+\[ \mathsf{IsPositiveSqrt}(a, b) \iff \jsq{b} = a \land \mathsf{PositiveElement}(b). \]
+\end{lemma}
+
+\begin{theorem}[PositiveElement.of\_hasPositiveSqrt]
+If $a \in J$ has a positive square root, then $a$ is a positive element.
+\end{theorem}
+
+\begin{lemma}[isPositiveSqrt\_zero]
+Zero has zero as its positive square root:
+\[ \mathsf{IsPositiveSqrt}(0, 0). \]
+\end{lemma}
+
+\begin{lemma}[isPositiveSqrt\_jone]
+If $\jone$ is a positive element, then $\jone$ is its own positive square root:
+\[ \mathsf{PositiveElement}(\jone) \implies \mathsf{IsPositiveSqrt}(\jone, \jone). \]
+\end{lemma}
+
+\subsection{Uniqueness}
+
+\begin{theorem}[isPositiveSqrt\_unique]
+Let $J$ be a formally real Jordan algebra. Let $a, b, c \in J$ with
+\begin{align*}
+\mathsf{IsPositiveSqrt}(a, b), \quad &\mathsf{IsPositiveSqrt}(a, c), \\
+b \jmul c = c \jmul b, \quad &\jsq{b} \jmul c = c \jmul \jsq{b}.
+\end{align*}
+Then $b = c$.
+\end{theorem}
+
+\subsection{Existence}
+
+\begin{theorem}[HasPositiveSqrt.of\_positiveElement]
+Let $a \in J$ be a positive element. Then $a$ has a positive square root:
+\[ \mathsf{PositiveElement}(a) \implies \mathsf{HasPositiveSqrt}(a). \]
+\end{theorem}

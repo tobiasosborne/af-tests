@@ -1,0 +1,81 @@
+\section{Quaternion: Instance}
+
+\subsection{Additivity at Matrix Level}
+
+\begin{theorem}[jordanMul\_add]
+For all matrices $A, B, C \in M_n(\mathbb{H})$:
+\[ A \bullet (B + C) = A \bullet B + A \bullet C \]
+where $\bullet$ denotes the Jordan product.
+\end{theorem}
+
+\begin{theorem}[add\_jordanMul]
+For all matrices $A, B, C \in M_n(\mathbb{H})$:
+\[ (A + B) \bullet C = A \bullet C + B \bullet C \]
+\end{theorem}
+
+\subsection{Scalar Multiplication at Matrix Level}
+
+\begin{theorem}[jordanMul\_smul]
+For all $r \in \R$ and matrices $A, B \in M_n(\mathbb{H})$:
+\[ (r \cdot A) \bullet B = r \cdot (A \bullet B) \]
+\end{theorem}
+
+\begin{theorem}[smul\_jordanMul]
+For all $r \in \R$ and matrices $A, B \in M_n(\mathbb{H})$:
+\[ A \bullet (r \cdot B) = r \cdot (A \bullet B) \]
+\end{theorem}
+
+\subsection{Jordan Identity at Matrix Level}
+
+\begin{theorem}[jordanMul\_jordan\_identity]
+For all matrices $A, B \in M_n(\mathbb{H})$:
+\[ (A \bullet B) \bullet (A \bullet A) = A \bullet (B \bullet (A \bullet A)) \]
+\end{theorem}
+
+\subsection{Lifted Properties for Quaternionic Hermitian Matrices}
+
+\begin{theorem}[jmul\_add]
+For all quaternionic Hermitian matrices $A, B, C \in \mathsf{QuaternionHermitianMatrix}(n)$:
+\[ A \jmul (B + C) = A \jmul B + A \jmul C \]
+\end{theorem}
+
+\begin{theorem}[add\_jmul]
+For all quaternionic Hermitian matrices $A, B, C \in \mathsf{QuaternionHermitianMatrix}(n)$:
+\[ (A + B) \jmul C = A \jmul C + B \jmul C \]
+\end{theorem}
+
+\begin{theorem}[jmul\_smul]
+For all $r \in \R$ and quaternionic Hermitian matrices $A, B \in \mathsf{QuaternionHermitianMatrix}(n)$:
+\[ (r \cdot A) \jmul B = r \cdot (A \jmul B) \]
+\end{theorem}
+
+\begin{theorem}[smul\_jmul]
+For all $r \in \R$ and quaternionic Hermitian matrices $A, B \in \mathsf{QuaternionHermitianMatrix}(n)$:
+\[ A \jmul (r \cdot B) = r \cdot (A \jmul B) \]
+\end{theorem}
+
+\subsection{Jordan Identity}
+
+\begin{theorem}[jordan\_identity]
+For all quaternionic Hermitian matrices $A, B \in \mathsf{QuaternionHermitianMatrix}(n)$:
+\[ (A \jmul B) \jmul (A \jmul A) = A \jmul (B \jmul (A \jmul A)) \]
+\end{theorem}
+
+\subsection{JordanAlgebra Instance}
+
+\begin{proposition}[moduleQuaternionHermitianMatrix]
+$\mathsf{QuaternionHermitianMatrix}(n)$ is an instance of $\mathsf{Module}\ \R$.
+\end{proposition}
+
+\begin{proposition}[jordanAlgebraQuaternionHermitianMatrix]
+$\mathsf{QuaternionHermitianMatrix}(n)$ is an instance of $\mathsf{JordanAlgebra}$, with:
+\begin{itemize}
+  \item $\mathsf{jmul} := \mathsf{QuaternionHermitianMatrix.jmul}$
+  \item $\mathsf{jmul\_comm} := \mathsf{QuaternionHermitianMatrix.jmul\_comm}$
+  \item $\mathsf{jordan\_identity} := \mathsf{QuaternionHermitianMatrix.jordan\_identity}$
+  \item $\mathsf{jone} := \mathsf{QuaternionHermitianMatrix.one}$
+  \item $\mathsf{jone\_jmul} := \mathsf{QuaternionHermitianMatrix.one\_jmul}$
+  \item $\mathsf{jmul\_add} := \mathsf{QuaternionHermitianMatrix.jmul\_add}$
+  \item $\mathsf{jmul\_smul} := \mathsf{QuaternionHermitianMatrix.jmul\_smul}$
+\end{itemize}
+\end{proposition}

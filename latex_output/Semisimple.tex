@@ -1,0 +1,107 @@
+\section{Semisimple}
+
+\subsection{Ideal Operations}
+
+\begin{definition}[idealSum]
+Let $I, K$ be Jordan ideals of $J$. The \textbf{sum of two ideals} is defined as:
+\[ \mathsf{idealSum}(I, K) \defas \{ x \in J \mid \exists\, a \in I,\, \exists\, b \in K,\, x = a + b \} \]
+This forms a Jordan ideal with:
+\begin{itemize}
+  \item Addition: If $x = a_1 + b_1$ and $y = a_2 + b_2$ with $a_i \in I$, $b_i \in K$, then $x + y = (a_1 + a_2) + (b_1 + b_2)$
+  \item Zero: $0 = 0 + 0$ with $0 \in I$ and $0 \in K$
+  \item Scalar multiplication: $r \cdot x = r \cdot a + r \cdot b$
+  \item Negation: $-x = (-a) + (-b)$
+  \item Jordan multiplication: $y \jmul x = (y \jmul a) + (y \jmul b)$
+\end{itemize}
+\end{definition}
+
+\begin{lemma}[mem\_idealSum]
+For Jordan ideals $I, K$ and $x \in J$:
+\[ x \in \mathsf{idealSum}(I, K) \iff \exists\, a \in I,\, \exists\, b \in K,\, x = a + b \]
+\end{lemma}
+
+\begin{lemma}[le\_idealSum\_left]
+For Jordan ideals $I, K$: $I \subseteq \mathsf{idealSum}(I, K)$.
+\end{lemma}
+
+\begin{lemma}[le\_idealSum\_right]
+For Jordan ideals $I, K$: $K \subseteq \mathsf{idealSum}(I, K)$.
+\end{lemma}
+
+\begin{definition}[idealInf]
+Let $I, K$ be Jordan ideals of $J$. The \textbf{intersection of two ideals} is defined as:
+\[ \mathsf{idealInf}(I, K) \defas I \cap K \]
+This forms a Jordan ideal.
+\end{definition}
+
+\begin{lemma}[mem\_idealInf]
+For Jordan ideals $I, K$ and $x \in J$:
+\[ x \in \mathsf{idealInf}(I, K) \iff x \in I \land x \in K \]
+\end{lemma}
+
+\begin{lemma}[idealInf\_le\_left]
+For Jordan ideals $I, K$: $\mathsf{idealInf}(I, K) \subseteq I$.
+\end{lemma}
+
+\begin{lemma}[idealInf\_le\_right]
+For Jordan ideals $I, K$: $\mathsf{idealInf}(I, K) \subseteq K$.
+\end{lemma}
+
+\begin{definition}[Independent]
+Two Jordan ideals $I, K$ are \textbf{independent} if their intersection is zero:
+\[ \mathsf{Independent}(I, K) \defas \mathsf{idealInf}(I, K) = \bot \]
+\end{definition}
+
+\begin{lemma}[independent\_iff]
+For Jordan ideals $I, K$:
+\[ \mathsf{Independent}(I, K) \iff \forall\, x,\, (x \in I \to x \in K \to x = 0) \]
+\end{lemma}
+
+\begin{definition}[IsDirectSum]
+Two Jordan ideals $I, K$ form a \textbf{direct sum decomposition} if they are independent and span $J$:
+\[ \mathsf{IsDirectSum}(I, K) \defas \mathsf{Independent}(I, K) \land \mathsf{idealSum}(I, K) = \top \]
+\end{definition}
+
+\begin{lemma}[isDirectSum\_iff]
+For Jordan ideals $I, K$:
+\[ \mathsf{IsDirectSum}(I, K) \iff \bigl(\forall\, x,\, x \in I \to x \in K \to x = 0\bigr) \land \bigl(\forall\, y \in J,\, \exists\, a \in I,\, \exists\, b \in K,\, y = a + b\bigr) \]
+\end{lemma}
+
+\subsection{Semisimple Jordan Algebras}
+
+\begin{definition}[IsSemisimpleJordan]
+A Jordan algebra $J$ is \textbf{semisimple} if:
+\begin{itemize}
+  \item (Nontrivial) $\exists\, a \in J,\, a \ne 0$
+  \item (Complement property) For every Jordan ideal $I$ of $J$, there exists a Jordan ideal $K$ such that $\mathsf{IsDirectSum}(I, K)$
+\end{itemize}
+\end{definition}
+
+\begin{proposition}
+Every semisimple Jordan algebra $J$ is nontrivial (i.e., $\exists\, a, b \in J$ with $a \ne b$).
+\end{proposition}
+
+\begin{theorem}[jone\_ne\_zero]
+In a semisimple Jordan algebra $J$, the identity is nonzero: $\jone \ne 0$.
+\end{theorem}
+\begin{proof}
+Suppose $\jone = 0$. By semisimplicity, there exists $a \in J$ with $a \ne 0$. But then:
+\[ a = a \jmul \jone = a \jmul 0 = 0 \]
+which contradicts $a \ne 0$.
+\end{proof}
+
+\begin{theorem}[IsSimpleJordan.isSemisimpleJordan]
+Every simple Jordan algebra is semisimple.
+\end{theorem}
+\begin{proof}
+Let $J$ be a simple Jordan algebra and $I$ a Jordan ideal. By simplicity, either $I = \bot$ or $I = \top$.
+\begin{itemize}
+  \item If $I = \bot$: Take $K = \top$. Then $\mathsf{idealInf}(\bot, \top) = \bot$ and $\mathsf{idealSum}(\bot, \top) = \top$.
+  \item If $I = \top$: Take $K = \bot$. Then $\mathsf{idealInf}(\top, \bot) = \bot$ and $\mathsf{idealSum}(\top, \bot) = \top$.
+\end{itemize}
+In both cases, $\mathsf{IsDirectSum}(I, K)$ holds.
+\end{proof}
+
+\begin{theorem}[IsSemisimpleJordan.mk']
+Let $J$ be a nontrivial Jordan algebra. If every Jordan ideal $I$ of $J$ has a complement $K$ such that $\mathsf{IsDirectSum}(I, K)$, then $J$ is semisimple.
+\end{theorem}

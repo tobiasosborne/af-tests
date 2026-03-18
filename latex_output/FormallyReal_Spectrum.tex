@@ -1,0 +1,82 @@
+\section{Formally Real: Spectrum}
+
+\subsection{Orthogonal Idempotents}
+
+\begin{definition}[AreOrthogonal]
+Two elements $e, f \in J$ are \textbf{orthogonal} (in the Jordan sense) if their product is zero:
+\[ \mathsf{AreOrthogonal}(e, f) \defas e \jmul f = 0 \]
+\end{definition}
+
+\begin{lemma}[AreOrthogonal.symm]
+For all $e, f \in J$: if $\mathsf{AreOrthogonal}(e, f)$, then $\mathsf{AreOrthogonal}(f, e)$.
+\end{lemma}
+
+\begin{theorem}[jone\_sub\_idempotent\_orthogonal]
+Let $e \in J$ be an idempotent. Then $e$ and $\jone - e$ are orthogonal:
+\[ \mathsf{IsIdempotent}(e) \implies \mathsf{AreOrthogonal}(e, \jone - e) \]
+\end{theorem}
+
+\subsection{Complete System of Orthogonal Idempotents}
+
+\begin{definition}[PairwiseOrthogonal]
+A family of elements $(e_i)_{i \in \mathrm{Fin}(n)}$ is \textbf{pairwise orthogonal} if:
+\[ \mathsf{PairwiseOrthogonal}(e) \defas \forall i, j,\, i \ne j \implies \mathsf{AreOrthogonal}(e_i, e_j) \]
+\end{definition}
+
+\begin{definition}[CSOI]
+A \textbf{Complete System of Orthogonal Idempotents (CSOI)} of rank $n$ in a Jordan algebra $J$ consists of:
+\begin{itemize}
+  \item $\mathsf{idem} : \mathrm{Fin}(n) \to J$ --- the idempotents
+  \item $\mathsf{is\_idem} : \forall i,\, \mathsf{IsIdempotent}(\mathsf{idem}(i))$ --- each element is idempotent
+  \item $\mathsf{orthog} : \mathsf{PairwiseOrthogonal}(\mathsf{idem})$ --- pairwise orthogonal
+  \item $\mathsf{complete} : \sum_{i} \mathsf{idem}(i) = \jone$ --- sum to identity
+\end{itemize}
+\end{definition}
+
+\subsection{Spectral Decomposition}
+
+\begin{definition}[SpectralDecomp]
+A \textbf{spectral decomposition} of an element $a \in J$ consists of:
+\begin{itemize}
+  \item $n : \N$ --- the number of eigenvalues
+  \item $\mathsf{eigenvalues} : \mathrm{Fin}(n) \to \R$ --- the eigenvalues
+  \item $\mathsf{csoi} : \mathsf{CSOI}(J, n)$ --- the idempotent system
+  \item $\mathsf{decomp} : a = \sum_{i} \mathsf{eigenvalues}(i) \cdot \mathsf{csoi}.\mathsf{idem}(i)$ --- decomposition equation
+\end{itemize}
+\end{definition}
+
+\begin{definition}[jordanSpectrum]
+The \textbf{spectrum} of an element $a \in J$ with spectral decomposition $\mathsf{sd}$ is:
+\[ \mathsf{jordanSpectrum}(a, \mathsf{sd}) \defas \mathrm{range}(\mathsf{sd}.\mathsf{eigenvalues}) \subseteq \R \]
+\end{definition}
+
+\subsection{Properties of Orthogonal Idempotents}
+
+\begin{theorem}[jmul\_orthog\_idem]
+Let $e, f \in J$ be orthogonal elements, and let $r, s \in \R$. Then:
+\[ (r \cdot e) \jmul (s \cdot f) = 0 \]
+\end{theorem}
+
+\begin{theorem}[jsq\_smul\_idem]
+Let $e \in J$ be an idempotent and $r \in \R$. Then:
+\[ \jsq{r \cdot e} = r^2 \cdot e \]
+\end{theorem}
+
+\subsection{Spectral Properties of Squares}
+
+\begin{theorem}[spectral\_zero\_of\_eigenvalues\_zero]
+Let $a \in J$ have spectral decomposition $\mathsf{sd}$. If all eigenvalues are zero:
+\[ \bigl(\forall i,\, \mathsf{sd}.\mathsf{eigenvalues}(i) = 0\bigr) \implies a = 0 \]
+\end{theorem}
+
+\begin{theorem}[spectral\_eigenvalues\_sq\_nonneg]
+For any spectral decomposition $\mathsf{sd}$ of $a \in J$:
+\[ \forall i,\, 0 \le (\mathsf{sd}.\mathsf{eigenvalues}(i))^2 \]
+\end{theorem}
+
+\subsection{Formally Real and Spectral Properties}
+
+\begin{theorem}[FormallyRealJordan.spectral\_sq\_eigenvalues\_nonneg]
+Let $J$ be a formally real Jordan algebra and let $a \in J$. If $\jsq{a}$ has a spectral decomposition $\mathsf{sd}$, then all eigenvalues are non-negative:
+\[ \forall i,\, 0 \le \mathsf{sd}.\mathsf{eigenvalues}(i) \]
+\end{theorem}

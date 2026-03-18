@@ -1,0 +1,55 @@
+\section{FundamentalFormula}
+
+\begin{lemma}[linearized\_jordan\_aux]
+For all $a, b, c \in J$:
+\begin{align*}
+&(a \jmul (b \jmul c)) \jmul \jsq{a} + (b \jmul (a \jmul c)) \jmul \jsq{a} + (c \jmul (a \jmul b)) \jmul \jsq{a} \\
+&= a \jmul ((b \jmul c) \jmul \jsq{a}) + b \jmul ((a \jmul c) \jmul \jsq{a}) + c \jmul ((a \jmul b) \jmul \jsq{a})
+\end{align*}
+\end{lemma}
+
+\begin{lemma}[U\_U\_expand]
+For all $a, b, x \in J$:
+\[ \Uop{a}(\Uop{b}(x)) = 2 \cdot a \jmul (a \jmul (2 \cdot b \jmul (b \jmul x) - \jsq{b} \jmul x)) - \jsq{a} \jmul (2 \cdot b \jmul (b \jmul x) - \jsq{b} \jmul x) \]
+\end{lemma}
+
+\subsection{The Fundamental Formula}
+
+\begin{theorem}[fundamental\_formula]
+\textbf{(Fundamental Formula)}
+For all $a, b \in J$:
+\[ \Uop{\Uop{a}(b)} = \Uop{a} \circ \Uop{b} \circ \Uop{a} \]
+That is, for all $x \in J$:
+\[ \Uop{\Uop{a}(b)}(x) = \Uop{a}(\Uop{b}(\Uop{a}(x))) \]
+\end{theorem}
+
+\subsection{Corollaries of the Fundamental Formula}
+
+\begin{theorem}[U\_jsq]
+For all $a \in J$:
+\[ \Uop{\jsq{a}} = \Uop{a}^2 \]
+That is, for all $x \in J$:
+\[ \Uop{\jsq{a}}(x) = \Uop{a}(\Uop{a}(x)) \]
+\end{theorem}
+
+\begin{theorem}[U\_idempotent\_comp']
+Let $e \in J$ be an idempotent (i.e., $\jsq{e} = e$). Then for all $x \in J$:
+\[ \Uop{e}(\Uop{e}(x)) = \Uop{e}(x) \]
+\end{theorem}
+
+\begin{theorem}[U\_jsq\_idempotent]
+Let $e \in J$ be an idempotent. Then for all $x \in J$:
+\[ \Uop{\jsq{e}}(x) = \Uop{e}(x) \]
+\end{theorem}
+
+\subsection{Additional Properties from Fundamental Formula}
+
+\begin{theorem}[U\_jpow\_two]
+For all $a \in J$ and all $x \in J$:
+\[ \Uop{\jpow{a}{2}}(x) = \Uop{a}(\Uop{a}(x)) \]
+\end{theorem}
+
+\begin{theorem}[fundamental\_formula\_linear]
+For all $a, b \in J$, as $\R$-linear maps:
+\[ \Uop{\Uop{a}(b)} = \Uop{a} \circ \Uop{b} \circ \Uop{a} \]
+\end{theorem}

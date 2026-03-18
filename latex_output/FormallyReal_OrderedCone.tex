@@ -1,0 +1,56 @@
+\section{Formally Real: Ordered Cone}
+
+\subsection{Positive Elements}
+
+\begin{definition}[PositiveElement]
+Let $J$ be a Jordan algebra. An element $a \in J$ is \textbf{positive} if it is a sum of squares:
+\[ \mathsf{PositiveElement}(a) \defas \exists n \in \N,\, \exists b : \mathrm{Fin}(n) \to J,\quad a = \sum_{i=0}^{n-1} \jsq{b_i} \]
+\end{definition}
+
+\begin{theorem}[positiveElement\_zero]
+Zero is a positive element:
+\[ \mathsf{PositiveElement}(0) \]
+\end{theorem}
+
+\begin{theorem}[positiveElement\_jsq]
+For all $a \in J$, the square $\jsq{a}$ is a positive element:
+\[ \mathsf{PositiveElement}(\jsq{a}) \]
+\end{theorem}
+
+\begin{theorem}[positiveElement\_add]
+The sum of positive elements is positive. If $\mathsf{PositiveElement}(a)$ and $\mathsf{PositiveElement}(b)$, then:
+\[ \mathsf{PositiveElement}(a + b) \]
+\end{theorem}
+
+\begin{theorem}[positiveElement\_smul]
+Positive scalar multiples of positive elements are positive. If $\mathsf{PositiveElement}(a)$ and $r > 0$, then:
+\[ \mathsf{PositiveElement}(r \cdot a) \]
+\end{theorem}
+
+\subsection{Positive Cone}
+
+\begin{definition}[positiveCone]
+The \textbf{positive cone} in a Jordan algebra $J$ is the convex cone over $\R$ consisting of sums of squares:
+\[ \mathsf{positiveCone}(J) : \mathsf{ConvexCone}\,\R\,J \]
+where the carrier is $\{ a \in J \mid \mathsf{PositiveElement}(a) \}$, with:
+\begin{itemize}
+  \item $\mathsf{smul\_mem'}$: for $c > 0$ and $x$ in the cone, $c \cdot x$ is in the cone
+  \item $\mathsf{add\_mem'}$: for $x, y$ in the cone, $x + y$ is in the cone
+\end{itemize}
+\end{definition}
+
+\begin{theorem}[mem\_positiveCone]
+For $a \in J$:
+\[ a \in \mathsf{positiveCone}(J) \iff \mathsf{PositiveElement}(a) \]
+\end{theorem}
+
+\begin{theorem}[positiveCone\_pointed]
+The positive cone is pointed (contains zero):
+\[ \mathsf{positiveCone}(J).\mathsf{Pointed} \]
+\end{theorem}
+
+\begin{theorem}[positiveCone\_salient]
+In a formally real Jordan algebra, the positive cone is salient. That is, if $J$ is formally real, then:
+\[ \mathsf{positiveCone}(J).\mathsf{Salient} \]
+In other words, if $a \in \mathsf{positiveCone}(J)$, $a \ne 0$, and $-a \in \mathsf{positiveCone}(J)$, we derive a contradiction.
+\end{theorem}

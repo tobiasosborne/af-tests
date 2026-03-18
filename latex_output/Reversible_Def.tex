@@ -1,0 +1,18 @@
+\section{Reversible}
+
+\begin{definition}[IsReversible]
+A Jordan algebra $J$ is \textbf{reversible} if there exists:
+\begin{itemize}
+  \item An associative algebra $A$ over $\R$
+  \item An $\R$-linear map $f : J \to A$
+\end{itemize}
+such that:
+\begin{enumerate}
+  \item (Jordan product preservation) For all $a, b \in J$:
+    \[ f(a \jmul b) = \frac{1}{2}(f(a) \cdot f(b) + f(b) \cdot f(a)) \]
+  \item (Identity preservation) $f(\jone) = 1_A$
+  \item (Injectivity) $f$ is injective
+  \item (Closure under reversal) For all $a, b, c \in J$, there exists $d \in J$ such that:
+    \[ f(d) = f(a) \cdot f(b) \cdot f(c) + f(c) \cdot f(b) \cdot f(a) \]
+\end{enumerate}
+\end{definition}

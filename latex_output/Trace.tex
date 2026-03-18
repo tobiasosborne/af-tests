@@ -1,0 +1,118 @@
+\section{Trace}
+
+\subsection{Trace Class}
+
+\begin{definition}[JordanTrace]
+A \textbf{Jordan trace} on a Jordan algebra $J$ is a structure consisting of:
+\begin{itemize}
+  \item $\mathsf{trace} : J \to \R$ --- the trace functional
+  \item $\mathsf{trace\_add}$: $\forall a, b \in J$, $\trace(a + b) = \trace(a) + \trace(b)$
+  \item $\mathsf{trace\_smul}$: $\forall r \in \R$, $\forall a \in J$, $\trace(r \cdot a) = r \cdot \trace(a)$
+  \item $\mathsf{trace\_jmul\_comm}$: $\forall a, b \in J$, $\trace(a \jmul b) = \trace(b \jmul a)$
+  \item $\mathsf{trace\_L\_selfadjoint}$: $\forall a, v, w \in J$, $\trace((a \jmul v) \jmul w) = \trace(v \jmul (a \jmul w))$
+  \item $\mathsf{trace\_jone\_pos}$: $0 < \trace(\jone)$
+\end{itemize}
+\end{definition}
+
+\subsection{Basic Trace Properties}
+
+\begin{theorem}[trace\_zero]
+$\trace(0) = 0$.
+\end{theorem}
+
+\begin{theorem}[trace\_neg]
+For all $a \in J$:
+\[ \trace(-a) = -\trace(a) \]
+\end{theorem}
+
+\begin{theorem}[trace\_sub]
+For all $a, b \in J$:
+\[ \trace(a - b) = \trace(a) - \trace(b) \]
+\end{theorem}
+
+\subsection{Trace Inner Product}
+
+\begin{definition}[traceInner]
+The \textbf{trace inner product} is defined by:
+\[ \tau(a, b) \defas \trace(a \jmul b) \]
+\end{definition}
+
+\begin{theorem}[traceInner\_symm]
+For all $a, b \in J$:
+\[ \tau(a, b) = \tau(b, a) \]
+\end{theorem}
+
+\begin{theorem}[traceInner\_add\_left]
+For all $a, b, c \in J$:
+\[ \tau(a + b, c) = \tau(a, c) + \tau(b, c) \]
+\end{theorem}
+
+\begin{theorem}[traceInner\_add\_right]
+For all $a, b, c \in J$:
+\[ \tau(a, b + c) = \tau(a, b) + \tau(a, c) \]
+\end{theorem}
+
+\begin{theorem}[traceInner\_smul\_left]
+For all $r \in \R$ and $a, b \in J$:
+\[ \tau(r \cdot a, b) = r \cdot \tau(a, b) \]
+\end{theorem}
+
+\begin{theorem}[traceInner\_smul\_right]
+For all $r \in \R$ and $a, b \in J$:
+\[ \tau(a, r \cdot b) = r \cdot \tau(a, b) \]
+\end{theorem}
+
+\begin{theorem}[traceInner\_zero\_left]
+For all $a \in J$:
+\[ \tau(0, a) = 0 \]
+\end{theorem}
+
+\begin{theorem}[traceInner\_zero\_right]
+For all $a \in J$:
+\[ \tau(a, 0) = 0 \]
+\end{theorem}
+
+\begin{theorem}[traceInner\_neg\_left]
+For all $a, b \in J$:
+\[ \tau(-a, b) = -\tau(a, b) \]
+\end{theorem}
+
+\begin{theorem}[traceInner\_neg\_right]
+For all $a, b \in J$:
+\[ \tau(a, -b) = -\tau(a, b) \]
+\end{theorem}
+
+\begin{theorem}[traceInner\_jmul\_left]
+For all $a, v, w \in J$:
+\[ \tau(a \jmul v, w) = \tau(v, a \jmul w) \]
+That is, $\Lop{a}$ is self-adjoint with respect to the trace inner product.
+\end{theorem}
+
+\subsection{Non-degeneracy}
+
+\begin{definition}[FormallyRealTrace]
+A \textbf{formally real trace} on a Jordan algebra $J$ extends $\mathsf{JordanTrace}$ with:
+\begin{itemize}
+  \item $\mathsf{trace\_jsq\_nonneg}$: $\forall a \in J$, $0 \le \trace(\jsq{a})$
+  \item $\mathsf{trace\_jsq\_eq\_zero\_iff}$: $\forall a \in J$, $\trace(\jsq{a}) = 0 \iff a = 0$
+\end{itemize}
+\end{definition}
+
+\begin{theorem}[traceInner\_self\_nonneg]
+For all $a \in J$:
+\[ 0 \le \tau(a, a) \]
+\end{theorem}
+
+\begin{theorem}[traceInner\_self\_eq\_zero\_iff]
+For all $a \in J$:
+\[ \tau(a, a) = 0 \iff a = 0 \]
+\end{theorem}
+
+\begin{theorem}[traceInner\_self\_pos]
+If $a \ne 0$, then:
+\[ 0 < \tau(a, a) \]
+\end{theorem}
+
+\begin{theorem}[traceInner\_nondegenerate]
+If $\tau(a, b) = 0$ for all $b \in J$, then $a = 0$.
+\end{theorem}

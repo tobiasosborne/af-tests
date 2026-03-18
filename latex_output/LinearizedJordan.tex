@@ -1,0 +1,73 @@
+\section{LinearizedJordan}
+
+\subsection{Four-Variable Identity}
+
+\begin{theorem}[four\_variable\_identity]
+For all $a, b, c, d \in J$:
+\[
+a \jmul ((b \jmul c) \jmul d) + b \jmul ((c \jmul a) \jmul d) + c \jmul ((a \jmul b) \jmul d) = (b \jmul c) \jmul (a \jmul d) + (c \jmul a) \jmul (b \jmul d) + (a \jmul b) \jmul (c \jmul d)
+\]
+\end{theorem}
+
+\begin{theorem}[operator\_formula\_apply]
+For all $a, b, c, d \in J$:
+\[
+a \jmul ((b \jmul c) \jmul d) + b \jmul ((c \jmul a) \jmul d) + c \jmul ((a \jmul b) \jmul d) = (a \jmul (b \jmul c)) \jmul d + b \jmul (a \jmul (c \jmul d)) + c \jmul (a \jmul (b \jmul d))
+\]
+\end{theorem}
+
+\begin{theorem}[operator\_formula]
+For all $a, b, c \in J$:
+\[
+\Lop{a} \circ \Lop{b \jmul c} + \Lop{b} \circ \Lop{c \jmul a} + \Lop{c} \circ \Lop{a \jmul b} = \Lop{a \jmul (b \jmul c)} + \Lop{b} \circ \Lop{a} \circ \Lop{c} + \Lop{c} \circ \Lop{a} \circ \Lop{b}
+\]
+\end{theorem}
+
+\subsection{Power Associativity}
+
+\begin{theorem}[L\_L\_jsq\_comm]
+For all $a \in J$, the operators $\Lop{a}$ and $\Lop{\jsq{a}}$ commute.
+\end{theorem}
+
+\subsection{The Fundamental Jordan Identity (Element Form)}
+
+\begin{theorem}[fundamental\_jordan]
+For all $a, b \in J$:
+\[
+(\jsq{a} \jmul b) \jmul a = \jsq{a} \jmul (b \jmul a)
+\]
+\end{theorem}
+
+\begin{theorem}[fundamental\_jordan']
+For all $a, b \in J$:
+\[
+a \jmul (\jsq{a} \jmul b) = \jsq{a} \jmul (a \jmul b)
+\]
+\end{theorem}
+
+\begin{theorem}[fundamental\_jordan\_original]
+For all $a, b \in J$:
+\[
+(a \jmul b) \jmul \jsq{a} = a \jmul (b \jmul \jsq{a})
+\]
+\end{theorem}
+
+\subsection{Power Associativity (Operator Commutation)}
+
+\begin{theorem}[L\_jpow\_comm\_L]
+For all $a \in J$ and $n \in \N$, the operators $\Lop{a}$ and $\Lop{\jpow{a}{n}}$ commute.
+\end{theorem}
+
+\begin{theorem}[jpow\_add]
+For all $a \in J$ and $m, n \in \N$:
+\[
+\jpow{a}{m} \jmul \jpow{a}{n} = \jpow{a}{m+n}
+\]
+\end{theorem}
+
+\begin{theorem}[jpow\_assoc]
+For all $a \in J$ and $m, n, p \in \N$:
+\[
+(\jpow{a}{m} \jmul \jpow{a}{n}) \jmul \jpow{a}{p} = \jpow{a}{m} \jmul (\jpow{a}{n} \jmul \jpow{a}{p})
+\]
+\end{theorem}

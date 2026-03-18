@@ -1,0 +1,84 @@
+\section{Matrix: Instance}
+
+\begin{definition}[HermitianMatrix]
+Let $n$ be a finite type and $R$ be an additive group with star structure. Define:
+\[ \mathsf{HermitianMatrix}(n, R) \defas \mathsf{selfAdjoint}(\mathsf{Matrix}(n, n, R)) \]
+i.e., the type of self-adjoint (Hermitian) $n \times n$ matrices over $R$.
+\end{definition}
+
+\subsection{Jordan Product on Hermitian Matrices}
+
+\begin{definition}[jmul]
+Let $A, B : \mathsf{HermitianMatrix}(n, R)$. Define the \textbf{Jordan product}:
+\[ A \jmul B \defas \frac{1}{2}(AB + BA) \]
+which is again Hermitian.
+\end{definition}
+
+\begin{lemma}[jmul\_val]
+For $A, B : \mathsf{HermitianMatrix}(n, R)$:
+\[ (A \jmul B).\mathsf{val} = \mathsf{jordanMul}(A.\mathsf{val}, B.\mathsf{val}) \]
+\end{lemma}
+
+\begin{theorem}[jmul\_comm]
+The Jordan product on Hermitian matrices is commutative:
+\[ A \jmul B = B \jmul A \]
+\end{theorem}
+
+\begin{definition}[one]
+The \textbf{identity element} in $\mathsf{HermitianMatrix}(n, R)$ is:
+\[ \jone \defas I_n \]
+where $I_n$ is the identity matrix, which is Hermitian.
+\end{definition}
+
+\begin{lemma}[one\_val]
+\[ \jone.\mathsf{val} = 1 \]
+\end{lemma}
+
+\begin{theorem}[jmul\_one]
+For all $A : \mathsf{HermitianMatrix}(n, R)$:
+\[ A \jmul \jone = A \]
+\end{theorem}
+
+\begin{theorem}[one\_jmul]
+For all $A : \mathsf{HermitianMatrix}(n, R)$:
+\[ \jone \jmul A = A \]
+\end{theorem}
+
+\begin{theorem}[jmul\_add]
+The Jordan product distributes over addition:
+\[ A \jmul (B + C) = (A \jmul B) + (A \jmul C) \]
+\end{theorem}
+
+\begin{theorem}[jmul\_smul]
+The Jordan product respects scalar multiplication: for $r \in \R$,
+\[ (r \cdot A) \jmul B = r \cdot (A \jmul B) \]
+\end{theorem}
+
+\subsection{Jordan Identity}
+
+\begin{theorem}[jordanMul\_jordan\_identity]
+For matrices $A, B : \mathsf{Matrix}(n, n, R)$, the Jordan identity holds:
+\[ (A \jmul B) \jmul (A \jmul A) = A \jmul (B \jmul (A \jmul A)) \]
+where $A \jmul B = \frac{1}{2}(AB + BA)$. Both sides expand to:
+\[ \frac{1}{4}(ABA^2 + BA^3 + A^3B + A^2BA) \]
+\end{theorem}
+
+\begin{theorem}[jordan\_identity]
+For Hermitian matrices $A, B : \mathsf{HermitianMatrix}(n, R)$:
+\[ (A \jmul B) \jmul \jsq{A} = A \jmul (B \jmul \jsq{A}) \]
+\end{theorem}
+
+\subsection{Jordan Algebra Instance}
+
+\begin{proposition}[jordanAlgebraHermitianMatrix]
+Let $n$ be a finite decidable type and $R$ a field with star ring structure, characteristic zero, and $\R$-algebra structure with star module. Then $\mathsf{HermitianMatrix}(n, R)$ is a \textbf{Jordan algebra} with:
+\begin{itemize}
+  \item Product: $A \jmul B = \frac{1}{2}(AB + BA)$
+  \item Commutativity: $A \jmul B = B \jmul A$
+  \item Jordan identity: $(A \jmul B) \jmul \jsq{A} = A \jmul (B \jmul \jsq{A})$
+  \item Identity: $\jone = I_n$
+  \item Left identity: $\jone \jmul A = A$
+  \item Distributivity: $A \jmul (B + C) = (A \jmul B) + (A \jmul C)$
+  \item Scalar compatibility: $(r \cdot A) \jmul B = r \cdot (A \jmul B)$
+\end{itemize}
+\end{proposition}

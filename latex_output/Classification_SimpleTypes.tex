@@ -1,0 +1,66 @@
+\section{Classification: Simple Types}
+
+\begin{definition}[SimpleType]
+The \textbf{simple types} of finite-dimensional simple formally real Jordan algebras are given by the inductive type:
+\begin{itemize}
+  \item $\mathsf{typeI}(n) : \mathsf{SimpleType}$ --- $H_n(\R)$: real symmetric matrices
+  \item $\mathsf{typeII}(n) : \mathsf{SimpleType}$ --- $H_n(\C)$: complex Hermitian matrices
+  \item $\mathsf{typeIII}(n) : \mathsf{SimpleType}$ --- $H_n(\mathbb{H})$: quaternionic Hermitian matrices
+  \item $\mathsf{typeIV}(n) : \mathsf{SimpleType}$ --- $V_n$: spin factors ($n \ge 2$)
+  \item $\mathsf{typeV} : \mathsf{SimpleType}$ --- $H_3(\mathbb{O})$: Albert algebra (exceptional)
+\end{itemize}
+This type has decidable equality.
+\end{definition}
+
+\subsection{Properties of Simple Types}
+
+\begin{definition}[dimension]
+The \textbf{dimension} of a simple type is defined by:
+\[
+\mathsf{dimension}(t) \defas
+\begin{cases}
+\frac{n(n+1)}{2} & \text{if } t = \mathsf{typeI}(n) \\
+n^2 & \text{if } t = \mathsf{typeII}(n) \\
+n(2n-1) & \text{if } t = \mathsf{typeIII}(n) \\
+n & \text{if } t = \mathsf{typeIV}(n) \\
+27 & \text{if } t = \mathsf{typeV}
+\end{cases}
+\]
+\end{definition}
+
+\begin{definition}[isReversible]
+A simple type is \textbf{reversible} (embeds into an associative algebra with reversal) if and only if it is not of type V:
+\[
+\mathsf{isReversible}(t) \defas
+\begin{cases}
+\mathsf{false} & \text{if } t = \mathsf{typeV} \\
+\mathsf{true} & \text{otherwise}
+\end{cases}
+\]
+\end{definition}
+
+\begin{definition}[isExceptional]
+A simple type is \textbf{exceptional} (not special) if and only if it is of type V:
+\[
+\mathsf{isExceptional}(t) \defas
+\begin{cases}
+\mathsf{true} & \text{if } t = \mathsf{typeV} \\
+\mathsf{false} & \text{otherwise}
+\end{cases}
+\]
+\end{definition}
+
+\begin{definition}[minIndex]
+The \textbf{minimum index} for which each type is defined:
+\[
+\mathsf{minIndex}(t) \defas
+\begin{cases}
+1 & \text{if } t = \mathsf{typeI}(n) \\
+1 & \text{if } t = \mathsf{typeII}(n) \\
+1 & \text{if } t = \mathsf{typeIII}(n) \\
+2 & \text{if } t = \mathsf{typeIV}(n) \\
+0 & \text{if } t = \mathsf{typeV}
+\end{cases}
+\]
+Note: $V_1 \cong \R$ is not considered a ``spin'' factor, hence the minimum index of 2 for type IV.
+\end{definition}

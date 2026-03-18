@@ -1,0 +1,54 @@
+\section{Matrix: Jordan Product}
+
+\subsection{Basic Jordan Product}
+
+Let $n$ be a finite type with decidable equality, and let $R$ be a field of characteristic zero.
+
+\begin{definition}[jordanMul]
+The \textbf{Jordan product} on matrices $A, B \in M_n(R)$ is defined by:
+\[ A \circ B \defas \frac{1}{2}(AB + BA) \]
+\end{definition}
+
+\begin{lemma}[jordanMul\_def]
+For all $A, B \in M_n(R)$:
+\[ A \circ B = \frac{1}{2}(AB + BA) \]
+\end{lemma}
+
+\begin{theorem}[jordanMul\_comm]
+The Jordan product is commutative. For all $A, B \in M_n(R)$:
+\[ A \circ B = B \circ A \]
+\end{theorem}
+
+\begin{lemma}[jordanMul\_one]
+The identity matrix is the identity for the Jordan product. For all $A \in M_n(R)$:
+\[ A \circ I = A \]
+\end{lemma}
+
+\begin{lemma}[one\_jordanMul]
+For all $A \in M_n(R)$:
+\[ I \circ A = A \]
+\end{lemma}
+
+\begin{lemma}[jordanMul\_zero]
+For all $A \in M_n(R)$:
+\[ A \circ 0 = 0 \]
+\end{lemma}
+
+\begin{lemma}[zero\_jordanMul]
+For all $A \in M_n(R)$:
+\[ 0 \circ A = 0 \]
+\end{lemma}
+
+\begin{theorem}[jordanMul\_self]
+The Jordan square equals the matrix square. For all $A \in M_n(R)$:
+\[ A \circ A = A^2 \]
+\end{theorem}
+
+\subsection{Hermitian Matrices}
+
+Let $R$ be a field of characteristic zero with a star ring structure.
+
+\begin{theorem}[IsHermitian.jordanMul]
+Hermitian matrices are closed under the Jordan product. If $A, B \in M_n(R)$ are Hermitian (i.e., $A^* = A$ and $B^* = B$), then $A \circ B$ is also Hermitian:
+\[ (A \circ B)^* = A \circ B \]
+\end{theorem}

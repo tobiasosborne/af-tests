@@ -1,0 +1,37 @@
+\section{Simple}
+
+\begin{definition}[IsSimpleJordan]
+A Jordan algebra $J$ is \textbf{simple} if:
+\begin{itemize}
+  \item $\mathsf{nontrivial}$: There exists $a \in J$ such that $a \ne 0$.
+  \item $\mathsf{ideal\_eq\_bot\_or\_top}$: For every Jordan ideal $I$ of $J$, either $I = \bot$ or $I = \top$.
+\end{itemize}
+\end{definition}
+
+\begin{proposition}
+If $J$ is a simple Jordan algebra, then $J$ is nontrivial.
+\end{proposition}
+
+\begin{theorem}[jone\_ne\_zero]
+In a simple Jordan algebra $J$, the identity element is nonzero: $\jone \ne 0$.
+\end{theorem}
+
+\begin{theorem}[ideal\_eq\_top\_of\_ne\_bot]
+Let $J$ be a simple Jordan algebra and let $I$ be a Jordan ideal of $J$. If $I \ne \bot$, then $I = \top$.
+\end{theorem}
+
+\begin{theorem}[ideal\_eq\_top\_of\_mem\_ne\_zero]
+Let $J$ be a simple Jordan algebra, let $I$ be a Jordan ideal of $J$, and let $a \in J$. If $a \in I$ and $a \ne 0$, then $I = \top$.
+\end{theorem}
+
+\begin{theorem}[ideal\_of\_one\_eq\_top]
+Let $J$ be a simple Jordan algebra and let $I$ be a Jordan ideal of $J$. If $\jone \in I$, then $I = \top$.
+\end{theorem}
+
+\begin{theorem}[IsSimpleJordan.mk']
+Let $J$ be a Jordan algebra that is nontrivial. If every Jordan ideal $I$ of $J$ satisfies $I = \bot$ or $I = \top$, then $J$ is simple.
+\end{theorem}
+
+\begin{theorem}[isSimpleJordan\_of\_ideal\_trichotomy]
+Let $J$ be a Jordan algebra. If there exists $a \in J$ with $a \ne 0$, and every Jordan ideal $I$ of $J$ satisfies $I = \bot$ or $I = \top$, then $J$ is simple.
+\end{theorem}

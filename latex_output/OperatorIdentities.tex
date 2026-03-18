@@ -1,0 +1,103 @@
+\section{OperatorIdentities}
+
+\subsection{Commutator Bracket}
+
+\begin{definition}[opComm]
+The \textbf{commutator} (Lie bracket) of two $\R$-linear operators $f, g : J \to J$ is:
+\[ \opComm{f}{g} \defas f \circ g - g \circ f \]
+\end{definition}
+
+\begin{notation}
+We write $\llbracket f, g \rrbracket$ for $\opComm{f}{g}$.
+\end{notation}
+
+\begin{lemma}[opComm\_apply]
+For all $\R$-linear maps $f, g : J \to J$ and $x \in J$:
+\[ \llbracket f, g \rrbracket(x) = f(g(x)) - g(f(x)) \]
+\end{lemma}
+
+\begin{lemma}[opComm\_skew]
+For all $\R$-linear maps $f, g : J \to J$:
+\[ \llbracket f, g \rrbracket = -\llbracket g, f \rrbracket \]
+\end{lemma}
+
+\begin{lemma}[opComm\_self]
+For all $\R$-linear maps $f : J \to J$:
+\[ \llbracket f, f \rrbracket = 0 \]
+\end{lemma}
+
+\subsection{Linearized Jordan Identity}
+
+\begin{theorem}[linearized\_jordan\_operator]
+For all $a, b, c \in J$:
+\[ 2 \cdot \bigl( \llbracket \Lop{a}, \Lop{b \jmul c} \rrbracket + \llbracket \Lop{b}, \Lop{c \jmul a} \rrbracket + \llbracket \Lop{c}, \Lop{a \jmul b} \rrbracket \bigr) = 0 \]
+\end{theorem}
+
+\begin{theorem}[linearized\_on\_jsq]
+For all $a, b, c \in J$:
+\begin{align*}
+2 \cdot \bigl( &a \jmul ((b \jmul c) \jmul \jsq{a}) - (b \jmul c) \jmul (a \jmul \jsq{a}) \\
++ &b \jmul ((c \jmul a) \jmul \jsq{a}) - (c \jmul a) \jmul (b \jmul \jsq{a}) \\
++ &c \jmul ((a \jmul b) \jmul \jsq{a}) - (a \jmul b) \jmul (c \jmul \jsq{a}) \bigr) = 0
+\end{align*}
+\end{theorem}
+
+\begin{theorem}[linearized\_core]
+For all $a, b, c \in J$:
+\begin{align*}
+&a \jmul ((b \jmul c) \jmul \jsq{a}) - (b \jmul c) \jmul (a \jmul \jsq{a}) \\
++ &b \jmul ((c \jmul a) \jmul \jsq{a}) - (c \jmul a) \jmul (b \jmul \jsq{a}) \\
++ &c \jmul ((a \jmul b) \jmul \jsq{a}) - (a \jmul b) \jmul (c \jmul \jsq{a}) = 0
+\end{align*}
+\end{theorem}
+
+\begin{theorem}[linearized\_rearranged]
+For all $a, b, c \in J$:
+\begin{align*}
+&a \jmul ((b \jmul c) \jmul \jsq{a}) + b \jmul ((c \jmul a) \jmul \jsq{a}) + c \jmul ((a \jmul b) \jmul \jsq{a}) \\
+&= (b \jmul c) \jmul (a \jmul \jsq{a}) + (c \jmul a) \jmul (b \jmul \jsq{a}) + (a \jmul b) \jmul (c \jmul \jsq{a})
+\end{align*}
+\end{theorem}
+
+\subsection{Operator Commutator with Squared Element}
+
+\begin{theorem}[operator\_commutator\_jsq]
+For all $a, b \in J$:
+\[ \llbracket \Lop{\jsq{a}}, \Lop{b} \rrbracket = 2 \cdot \llbracket \Lop{a}, \Lop{a \jmul b} \rrbracket \]
+\end{theorem}
+
+\begin{theorem}[operator\_commutator\_jsq\_apply]
+For all $a, b, x \in J$:
+\[ \jsq{a} \jmul (b \jmul x) - b \jmul (\jsq{a} \jmul x) = 2 \cdot \bigl( a \jmul ((a \jmul b) \jmul x) - (a \jmul b) \jmul (a \jmul x) \bigr) \]
+\end{theorem}
+
+\subsection{Idempotent Operator Identities}
+
+\begin{theorem}[opComm\_idempotent\_eigenspace]
+Let $e \in J$ be idempotent. Let $a \in J$ with $e \jmul a = \lambda \cdot a$ for some $\lambda \in \R$. Then for all $x \in J$:
+\[ \llbracket \Lop{e}, \Lop{a} \rrbracket(x) = e \jmul (a \jmul x) - a \jmul (e \jmul x) \]
+\end{theorem}
+
+\begin{theorem}[L\_e\_L\_a\_L\_e]
+Let $e \in J$ be idempotent. For all $a \in J$:
+\[ \Lop{e} \circ \Lop{a} \circ \Lop{e} = \Lop{e \jmul (a \jmul e)} + \frac{1}{2} \cdot \llbracket \Lop{e}, \llbracket \Lop{e}, \Lop{a} \rrbracket \rrbracket \]
+\emph{(Currently unproven in the formalization.)}
+\end{theorem}
+
+\begin{theorem}[opComm\_double\_idempotent]
+Let $e \in J$ be idempotent. For all $a \in J$:
+\[ \llbracket \Lop{e}, \llbracket \Lop{e}, \Lop{a} \rrbracket \rrbracket = 2 \cdot (\Lop{e} \circ \Lop{a} \circ \Lop{e}) - 2 \cdot \Lop{e \jmul (a \jmul e)} \]
+\emph{(Currently unproven in the formalization.)}
+\end{theorem}
+
+\subsection{Useful Commutator Properties}
+
+\begin{theorem}[opComm\_on\_P1]
+Let $e \in J$ be idempotent. Let $a, b \in J$ with $e \jmul a = a$ and $e \jmul b = b$ (i.e., $a, b \in \Peirce{e}{1}$). Then:
+\[ \llbracket \Lop{e}, \Lop{a} \rrbracket(b) = e \jmul (a \jmul b) - a \jmul b \]
+\end{theorem}
+
+\begin{theorem}[opComm\_on\_P0]
+Let $e \in J$ be idempotent. Let $a \in J$ with $e \jmul a = 0$ (i.e., $a \in \Peirce{e}{0}$). Then for all $x \in J$:
+\[ \llbracket \Lop{e}, \Lop{a} \rrbracket(x) = e \jmul (a \jmul x) - a \jmul (e \jmul x) \]
+\end{theorem}

@@ -1,0 +1,103 @@
+\section{Matrix: Real Hermitian}
+
+This section establishes the equivalence between Hermitian and symmetric matrices over $\R$, and defines the type of real symmetric matrices as a Jordan algebra.
+
+\subsection{Hermitian and Symmetric Equivalence for Real Matrices}
+
+\begin{theorem}[isHermitian\_iff\_isSymm]
+Let $A : \mathrm{Matrix}(n, n, \R)$. Then $A$ is Hermitian if and only if $A$ is symmetric:
+\[ A^* = A \iff A^\top = A \]
+\end{theorem}
+
+\begin{theorem}[conjTranspose\_eq\_transpose\_real]
+For any real matrix $A : \mathrm{Matrix}(m, n, \R)$:
+\[ A^* = A^\top \]
+\end{theorem}
+
+\begin{lemma}[IsSymm.isHermitian]
+If $A : \mathrm{Matrix}(n, n, \R)$ is symmetric, then $A$ is Hermitian.
+\end{lemma}
+
+\begin{lemma}[IsHermitian.isSymm\_of\_real]
+If $A : \mathrm{Matrix}(n, n, \R)$ is Hermitian, then $A$ is symmetric.
+\end{lemma}
+
+\subsection{Real Symmetric Matrix Type}
+
+\begin{definition}[RealSymmetricMatrix]
+Define $\mathsf{RealSymmetricMatrix}(n)$ as an abbreviation for $\mathsf{HermitianMatrix}(n, \R)$.
+
+Over $\R$, this coincides with the set of matrices satisfying $A^\top = A$.
+\end{definition}
+
+\subsection{Basic Properties}
+
+\begin{theorem}[transpose\_eq]
+For any $A : \mathsf{RealSymmetricMatrix}(n)$:
+\[ A^\top = A \]
+\end{theorem}
+
+\begin{definition}[ofSymm]
+Let $A : \mathrm{Matrix}(n, n, \R)$ and let $h$ be a proof that $A$ is symmetric. Define:
+\[ \mathsf{ofSymm}(A, h) : \mathsf{RealSymmetricMatrix}(n) \]
+as the real symmetric matrix with underlying matrix $A$.
+\end{definition}
+
+\begin{lemma}[ofSymm\_val]
+For any symmetric matrix $A : \mathrm{Matrix}(n, n, \R)$ with proof $h$:
+\[ \mathsf{ofSymm}(A, h).\mathsf{val} = A \]
+\end{lemma}
+
+\begin{theorem}[isSymm]
+For any $A : \mathsf{RealSymmetricMatrix}(n)$, the underlying matrix $A.\mathsf{val}$ is symmetric.
+\end{theorem}
+
+\subsection{Instances}
+
+\begin{proposition}
+$\mathsf{RealSymmetricMatrix}(n)$ is an instance of $\mathsf{JordanAlgebra}$.
+\end{proposition}
+
+\begin{proposition}
+$\mathsf{RealSymmetricMatrix}(n)$ is an instance of $\mathsf{FormallyRealJordan}$.
+\end{proposition}
+
+\subsection{Special Matrices}
+
+\begin{definition}[one]
+The identity matrix in $\mathsf{RealSymmetricMatrix}(n)$:
+\[ \mathsf{one} \defas \mathsf{HermitianMatrix.one} \]
+\end{definition}
+
+\begin{definition}[zero]
+The zero matrix in $\mathsf{RealSymmetricMatrix}(n)$:
+\[ \mathsf{zero} \defas 0 \]
+\end{definition}
+
+\begin{definition}[diagonal]
+Let $d : n \to \R$ be a function. Define the diagonal matrix:
+\[ \mathsf{diagonal}(d) : \mathsf{RealSymmetricMatrix}(n) \]
+as the real symmetric matrix with diagonal entries given by $d$.
+\end{definition}
+
+\begin{lemma}[diagonal\_val]
+For any $d : n \to \R$:
+\[ \mathsf{diagonal}(d).\mathsf{val} = \mathrm{Matrix.diagonal}(d) \]
+\end{lemma}
+
+\subsection{Trace Inner Product}
+
+\begin{definition}[traceInner]
+For $A, B : \mathsf{RealSymmetricMatrix}(n)$, define the trace inner product:
+\[ \langle A, B \rangle_{\mathrm{tr}} \defas \mathsf{HermitianMatrix.traceInnerReal}(A, B) \]
+\end{definition}
+
+\begin{theorem}[traceInner\_comm]
+For all $A, B : \mathsf{RealSymmetricMatrix}(n)$:
+\[ \langle A, B \rangle_{\mathrm{tr}} = \langle B, A \rangle_{\mathrm{tr}} \]
+\end{theorem}
+
+\begin{theorem}[traceInner\_self\_nonneg]
+For all $A : \mathsf{RealSymmetricMatrix}(n)$:
+\[ 0 \le \langle A, A \rangle_{\mathrm{tr}} \]
+\end{theorem}

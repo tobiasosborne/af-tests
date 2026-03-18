@@ -1,0 +1,92 @@
+\section{Quadratic}
+
+\subsection{The Quadratic U Operator}
+
+\begin{definition}[U]
+Let $J$ be a Jordan algebra and let $a, x \in J$. The \textbf{quadratic U operator} is defined by:
+\[ \Uop{a}(x) \defas 2 \cdot (a \jmul (a \jmul x)) - \jsq{a} \jmul x \]
+\end{definition}
+
+\begin{theorem}[U\_def]
+For all $a, x \in J$:
+\[ \Uop{a}(x) = 2 \cdot (a \jmul (a \jmul x)) - \jsq{a} \jmul x \]
+\end{theorem}
+
+\subsection{Basic Properties}
+
+\begin{theorem}[U\_one]
+For all $x \in J$:
+\[ \Uop{\jone}(x) = x \]
+\end{theorem}
+
+\begin{theorem}[U\_zero\_left]
+For all $x \in J$:
+\[ \Uop{0}(x) = 0 \]
+\end{theorem}
+
+\begin{theorem}[U\_zero\_right]
+For all $a \in J$:
+\[ \Uop{a}(0) = 0 \]
+\end{theorem}
+
+\begin{theorem}[U\_smul]
+For all $c \in \R$ and $a, x \in J$:
+\[ \Uop{c \cdot a}(x) = c^2 \cdot \Uop{a}(x) \]
+\end{theorem}
+
+\subsection{Linearity in the Second Argument}
+
+\begin{theorem}[U\_add\_right]
+For all $a, x, y \in J$:
+\[ \Uop{a}(x + y) = \Uop{a}(x) + \Uop{a}(y) \]
+\end{theorem}
+
+\begin{theorem}[U\_smul\_right]
+For all $a, x \in J$ and $c \in \R$:
+\[ \Uop{a}(c \cdot x) = c \cdot \Uop{a}(x) \]
+\end{theorem}
+
+\begin{definition}[U\_linear]
+Let $a \in J$. Define the $\R$-linear map $\Uop{a} : J \to_{\R} J$ by:
+\begin{itemize}
+  \item $\mathsf{toFun}(x) \defas \Uop{a}(x)$
+  \item $\mathsf{map\_add'}$: $\Uop{a}$ is additive (by U\_add\_right)
+  \item $\mathsf{map\_smul'}$: $\Uop{a}$ respects scalar multiplication (by U\_smul\_right)
+\end{itemize}
+\end{definition}
+
+\begin{theorem}[U\_linear\_apply]
+For all $a, x \in J$:
+\[ \mathsf{U\_linear}(a)(x) = \Uop{a}(x) \]
+\end{theorem}
+
+\subsection{Relationship with L Operator}
+
+\begin{theorem}[U\_eq\_L]
+For all $a, x \in J$:
+\[ \Uop{a}(x) = 2 \cdot \Lop{a}(\Lop{a}(x)) - \Lop{\jsq{a}}(x) \]
+That is, $\Uop{a} = 2\Lop{a}^2 - \Lop{\jsq{a}}$.
+\end{theorem}
+
+\subsection{U Operator Properties}
+
+\begin{theorem}[U\_self]
+For all $a \in J$:
+\[ \Uop{a}(a) = a \jmul \jsq{a} \]
+\end{theorem}
+
+\begin{theorem}[U\_idempotent\_self]
+Let $e \in J$ be an idempotent (i.e., $\jsq{e} = e$). Then:
+\[ \Uop{e}(e) = e \]
+\end{theorem}
+
+\begin{theorem}[U\_idempotent\_comp]
+Let $e \in J$ be an idempotent. Then $\Uop{e}$ is idempotent as an operator:
+\[ \mathsf{U\_linear}(e) \circ \mathsf{U\_linear}(e) = \mathsf{U\_linear}(e) \]
+\textit{(Proof requires the fundamental formula.)}
+\end{theorem}
+
+\begin{theorem}[U\_L\_comm]
+For all $a, x \in J$:
+\[ \Uop{a}(\Lop{a}(x)) = \Lop{a}(\Uop{a}(x)) \]
+\end{theorem}

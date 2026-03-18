@@ -1,0 +1,67 @@
+\section{FiniteDimensional}
+
+\subsection{Finite-Dimensional Class}
+
+\begin{definition}[FinDimJordanAlgebra]
+A \textbf{finite-dimensional Jordan algebra} is a Jordan algebra $J$ such that $J$ is finite-dimensional as an $\R$-vector space. Formally, it consists of:
+\begin{itemize}
+  \item $\mathsf{finDim} : \mathrm{FiniteDimensional}\ \R\ J$
+\end{itemize}
+\end{definition}
+
+\subsection{Rank}
+
+\begin{definition}[jordanRank]
+The \textbf{Jordan rank} of a finite-dimensional Jordan algebra $J$ is:
+\[ \mathsf{jordanRank}(J) \defas \mathrm{finrank}_\R(J) : \N \]
+\end{definition}
+
+\begin{theorem}[jordanRank\_pos]
+Let $J$ be a finite-dimensional Jordan algebra. If $J$ is nontrivial, then:
+\[ 0 < \mathsf{jordanRank}(J) \]
+\end{theorem}
+
+\subsection{Basis Existence}
+
+\begin{theorem}[exists\_basis]
+Let $J$ be a finite-dimensional Jordan algebra. Then there exists $n : \N$ and $b : \mathrm{Fin}(n) \to J$ such that $b$ is $\R$-linearly independent and $\mathrm{span}_\R(\mathrm{range}(b)) = \top$.
+\end{theorem}
+
+\begin{definition}[finBasis]
+The \textbf{canonical basis} of a finite-dimensional Jordan algebra $J$ is:
+\[ \mathsf{finBasis} : \mathrm{Basis}\ (\mathrm{Fin}(\mathsf{jordanRank}(J)))\ \R\ J \]
+\end{definition}
+
+\subsection{Linear Independence of Orthogonal Idempotents}
+
+\begin{lemma}[jmul\_sum]
+For any finite set $s : \mathrm{Finset}(\iota)$, element $e \in J$, scalars $r : \iota \to \R$, and elements $f : \iota \to J$:
+\[ e \jmul \left( \sum_{i \in s} r_i \cdot f_i \right) = \sum_{i \in s} r_i \cdot (e \jmul f_i) \]
+\end{lemma}
+
+\begin{theorem}[linearIndependent\_orthog\_idem]
+Let $n : \N$ and $e : \mathrm{Fin}(n) \to J$. If:
+\begin{enumerate}
+  \item $\forall i,\ e_i$ is idempotent,
+  \item The family $(e_i)$ is pairwise orthogonal,
+  \item $\forall i,\ e_i \ne 0$,
+\end{enumerate}
+then $(e_i)$ is $\R$-linearly independent.
+\end{theorem}
+
+\subsection{CSOI Cardinality Bound}
+
+\begin{theorem}[csoi\_card\_le\_rank\_of\_nonzero]
+Let $J$ be a finite-dimensional Jordan algebra and let $c$ be a CSOI of cardinality $n$. If $\forall i,\ c.\mathsf{idem}(i) \ne 0$, then:
+\[ n \le \mathsf{jordanRank}(J) \]
+\end{theorem}
+
+\begin{theorem}[jone\_ne\_zero]
+Let $J$ be a nontrivial Jordan algebra. Then:
+\[ \jone \ne 0 \]
+\end{theorem}
+
+\begin{theorem}[csoi\_exists\_nonzero]
+Let $J$ be a nontrivial Jordan algebra and let $c$ be a CSOI of cardinality $n$ with $0 < n$. Then:
+\[ \exists i,\ c.\mathsf{idem}(i) \ne 0 \]
+\end{theorem}

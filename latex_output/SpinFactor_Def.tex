@@ -1,0 +1,112 @@
+\section{Spin Factor: Definition}
+
+\begin{definition}[SpinFactor]
+The \textbf{spin factor} $V_n$ is defined as:
+\[ \mathsf{SpinFactor}(n) \defas \R \times \R^n \]
+where $\R^n$ is the $n$-dimensional Euclidean space.
+\end{definition}
+
+\begin{proposition}
+$\mathsf{SpinFactor}(n)$ is an instance of $\mathsf{Inhabited}$, with default element $(0, 0)$.
+\end{proposition}
+
+\subsection{Jordan Product}
+
+\begin{definition}[jordanMul]
+The \textbf{Jordan product} on spin factors is defined by:
+\[ (\alpha, v) \jmul (\beta, w) \defas (\alpha\beta + \langle v, w \rangle, \alpha w + \beta v) \]
+where $\langle \cdot, \cdot \rangle$ denotes the inner product on $\R^n$.
+\end{definition}
+
+\begin{definition}[one]
+The \textbf{identity element} of the spin factor is:
+\[ \jone \defas (1, 0) \]
+\end{definition}
+
+\subsection{Component Accessors}
+
+\begin{definition}[scalar]
+The \textbf{scalar component} of a spin factor element $x = (\alpha, v)$ is:
+\[ \mathsf{scalar}(x) \defas \alpha = x_1 \]
+\end{definition}
+
+\begin{definition}[vector]
+The \textbf{vector component} of a spin factor element $x = (\alpha, v)$ is:
+\[ \mathsf{vector}(x) \defas v = x_2 \]
+\end{definition}
+
+\subsection{Basic Properties}
+
+\begin{theorem}[jordanMul\_comm]
+The Jordan product on spin factors is commutative:
+\[ \forall x, y \in V_n : x \jmul y = y \jmul x \]
+\end{theorem}
+
+\begin{theorem}[one\_jordanMul]
+The identity element is a left identity:
+\[ \forall x \in V_n : \jone \jmul x = x \]
+\end{theorem}
+
+\begin{theorem}[jordanMul\_one]
+The identity element is a right identity:
+\[ \forall x \in V_n : x \jmul \jone = x \]
+\end{theorem}
+
+\begin{theorem}[jordanMul\_add]
+The Jordan product distributes over addition:
+\[ \forall x, y, z \in V_n : x \jmul (y + z) = (x \jmul y) + (x \jmul z) \]
+\end{theorem}
+
+\begin{theorem}[jordanMul\_smul]
+The Jordan product is compatible with scalar multiplication:
+\[ \forall r \in \R, \forall x, y \in V_n : (r \cdot x) \jmul y = r \cdot (x \jmul y) \]
+\end{theorem}
+
+\subsection{Jordan Square}
+
+\begin{definition}[sq]
+The \textbf{square} of a spin factor element is:
+\[ \mathsf{sq}(x) \defas x \jmul x \]
+\end{definition}
+
+\begin{lemma}[sq\_def]
+For all $x \in V_n$:
+\[ \mathsf{sq}(x) = x \jmul x \]
+\end{lemma}
+
+\begin{theorem}[sq\_scalar]
+The scalar component of the square is:
+\[ (\mathsf{sq}(x))_1 = x_1^2 + \langle x_2, x_2 \rangle \]
+\end{theorem}
+
+\begin{theorem}[sq\_vector]
+The vector component of the square is:
+\[ (\mathsf{sq}(x))_2 = (2 x_1) \cdot x_2 \]
+\end{theorem}
+
+\subsection{Jordan Identity}
+
+\begin{theorem}[jordan\_identity]
+The spin factor satisfies the Jordan identity:
+\[ \forall x, y \in V_n : (x \jmul y) \jmul \mathsf{sq}(x) = x \jmul (y \jmul \mathsf{sq}(x)) \]
+\end{theorem}
+
+\subsection{Jordan Algebra Instance}
+
+\begin{proposition}[jordanAlgebra]
+$\mathsf{SpinFactor}(n)$ is an instance of $\mathsf{JordanAlgebra}$, with:
+\begin{itemize}
+  \item $\mathsf{jmul} \defas \mathsf{jordanMul}$
+  \item $\mathsf{jmul\_comm} \defas \mathsf{jordanMul\_comm}$
+  \item $\mathsf{jordan\_identity} \defas \mathsf{jordan\_identity}$
+  \item $\mathsf{jone} \defas \mathsf{one}$
+  \item $\mathsf{jone\_jmul} \defas \mathsf{one\_jordanMul}$
+  \item $\mathsf{jmul\_add} \defas \mathsf{jordanMul\_add}$
+  \item $\mathsf{jmul\_smul} \defas \mathsf{jordanMul\_smul}$
+\end{itemize}
+\end{proposition}
+
+\begin{definition}[Notation]
+The infix notation for the Jordan product on spin factors:
+\[ x \circ_v y \defas \mathsf{jordanMul}(x, y) \]
+\end{definition}

@@ -1,0 +1,112 @@
+\section{Matrix: Complex Hermitian}
+
+\begin{definition}[ComplexHermitianMatrix]
+Let $n$ be a finite type. The \textbf{complex Hermitian matrices} are defined as:
+\[ \mathsf{ComplexHermitianMatrix}(n) \defas \mathsf{HermitianMatrix}(n, \C) \]
+These are matrices $A$ satisfying $A^\dagger = A$ where $A^\dagger$ denotes the conjugate transpose.
+\end{definition}
+
+\subsection{Basic Properties}
+
+\begin{theorem}[conjTranspose\_eq]
+Let $A : \mathsf{ComplexHermitianMatrix}(n)$. Then:
+\[ A^\dagger = A \]
+\end{theorem}
+
+\begin{definition}[ofHermitian]
+Let $A : \mathsf{Matrix}(n, n, \C)$ and $h : A^\dagger = A$. Define:
+\[ \mathsf{ofHermitian}(A, h) : \mathsf{ComplexHermitianMatrix}(n) \defas \langle A, h \rangle \]
+\end{definition}
+
+\begin{lemma}[ofHermitian\_val]
+For $A : \mathsf{Matrix}(n, n, \C)$ and $h : A^\dagger = A$:
+\[ (\mathsf{ofHermitian}(A, h)).\mathsf{val} = A \]
+\end{lemma}
+
+\begin{theorem}[val\_isHermitian]
+Let $A : \mathsf{ComplexHermitianMatrix}(n)$. Then $A.\mathsf{val}$ is Hermitian.
+\end{theorem}
+
+\subsection{Diagonal Entries are Real}
+
+\begin{theorem}[diag\_re\_eq\_self]
+Let $A : \mathsf{ComplexHermitianMatrix}(n)$ and $i : n$. Then:
+\[ \Re(A_{ii}) = A_{ii} \]
+That is, diagonal entries are real.
+\end{theorem}
+
+\begin{theorem}[diag\_re\_eq\_diag]
+Let $A : \mathsf{ComplexHermitianMatrix}(n)$. Then:
+\[ \lambda i.\, \Re(\mathsf{diag}(A)_i) = \mathsf{diag}(A) \]
+\end{theorem}
+
+\begin{theorem}[apply\_conj]
+Let $A : \mathsf{ComplexHermitianMatrix}(n)$ and $i, j : n$. Then:
+\[ \overline{A_{ji}} = A_{ij} \]
+\end{theorem}
+
+\subsection{Instances}
+
+\begin{proposition}
+$\mathsf{ComplexHermitianMatrix}(n)$ is an instance of $\mathsf{JordanAlgebra}$.
+\end{proposition}
+
+\begin{proposition}
+$\mathsf{ComplexHermitianMatrix}(n)$ is an instance of $\mathsf{FormallyRealJordan}$.
+\end{proposition}
+
+\subsection{Special Matrices}
+
+\begin{definition}[one]
+The identity matrix in $\mathsf{ComplexHermitianMatrix}(n)$:
+\[ \mathsf{one} \defas \mathsf{HermitianMatrix.one} \]
+\end{definition}
+
+\begin{definition}[zero]
+The zero matrix in $\mathsf{ComplexHermitianMatrix}(n)$:
+\[ \mathsf{zero} \defas \langle 0, \cdot \rangle \]
+\end{definition}
+
+\begin{definition}[realDiagonal]
+Let $d : n \to \R$. The \textbf{real diagonal matrix} is:
+\[ \mathsf{realDiagonal}(d) : \mathsf{ComplexHermitianMatrix}(n) \defas \mathsf{diagonal}(\lambda i.\, d_i) \]
+where entries are embedded as complex numbers. This is Hermitian since real numbers are self-conjugate.
+\end{definition}
+
+\begin{lemma}[realDiagonal\_val]
+For $d : n \to \R$:
+\[ (\mathsf{realDiagonal}(d)).\mathsf{val} = \mathsf{diagonal}(\lambda i.\, d_i) \]
+\end{lemma}
+
+\begin{definition}[diagonal]
+Let $d : n \to \C$ with $\forall i,\, \overline{d_i} = d_i$. The \textbf{diagonal matrix} is:
+\[ \mathsf{diagonal}(d, hd) : \mathsf{ComplexHermitianMatrix}(n) \defas \langle \mathsf{Matrix.diagonal}(d), \cdot \rangle \]
+\end{definition}
+
+\subsection{Trace Inner Product}
+
+\begin{definition}[traceInner]
+The \textbf{trace inner product} for complex Hermitian matrices $A, B$:
+\[ \mathsf{traceInner}(A, B) : \C \defas \mathsf{HermitianMatrix.traceInner}(A, B) \]
+\end{definition}
+
+\begin{definition}[traceInnerReal]
+The \textbf{real trace inner product} for complex Hermitian matrices $A, B$:
+\[ \mathsf{traceInnerReal}(A, B) : \R \defas \mathsf{HermitianMatrix.traceInnerReal}(A, B) \]
+For Hermitian matrices, $\mathrm{Tr}(AB)$ is always real, so this extracts the real part.
+\end{definition}
+
+\begin{theorem}[traceInner\_comm]
+For $A, B : \mathsf{ComplexHermitianMatrix}(n)$:
+\[ \mathsf{traceInner}(A, B) = \mathsf{traceInner}(B, A) \]
+\end{theorem}
+
+\begin{theorem}[traceInnerReal\_comm]
+For $A, B : \mathsf{ComplexHermitianMatrix}(n)$:
+\[ \mathsf{traceInnerReal}(A, B) = \mathsf{traceInnerReal}(B, A) \]
+\end{theorem}
+
+\begin{theorem}[traceInnerReal\_self\_nonneg]
+For $A : \mathsf{ComplexHermitianMatrix}(n)$:
+\[ 0 \le \mathsf{traceInnerReal}(A, A) \]
+\end{theorem}

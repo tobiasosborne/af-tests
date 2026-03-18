@@ -1,0 +1,113 @@
+\section{Matrix: Trace}
+
+\subsection{Trace Inner Product Definition}
+
+\begin{definition}[traceInner]
+The \textbf{trace inner product} on Hermitian matrices is defined as follows. Let $A, B : \mathsf{HermitianMatrix}(n, \mathbb{K})$. Define:
+\[ \mathsf{traceInner}(A, B) \defas \Tr(A \cdot B) \]
+\end{definition}
+
+\begin{lemma}[traceInner\_def]
+For all $A, B : \mathsf{HermitianMatrix}(n, \mathbb{K})$:
+\[ \mathsf{traceInner}(A, B) = \Tr(A \cdot B) \]
+\end{lemma}
+
+\subsection{Basic Properties}
+
+\begin{theorem}[traceInner\_comm]
+The trace inner product is commutative. For all $A, B : \mathsf{HermitianMatrix}(n, \mathbb{K})$:
+\[ \mathsf{traceInner}(A, B) = \mathsf{traceInner}(B, A) \]
+\end{theorem}
+
+\begin{theorem}[traceInner\_add\_left]
+The trace inner product is additive in the first argument. For all $A, B, C : \mathsf{HermitianMatrix}(n, \mathbb{K})$:
+\[ \mathsf{traceInner}(A + B, C) = \mathsf{traceInner}(A, C) + \mathsf{traceInner}(B, C) \]
+\end{theorem}
+
+\begin{theorem}[traceInner\_add\_right]
+The trace inner product is additive in the second argument. For all $A, B, C : \mathsf{HermitianMatrix}(n, \mathbb{K})$:
+\[ \mathsf{traceInner}(A, B + C) = \mathsf{traceInner}(A, B) + \mathsf{traceInner}(A, C) \]
+\end{theorem}
+
+\begin{theorem}[traceInner\_zero\_left]
+For all $A : \mathsf{HermitianMatrix}(n, \mathbb{K})$:
+\[ \mathsf{traceInner}(0, A) = 0 \]
+\end{theorem}
+
+\begin{theorem}[traceInner\_zero\_right]
+For all $A : \mathsf{HermitianMatrix}(n, \mathbb{K})$:
+\[ \mathsf{traceInner}(A, 0) = 0 \]
+\end{theorem}
+
+\subsection{Self Inner Product}
+
+\begin{theorem}[traceInner\_self]
+For all $A : \mathsf{HermitianMatrix}(n, \mathbb{K})$:
+\[ \mathsf{traceInner}(A, A) = \Tr(A^2) \]
+\end{theorem}
+
+\begin{theorem}[sq\_eq\_conjTranspose\_mul']
+For Hermitian $A$, we have $A^2 = A^\dagger A$. That is, for all $A : \mathsf{HermitianMatrix}(n, \mathbb{K})$:
+\[ A \cdot A = A^\dagger \cdot A \]
+\end{theorem}
+
+\begin{theorem}[traceInner\_self\_conj]
+The self inner product is real (equals its conjugate). For all $A : \mathsf{HermitianMatrix}(n, \mathbb{K})$:
+\[ \overline{\mathsf{traceInner}(A, A)} = \mathsf{traceInner}(A, A) \]
+\end{theorem}
+
+\begin{theorem}[traceInner\_self\_nonneg]
+The self inner product is nonnegative. For all $A : \mathsf{HermitianMatrix}(n, \mathbb{K})$:
+\[ 0 \le \mathsf{traceInner}(A, A) \]
+\end{theorem}
+
+\begin{theorem}[traceInner\_self\_eq\_zero]
+The self inner product is zero if and only if the matrix is zero. For all $A : \mathsf{HermitianMatrix}(n, \mathbb{K})$:
+\[ \mathsf{traceInner}(A, A) = 0 \iff A = 0 \]
+\end{theorem}
+
+\subsection{Trace of Jordan Product}
+
+\begin{theorem}[traceInner\_eq\_trace\_jmul]
+The trace inner product equals the trace of the Jordan product. For all $A, B : \mathsf{HermitianMatrix}(n, \mathbb{K})$:
+\[ \mathsf{traceInner}(A, B) = \Tr(A \jmul B) \]
+where the Jordan product is $A \jmul B = \frac{1}{2}(AB + BA)$.
+\end{theorem}
+
+\begin{theorem}[traceInner\_conj]
+The trace inner product is real-valued for all Hermitian pairs. For all $A, B : \mathsf{HermitianMatrix}(n, \mathbb{K})$:
+\[ \overline{\mathsf{traceInner}(A, B)} = \mathsf{traceInner}(A, B) \]
+\end{theorem}
+
+\subsection{Real Inner Product}
+
+\begin{definition}[traceInnerReal]
+The \textbf{real-valued trace inner product} is defined as follows. Let $A, B : \mathsf{HermitianMatrix}(n, \mathbb{K})$. Define:
+\[ \mathsf{traceInnerReal}(A, B) \defas \Re(\mathsf{traceInner}(A, B)) \]
+where $\Re$ denotes the real part.
+\end{definition}
+
+\begin{lemma}[traceInnerReal\_def]
+For all $A, B : \mathsf{HermitianMatrix}(n, \mathbb{K})$:
+\[ \mathsf{traceInnerReal}(A, B) = \Re(\mathsf{traceInner}(A, B)) \]
+\end{lemma}
+
+\begin{theorem}[traceInnerReal\_comm]
+The real trace inner product is commutative. For all $A, B : \mathsf{HermitianMatrix}(n, \mathbb{K})$:
+\[ \mathsf{traceInnerReal}(A, B) = \mathsf{traceInnerReal}(B, A) \]
+\end{theorem}
+
+\begin{theorem}[traceInnerReal\_add\_left]
+The real trace inner product is additive. For all $A, B, C : \mathsf{HermitianMatrix}(n, \mathbb{K})$:
+\[ \mathsf{traceInnerReal}(A + B, C) = \mathsf{traceInnerReal}(A, C) + \mathsf{traceInnerReal}(B, C) \]
+\end{theorem}
+
+\begin{theorem}[traceInnerReal\_self\_nonneg]
+The real trace inner product self is nonnegative. For all $A : \mathsf{HermitianMatrix}(n, \mathbb{K})$:
+\[ 0 \le \mathsf{traceInnerReal}(A, A) \]
+\end{theorem}
+
+\begin{theorem}[traceInnerReal\_self\_eq\_zero]
+The real trace inner product self equals zero if and only if $A = 0$. For all $A : \mathsf{HermitianMatrix}(n, \mathbb{K})$:
+\[ \mathsf{traceInnerReal}(A, A) = 0 \iff A = 0 \]
+\end{theorem}

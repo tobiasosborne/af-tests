@@ -1,0 +1,67 @@
+\section{Quaternion: Formally Real}
+
+\begin{theorem}[quaternion\_coe\_injective]
+The coercion $(\cdot) : \R \to \mathbb{H}$ is injective.
+\end{theorem}
+
+\begin{lemma}[quaternion\_sum\_coe\_eq\_coe\_sum]
+For any function $f : n \to \R$:
+\[ \sum_{k \in n} (f(k) : \mathbb{H}) = \left(\sum_{k \in n} f(k)\right) : \mathbb{H} \]
+\end{lemma}
+
+\begin{theorem}[diag\_mul\_self\_hermitian]
+Let $A : M_n(\mathbb{H})$ be a Hermitian matrix (i.e., $A^\dagger = A$). For any $i \in n$:
+\[ (A \cdot A)_{ii} = \sum_{j \in n} \|A_{ij}\|^2 \]
+where $\|\cdot\|^2$ denotes the quaternion norm squared.
+\end{theorem}
+
+\begin{theorem}[sum\_normSq\_eq\_zero\_iff]
+Let $A : M_n(\mathbb{H})$ and $i \in n$. Then:
+\[ \sum_{j \in n} \|A_{ij}\|^2 = 0 \iff \forall j,\, A_{ij} = 0 \]
+\end{theorem}
+
+\begin{theorem}[matrix\_sq\_eq\_zero\_imp\_zero]
+Let $A : M_n(\mathbb{H})$ be Hermitian. If $A \cdot A = 0$, then $A = 0$.
+\end{theorem}
+
+\begin{theorem}[jsq\_val\_eq\_mul\_self]
+For a quaternionic Hermitian matrix $A$, the Jordan square equals the matrix square:
+\[ \jsq{A}.\mathsf{val} = A.\mathsf{val} \cdot A.\mathsf{val} \]
+\end{theorem}
+
+\begin{theorem}[sq\_eq\_zero\_imp\_zero]
+Let $A$ be a quaternionic Hermitian matrix. If $\jsq{A} = 0$ in the Jordan algebra, then $A = 0$.
+\end{theorem}
+
+\begin{definition}[totalNormSq]
+For a family of quaternionic Hermitian matrices $(A_k)_{k \in \mathrm{Fin}(m)}$ and diagonal index $i \in n$:
+\[ \mathsf{totalNormSq}(A, i) \defas \sum_{k} \sum_{j} \|(A_k)_{ij}\|^2 \]
+\end{definition}
+
+\begin{lemma}[totalNormSq\_nonneg]
+For any family $(A_k)$ and index $i$:
+\[ 0 \le \mathsf{totalNormSq}(A, i) \]
+\end{lemma}
+
+\begin{theorem}[sum\_jsq\_diag]
+For a family $(A_k)_{k \in \mathrm{Fin}(m)}$ of quaternionic Hermitian matrices and index $i \in n$:
+\[ \left(\sum_k \jsq{A_k}\right)_{ii} = \sum_k (A_k \cdot A_k)_{ii} \]
+\end{theorem}
+
+\begin{theorem}[sum\_jsq\_diag\_eq\_totalNormSq]
+For a family $(A_k)_{k \in \mathrm{Fin}(m)}$ of quaternionic Hermitian matrices and index $i \in n$:
+\[ \left(\sum_k \jsq{A_k}\right)_{ii} = \mathsf{totalNormSq}(A, i) \]
+\end{theorem}
+
+\begin{theorem}[sum\_jsq\_zero\_imp\_totalNormSq\_zero]
+Let $(A_k)_{k \in \mathrm{Fin}(m)}$ be a family of quaternionic Hermitian matrices. If $\sum_k \jsq{A_k} = 0$, then for all $i \in n$:
+\[ \mathsf{totalNormSq}(A, i) = 0 \]
+\end{theorem}
+
+\begin{theorem}[sum\_sq\_eq\_zero\_imp\_all\_zero]
+Let $(A_k)_{k \in \mathrm{Fin}(m)}$ be a family of quaternionic Hermitian matrices. If $\sum_k \jsq{A_k} = 0$, then $A_k = 0$ for all $k$.
+\end{theorem}
+
+\begin{proposition}[formallyReal]
+The quaternionic Hermitian matrices $\mathsf{QuaternionHermitianMatrix}(n)$ form a formally real Jordan algebra.
+\end{proposition}

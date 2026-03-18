@@ -1,0 +1,77 @@
+\section{Subalgebra}
+
+\begin{definition}[JordanSubalgebra]
+A \textbf{Jordan subalgebra} of a Jordan algebra $J$ consists of:
+\begin{itemize}
+  \item $\mathsf{carrier} : \mathcal{P}(J)$ --- a subset of $J$
+  \item $\mathsf{jone\_mem'} : \jone \in \mathsf{carrier}$
+  \item $\mathsf{jmul\_mem'} : \forall a, b,\; a \in \mathsf{carrier} \to b \in \mathsf{carrier} \to a \jmul b \in \mathsf{carrier}$
+  \item $\mathsf{add\_mem'} : \forall a, b,\; a \in \mathsf{carrier} \to b \in \mathsf{carrier} \to a + b \in \mathsf{carrier}$
+  \item $\mathsf{smul\_mem'} : \forall r \in \R,\; \forall a,\; a \in \mathsf{carrier} \to r \cdot a \in \mathsf{carrier}$
+  \item $\mathsf{neg\_mem'} : \forall a,\; a \in \mathsf{carrier} \to -a \in \mathsf{carrier}$
+\end{itemize}
+\end{definition}
+
+\begin{proposition}
+$\mathsf{JordanSubalgebra}\;J$ is an instance of $\mathsf{SetLike}$.
+\end{proposition}
+
+\begin{lemma}[mem\_carrier]
+For $S : \mathsf{JordanSubalgebra}\;J$ and $x : J$:
+\[ x \in S.\mathsf{carrier} \iff x \in S \]
+\end{lemma}
+
+\begin{theorem}[jone\_mem]
+For $S : \mathsf{JordanSubalgebra}\;J$:
+\[ \jone \in S \]
+\end{theorem}
+
+\begin{theorem}[jmul\_mem]
+For $S : \mathsf{JordanSubalgebra}\;J$ and $a, b : J$, if $a \in S$ and $b \in S$, then:
+\[ a \jmul b \in S \]
+\end{theorem}
+
+\begin{theorem}[add\_mem]
+For $S : \mathsf{JordanSubalgebra}\;J$ and $a, b : J$, if $a \in S$ and $b \in S$, then:
+\[ a + b \in S \]
+\end{theorem}
+
+\begin{theorem}[smul\_mem]
+For $S : \mathsf{JordanSubalgebra}\;J$, $r : \R$, and $a : J$, if $a \in S$, then:
+\[ r \cdot a \in S \]
+\end{theorem}
+
+\begin{theorem}[neg\_mem]
+For $S : \mathsf{JordanSubalgebra}\;J$ and $a : J$, if $a \in S$, then:
+\[ -a \in S \]
+\end{theorem}
+
+\begin{theorem}[zero\_mem]
+For $S : \mathsf{JordanSubalgebra}\;J$:
+\[ 0 \in S \]
+\end{theorem}
+
+\begin{theorem}[sub\_mem]
+For $S : \mathsf{JordanSubalgebra}\;J$ and $a, b : J$, if $a \in S$ and $b \in S$, then:
+\[ a - b \in S \]
+\end{theorem}
+
+\begin{definition}[toAddSubgroup]
+Let $S : \mathsf{JordanSubalgebra}\;J$. Define $\mathsf{toAddSubgroup}(S) : \mathsf{AddSubgroup}\;J$ by:
+\begin{itemize}
+  \item $\mathsf{carrier} \defas S.\mathsf{carrier}$
+  \item $\mathsf{add\_mem'}$ --- inherited from $S$
+  \item $\mathsf{zero\_mem'} \defas S.\mathsf{zero\_mem}$
+  \item $\mathsf{neg\_mem'}$ --- inherited from $S$
+\end{itemize}
+\end{definition}
+
+\begin{definition}[toSubmodule]
+Let $S : \mathsf{JordanSubalgebra}\;J$. Define $\mathsf{toSubmodule}(S) : \mathsf{Submodule}\;\R\;J$ by:
+\begin{itemize}
+  \item $\mathsf{carrier} \defas S.\mathsf{carrier}$
+  \item $\mathsf{add\_mem'}$ --- inherited from $S$
+  \item $\mathsf{zero\_mem'} \defas S.\mathsf{zero\_mem}$
+  \item $\mathsf{smul\_mem'}$ --- inherited from $S$
+\end{itemize}
+\end{definition}

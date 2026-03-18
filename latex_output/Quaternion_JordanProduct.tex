@@ -1,0 +1,80 @@
+\section{Quaternion: Jordan Product}
+
+\subsection{Jordan Product Definition}
+
+\begin{definition}[jordanMul]
+The \textbf{Jordan product} on quaternionic matrices is defined as follows. For matrices $A, B : \mathrm{Matrix}(n, n, \mathbb{H}_\R)$, define:
+\[ \mathsf{jordanMul}(A, B) \defas 2^{-1} \cdot (A \cdot B + B \cdot A) \]
+where $2^{-1}$ denotes real scalar multiplication.
+\end{definition}
+
+\begin{lemma}[jordanMul\_def]
+For all $A, B : \mathrm{Matrix}(n, n, \mathbb{H}_\R)$:
+\[ \mathsf{jordanMul}(A, B) = 2^{-1} \cdot (A \cdot B + B \cdot A) \]
+\end{lemma}
+
+\subsection{Jordan Product Properties}
+
+\begin{theorem}[jordanMul\_comm]
+The Jordan product is commutative. For all $A, B : \mathrm{Matrix}(n, n, \mathbb{H}_\R)$:
+\[ \mathsf{jordanMul}(A, B) = \mathsf{jordanMul}(B, A) \]
+\end{theorem}
+
+\begin{theorem}[jordanMul\_one]
+For all $A : \mathrm{Matrix}(n, n, \mathbb{H}_\R)$:
+\[ \mathsf{jordanMul}(A, 1) = A \]
+\end{theorem}
+
+\begin{theorem}[one\_jordanMul]
+For all $A : \mathrm{Matrix}(n, n, \mathbb{H}_\R)$:
+\[ \mathsf{jordanMul}(1, A) = A \]
+\end{theorem}
+
+\begin{theorem}[jordanMul\_zero]
+For all $A : \mathrm{Matrix}(n, n, \mathbb{H}_\R)$:
+\[ \mathsf{jordanMul}(A, 0) = 0 \]
+\end{theorem}
+
+\begin{theorem}[zero\_jordanMul]
+For all $A : \mathrm{Matrix}(n, n, \mathbb{H}_\R)$:
+\[ \mathsf{jordanMul}(0, A) = 0 \]
+\end{theorem}
+
+\begin{theorem}[jordanMul\_self]
+The Jordan square equals the matrix square. For all $A : \mathrm{Matrix}(n, n, \mathbb{H}_\R)$:
+\[ \mathsf{jordanMul}(A, A) = A \cdot A \]
+\end{theorem}
+
+\subsection{Hermitian Preservation}
+
+\begin{theorem}[hermitian\_jordanMul]
+Quaternionic Hermitian matrices are closed under the Jordan product. If $A, B : \mathrm{Matrix}(n, n, \mathbb{H}_\R)$ are Hermitian, then $\mathsf{jordanMul}(A, B)$ is Hermitian.
+\end{theorem}
+
+\subsection{Jordan Product on QuaternionHermitianMatrix}
+
+\begin{definition}[jmul]
+The \textbf{Jordan product} on quaternionic Hermitian matrices is defined as follows. For $A, B : \mathsf{QuaternionHermitianMatrix}(n)$, define:
+\[ \mathsf{jmul}(A, B) \defas \langle \mathsf{jordanMul}(A.\mathsf{val}, B.\mathsf{val}), \_ \rangle \]
+where the proof witness follows from $\mathsf{hermitian\_jordanMul}$.
+\end{definition}
+
+\begin{lemma}[jmul\_val]
+For all $A, B : \mathsf{QuaternionHermitianMatrix}(n)$:
+\[ (\mathsf{jmul}(A, B)).\mathsf{val} = \mathsf{jordanMul}(A.\mathsf{val}, B.\mathsf{val}) \]
+\end{lemma}
+
+\begin{theorem}[jmul\_comm]
+The Jordan product on $\mathsf{QuaternionHermitianMatrix}(n)$ is commutative. For all $A, B$:
+\[ \mathsf{jmul}(A, B) = \mathsf{jmul}(B, A) \]
+\end{theorem}
+
+\begin{theorem}[jmul\_one]
+For all $A : \mathsf{QuaternionHermitianMatrix}(n)$:
+\[ \mathsf{jmul}(A, \mathsf{one}) = A \]
+\end{theorem}
+
+\begin{theorem}[one\_jmul]
+For all $A : \mathsf{QuaternionHermitianMatrix}(n)$:
+\[ \mathsf{jmul}(\mathsf{one}, A) = A \]
+\end{theorem}

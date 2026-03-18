@@ -1,0 +1,43 @@
+\section{Formally Real: Definitions}
+
+\begin{definition}[FormallyRealJordan]
+A Jordan algebra $J$ is \textbf{formally real} if for all $n \in \N$ and all functions $a : \mathrm{Fin}(n) \to J$:
+\[
+\sum_{i} \jsq{a_i} = 0 \implies \forall i,\, a_i = 0
+\]
+That is, sums of squares vanish only when all summands vanish.
+\end{definition}
+
+\begin{theorem}[sq\_eq\_zero\_imp\_zero]
+Let $J$ be a formally real Jordan algebra. If $a \in J$ satisfies $\jsq{a} = 0$, then $a = 0$.
+\end{theorem}
+
+\begin{theorem}[of\_sq\_eq\_zero]
+Let $J$ be a Jordan algebra. If for all $a \in J$ we have $\jsq{a} = 0 \implies a = 0$, then $J$ is formally real.
+\end{theorem}
+
+\begin{theorem}[formallyReal\_iff\_sq\_eq\_zero\_imp\_zero]
+A Jordan algebra $J$ is formally real if and only if for all $a \in J$:
+\[
+\jsq{a} = 0 \implies a = 0
+\]
+\end{theorem}
+
+\begin{definition}[FormallyRealJordan']
+A Jordan algebra $J$ satisfies the \textbf{FormallyRealJordan'} property if for all $a \in J$:
+\[
+\jsq{a} = 0 \implies a = 0
+\]
+\end{definition}
+
+\subsection{No Nilpotent Elements}
+
+\begin{theorem}[jpow\_eq\_zero\_of\_ge]
+Let $J$ be a Jordan algebra and $a \in J$. If $\jpow{a}{n} = 0$ and $m \ge n$, then $\jpow{a}{m} = 0$.
+\end{theorem}
+
+\begin{theorem}[no\_nilpotent\_of\_formallyReal]
+Let $J$ be a formally real Jordan algebra. If $a \in J$ and $n \ge 1$ satisfy $\jpow{a}{n} = 0$, then $a = 0$.
+
+That is, formally real Jordan algebras have no nilpotent elements.
+\end{theorem}

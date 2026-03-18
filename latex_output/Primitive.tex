@@ -1,0 +1,130 @@
+\section{Primitive}
+
+\subsection{Primitive Idempotent Definition}
+
+\begin{definition}[IsPrimitive]
+An idempotent $e \in J$ is \textbf{primitive} if:
+\begin{enumerate}
+  \item $e$ is idempotent,
+  \item $e \ne 0$, and
+  \item for all idempotent $f$ with $e \jmul f = f$, either $f = 0$ or $f = e$.
+\end{enumerate}
+\end{definition}
+
+\begin{lemma}[IsPrimitive.isIdempotent]
+If $e$ is primitive, then $e$ is idempotent.
+\end{lemma}
+
+\begin{lemma}[IsPrimitive.ne\_zero]
+If $e$ is primitive, then $e \ne 0$.
+\end{lemma}
+
+\begin{lemma}[IsPrimitive.sub\_eq\_zero]
+Let $e$ be primitive and let $f$ be idempotent with $e \jmul f = f$. Then $f = 0$ or $f = e$.
+\end{lemma}
+
+\begin{theorem}[isPrimitive\_of\_minimal]
+Let $e$ be idempotent with $e \ne 0$. If for all nonzero idempotent $f$ with $e \jmul f = f$ we have $f = e$, then $e$ is primitive.
+\end{theorem}
+
+\subsection{Properties of Primitive Idempotents}
+
+\begin{theorem}[IsPrimitive.orthog\_of\_ne]
+Let $e$ be primitive and let $f$ be idempotent with $e \jmul f = f$ and $f \ne e$. Then $f = 0$.
+\end{theorem}
+
+\begin{theorem}[IsPrimitive.jmul\_complement]
+Let $e$ be primitive. Then $e \jmul (\jone - e) = 0$.
+\end{theorem}
+
+\subsection{Field Classification Results (H-O 2.2.6)}
+
+\begin{theorem}[finite\_dim\_field\_over\_real]
+Let $F$ be a finite-dimensional field over $\R$. Then either $F \cong_{\R} \R$ or $F \cong_{\R} \C$.
+\end{theorem}
+
+\begin{theorem}[complex\_not\_formally\_real]
+$\C$ is not formally real: there exist $n \in \N$ and $a : \mathrm{Fin}(n) \to \C$ such that $\sum_i a_i^2 = 0$ but $a_i \ne 0$ for some $i$.
+\end{theorem}
+
+\begin{theorem}[formallyReal\_field\_is\_real]
+Let $F$ be a finite-dimensional field over $\R$. If $F$ is formally real (i.e., $\sum_i a_i^2 = 0$ implies $a_i = 0$ for all $i$), then $F \cong_{\R} \R$.
+\end{theorem}
+
+\subsection{Artinian Ring Structure Theorem (H-O 2.9.3)}
+
+\begin{definition}[artinian\_reduced\_is\_product\_of\_fields]
+Let $R$ be an Artinian reduced commutative ring. Then
+\[ R \cong \prod_{I \in \mathrm{MaxSpec}(R)} R/I \]
+where each $R/I$ is a field.
+\end{definition}
+
+\begin{proposition}[artinian\_reduced\_factor\_field]
+Let $R$ be an Artinian reduced commutative ring and let $I \in \mathrm{MaxSpec}(R)$. Then $R/I$ is a field.
+\end{proposition}
+
+\subsection{Strongly Connected Idempotents}
+
+\begin{definition}[IsStronglyConnected]
+Two idempotents $e, f \in J$ are \textbf{strongly connected} if:
+\begin{enumerate}
+  \item $e$ and $f$ are orthogonal, and
+  \item there exists $v \in J$ such that $e \jmul v = \frac{1}{2} v$, $f \jmul v = \frac{1}{2} v$, and $\jsq{v} = e + f$.
+\end{enumerate}
+\end{definition}
+
+\subsection{Structure of Orthogonal Primitives (H-O 2.9.4(iv))}
+
+\begin{theorem}[jpow\_succ\_mem\_peirce\_one]
+Let $e$ be idempotent and let $a \in \Peirce{e}{1}$. Then for all $n \in \N$, $\jpow{a}{n+1} \in \Peirce{e}{1}$.
+\end{theorem}
+
+\begin{theorem}[primitive\_idempotent\_in\_P1]
+Let $e$ be primitive and let $f$ be idempotent with $f \in \Peirce{e}{1}$. Then $f = 0$ or $f = e$.
+\end{theorem}
+
+\begin{theorem}[peirce\_one\_sq\_nonpos\_imp\_zero]
+Let $J$ be formally real, let $e$ be idempotent with $e \ne 0$, and let $x \in \Peirce{e}{1}$. If $c \le 0$ and $\jsq{x} = c \cdot e$, then $x = 0$.
+\end{theorem}
+
+\begin{theorem}[lagrange\_idempotent\_in\_peirce\_one]
+Let $J$ be formally real, let $e$ be idempotent, and let $x \in \Peirce{e}{1}$. Suppose $\jsq{x} = r \cdot x + s \cdot e$ for some $r, s \in \R$ with discriminant $\Delta = r^2 + 4s > 0$. Let $\mu = \frac{r - \sqrt{\Delta}}{2}$ and define
+\[ f = \frac{1}{\sqrt{\Delta}} (x - \mu \cdot e). \]
+Then $f$ is idempotent and $f \in \Peirce{e}{1}$.
+\end{theorem}
+
+\begin{theorem}[primitive\_peirce\_one\_dim\_one]
+Let $J$ be a finite-dimensional formally real Jordan algebra and let $e$ be primitive. Then
+\[ \dim_\R \Peirce{e}{1} = 1. \]
+\end{theorem}
+
+\begin{theorem}[primitive\_peirce\_one\_scalar]
+Let $J$ be a finite-dimensional formally real Jordan algebra and let $e$ be primitive. For every $x \in \Peirce{e}{1}$, there exists $r \in \R$ such that $x = r \cdot e$.
+\end{theorem}
+
+\begin{theorem}[orthogonal\_primitive\_peirce\_sq]
+Let $J$ be a finite-dimensional formally real Jordan algebra. Let $e, f$ be primitive and orthogonal, and let $a \in J$ satisfy $e \jmul a = \frac{1}{2} a$ and $f \jmul a = \frac{1}{2} a$. Then there exists $\mu \ge 0$ such that $\jsq{a} = \mu (e + f)$.
+\end{theorem}
+
+\begin{theorem}[orthogonal\_primitive\_structure]
+Let $J$ be a finite-dimensional formally real Jordan algebra. Let $e, f$ be primitive and orthogonal. Then either:
+\begin{enumerate}
+  \item for all $a \in J$ with $e \jmul a = \frac{1}{2} a$ and $f \jmul a = \frac{1}{2} a$, we have $a = 0$, or
+  \item $e$ and $f$ are strongly connected.
+\end{enumerate}
+\end{theorem}
+
+\subsection{Decomposition into Primitives}
+
+\begin{theorem}[exists\_primitive\_decomp]
+Let $J$ be a finite-dimensional formally real Jordan algebra. Let $e$ be a nonzero idempotent. Then there exist $k \in \N$ and primitive idempotents $p_1, \ldots, p_k$ such that:
+\begin{enumerate}
+  \item each $p_i$ is primitive,
+  \item the $p_i$ are pairwise orthogonal, and
+  \item $e = \sum_{i=1}^{k} p_i$.
+\end{enumerate}
+\end{theorem}
+
+\begin{theorem}[csoi\_refine\_primitive]
+Let $J$ be a finite-dimensional formally real Jordan algebra and let $(e_1, \ldots, e_n)$ be a complete system of orthogonal idempotents (CSOI). Then there exists $m \ge n$ and a primitive CSOI $(p_1, \ldots, p_m)$ refining it, with each $p_i$ primitive.
+\end{theorem}

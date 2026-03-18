@@ -1,0 +1,160 @@
+\documentclass[11pt,a4paper]{report}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{bm}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage[margin=1in]{geometry}
+\usepackage{tocloft}
+
+% Theorem environments
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{theorem}[definition]{Theorem}
+\newtheorem{lemma}[definition]{Lemma}
+\newtheorem{proposition}[definition]{Proposition}
+\newtheorem{corollary}[definition]{Corollary}
+\newtheorem{example}[definition]{Example}
+\newtheorem{remark}[definition]{Remark}
+
+% Custom commands for Jordan algebra notation
+\newcommand{\jmul}{\circ}           % Jordan product
+\newcommand{\jsq}[1]{#1^{2}}        % Jordan square
+\newcommand{\jpow}[2]{#1^{#2}}      % Jordan power
+\newcommand{\jone}{\mathbf{1}}      % Jordan identity
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\defas}{\coloneqq}      % Definition
+\newcommand{\Lop}[1]{L_{#1}}        % Left multiplication operator
+\newcommand{\Uop}[1]{U_{#1}}        % Quadratic operator
+\newcommand{\Peirce}[2]{P_{#2}(#1)} % Peirce space
+
+% Listings setup for Lean 4 code
+\definecolor{leanblue}{RGB}{0,102,204}
+\definecolor{leangreen}{RGB}{0,128,0}
+\definecolor{leanpurple}{RGB}{128,0,128}
+\definecolor{leangray}{RGB}{128,128,128}
+
+\lstdefinelanguage{Lean}{
+  keywords={def, theorem, lemma, example, structure, class, instance,
+            where, extends, deriving, variable, namespace, end, open,
+            import, section, axiom, abbrev, noncomputable, inductive,
+            private, protected, mutual, attribute, set_option,
+            universe, macro, syntax, elab},
+  keywordstyle=\color{leanblue}\bfseries,
+  keywords=[2]{by, fun, match, with, if, then, else, do, return, let, have, show, calc, at, intro, apply, exact, rfl, simp, rw, ring, omega, linarith, decide, sorry, suffices, refine, obtain, rcases, constructor, use, ext, induction, cases, contradiction, absurd, exfalso},
+  keywordstyle=[2]\color{leanpurple},
+  keywords=[3]{Type, Prop, Sort, Nat, Int, Real, Bool, True, False, And, Or, Not, Exists, Forall, Set, Finset, List, Option, Sum, Prod},
+  keywordstyle=[3]\color{leangreen},
+  sensitive=true,
+  morecomment=[l]{--},
+  morecomment=[n]{/-}{-/},
+  morestring=[b]",
+  commentstyle=\color{leangray}\itshape,
+  stringstyle=\color{red},
+  showstringspaces=false,
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=2,
+  frame=single,
+  framerule=0.5pt,
+  xleftmargin=0.5cm,
+  xrightmargin=0.5cm,
+}
+
+\lstset{language=Lean}
+
+% Title
+\title{Jordan Algebra Formalization in Lean 4\\[0.5em]\large A Mathematical Rendering}
+\author{Automated LaTeX Generation}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\chapter{Introduction}
+
+This document presents a LaTeX rendering of the Jordan algebra formalization
+from the \texttt{af-tests} Lean 4 project. Each section corresponds to a Lean
+source file, presenting the formal definitions and theorems in mathematical notation.
+
+\textbf{Notation:}
+\begin{itemize}
+  \item $a \jmul b$ denotes the Jordan product of $a$ and $b$
+  \item $\jsq{a}$ denotes $a \jmul a$ (Jordan square)
+  \item $\Lop{a}$ denotes the left multiplication operator $x \mapsto a \jmul x$
+  \item $\Uop{a}$ denotes the quadratic operator $\Uop{a}(x) = 2\Lop{a}^2(x) - \Lop{\jsq{a}}(x)$
+  \item $\Peirce{e}{\lambda}$ denotes the Peirce $\lambda$-eigenspace for idempotent $e$
+\end{itemize}
+
+\chapter{Core Definitions}
+\input{Basic}
+\input{Product}
+\input{IsCommJordan}
+\input{Quadratic}
+
+\chapter{Operator Identities}
+\input{LinearizedJordan}
+\input{FundamentalFormula}
+\input{OperatorIdentities}
+
+\chapter{Formally Real Jordan Algebras}
+\input{FormallyReal_Def}
+\input{FormallyReal_Properties}
+\input{FormallyReal_Square}
+\input{FormallyReal_OrderedCone}
+\input{FormallyReal_Spectrum}
+
+\chapter{Peirce Decomposition}
+\input{Peirce}
+\input{Primitive}
+\input{Eigenspace}
+
+\chapter{Structure Theory}
+\input{Simple}
+\input{Semisimple}
+\input{Ideal}
+\input{Subalgebra}
+\input{FiniteDimensional}
+\input{Trace}
+
+\chapter{Spectral Theory}
+\input{SpectralTheorem}
+
+\chapter{Reversibility}
+\input{Reversible_Def}
+
+\chapter{Classification}
+\input{Classification_SimpleTypes}
+\input{Classification_RealSymmetric}
+\input{Classification_ComplexHermitian}
+
+\chapter{Matrix Jordan Algebras}
+\input{Matrix_JordanProduct}
+\input{Matrix_Instance}
+\input{Matrix_FormallyReal}
+\input{Matrix_Trace}
+\input{Matrix_RealHermitian}
+\input{Matrix_ComplexHermitian}
+
+\chapter{Quaternionic Jordan Algebras}
+\input{Quaternion_JordanProduct}
+\input{Quaternion_Hermitian}
+\input{Quaternion_Instance}
+\input{Quaternion_FormallyReal}
+
+\chapter{Spin Factors}
+\input{SpinFactor_Def}
+\input{SpinFactor_FormallyReal}
+
+\end{document}

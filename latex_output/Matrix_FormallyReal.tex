@@ -1,0 +1,63 @@
+\section{Matrix: Formally Real}
+
+This section establishes that Hermitian matrices over an RCLike field form a formally real Jordan algebra.
+
+\subsection{Jordan Square as Matrix Square}
+
+\begin{theorem}[jsq\_val]
+For a Hermitian matrix $A \in \mathsf{HermitianMatrix}(n, \mathbb{K})$, the Jordan square equals the matrix square:
+\[ (\jsq{A}).\mathsf{val} = A.\mathsf{val} \cdot A.\mathsf{val} \]
+\end{theorem}
+
+\begin{theorem}[sq\_eq\_conjTranspose\_mul]
+For a Hermitian matrix $A$, the matrix square equals the conjugate-transpose product:
+\[ A.\mathsf{val} \cdot A.\mathsf{val} = A.\mathsf{val}^H \cdot A.\mathsf{val} \]
+\end{theorem}
+
+\begin{theorem}[sq\_posSemidef]
+For a Hermitian matrix $A$, the matrix square is positive semidefinite:
+\[ (A.\mathsf{val} \cdot A.\mathsf{val}).\mathsf{PosSemidef} \]
+\end{theorem}
+
+\begin{theorem}[jsq\_nonneg]
+The Jordan square of a Hermitian matrix is nonnegative in the matrix order:
+\[ 0 \le (\jsq{A}).\mathsf{val} \]
+\end{theorem}
+
+\subsection{Zero Characterization}
+
+\begin{theorem}[sq\_eq\_zero\_imp\_zero]
+For Hermitian matrices, if the square vanishes then the matrix is zero:
+\[ A.\mathsf{val} \cdot A.\mathsf{val} = 0 \implies A = 0 \]
+\end{theorem}
+
+\begin{theorem}[jsq\_eq\_zero\_imp\_zero]
+For Hermitian matrices, if the Jordan square vanishes then the matrix is zero:
+\[ \jsq{A} = 0 \implies A = 0 \]
+\end{theorem}
+
+\subsection{Sum of Squares Characterization}
+
+\begin{theorem}[sum\_jsq\_val]
+For a family $a : \mathsf{Fin}(m) \to \mathsf{HermitianMatrix}(n, \mathbb{K})$, the sum of Jordan squares corresponds to the sum of matrix squares:
+\[ \left(\sum_{i} \jsq{a_i}\right).\mathsf{val} = \sum_{i} a_i.\mathsf{val} \cdot a_i.\mathsf{val} \]
+\end{theorem}
+
+\begin{lemma}[each\_sq\_nonneg]
+Each matrix square in a family is nonnegative:
+\[ \forall i,\; 0 \le a_i.\mathsf{val} \cdot a_i.\mathsf{val} \]
+\end{lemma}
+
+\begin{theorem}[sum\_sq\_eq\_zero\_imp\_all\_zero]
+If a sum of squares of Hermitian matrices is zero, each term is zero. This is the key property making Hermitian matrices formally real:
+\[ \sum_{i} a_i.\mathsf{val} \cdot a_i.\mathsf{val} = 0 \implies \forall i,\; a_i = 0 \]
+\end{theorem}
+
+\subsection{FormallyRealJordan Instance}
+
+\begin{proposition}[formallyRealJordanHermitianMatrix]
+Hermitian matrices over an RCLike field form a formally real Jordan algebra:
+\[ \mathsf{HermitianMatrix}(n, \mathbb{K}) \text{ is an instance of } \mathsf{FormallyRealJordan} \]
+The instance satisfies the formally real property: for any finite family $a : \mathsf{Fin}(m) \to \mathsf{HermitianMatrix}(n, \mathbb{K})$,
+\[ \sum_{i} \jsq{a_i} = 0 \implies \forall i,\; a_i = 0 \]
+\end{proposition}
