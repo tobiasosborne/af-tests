@@ -1,0 +1,14 @@
+
+
+%  QED -- of electrons, positrons, and photons
+
+   [ model = qed ]
+
+
+   [photon, photon, + ]
+
+   [e_minus, e_plus, - ]
+
+
+   [e_plus, e_minus, photon ]
+

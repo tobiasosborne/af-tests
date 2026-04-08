@@ -1,0 +1,12 @@
+#!/bin/bash
+#
+#
+ declare DIRNAME=`echo "../$ODIR/$1" | /bin/sed --expression="s/\/.\//\//1"`
+#
+ if ! test -d $DIRNAME ; then
+    \nice \mkdir $DIRNAME
+    \nice \chmod --reference=../$ODIR/$1 $DIRNAME
+ fi
+#
+ exit
+#

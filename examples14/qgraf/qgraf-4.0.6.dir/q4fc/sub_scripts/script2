@@ -1,0 +1,87 @@
+#!/bin/bash
+#
+#
+ declare IFILE=`echo "$1" | /bin/sed --expression="s/\/\.\//\//1"`
+ declare OFILE=`echo "../$ODIR/$1" | /bin/sed --expression="s/\/\.\//\//1"`
+#
+ echo " IFILE = $IFILE ; " >> $TMPL
+ echo " OFILE = $OFILE ; " >> $TMPL
+#
+ declare F1=`echo "$IFILE" | /bin/sed --expression="s/\/\.\//\//1"`
+ declare F2=`echo "../$ODIR/$1" | /bin/sed --expression="s/\/\.\//\//1"`
+#
+#
+ if test -f "$F2" ; then
+#
+    let ANEXF=1+$NEXF
+#
+ else
+#
+    echo " type = $TYPE $SUBTYPE ; " >> $TMPL
+    echo " old = '"$F1"' ; " >> $TMPL
+    echo " new = '"$F2"' ; " >> $TMPL
+    echo " args45 = ' --$AMARK --$UMARK ' ; " >> $TMPL
+#
+    if test $TYPE == "model" ; then
+#
+       if [[ $SUBTYPE -eq 4 ]]; then
+#
+          s00="--m3to4 $F1 $F2"
+#
+       elif [[ $SUBTYPE -eq -4 ]]; then
+#
+          s00="--m4to4 $F1 $F2"
+#
+       elif [[ $SUBTYPE -eq -3 ]]; then
+#
+          s00="--m4to3 $F1 $F2"
+#
+       elif [[ $SUBTYPE -eq -2 ]]; then
+#
+          s00="--m4to2 $F1 $F2"
+#
+       fi
+#
+    elif test $TYPE == "style" ; then
+#
+       if [[ $SUBTYPE -eq 4 ]]; then
+#
+          s00="--s3to4 $F1 $F2"
+#
+       elif [[ $SUBTYPE -eq -3 ]]; then
+#
+          s00="--s4to3 $F1 $F2"
+#
+       fi
+#
+    fi
+#
+    if ! test "$AMARK" == "" ; then
+       s00="$s00 --$AMARK"
+    fi
+#
+    if ! test "$UMARK" == "" ; then
+       s00="$s00 --$UMARK"
+    fi
+#
+    if [[ $XCHAR != 0 ]]; then
+       s00="$s00 --no_extra_chars"
+    fi
+#
+    `../$QGRAF $s00 1> /dev/null `
+#
+    if test -s "$F2" ; then
+#
+       echo " new = '"$F2"' ; " >> $TMPL
+       \nice \chmod --reference="$F1" "$F2"
+       let ANNEWF=1+$NNEWF
+#
+    else
+#
+       echo " conversion failed " >> $TMPL
+       let ANERR=1+$NERR
+#
+    fi
+#
+ fi
+#

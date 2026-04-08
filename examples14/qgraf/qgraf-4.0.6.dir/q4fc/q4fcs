@@ -1,0 +1,515 @@
+#!/bin/bash
+#
+#  Main script file for the conversion in bulk of model-files and style-files
+#
+#
+#  define qgraf's executable and two (overwritable) output directories
+#
+ declare QGRAF="../qgraf"
+#
+ declare MODELSO='models_out'
+ declare STYLESO='styles_out'
+#
+#  define input directories
+#
+ declare MODELS3='models3'
+ declare MODELS4='models4'
+#
+ declare STYLES3='styles3'
+ declare STYLES4='styles4'
+#
+#   some auxiliary variables
+#
+ declare -i NERR=0
+ declare -i NEXF=0
+ declare -i NNEWF=0
+#
+ declare -i ANERR=0
+ declare -i ANEXF=0
+ declare -i ANNEWF=0
+#
+ declare -i SUBTYPE=0
+#
+ declare -i XCHAR=0
+#
+ declare DIR0="$PWD"
+#
+ declare TMPDIR="tmp_dir"
+#
+ declare IDIR=""
+ declare ODIR=""
+#
+ declare TYPE=""
+#
+ declare AMARK=""
+ declare ATYPE=""
+ declare UMARK=""
+ declare UTYPE=""
+#
+#   a log file and a temporary file (both deletable)
+#
+ declare TMPL="$DIR0/$TMPDIR/q4fcs.log"
+ declare TMPF="$DIR0/$TMPDIR/q4fcs.tmp"
+#
+ export AMARK IDIR NERR NEXF NNEWF ODIR QGRAF SUBTYPE TMPL TYPE UMARK XCHAR
+#
+#
+ MOPT=( "m3to4" "m4to4" "m4to3" "m4to2" )
+#
+ MCOPT=( 4  -4  -3  -2 )
+#
+ SOPT=( "s3to4" "s4to3" )
+#
+ SCOPT=( 4  -3 )
+#
+ AOPT=( "hash" "percent" )
+#
+ UOPT=( "utf8_bom" "no_utf8_bom" )
+#
+ XOPT=( "no_extra_chars" )
+#
+ ALLDIRS=( "$MODELS3" "$MODELS4" "$MODELSO" "$STYLES3" "$STYLES4" "$STYLESO" "$TMPDIR" "$DIR0" )
+#
+ echo
+#
+ NARG=$#
+#
+ declare -i i0=0
+ declare -i i1=0
+ declare -i i2=0
+ declare -i ierr=0
+#
+#
+ declare -i naopt=0
+ declare -i nmopt=0
+ declare -i nsopt=0
+ declare -i nuopt=0
+ declare -i nxopt=0
+#
+#
+#   check executable, defined directories and input arguments
+#
+#
+ if test "$QGRAF" == ""; then
+    echo -e " error: variable QGRAF is not defined\n"
+    ierr=1
+ fi
+#
+ if ! test -x "$QGRAF"; then
+    echo -e "\n  variable QGRAF is not properly defined ; exiting\n"
+    exit 1
+ fi
+#
+ for i1 in ${!ALLDIRS[*]} ; do
+#
+    OPT="${ALLDIRS[$i1]}"
+#
+    if ! test -d "$OPT"; then
+       ierr=1
+       echo -e " error: directory  \"$OPT\"  does not exist\n"
+    fi
+#
+    for i2 in ${!ALLDIRS[*]} ; do
+#
+       if [[ $i1 -lt $i2 ]]; then
+#
+          OPT2="${ALLDIRS[$i2]}"
+#
+          if test "$OPT" -ef "$OPT2"; then
+             echo -e " error: directory  \"$OPT\" used more than once to define variables\n"
+             ierr=1
+          fi
+       fi
+#
+    done
+#
+ done
+#
+ declare ARG1=""
+ declare ARG2=""
+ declare ARG3=""
+ declare ARG4=""
+#
+ if [[ $NARG -ge 1 ]]; then
+    ARG1="$1"
+#    echo -e "\n  ARG1 :  $ARG1\n"
+#
+    if [[ $NARG -ge 2 ]]; then
+       ARG2="$2"
+#       echo -e "\n  ARG2 :  $ARG2\n"
+#
+       if [[ $NARG -ge 3 ]]; then
+          ARG3="$3"
+#          echo -e "\n  ARG3 :  $ARG3\n"
+#
+          if [[ $NARG -eq 4 ]]; then
+             ARG4="$4"
+#             echo -e "\n  ARG3 :  $ARG3\n"
+          elif [[ $NARG -gt 4 ]]; then
+             ierr=1
+          fi
+#
+       fi
+#
+    fi
+#
+ else
+#
+    ierr=1
+#
+ fi
+#
+ if [[ $ierr -ne 0 ]]; then
+    echo -e " too many arguments (or none) ; exiting\n"
+#    exit 1
+ fi
+#
+# echo " step 1"
+#
+#
+ ARGS=( "$ARG1" "$ARG2" "$ARG3" )
+#
+#
+#   cleaning
+#
+#
+ if test "$ARG1" == "--mclean"; then
+    ARG1="-mclean"
+ fi
+#
+ if test "$ARG1" == "--sclean"; then
+    ARG1="-sclean"
+ fi
+#
+ if test "$ARG1" == "-mclean"; then
+#
+    i0=0
+#
+    if [[ $NARG -ne 1 ]]; then
+#
+       echo -e " wrong arguments ; exiting\n"
+       exit 1
+#
+    else
+#
+       echo -e "\n  cleaning directory :  "$MODELSO"\n"
+#
+       if \nice \rm -fr "$MODELSO" ; then
+          \nice \mkdir "$MODELSO"
+          \nice \chmod --reference=$MODELS3 "$MODELSO"
+          exit
+       else
+          echo -e " failed to remove directory ; exiting\n"
+          exit 1
+       fi
+#
+    fi
+#
+ elif test "$ARG1" == "-sclean"; then
+#
+    i0=0
+#
+    if [[ $NARG -ne 1 ]]; then
+#
+       echo -e " wrong arguments ; exiting\n"
+       exit 1
+#
+    else
+#
+       echo -e "\n  cleaning directory :  "$STYLESO"\n"
+#
+       if \nice \rm -fr "$STYLESO" ; then
+          \nice \mkdir "$STYLESO"
+          \nice \chmod --reference=$STYLES3 "$STYLESO"
+          exit
+       else
+          echo -e " failed to remove directory ; exiting\n"
+          exit 1
+       fi
+#
+    fi
+#
+ fi
+#
+# echo " step 2"
+#
+#
+#  determine TYPE, SUBTYPE, AMARK and UMARK
+#
+#
+ for i1 in ${!ARGS[*]} ; do
+#
+    argx="${ARGS[$i1]}"
+#
+    for i2 in ${!MOPT[*]} ; do
+#
+       OPT="${MOPT[$i2]}"
+#
+       if test "$argx" == "--$OPT"; then
+          SUBTYPE="${MCOPT[$i2]}"
+          TYPE="model"
+          nmopt+=1
+       elif test "$argx" == "-$OPT"; then
+          SUBTYPE="${MCOPT[$i2]}"
+          TYPE="model"
+          nmopt+=1
+       fi
+#
+    done
+#
+    for i2 in ${!SOPT[*]} ; do
+#
+       OPT="${SOPT[$i2]}"
+#
+       if test "$argx" == "--$OPT"; then
+          SUBTYPE="${SCOPT[$i2]}"
+          TYPE="style"
+          nsopt+=1
+       elif test "$argx" == "-$OPT"; then
+          SUBTYPE="${SCOPT[$i2]}"
+          TYPE="style"
+          nsopt+=1
+       fi
+#
+    done
+#
+    for i2 in ${!AOPT[*]} ; do
+#
+       OPT="${AOPT[$i2]}"
+#
+       if test "$argx" == "--$OPT"; then
+          AMARK="$OPT"
+          ATYPE="amark"
+          naopt+=1
+       elif test "$argx" == "-$OPT"; then
+          AMARK="$OPT"
+          ATYPE="amark"
+          naopt+=1
+       fi
+#
+    done
+#
+    for i2 in ${!UOPT[*]} ; do
+#
+       OPT="${UOPT[$i2]}"
+#
+       if test "$argx" == "--$OPT"; then
+          UMARK="$OPT"
+          UTYPE="utfmark"
+          nuopt+=1
+       elif test "$argx" == "-$OPT"; then
+          UMARK="$OPT"
+          UTYPE="utfmark"
+          nuopt+=1
+       fi
+#
+    done
+#
+    for i2 in ${!XOPT[*]} ; do
+#
+       OPT="${XOPT[$i2]}"
+#
+       if test "$argx" == "--$OPT"; then
+          XCHAR=1
+          nxopt+=1
+       elif test "$argx" == "-$OPT"; then
+          XCHAR=1
+          nxopt+=1
+       fi
+#
+    done
+#
+ done
+#
+# echo " step 3"
+#
+#   some other checks
+#
+#
+ if test "$TYPE" == ""; then
+    ierr=1
+ elif [[ ${nmopt}+${nsopt} -ne 1 ]]; then
+    ierr=1
+ elif [[ $naopt -gt 1 ]]; then
+    ierr=1
+ elif [[ $nuopt -gt 1 ]]; then
+    ierr=1
+ elif [[ $nxopt -gt 1 ]]; then
+    ierr=1
+ elif [[ $SUBTYPE -eq 0 ]]; then
+    ierr=1
+ fi
+#
+ if [[ $SUBTYPE -gt 0 ]]; then
+    if test "$AMARK" == ""; then
+       ierr=1
+    elif [[ $NARG -lt 2 ]]; then
+       ierr=1
+    fi
+ fi
+#
+# echo " ${nmopt}  ${nsopt}  ${naopt}  ${nuopt}  ${nxopt}  $NARG  $SUBTYPE  $TYPE  $XCHAR "
+#
+ if [[ $ierr -ne 0 ]]; then
+    echo -e "\n    incorrect arguments ; exiting\n"
+    exit 1
+ fi
+#
+# echo " step 4"
+#
+#
+#   check script's existence
+#
+#
+ if ! test -e ./sub_scripts/script1 ; then
+    let ierr=1
+    echo -e "\n  error: file script1 does not exist"
+ elif ! test -x ./sub_scripts/script1 ; then
+    let ierr=1
+    echo -e "\n  error: file script1 cannot be executed"
+ fi
+#
+ if ! test -e ./sub_scripts/script2 ; then
+    let ierr=1
+    echo -e "\n  error: file script2 does not exist"
+ elif ! test -x ./sub_scripts/script2 ; then
+    let ierr=1
+    echo -e "\n  error: file script2 cannot be executed"
+ fi
+#
+ if [[ $ierr -ne 0 ]]; then
+    exit 1
+ fi
+#
+# echo " step 5"
+#
+#
+#   check directories' existence
+#
+#
+ if test "$TYPE" == "model"; then
+#
+    ODIR="$MODELSO"
+#
+    if [[ "$SUBTYPE" -gt 0 ]]; then
+       IDIR="$MODELS3"
+    else
+       IDIR="$MODELS4"
+    fi
+#
+ elif test "$TYPE" == "style"; then
+#
+    ODIR="$STYLESO"
+#
+    if [[ "$SUBTYPE" -gt 0 ]]; then
+       IDIR="$STYLES3"
+    else
+       IDIR="$STYLES4"
+    fi
+#
+ fi
+#
+#
+ if ! test -d "$IDIR" ; then
+    let ierr=1
+    echo -e "\n  warning: $TYPE (input) directory  $IDIR does not exist"
+ fi
+#
+ if ! test -d "$ODIR" ; then
+    let ierr=1
+    echo -e "\n  warning: $TYPE (output) directory  $ODIR does not exist"
+ fi
+#
+#
+ if [[ $ierr -ne 0 ]]; then
+    exit 1
+ fi
+#
+# echo " step 6"
+#
+#
+#   directory and file pre-processing
+#
+#
+ NNEWF=0
+ NEXF=0
+ NERR=0
+#
+ if test -e "$TMPF" ; then
+    \nice \rm -f "$TMPF"
+ fi
+#
+ if test -e "$TMPL" ; then
+    \nice \rm -f "$TMPL"
+ fi
+#
+ \nice \touch "$TMPF" "$TMPL"
+ \nice \chmod 640 "$TMPF" "$TMPL"
+#
+#
+#   build a list of files to convert
+#
+ cd "$IDIR"
+#
+ \nice \find . -mindepth 1 -type d -exec ../sub_scripts/script1 {} \;
+#
+ \nice \find . -type f -exec echo {} >> "$TMPF" \;
+#
+ echo
+#
+#
+#   the file conversion
+#
+#
+ let i0=${#IDIR}+1
+#
+ while IFS= read -r line; do
+#
+    let ANNEWF=$NNEWF
+    let ANEXF=$NEXF
+    let ANERR=$NERR
+#
+    . ../sub_scripts/script2 "$line"
+#
+    F0="$IDIR/${line:2}"
+#
+    if [[ $ANNEWF -gt $NNEWF ]]; then
+       let NNEWF=$ANNEWF
+       echo " successful conversion of ${TYPE}-file  '$F0'" >> "$TMPL"
+       echo " successful conversion of ${TYPE}-file  '$F0'"
+    fi
+#
+    if [[ $ANEXF -gt $NEXF ]]; then
+       let NEXF=$ANEXF
+       echo " pre-existing ${TYPE}-file  '${F0:$i0}',  in directory  '${ODIR}'" >> "$TMPL"
+       echo " pre-existing ${TYPE}-file  '${F0:$i0}',  in directory  '${ODIR}'" >&2
+    fi
+#
+    if [[ $ANERR -gt $NERR ]]; then
+       let NERR=$ANERR
+       echo " conversion failed for ${TYPE}-file  '$F0'" >> "$TMPL"
+       echo " conversion failed for ${TYPE}-file  '$F0'" >&2
+    fi
+#
+ done < "$TMPF"
+#
+#
+#   final report
+#
+#
+ echo
+ echo " ${TYPE}-files converted: $NNEWF"
+#
+ if [[ $NEXF -gt 0 ]]; then
+    echo
+    echo " ${TYPE}-files not converted: $NEXF"
+ fi
+#
+ if [[ $NERR -gt 0 ]]; then
+    echo
+    echo " ${TYPE}-files whose conversion failed: $NERR"
+ fi
+#
+ echo
+ exit
+#

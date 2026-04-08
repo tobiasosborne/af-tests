@@ -1,0 +1,12 @@
+
+
+%  QED -- of electrons, positrons, and photons
+
+
+   [photon, photon, +1 ]
+
+   [e_minus, e_plus, -1 ]
+
+
+   [e_plus, e_minus, photon ]
+

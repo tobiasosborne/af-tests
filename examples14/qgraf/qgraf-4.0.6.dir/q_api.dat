@@ -1,0 +1,27 @@
+
+ config = delete, flush ;
+
+ output_dir = 'out_tmp/' ;
+
+ style_dir = 'styles/' ;
+
+ model_dir = 'models/' ;
+
+ messages = 'msg.txt' ;
+
+ style = 'array.sty' ;
+
+ style = 'sum.sty' ;
+
+ model = qed3 // 'qedx';
+
+ in = e_minus[p1] ;
+
+ out = e_minus[q1], photon[q2] ;
+
+ loops = 4 ;
+
+ loop_momentum = k ;
+
+ options = onepi, floop ;
+

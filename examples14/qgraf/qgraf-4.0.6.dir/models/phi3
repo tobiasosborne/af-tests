@@ -1,0 +1,11 @@
+
+#
+#  a simple model with a propagating, self-interacting scalar field "phi"
+#  (with a phi^3 interaction)
+#
+
+ [ phi, phi, + ]
+
+
+ [ phi, phi, phi ]
+
