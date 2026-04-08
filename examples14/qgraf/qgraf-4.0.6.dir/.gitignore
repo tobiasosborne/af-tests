@@ -1,0 +1,9 @@
+qgraf
+*.o
+*.mod
+fmodules/
+out/
+msg.txt
+q_test.dat
+q_auto.dat
+qgraf.dat
