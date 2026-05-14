@@ -1,3 +1,49 @@
+# Handoff: 2026-05-14 (Codex session)
+
+## Completed This Session
+- Recovered old Beads work from `.beads/issues.jsonl`; current `bd` Dolt store is empty, but
+  old JSONL has the real issue state.
+- Audited Eq(2.58) old issue chain:
+  - `af-0llu` is already done in current code (`M_op_U_bilinear_yCons` in the `i > k`
+    branch of `eq258_xCons_yCons_general_ge`).
+  - First genuinely unfinished Eq(2.58) item is `af-iobv`, the `i < k` rearrangement
+    using (2.47).
+- Advanced `eq258_xCons_yCons_general_lt` in
+  `AfTests/Jordan/Macdonald/Equation258.lean`:
+  - Added `h247_iso`, a Lean-checked rearrangement of H-O (2.47), isolating
+    `T(x^{k+1}) U_bi(x^{i+1}, y^{j+1})`.
+  - Added `h249_iso`, a Lean-checked application of H-O (2.49) to the exposed
+    `T(x^{i+1}) U_bi(x^{k+1}, y^{j+1})` term.
+  - Updated the local proof comments so completed vs remaining steps are explicit.
+
+## Current State
+- Build status: passing (`lake build AfTests`, 1915 jobs).
+- Sorry count: 10 total across `AfTests`; `Equation258.lean` still has 2 known sorries.
+- Open blockers:
+  - `eq258_y_base`: still needed for the `i = k` boundary of the `general_ge` proof.
+  - `eq258_xCons_yCons_general_lt`: now past H-O line 1371 rewrites, still needs
+    property (iii)/(iv) conversion to M-op terms and final module algebra.
+  - Old JSONL Beads are not migrated into the current embedded Dolt backend, so `bd ready`
+    reports no work even though `.beads/issues.jsonl` has open issues.
+
+## Next Steps (Priority Order)
+1. Continue `eq258_xCons_yCons_general_lt`: convert the remaining
+   `U_bi(x^{i+1}, x^{k+1})(T_y(w))` and `U(x^{i+1})(U_bi(...))` terms into M-op form
+   using property (iii)/(iv), following H-O lines 1373-1377.
+2. Prove or structurally replace `eq258_y_base`; likely needs x/y swap equivariance or a
+   simultaneous y-version of the Eq(2.58) induction.
+3. Migrate or restore old JSONL Beads so issue status matches the current codebase.
+
+## Known Issues / Gotchas
+- Always read `examples3/Jordan Operator Algebras/joa-m/joa-m.md` before Macdonald work.
+- Do not use bare `lake build`; use `lake build AfTests`.
+- `M_op.eq_def` can loop under broad `simp`; prefer targeted rewrites.
+- Current `bd` uses embedded Dolt and is empty; old issues live in `.beads/issues.jsonl`.
+
+## Files Modified
+- `AfTests/Jordan/Macdonald/Equation258.lean`
+- `HANDOFF.md`
+
 # Handoff: 2026-02-22 (Session 130)
 
 ## What was done this session

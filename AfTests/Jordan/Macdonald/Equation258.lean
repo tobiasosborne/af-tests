@@ -443,14 +443,86 @@ theorem eq258_xCons_yCons_general_lt (k i j m : ℕ) (r' : FreeAssocMono)
   --   U_bi(x^{i+1},x^{k+1})(T(y^{j+1})(w)) + U_bi(x^{i+k+2},y^{j+1})(w)
   -- Step 4: Apply ih_swap to the T_{x^{k+1}} M_{swapped} term
   rw [ih_swap]
+  -- Step 5a: Rearrange (2.47) to isolate the T_{x^{k+1}} U_{x^{i+1},y^{j+1}}
+  -- term. This is the first line of H-O's calculation after applying induction:
+  -- T_{x^k} U_{x^i,y^j} = -T_{x^i} U_{x^k,y^j}
+  --   + U_{x^i,x^k} T_{y^j} + U_{x^{i+k},y^j}.
+  have h247_iso :
+      T (pow x (k + 1))
+          (U_bilinear (pow x (i + 1)) (pow y (j + 1)) (M_op (yCons m r') s v)) =
+        -T (pow x (i + 1))
+            (U_bilinear (pow x (k + 1)) (pow y (j + 1)) (M_op (yCons m r') s v)) +
+          U_bilinear (pow x (i + 1)) (pow x (k + 1))
+            (T (pow y (j + 1)) (M_op (yCons m r') s v)) +
+          U_bilinear (pow x (i + 1 + (k + 1))) (pow y (j + 1))
+            (M_op (yCons m r') s v) := by
+    calc
+      T (pow x (k + 1))
+          (U_bilinear (pow x (i + 1)) (pow y (j + 1)) (M_op (yCons m r') s v))
+          =
+        (T (pow x (k + 1))
+            (U_bilinear (pow x (i + 1)) (pow y (j + 1))
+              (M_op (yCons m r') s v)) +
+          T (pow x (i + 1))
+            (U_bilinear (pow x (k + 1)) (pow y (j + 1))
+              (M_op (yCons m r') s v))) -
+          T (pow x (i + 1))
+            (U_bilinear (pow x (k + 1)) (pow y (j + 1))
+              (M_op (yCons m r') s v)) := by
+          abel
+      _ =
+        (U_bilinear (pow x (i + 1)) (pow x (k + 1))
+            (T (pow y (j + 1)) (M_op (yCons m r') s v)) +
+          U_bilinear (pow x (i + 1 + (k + 1))) (pow y (j + 1))
+            (M_op (yCons m r') s v)) -
+          T (pow x (i + 1))
+            (U_bilinear (pow x (k + 1)) (pow y (j + 1))
+              (M_op (yCons m r') s v)) := by
+          rw [h247v]
+      _ =
+        -T (pow x (i + 1))
+            (U_bilinear (pow x (k + 1)) (pow y (j + 1))
+              (M_op (yCons m r') s v)) +
+          U_bilinear (pow x (i + 1)) (pow x (k + 1))
+            (T (pow y (j + 1)) (M_op (yCons m r') s v)) +
+          U_bilinear (pow x (i + 1 + (k + 1))) (pow y (j + 1))
+            (M_op (yCons m r') s v) := by
+          abel
+  -- Step 5b: Apply (2.49) to the first term exposed by `h247_iso`.
+  have h249 := @JordanAlgebra.operator_identity_249 FreeJordanAlg _
+    FreeJordanAlg.x (FreeJordanAlg.pow FreeJordanAlg.y (j + 1)) (i + 1) (k - i)
+  have h249v := LinearMap.ext_iff.mp h249 (M_op (yCons m r') s v)
+  simp only [LinearMap.smul_apply, LinearMap.comp_apply, LinearMap.add_apply] at h249v
+  simp only [FJ_L_apply, FJ_jpow_eq_pow, FJ_U_bilinear_eq, FJ_U_linear_apply] at h249v
+  rw [show i + 1 + (k - i) = k + 1 from by omega,
+      show i + 1 + (k + 1) = i + 1 + k + 1 from by omega] at h249v
+  have h249_iso :
+      T (pow x (i + 1))
+          (U_bilinear (pow x (k + 1)) (pow y (j + 1)) (M_op (yCons m r') s v)) =
+        (1 / 2 : ℝ) •
+          (U (pow x (i + 1))
+              (U_bilinear (pow x (k - i)) (pow y (j + 1))
+                (M_op (yCons m r') s v)) +
+            U_bilinear (pow x (i + 1 + k + 1)) (pow y (j + 1))
+              (M_op (yCons m r') s v)) := by
+    simp only [T_apply] at h249v ⊢
+    rw [show mul (pow x (i + 1))
+          (U_bilinear (pow x (k + 1)) (pow y (j + 1))
+            (M_op (yCons m r') s v))
+        = (1 / 2 : ℝ) • ((2 : ℝ) • mul (pow x (i + 1))
+            (U_bilinear (pow x (k + 1)) (pow y (j + 1))
+              (M_op (yCons m r') s v))) from by rw [smul_smul]; norm_num,
+      h249v]
+  rw [h247_iso, h249_iso]
   -- Remaining goal (H-O lines 1371-1377):
   -- Involves T(x^{i+1})(U_bi(x^{k+1},y^{j+1})(w)), U_bi(x^{i+1},x^{k+1})(T(y^{j+1})(w)),
   -- and various M_op terms from ih_swap expansion.
   --
-  -- Remaining steps:
-  -- a) Use h247v to express T(x^{k+1}) U_bi in terms of T(x^{i+1}), U_bi, etc.
-  -- b) Apply (2.49) or Case 1 to T(x^{i+1}) U_bi(x^{k+1},y^{j+1})
-  -- c) Use property (iii) on U_bi(x^{i+1},x^{k+1}) T terms
-  -- d) Apply (iv) and induction to convert everything to M_op
-  -- e) Cancel matching terms in the 6-line algebra (H-O lines 1373-1377)
+  -- Completed here:
+  -- a) `h247_iso` expresses T(x^{k+1}) U_bi in terms of T(x^{i+1}), U_bi, etc.
+  -- b) `h249_iso` applies (2.49) to T(x^{i+1}) U_bi(x^{k+1},y^{j+1}).
+  -- Remaining:
+  -- c) Use property (iii) on U_bi(x^{i+1},x^{k+1}) T terms.
+  -- d) Apply (iv) and induction to convert everything to M_op.
+  -- e) Cancel matching terms in the 6-line algebra (H-O lines 1373-1377).
   sorry
