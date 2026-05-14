@@ -315,15 +315,29 @@ theorem T_smul' (a : FreeJordanAlg) (r : ℝ) (b : FreeJordanAlg) :
     T a (r • b) = r • T a b := by
   simp only [T_apply]; exact smul_mul_right r a b
 
-/-- Y-version of eq258 base case: T_{y^{j+1}}(M_op(yCons m r')(s)(v)) =
-    ½(M_op(prependY j (yCons m r'))(s)(v) + M_op(yCons m r')(yCons j s)(v)).
-    This is the symmetric counterpart of eq258 for the y generator.
-    H-O: follows from the x↔y symmetry of the M_op construction. -/
-theorem eq258_y_base (j m : ℕ) (r' s : FreeAssocMono) (v : FreeJordanAlg) :
-    mul (pow y (j + 1)) (M_op (yCons m r') s v) =
-    (1/2 : ℝ) • (M_op (prependY j (yCons m r')) s v +
-                  M_op (yCons m r') (yCons j s) v) := by
-  sorry
+/-- X-direction instance of H-O (2.58). The side conditions `p ∈ X`, `q ∈ Y`
+    are tracked by the callers, not by this proposition. -/
+def Eq258X (k : ℕ) (p q : FreeAssocMono) : Prop :=
+  ∀ v : FreeJordanAlg,
+    T (pow x (k + 1)) (M_op p q v) =
+      (1 / 2 : ℝ) • (M_op (prependX k p) q v + M_op p (prependX k q) v)
+
+/-- Y-direction companion to H-O (2.58), obtained by swapping `x` and `y`.
+    The side conditions `p ∈ Y`, `q ∈ X` are tracked by the callers. -/
+def Eq258Y (j : ℕ) (p q : FreeAssocMono) : Prop :=
+  ∀ v : FreeJordanAlg,
+    T (pow y (j + 1)) (M_op p q v) =
+      (1 / 2 : ℝ) • (M_op (prependY j p) q v + M_op p (prependY j q) v)
+
+/-- The y-generator obligation consumed by the x-direction inductive helpers
+    when `p = yCons m r'` and `q = s`. For well-formed H-O applications,
+    callers should supply this from `Eq258Y j (yCons m r') s` together with
+    the side condition that `s` lies in `X`, so `prependY j s = yCons j s`. -/
+def Eq258YBaseObligation (j m : ℕ) (r' s : FreeAssocMono) (v : FreeJordanAlg) :
+    Prop :=
+  mul (pow y (j + 1)) (M_op (yCons m r') s v) =
+    (1 / 2 : ℝ) • (M_op (prependY j (yCons m r')) s v +
+      M_op (yCons m r') (yCons j s) v)
 
 /-! ### Equation (2.58) weight > 1 — Inductive cases
 
@@ -360,8 +374,7 @@ theorem eq259_xCons_yCons (i j m : ℕ) (r' : FreeAssocMono)
     4. Apply induction (ih_swap) to the T_{x^{k+1}} M_{swapped} term
     5. Group U_{x^{k+1}} factors using property (iii) (M_op_U_prependX)
     6. Apply (iv) (M_op_U_bilinear_yCons) to convert U_bilinear to M_op terms
-    7. Expand RHS using (2.55a), cancel, close by algebra
-    The algebra closure (steps 5-7) is left as sorry. -/
+    7. Expand RHS using (2.55a), cancel, close by algebra. -/
 theorem eq258_xCons_yCons_general_ge (k i j m : ℕ) (r' : FreeAssocMono)
     (s : FreeAssocMono) (hik : k ≤ i)
     -- IH: eq258 for swapped term M_{y^{j+1}·(y^m·r'), x^{i+1}·s}
@@ -372,7 +385,8 @@ theorem eq258_xCons_yCons_general_ge (k i j m : ℕ) (r' : FreeAssocMono)
         (M_op (prependY j (yCons m r')) (xCons i s) v) =
       (1/2 : ℝ) • (M_op (prependX k (prependY j (yCons m r'))) (xCons i s) v
         + M_op (prependY j (yCons m r')) (xCons (k + 1 + i) s) v))
-    (v : FreeJordanAlg) :
+    (v : FreeJordanAlg)
+    (ih_y_base : Eq258YBaseObligation j m r' s v) :
     T (pow x (k + 1)) (M_op (xCons i (yCons m r')) (yCons j s) v) =
     (1/2 : ℝ) • (M_op (xCons (k + 1 + i) (yCons m r')) (yCons j s) v +
                   M_op (xCons i (yCons m r')) (xCons k (yCons j s)) v) := by
@@ -445,8 +459,8 @@ theorem eq258_xCons_yCons_general_ge (k i j m : ℕ) (r' : FreeAssocMono)
     subst hik'
     simp only [Nat.sub_self, pow_zero, U_bilinear_one_left, T_apply]
     -- Goal: mul(y^{j+1})(w) = (1/2)•(E + F)
-    -- Use eq258_y_base to convert mul(y) to M_op, then fold into U
-    rw [eq258_y_base j m r' s v]
+    -- Use the y-direction base obligation to convert mul(y) to M_op, then fold into U.
+    rw [ih_y_base]
     -- Fold RHS M_op terms via M_op_xCons_xCons
     rw [show prependX i (prependY j (yCons m r')) =
       xCons i (prependY j (yCons m r')) from rfl]
@@ -489,6 +503,7 @@ theorem eq258_xCons_yCons_general_lt (k i j m : ℕ) (r' : FreeAssocMono)
       (1 / 2 : ℝ) • (M_op (prependX k (prependY j (yCons m r'))) (xCons i s) v
         + M_op (prependY j (yCons m r')) (xCons (k + 1 + i) s) v))
     (v : FreeJordanAlg)
+    (ih_y_base : Eq258YBaseObligation j m r' s v)
     -- Lower-power IH needed after `U_bilinear_x_pow_lt_as_U_T` turns
     -- `U_{x^{i+1},x^{k+1}}` into `U_{x^{i+1}} T_{x^{k-i}}`.
     (ih_lower_pair :
@@ -652,7 +667,7 @@ theorem eq258_xCons_yCons_general_lt (k i j m : ℕ) (r' : FreeAssocMono)
     have h_same_left := h_same_pair.1
     have h_same_right := h_same_pair.2
     simp only [T_apply]
-    rw [eq258_y_base j m r' s v]
+    rw [ih_y_base]
     rw [← FJ_U_bilinear_eq]
     rw [map_smul, map_add]
     rw [FJ_U_bilinear_eq, FJ_U_bilinear_eq]
