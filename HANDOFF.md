@@ -244,6 +244,94 @@
     should now build on the H-O-aligned dispatcher layer.
   - Current `bd` embedded Dolt store reports no open issues but still has
     runtime state dirty under `.beads`; do not stage `.beads` runtime files.
+  - Tried to create the P1 follow-up bead
+    `Eq258: add same-side lower-right package`; creation still fails with
+    `database not initialized: issue_prefix config is missing`.
+
+## Next Agent Brief
+- Start by rereading Hanche-Olsen/Størmer ground truth in
+  `examples3/Jordan Operator Algebras/joa-m/joa-m.md`, especially:
+  - (2.55a,b), around lines 1258-1266: different-letter recursive definition.
+  - (2.58), around lines 1326-1377: the mixed `p ∈ X`, `q ∈ Y` proof.
+  - The preceding proof of (iv) for `X0/X0` and `Y0/Y0`: this is the missing
+    same-side lower-right ingredient for the final driver.
+- The proof is currently aligned with H-O again. Earlier broad total-syntax
+  scaffolding still exists for compatibility (`Eq258DriverIH`, raw-right
+  wrappers), but the active path should be side-conditioned and well-formed:
+  - Use `prependX`/`prependY` for H-O concatenation.
+  - Use `WF` plus `inX`/`inY` side conditions.
+  - Use `M_op_comm_WF` for H-O property (ii), not arbitrary non-WF
+    commutativity claims.
+- There are no sorries or custom axioms in the touched Eq258/Macdonald files.
+  The remaining work is architectural proof packaging, not sorry cleanup.
+
+## Current Proof Shape
+- Ordinary mixed Eq(2.58) theorem-family predicates:
+  - `Eq258X k p q` means the x-direction form of H-O (2.58).
+  - `Eq258Y j p q` is the y-direction companion.
+- Side-conditioned dispatcher entry points already exist:
+  - `eq258X_of_driverIH_of_inX_inY`
+  - `eq258Y_of_driverIH_of_inY_inX`
+- Narrow core package:
+  - `Eq258DriverWFCore` records the H-O-safe ordinary mixed facts plus safe
+    raw boundary facts.
+  - `Eq258DriverWFCore.of_driverIH` is only a compatibility bridge from the old
+    broad package.
+- H-O property (ii) is now available:
+  - `M_op_comm_WF`
+  - `Eq258X_of_swapped_comm_WF`
+  - `Eq258Y_of_swapped_comm_WF`
+  - `Eq258XLowerLeft.of_swapped_eq258X_comm_WF`
+  - `Eq258YLowerLeft.of_swapped_eq258Y_comm_WF`
+  - `Eq258DriverWFCore.xSwapped`, `.ySwapped`,
+    `.xLowerLeftSwapped`, `.yLowerLeftSwapped`
+- The long mixed branches now have WF-core wrappers:
+  - `eq258X_xCons_yCons_from_wfCore_sameY`
+  - `eq258Y_yCons_xCons_from_wfCore_sameX`
+  These are important: they isolate the one extra recursive family still needed
+  by the long branches.
+
+## Remaining Hard Part
+- The isolated missing package is the same-side lower-right induction:
+  - For x-direction long branches, prove/package `Eq258X` on well-formed
+    `Y/Y` lower pairs.
+  - For y-direction long branches, prove/package `Eq258Y` on well-formed
+    `X/X` lower pairs.
+- This corresponds to H-O's earlier same-side part of property (iv), not to a
+  new arbitrary raw-right theorem. Do not revive a broad theorem over total
+  `FreeAssocMono` syntax.
+- A likely next abstraction is a side-conditioned induction structure extending
+  `Eq258DriverWFCore` with exactly:
+  - ordinary mixed x/y facts;
+  - same-side lower-right x facts on `Y/Y`;
+  - same-side lower-right y facts on `X/X`;
+  - boundary facts already handled by the current WF layer.
+- Once that package exists, refactor the dispatcher wrappers so they no longer
+  pass `(fun k' p q _ _ _ _ hlt => hIH.x k' p q hlt)` or the y analogue as the
+  same-side compatibility source.
+
+## Suggested Next Coding Steps
+1. Define a new side-conditioned package near `Eq258DriverWFCore`; for example
+   an `Eq258DriverWFSameSide`/extended-core structure with fields for:
+   - `xWF` on `p.inX`, `q.inY`;
+   - `yWF` on `p.inY`, `q.inX`;
+   - `xSameY` on `p.inY`, `q.inY`;
+   - `ySameX` on `p.inX`, `q.inX`;
+   - existing safe boundary raw facts if still needed.
+2. Add an `.of_driverIH` compatibility bridge first, so the file keeps
+   compiling while the dispatchers are migrated.
+3. Rewrite `eq258X_xCons_yCons_from_wfCore_sameY` and
+   `eq258Y_yCons_xCons_from_wfCore_sameX` to consume this extended package
+   directly rather than taking a loose `hSameY`/`hSameX` function.
+4. Then build the actual recursive driver by induction on total block weight,
+   with cases routed through:
+   - the existing mixed dispatchers;
+   - the same-side lower-right package;
+   - the boundary layer for one-argument cases.
+5. Keep the H-O ordering in mind: same-side `(iv)` cases are proved before the
+   mixed Eq(2.58) endpoint. In Lean, that likely means the same-side package is
+   part of the simultaneous induction state, not a consequence of mixed Eq(2.58)
+   alone.
 
 ## Next Steps (Priority Order)
 1. Add the side-conditioned same-side lower-right package: `Eq258X` for
