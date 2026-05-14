@@ -61,6 +61,71 @@ theorem U_bilinear_one_left (b v : FreeJordanAlg) :
     U_bilinear 1 b v = T b v := by
   rw [U_bilinear_comm]; exact U_bilinear_one_right b v
 
+/-- For powers of the same generator with `i < k`, the bilinearized U operator
+    factors as `U_{x^{i+1}} T_{x^{k-i}}`. This is the reusable form of the
+    `hkey` calculation used in the weight≤1 `i < k` case. -/
+theorem U_bilinear_x_pow_lt_as_U_T (i k : ℕ) (hik : i < k) (w : FreeJordanAlg) :
+    U_bilinear (pow x (i + 1)) (pow x (k + 1)) w =
+      U (pow x (i + 1)) (T (pow x (k - i)) w) := by
+  have hLc : ∀ (l m : ℕ) (w : FreeJordanAlg),
+      mul (pow x l) (mul (pow x m) w) = mul (pow x m) (mul (pow x l) w) := by
+    intro l m w
+    have hcomm := @JordanAlgebra.L_jpow_comm_all FreeJordanAlg _ x l m
+    have happ := LinearMap.ext_iff.mp hcomm w
+    simp only [FJ_jpow_eq_pow] at happ
+    exact happ
+  have hprod : ∀ (a : ℕ), mul (pow x a) (pow x a) = pow x (a + a) := by
+    intro a
+    simpa only [FJ_jmul_eq_mul, FJ_jpow_eq_pow] using
+      JordanAlgebra.jpow_add x a a
+  have hTU : ∀ (l m : ℕ) (w : FreeJordanAlg),
+      mul (pow x l) (U (pow x m) w) = U (pow x m) (mul (pow x l) w) := by
+    intro l m w
+    simp only [FreeJordanAlg.U]
+    rw [show (2 : ℝ) • mul (pow x m) (mul (pow x m) w) -
+        mul (mul (pow x m) (pow x m)) w =
+      (2 : ℝ) • mul (pow x m) (mul (pow x m) w) +
+        (-1 : ℝ) • mul (mul (pow x m) (pow x m)) w from by
+      simp [sub_eq_add_neg]]
+    rw [mul_add_right, smul_mul_right, smul_mul_right]
+    rw [hLc l m (mul (pow x m) w)]
+    conv_lhs => arg 1; arg 2; arg 2; rw [hLc l m w]
+    rw [hprod m]
+    rw [hLc l (m + m) w]
+    rw [← hprod m]
+    simp [sub_eq_add_neg]
+  have hkey :
+      U_bilinear (pow x (i + 1)) (pow x (k + 1)) w =
+        U (pow x (i + 1)) (mul (pow x (k - i)) w) := by
+    have h245 := @JordanAlgebra.power_formula_245 FreeJordanAlg _ x w
+      (k - i) (i + 1) (i + 1)
+    rw [JordanAlgebra.triple_self_right] at h245
+    rw [show i + 1 + (k - i) = k + 1 from by omega] at h245
+    rw [show JordanAlgebra.triple (JordanAlgebra.jpow x (k + 1)) w
+          (JordanAlgebra.jpow x (i + 1)) =
+        JordanAlgebra.U_bilinear_linear (JordanAlgebra.jpow x (k + 1))
+          (JordanAlgebra.jpow x (i + 1)) w from rfl] at h245
+    rw [show JordanAlgebra.triple (JordanAlgebra.jpow x (i + 1)) w
+          (JordanAlgebra.jpow x (k + 1)) =
+        JordanAlgebra.U_bilinear_linear (JordanAlgebra.jpow x (i + 1))
+          (JordanAlgebra.jpow x (k + 1)) w from rfl] at h245
+    simp only [FJ_jmul_eq_mul, FJ_jpow_eq_pow, FJ_U_eq, FJ_U_bilinear_eq] at h245
+    rw [U_bilinear_comm (pow x (k + 1)) (pow x (i + 1))] at h245
+    rw [two_nsmul] at h245
+    have h1 : mul (pow x (k - i)) (U (pow x (i + 1)) w) =
+        U_bilinear (pow x (i + 1)) (pow x (k + 1)) w := by
+      have h2 : (2 : ℝ) • mul (pow x (k - i)) (U (pow x (i + 1)) w) =
+          (2 : ℝ) • U_bilinear (pow x (i + 1)) (pow x (k + 1)) w := by
+        rw [two_smul, two_smul]
+        exact h245
+      have h3 := congr_arg ((1 / 2 : ℝ) • ·) h2
+      simp only [smul_smul] at h3
+      norm_num at h3
+      exact h3
+    rw [← h1, hTU (k - i) (i + 1) w]
+  rw [T_apply]
+  exact hkey
+
 /-- (2.58) weight≤1, i≥k case: T_{x^{k+1}} M_{x^{i+1},y^{j+1}} =
     ½(M_{x^{i+k+2},y^{j+1}} + U_{x^{k+1}} M_{x^{i-k},y^{j+1}}).
     H-O lines 1332-1335. Uses operator_identity_249. -/
@@ -414,19 +479,30 @@ theorem eq258_xCons_yCons_general_ge (k i j m : ℕ) (r' : FreeAssocMono)
     3. Apply (2.47) to decompose T_{x^{k+1}} U_{x^{i+1},y^{j+1}}
     4. Apply induction (ih_swap) to the T_{x^{k+1}} M_{swapped} term
     5. Use (2.49) on the resulting T_{x^{i+1}} U_{x^{k+1},y^{j+1}} term
-    6. Apply property (iii) and (iv), cancel, close by algebra
-    The algebra closure (steps 5-6) is left as sorry. -/
+    6. Use the lower-power IH exposed by `U_bilinear_x_pow_lt_as_U_T`
+    7. Apply property (iii) and (iv), cancel, close by algebra. -/
 theorem eq258_xCons_yCons_general_lt (k i j m : ℕ) (r' : FreeAssocMono)
     (s : FreeAssocMono) (hik : i < k)
     -- IH: eq258 for swapped term (same as ge case)
     (ih_swap : ∀ v, T (pow x (k + 1))
         (M_op (prependY j (yCons m r')) (xCons i s) v) =
-      (1/2 : ℝ) • (M_op (prependX k (prependY j (yCons m r'))) (xCons i s) v
+      (1 / 2 : ℝ) • (M_op (prependX k (prependY j (yCons m r'))) (xCons i s) v
         + M_op (prependY j (yCons m r')) (xCons (k + 1 + i) s) v))
-    (v : FreeJordanAlg) :
+    (v : FreeJordanAlg)
+    -- Lower-power IH needed after `U_bilinear_x_pow_lt_as_U_T` turns
+    -- `U_{x^{i+1},x^{k+1}}` into `U_{x^{i+1}} T_{x^{k-i}}`.
+    (ih_lower_pair :
+      T (pow x (k - i)) (M_op (prependY j (yCons m r')) s v) =
+        (1 / 2 : ℝ) •
+          (M_op (prependY j (yCons m r')) (xCons (k - i - 1) s) v +
+            M_op (xCons (k - i - 1) (prependY j (yCons m r'))) s v) ∧
+      T (pow x (k - i)) (M_op (yCons m r') (yCons j s) v) =
+        (1 / 2 : ℝ) •
+          (M_op (yCons m r') (xCons (k - i - 1) (yCons j s)) v +
+            M_op (xCons (k - i - 1) (yCons m r')) (yCons j s) v)) :
     T (pow x (k + 1)) (M_op (xCons i (yCons m r')) (yCons j s) v) =
-    (1/2 : ℝ) • (M_op (xCons (k + 1 + i) (yCons m r')) (yCons j s) v +
-                  M_op (xCons i (yCons m r')) (xCons k (yCons j s)) v) := by
+    (1 / 2 : ℝ) • (M_op (xCons (k + 1 + i) (yCons m r')) (yCons j s) v +
+      M_op (xCons i (yCons m r')) (xCons k (yCons j s)) v) := by
   -- Step 1: Expand LHS via (2.59) (H-O line 1369)
   rw [eq259_xCons_yCons]
   -- Step 2: Distribute T
@@ -582,7 +658,36 @@ theorem eq258_xCons_yCons_general_lt (k i j m : ℕ) (r' : FreeAssocMono)
     rw [FJ_U_bilinear_eq, FJ_U_bilinear_eq]
     rw [h_same_left, h_same_right]
     module
-  -- Blocker: this is the missing same-letter `U_bilinear(x^i,x^k)`
-  -- M-operator conversion. The existing `M_op_U_bilinear_*` lemmas only cover
-  -- mixed x/y outer variables.
-  sorry
+  suffices h_lower_pair :
+      T (pow x (k - i)) (M_op (prependY j (yCons m r')) s v) =
+        (1 / 2 : ℝ) •
+          (M_op (prependY j (yCons m r')) (xCons (k - i - 1) s) v +
+            M_op (xCons (k - i - 1) (prependY j (yCons m r'))) s v) ∧
+      T (pow x (k - i)) (M_op (yCons m r') (yCons j s) v) =
+        (1 / 2 : ℝ) •
+          (M_op (yCons m r') (xCons (k - i - 1) (yCons j s)) v +
+            M_op (xCons (k - i - 1) (yCons m r')) (yCons j s) v) by
+    constructor
+    · rw [U_bilinear_x_pow_lt_as_U_T i k hik]
+      rw [h_lower_pair.1]
+      rw [← FJ_U_eq, JordanAlgebra.U_smul_right, JordanAlgebra.U_add_right,
+        FJ_U_eq, FJ_U_eq]
+      rw [show prependX i (prependY j (yCons m r')) =
+        xCons i (prependY j (yCons m r')) from by simp [prependX, prependY]]
+      rw [show prependX k (prependY j (yCons m r')) =
+        xCons k (prependY j (yCons m r')) from by simp [prependX, prependY]]
+      rw [M_op.eq_def (xCons i (prependY j (yCons m r'))) (xCons k s)]
+      rw [M_op.eq_def (xCons k (prependY j (yCons m r'))) (xCons i s)]
+      simp only [ge_iff_le]
+      rw [dif_neg (by omega : ¬ k ≤ i), dif_pos (by omega : i ≤ k)]
+      simp only [show ¬ k = i from by omega, ↓reduceIte]
+    · rw [U_bilinear_x_pow_lt_as_U_T i k hik]
+      rw [h_lower_pair.2]
+      rw [← FJ_U_eq, JordanAlgebra.U_smul_right, JordanAlgebra.U_add_right,
+        FJ_U_eq, FJ_U_eq]
+      rw [M_op.eq_def (xCons i (yCons m r')) (xCons k (yCons j s))]
+      rw [M_op.eq_def (xCons k (yCons m r')) (xCons i (yCons j s))]
+      simp only [ge_iff_le]
+      rw [dif_neg (by omega : ¬ k ≤ i), dif_pos (by omega : i ≤ k)]
+      simp only [show ¬ k = i from by omega, ↓reduceIte]
+  exact ih_lower_pair

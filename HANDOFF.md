@@ -19,28 +19,28 @@
     `M_op_U_prependX`.
   - Added `h249_second`, converting the standalone mixed `U_{x^{i+k},y^j}` term
     to M-operator form using `M_op_U_bilinear_yCons`.
-  - Reduced the final algebra to one explicit missing same-letter
-    `U_bilinear(x^i,x^k)` M-operator conversion pair; assuming that pair, the
-    H-O line 1373-1377 cancellation closes by `module`.
+  - Added reusable lemma `U_bilinear_x_pow_lt_as_U_T`.
+  - Strengthened `eq258_xCons_yCons_general_lt` with the lower-power IH facts
+    H-O uses after converting `U_bilinear(x^i,x^k)` to `U_x^i T_{x^{k-i}}`.
+  - Eliminated the `eq258_xCons_yCons_general_lt` sorry; H-O line 1373-1377
+    cancellation now closes.
 
 ## Current State
 - Build status: passing (`lake build AfTests 2>&1 | tail -40`, 1915 jobs).
-- Sorry count: 10 total across `AfTests`; `Equation258.lean` still has 2 known sorries.
+- Sorry count: 9 total across `AfTests`; `Equation258.lean` has 1 known sorry.
 - Open blockers:
   - `eq258_y_base`: still needed for the `i = k` boundary of the `general_ge` proof.
-  - `eq258_xCons_yCons_general_lt`: all mixed terms after (2.47)/(2.49) are now
-    converted. The only remaining proof obligation is the same-letter
-    `U_bilinear(x^{i+1},x^{k+1})` conversion on
-    `M_op (prependY j (yCons m r')) s v` and
-    `M_op (yCons m r') (yCons j s) v`.
+  - The `general_lt` helper is now sorry-free, but its statement has an explicit
+    `ih_lower_pair` assumption. A final induction driver must supply those
+    lower-power Eq(2.58) facts simultaneously.
   - Old JSONL Beads are not migrated into the current embedded Dolt backend, so `bd ready`
     reports no work even though `.beads/issues.jsonl` has open issues.
 
 ## Next Steps (Priority Order)
-1. Finish `eq258_xCons_yCons_general_lt` by proving the same-letter conversion
-   now isolated as `h_same_pair` at the final `sorry`.
-2. Prove or structurally replace `eq258_y_base`; likely needs x/y swap equivariance or a
+1. Prove or structurally replace `eq258_y_base`; likely needs x/y swap equivariance or a
    simultaneous y-version of the Eq(2.58) induction.
+2. Build the final simultaneous Eq(2.58) induction driver that supplies
+   `ih_swap` and `ih_lower_pair` to the `general_lt` helper.
 3. Migrate or restore old JSONL Beads so issue status matches the current codebase.
 
 ## Known Issues / Gotchas
