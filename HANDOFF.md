@@ -157,6 +157,16 @@
   - Existing raw-right wrappers now route through these lower-obligation
     wrappers, and the driver-IH constructor wrappers call the lower interface
     directly with an explicit compatibility conversion.
+- Realigned the long constructor branch with Hanche-Olsen's actual proof shape:
+  - Added `Eq258LongBranchIH`, a local package for exactly the recursive
+    obligations appearing in H-O's long calculation: the swapped term, the
+    opposite-generator base term, the left lower-pair term, and the ordinary
+    right lower-pair term.
+  - Added `Eq258LongBranchIH.of_driverIH` only as a compatibility bridge from
+    the older broad `Eq258DriverIH`.
+  - Added `eq258X_xCons_yCons_from_longBranchIH` and
+    `eq258Y_yCons_xCons_from_longBranchIH`; the legacy
+    `..._from_driverIH` wrappers now delegate through the H-O-shaped package.
 
 ## Current State
 - Build status: passing (`lake build AfTests 2>&1 | tail -40`, 1915 jobs).
@@ -178,6 +188,9 @@
     fallback clauses rather than H-O theorem instances. The long `<` branch
     now consumes local lower-left obligations, but the final driver still needs
     a proof source for those obligations that does not assume broad raw-right.
+  - `Eq258LongBranchIH` is now the preferred target for the long constructor
+    branch. Treat the older broad `Eq258DriverIH.rawRight` fields as legacy
+    compatibility, not as the mathematical source of the final proof.
   - In the `<` helpers, the pure/long first lower-pair facts must be ordinary
     `Eq258X` / `Eq258Y`, not raw-right variants, because the right argument
     starts with the same generator and the prepend must merge.
@@ -187,21 +200,28 @@
     embedded database.
 
 ## Next Steps (Priority Order)
-1. Build the recursive simultaneous induction step that produces
-   `Eq258DriverIH (n + 1)` from `Eq258DriverIH n`, using the driver-ready
-   constructor, boundary, and well-formed dispatcher wrappers now in place.
+1. Replace the remaining prospective final-driver dependence on broad
+   `Eq258DriverIH.rawRight` with H-O-shaped packages such as
+   `Eq258DriverWFCore` and `Eq258LongBranchIH`.
 2. Find the real proof source for `Eq258XLowerLeft` / `Eq258YLowerLeft` in the
    long `<` branches, or further refactor the algebra so those local obligations
    are discharged by ordinary Eq258 facts plus `M_op` same-letter rewrites.
-3. During the driver case split, expect to add a few small adapters for
+3. Build the recursive simultaneous induction step using the driver-ready
+   constructor, boundary, and well-formed dispatcher wrappers now in place,
+   but keep it side-conditioned as in H-O rather than total-syntax raw-right.
+4. During the driver case split, expect to add a few small adapters for
    total-syntax cases such as `one / xCons ...` in the x-family or
    `one / yCons ...` in the y-family if they are demanded by `Eq258DriverIH`.
    The raw-right fields are likely the remaining awkward part because their
    unmerged right argument is not always convertible from ordinary `Eq258X/Y`.
-4. Migrate or restore the old JSONL Beads so `bd ready` reflects the historical issue queue.
+5. Migrate or restore the old JSONL Beads so `bd ready` reflects the historical issue queue.
 
 ## Known Issues / Gotchas
 - Always read `examples3/Jordan Operator Algebras/joa-m/joa-m.md` before Macdonald work.
+- Hanche-Olsen does not prove a broad raw-right theorem over arbitrary
+  total syntax. The long `<` branch uses ordinary induction on (iv),
+  property (iii), and local lower-pair algebra. Do not expand
+  `Eq258DriverIH.rawRight` to cover non-H-O cases.
 - Use `lake build AfTests 2>&1 | tail -40`, not bare `lake build`.
 - `M_op.eq_def` can loop under broad `simp`; prefer targeted rewrites.
 - The useful `M_op` symmetry package is not full arbitrary `M_op p q`

@@ -805,6 +805,60 @@ theorem Eq258DriverWFCore.of_driverIH {n : ℕ} (hIH : Eq258DriverIH n) :
   rawXBoundary := fun k p _ _ hlt => hIH.rawRight k p one (by simpa using hlt)
   rawYBoundary := fun j p _ _ hlt => hIH.rawRightY j p one (by simpa using hlt)
 
+/-- Local induction package for H-O's long constructor branches.
+
+This records only the obligations that appear in H-O's long-branch calculation:
+the swapped term, the opposite-generator base term, the left lower-pair term,
+and the ordinary right lower-pair term. It deliberately avoids a global
+raw-right theorem family over total syntax. -/
+structure Eq258LongBranchIH (n : ℕ) : Prop where
+  xSwap :
+    ∀ (k i j m : ℕ) (r' s : FreeAssocMono),
+      (prependY j (yCons m r')).weight + (xCons i s).weight < n →
+        Eq258X k (prependY j (yCons m r')) (xCons i s)
+  xYBase :
+    ∀ (j m : ℕ) (r' s : FreeAssocMono),
+      (yCons m r').weight + s.weight < n → Eq258Y j (yCons m r') s
+  xLowerLeft :
+    ∀ (k j m : ℕ) (r' s : FreeAssocMono),
+      (prependY j (yCons m r')).weight + s.weight < n →
+        Eq258XLowerLeft k (prependY j (yCons m r')) s
+  xLowerRight :
+    ∀ (k j m : ℕ) (r' s : FreeAssocMono),
+      (yCons m r').weight + (yCons j s).weight < n →
+        Eq258X k (yCons m r') (yCons j s)
+  ySwap :
+    ∀ (l j i m : ℕ) (r' s : FreeAssocMono),
+      (prependX i (xCons m r')).weight + (yCons j s).weight < n →
+        Eq258Y l (prependX i (xCons m r')) (yCons j s)
+  yXBase :
+    ∀ (i m : ℕ) (r' s : FreeAssocMono),
+      (xCons m r').weight + s.weight < n → Eq258X i (xCons m r') s
+  yLowerLeft :
+    ∀ (l i m : ℕ) (r' s : FreeAssocMono),
+      (prependX i (xCons m r')).weight + s.weight < n →
+        Eq258YLowerLeft l (prependX i (xCons m r')) s
+  yLowerRight :
+    ∀ (l i m : ℕ) (r' s : FreeAssocMono),
+      (xCons m r').weight + (xCons i s).weight < n →
+        Eq258Y l (xCons m r') (xCons i s)
+
+/-- Compatibility bridge from the older broad total-syntax package to the
+    H-O-shaped long-branch package. New driver work should target
+    `Eq258LongBranchIH` directly. -/
+theorem Eq258LongBranchIH.of_driverIH {n : ℕ} (hIH : Eq258DriverIH n) :
+    Eq258LongBranchIH n where
+  xSwap := fun k i j m r' s hlt => hIH.x k (prependY j (yCons m r')) (xCons i s) hlt
+  xYBase := fun j m r' s hlt => hIH.y j (yCons m r') s hlt
+  xLowerLeft := fun k j m r' s hlt =>
+    fun v => hIH.rawRight k (prependY j (yCons m r')) s hlt v
+  xLowerRight := fun k j m r' s hlt => hIH.x k (yCons m r') (yCons j s) hlt
+  ySwap := fun l j i m r' s hlt => hIH.y l (prependX i (xCons m r')) (yCons j s) hlt
+  yXBase := fun i m r' s hlt => hIH.x i (xCons m r') s hlt
+  yLowerLeft := fun l i m r' s hlt =>
+    fun v => hIH.rawRightY l (prependX i (xCons m r')) s hlt v
+  yLowerRight := fun l i m r' s hlt => hIH.y l (xCons m r') (xCons i s) hlt
+
 /-- Same-weight boundary package for the Eq(2.58) driver.
 
 The long one-argument boundary recurrences do not decrease total block weight:
@@ -3420,11 +3474,11 @@ theorem eq258_yCons_xCons_general_from_family_obligations (l j i m : ℕ)
   exact eq258_yCons_xCons_general_from_lower_obligations l j i m r' s hs ih_swap ih_x
     (fun hlt => Eq258YLowerLeft.of_rawRight (ih_lower_left hlt)) ih_lower_right v
 
-/-- Driver-ready y-direction constructor case:
-    `p = yCons j (xCons m r')`, `q = xCons i s`. -/
-theorem eq258Y_yCons_xCons_from_driverIH (l j i m : ℕ) (r' s : FreeAssocMono)
+/-- Driver-ready y-direction long constructor case from the H-O-shaped
+    long-branch induction package. -/
+theorem eq258Y_yCons_xCons_from_longBranchIH (l j i m : ℕ) (r' s : FreeAssocMono)
     (hs : s.inY)
-    (hIH : Eq258DriverIH ((yCons j (xCons m r')).weight + (xCons i s).weight)) :
+    (hIH : Eq258LongBranchIH ((yCons j (xCons m r')).weight + (xCons i s).weight)) :
     Eq258Y l (yCons j (xCons m r')) (xCons i s) := by
   intro v
   have h_swap_weight :
@@ -3447,14 +3501,20 @@ theorem eq258Y_yCons_xCons_from_driverIH (l j i m : ℕ) (r' s : FreeAssocMono)
     simp
   simpa [Eq258Y, prependY] using
     eq258_yCons_xCons_general_from_lower_obligations l j i m r' s hs
-      (hIH.y l (prependX i (xCons m r')) (yCons j s) h_swap_weight)
-      (hIH.x i (xCons m r') s h_x_weight)
-      (fun _ =>
-        Eq258YLowerLeft.of_rawRight
-          (hIH.rawRightY (l - j - 1) (prependX i (xCons m r')) s h_lower_left_weight))
-      (fun _ =>
-        hIH.y (l - j - 1) (xCons m r') (xCons i s) h_lower_right_weight)
+      (hIH.ySwap l j i m r' s h_swap_weight)
+      (hIH.yXBase i m r' s h_x_weight)
+      (fun _ => hIH.yLowerLeft (l - j - 1) i m r' s h_lower_left_weight)
+      (fun _ => hIH.yLowerRight (l - j - 1) i m r' s h_lower_right_weight)
       v
+
+/-- Driver-ready y-direction constructor case:
+    `p = yCons j (xCons m r')`, `q = xCons i s`. -/
+theorem eq258Y_yCons_xCons_from_driverIH (l j i m : ℕ) (r' s : FreeAssocMono)
+    (hs : s.inY)
+    (hIH : Eq258DriverIH ((yCons j (xCons m r')).weight + (xCons i s).weight)) :
+    Eq258Y l (yCons j (xCons m r')) (xCons i s) := by
+  exact eq258Y_yCons_xCons_from_longBranchIH l j i m r' s hs
+    (Eq258LongBranchIH.of_driverIH hIH)
 
 /-- (2.58) weight > 1, i ≥ k case: T_{x^{k+1}} M_{x^{i+1}·(y^m·r'), y^{j+1}·s}.
     H-O lines 1346-1367. Proof structure:
@@ -3915,12 +3975,11 @@ theorem eq258_xCons_yCons_general_from_family_obligations (k i j m : ℕ)
   exact eq258_xCons_yCons_general_from_lower_obligations k i j m r' s hs ih_swap ih_y
     (fun hlt => Eq258XLowerLeft.of_rawRight (ih_lower_left hlt)) ih_lower_right v
 
-/-- Driver-ready constructor case for H-O's weight > 1 branch:
-    `p = xCons i (yCons m r')`, `q = yCons j s`. All recursive obligations are
-    obtained from the weight-indexed simultaneous IH package. -/
-theorem eq258X_xCons_yCons_from_driverIH (k i j m : ℕ) (r' s : FreeAssocMono)
+/-- Driver-ready x-direction long constructor case from the H-O-shaped
+    long-branch induction package. -/
+theorem eq258X_xCons_yCons_from_longBranchIH (k i j m : ℕ) (r' s : FreeAssocMono)
     (hs : s.inX)
-    (hIH : Eq258DriverIH ((xCons i (yCons m r')).weight + (yCons j s).weight)) :
+    (hIH : Eq258LongBranchIH ((xCons i (yCons m r')).weight + (yCons j s).weight)) :
     Eq258X k (xCons i (yCons m r')) (yCons j s) := by
   intro v
   have h_swap_weight :
@@ -3943,14 +4002,21 @@ theorem eq258X_xCons_yCons_from_driverIH (k i j m : ℕ) (r' s : FreeAssocMono)
     simp
   simpa [Eq258X, prependX] using
     eq258_xCons_yCons_general_from_lower_obligations k i j m r' s hs
-      (hIH.x k (prependY j (yCons m r')) (xCons i s) h_swap_weight)
-      (hIH.y j (yCons m r') s h_y_weight)
-      (fun _ =>
-        Eq258XLowerLeft.of_rawRight
-          (hIH.rawRight (k - i - 1) (prependY j (yCons m r')) s h_lower_left_weight))
-      (fun _ =>
-        hIH.x (k - i - 1) (yCons m r') (yCons j s) h_lower_right_weight)
+      (hIH.xSwap k i j m r' s h_swap_weight)
+      (hIH.xYBase j m r' s h_y_weight)
+      (fun _ => hIH.xLowerLeft (k - i - 1) j m r' s h_lower_left_weight)
+      (fun _ => hIH.xLowerRight (k - i - 1) j m r' s h_lower_right_weight)
       v
+
+/-- Driver-ready constructor case for H-O's weight > 1 branch:
+    `p = xCons i (yCons m r')`, `q = yCons j s`. All recursive obligations are
+    obtained from the weight-indexed simultaneous IH package. -/
+theorem eq258X_xCons_yCons_from_driverIH (k i j m : ℕ) (r' s : FreeAssocMono)
+    (hs : s.inX)
+    (hIH : Eq258DriverIH ((xCons i (yCons m r')).weight + (yCons j s).weight)) :
+    Eq258X k (xCons i (yCons m r')) (yCons j s) := by
+  exact eq258X_xCons_yCons_from_longBranchIH k i j m r' s hs
+    (Eq258LongBranchIH.of_driverIH hIH)
 
 /-! ### Well-formed driver dispatchers -/
 
