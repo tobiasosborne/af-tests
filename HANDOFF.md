@@ -124,6 +124,12 @@
   - Added direct driver-IH long boundary wrappers:
     `eq258X_xCons_yCons_one_from_driverIH` and
     `eq258Y_yCons_xCons_one_from_driverIH`.
+- Added complete well-formed driver dispatchers:
+  - `eq258X_of_driverIH_of_inX_inY` covers all H-O x-direction alternating
+    cases under `p ∈ X`, `q ∈ Y`, and `WF` side conditions.
+  - `eq258Y_of_driverIH_of_inY_inX` covers the symmetric y-direction cases.
+  - These dispatchers are the single case-split entry points for the final
+    recursive driver once it reduces goals to well-formed monomial shapes.
 
 ## Current State
 - Build status: passing (`lake build AfTests 2>&1 | tail -40`, 1915 jobs).
@@ -134,7 +140,8 @@
     `FreeAssocMono` shapes that constructs the `x`, `y`, `rawRight`, and
     `rawRightY` fields of `Eq258DriverIH`.
   - The main weight>1 x/y constructors, one-argument boundary constructors, and
-    the same-weight long boundary swaps now all have driver-IH-ready theorems.
+    the same-weight long boundary swaps now all have driver-IH-ready theorems;
+    the well-formed x/y family dispatchers collect those cases behind one call.
     The previous `Eq258DriverWFLayer` blocker is resolved by
     `Eq258DriverWFLayer.of_driverIH`.
   - In the `<` helpers, the pure/long first lower-pair facts must be ordinary
@@ -148,10 +155,12 @@
 ## Next Steps (Priority Order)
 1. Build the recursive simultaneous induction step that produces
    `Eq258DriverIH (n + 1)` from `Eq258DriverIH n`, using the driver-ready
-   constructor and boundary wrappers now in place.
+   constructor, boundary, and well-formed dispatcher wrappers now in place.
 2. During the driver case split, expect to add a few small adapters for
    total-syntax cases such as `one / xCons ...` in the x-family or
    `one / yCons ...` in the y-family if they are demanded by `Eq258DriverIH`.
+   The raw-right fields are likely the remaining awkward part because their
+   unmerged right argument is not always convertible from ordinary `Eq258X/Y`.
 3. Migrate or restore the old JSONL Beads so `bd ready` reflects the historical issue queue.
 
 ## Known Issues / Gotchas

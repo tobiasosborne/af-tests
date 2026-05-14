@@ -3790,3 +3790,135 @@ theorem eq258X_xCons_yCons_from_driverIH (k i j m : ℕ) (r' s : FreeAssocMono)
       (fun _ =>
         hIH.x (k - i - 1) (yCons m r') (yCons j s) h_lower_right_weight)
       v
+
+/-! ### Well-formed driver dispatchers -/
+
+/-- Complete x-direction dispatcher for the H-O well-formed side conditions
+    `p ∈ X`, `q ∈ Y`. This is the case split needed by the eventual global
+    driver once it has reduced to alternating monomials. -/
+theorem eq258X_of_driverIH_of_inX_inY (k : ℕ) (p q : FreeAssocMono)
+    (hp : p.inX) (hq : q.inY) (hwp : p.WF) (hwq : q.WF)
+    (hIH : Eq258DriverIH (p.weight + q.weight)) :
+    Eq258X k p q := by
+  cases p with
+  | one =>
+    cases q with
+    | one =>
+      exact eq258X_one_one k
+    | xCons j s =>
+      cases hq with
+      | inl h => cases h
+      | inr h => simp [inY0, startsWithY] at h
+    | yCons j s =>
+      cases s with
+      | one =>
+        exact eq258X_one_yCons_one k j
+      | xCons m rest =>
+        exact eq258X_one_yCons_xCons_exact k j m rest
+      | yCons m rest =>
+        cases hwq.1 with
+        | inl h => cases h
+        | inr h => simp [inX0, startsWithX] at h
+  | xCons i r =>
+    cases q with
+    | one =>
+      cases r with
+      | one =>
+        exact eq258X_xCons_one_one k i
+      | xCons m rest =>
+        cases hwp.1 with
+        | inl h => cases h
+        | inr h => simp [inY0, startsWithY] at h
+      | yCons m rest =>
+        exact eq258X_xCons_yCons_one_from_driverIH k i m rest hwp.2.1 hIH
+    | xCons j s =>
+      cases hq with
+      | inl h => cases h
+      | inr h => simp [inY0, startsWithY] at h
+    | yCons j s =>
+      cases r with
+      | one =>
+        cases s with
+        | one =>
+          exact eq258X_xCons_one_yCons_one k i j
+        | xCons l rest =>
+          exact eq258X_xCons_one_yCons_xCons_from_driverIH k i j l rest hIH
+        | yCons l rest =>
+          cases hwq.1 with
+          | inl h => cases h
+          | inr h => simp [inX0, startsWithX] at h
+      | xCons m rest =>
+        cases hwp.1 with
+        | inl h => cases h
+        | inr h => simp [inY0, startsWithY] at h
+      | yCons m rest =>
+        exact eq258X_xCons_yCons_from_driverIH k i j m rest s hwq.1 hIH
+  | yCons i r =>
+    cases hp with
+    | inl h => cases h
+    | inr h => simp [inX0, startsWithX] at h
+
+/-- Complete y-direction dispatcher for the H-O well-formed side conditions
+    `p ∈ Y`, `q ∈ X`, symmetric to
+    `eq258X_of_driverIH_of_inX_inY`. -/
+theorem eq258Y_of_driverIH_of_inY_inX (l : ℕ) (p q : FreeAssocMono)
+    (hp : p.inY) (hq : q.inX) (hwp : p.WF) (hwq : q.WF)
+    (hIH : Eq258DriverIH (p.weight + q.weight)) :
+    Eq258Y l p q := by
+  cases p with
+  | one =>
+    cases q with
+    | one =>
+      exact eq258Y_one_one l
+    | xCons i s =>
+      cases s with
+      | one =>
+        exact eq258Y_one_xCons_one l i
+      | xCons m rest =>
+        cases hwq.1 with
+        | inl h => cases h
+        | inr h => simp [inY0, startsWithY] at h
+      | yCons m rest =>
+        exact eq258Y_one_xCons_yCons_exact l i m rest
+    | yCons j s =>
+      cases hq with
+      | inl h => cases h
+      | inr h => simp [inX0, startsWithX] at h
+  | xCons i r =>
+    cases hp with
+    | inl h => cases h
+    | inr h => simp [inY0, startsWithY] at h
+  | yCons j r =>
+    cases q with
+    | one =>
+      cases r with
+      | one =>
+        exact eq258Y_yCons_one_one l j
+      | xCons m rest =>
+        exact eq258Y_yCons_xCons_one_from_driverIH l j m rest hwp.2.1 hIH
+      | yCons m rest =>
+        cases hwp.1 with
+        | inl h => cases h
+        | inr h => simp [inX0, startsWithX] at h
+    | xCons i s =>
+      cases r with
+      | one =>
+        cases s with
+        | one =>
+          exact eq258Y_yCons_one_xCons_one l j i
+        | xCons m rest =>
+          cases hwq.1 with
+          | inl h => cases h
+          | inr h => simp [inY0, startsWithY] at h
+        | yCons n rest =>
+          exact eq258Y_yCons_one_xCons_yCons_from_driverIH l j i n rest hIH
+      | xCons m rest =>
+        exact eq258Y_yCons_xCons_from_driverIH l j i m rest s hwq.1 hIH
+      | yCons m rest =>
+        cases hwp.1 with
+        | inl h => cases h
+        | inr h => simp [inX0, startsWithX] at h
+    | yCons i s =>
+      cases hq with
+      | inl h => cases h
+      | inr h => simp [inX0, startsWithX] at h
