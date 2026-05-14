@@ -224,6 +224,11 @@ theorem WF_prependX_of_inX {p : FreeAssocMono} (hp : p.inX) (hwp : p.WF) (k : �
     | inl h => cases h
     | inr h => exact absurd h (by simp [inX0, startsWithX])
 
+theorem WF_prependX_of_inY {p : FreeAssocMono} (hp : p.inY) (hwp : p.WF) (k : ℕ) :
+    (prependX k p).WF := by
+  rw [prependX_of_inY hp]
+  exact ⟨hp, hwp⟩
+
 theorem WF_prependY_of_inY {p : FreeAssocMono} (hp : p.inY) (hwp : p.WF) (l : ℕ) :
     (prependY l p).WF := by
   cases p with
@@ -236,6 +241,11 @@ theorem WF_prependY_of_inY {p : FreeAssocMono} (hp : p.inY) (hwp : p.WF) (l : �
   | yCons j rest =>
     simp [prependY, WF] at hwp ⊢
     exact hwp
+
+theorem WF_prependY_of_inX {p : FreeAssocMono} (hp : p.inX) (hwp : p.WF) (l : ℕ) :
+    (prependY l p).WF := by
+  rw [prependY_of_inX hp]
+  exact ⟨hp, hwp⟩
 
 theorem weight_prependX_of_inX0 {p : FreeAssocMono} (hp : p.inX0) (k : ℕ) :
     (prependX k p).weight = p.weight := by

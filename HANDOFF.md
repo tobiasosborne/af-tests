@@ -205,19 +205,40 @@
   - Added `prependX_inX`, `prependY_inY`, `WF_prependX_of_inX`, and
     `WF_prependY_of_inY` in `MonoBlock.lean`, so merged prepends can be fed
     back into the well-formed dispatcher layer.
+- Pushed the WF symmetry package through the next long-branch layer:
+  - Added general `M_op_comm_WF`, proving H-O property (ii) for all
+    well-formed alternating monomials by recursion on total block weight.
+  - Added `WF_prependX_of_inY` and `WF_prependY_of_inX`, covering the
+    non-merging prepend/WF cases needed by symmetry transfers.
+  - Added WF-specialized swapped Eq258 adapters:
+    `Eq258X_of_swapped_comm_WF`, `Eq258Y_of_swapped_comm_WF`,
+    `Eq258XLowerLeft.of_swapped_eq258X_comm_WF`, and
+    `Eq258YLowerLeft.of_swapped_eq258Y_comm_WF`.
+  - Added `Eq258DriverWFCore.xSwapped`, `.ySwapped`,
+    `.xLowerLeftSwapped`, and `.yLowerLeftSwapped`, deriving swapped
+    H-O induction calls from the side-conditioned core plus property (ii).
+  - Added long constructor wrappers
+    `eq258X_xCons_yCons_from_wfCore_sameY` and
+    `eq258Y_yCons_xCons_from_wfCore_sameX`. These show the genuinely long
+    branches now need only one extra recursive family: same-side lower-right
+    facts (`Eq258X` on two `Y` monomials and `Eq258Y` on two `X` monomials).
+  - Updated the well-formed dispatchers to use those WF-core long-branch
+    wrappers, keeping the old broad `Eq258DriverIH` only as the current
+    compatibility source for the remaining same-side lower-right facts.
 
 ## Current State
 - Build status: passing.
 - Passing checkpoints:
   - `lake env lean AfTests/Jordan/Macdonald/MonoBlock.lean`
   - `lake env lean AfTests/Jordan/Macdonald/Equation258.lean`
+  - `lake build AfTests.Jordan.Macdonald.MonoBlock`
   - `lake build AfTests.Jordan.Macdonald.Equation258`
   - `lake build AfTests`
 - Sorry count: `Equation258.lean` and the touched Macdonald support files have
   no `sorry`, `admit`, `axiom`, or `unsafe` source occurrences.
-- Axiom status for the two Eq258 dispatcher theorems and the new well-formed
-  commutativity lemmas: no `sorryAx`; only `propext`, `Classical.choice`, and
-  `Quot.sound`.
+- Axiom status for the Eq258 dispatcher theorems, `M_op_comm_WF`, the
+  WF-core swapped adapters, and the new WF-core long wrappers: no `sorryAx`;
+  only `propext`, `Classical.choice`, and `Quot.sound`.
 - Open blockers:
   - The final driver still needs the global recursive case split, but that
     should now build on the H-O-aligned dispatcher layer.
@@ -225,13 +246,12 @@
     runtime state dirty under `.beads`; do not stage `.beads` runtime files.
 
 ## Next Steps (Priority Order)
-1. Replace the remaining broad `Eq258DriverIH` dependencies in the long
-   constructor wrappers with side-conditioned `Eq258DriverWFCore` obligations,
-   using the new `M_op_*_comm_WF` and merged-prepend commutativity wrappers for
-   the swapped H-O induction calls.
+1. Add the side-conditioned same-side lower-right package: `Eq258X` for
+   well-formed `Y/Y` lower pairs and `Eq258Y` for well-formed `X/X` lower pairs.
+   This is now the isolated hard input to the H-O long branches.
 2. Build the final recursive simultaneous induction driver for Eq(2.58) on top
    of `eq258X_of_driverIH_of_inX_inY`, `eq258Y_of_driverIH_of_inY_inX`, and the
-   narrowed WF-core/long-branch adapters.
+   narrowed WF-core/same-side adapters.
 3. Migrate or restore the old JSONL Beads so `bd ready` reflects the historical issue queue.
 
 ## Known Issues / Gotchas
@@ -251,6 +271,9 @@
   conditions. For merged H-O products, prefer
   `M_op_prependY_prependX_comm_WF` and
   `M_op_prependX_prependY_comm_WF`.
+- `M_op_comm_WF` is now the preferred H-O property (ii) lemma for arbitrary
+  well-formed alternating monomials. Use it through the WF-specific Eq258
+  adapters where possible rather than hand-threading three commutativity facts.
 - `bd ready` currently reports no open issues, but `bd show af-0llu` hit an embedded
   Dolt exclusive-lock error in this session. Do not assume Beads state is complete.
 - `bd create` currently fails with `database not initialized: issue_prefix config
@@ -272,7 +295,5 @@
 
 ## Files Modified
 - `AfTests/Jordan/Macdonald/Equation258.lean`
-- `AfTests/Jordan/Macdonald/MOperator.lean`
-- `AfTests/Jordan/Macdonald/MOperatorProperties.lean`
 - `AfTests/Jordan/Macdonald/MonoBlock.lean`
 - `HANDOFF.md`

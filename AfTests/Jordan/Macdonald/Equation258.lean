@@ -1777,6 +1777,161 @@ theorem M_op_prependX_prependY_comm_WF (i j : ℕ) (p q : FreeAssocMono)
     | inl h => cases h
     | inr h => simp [inX0, startsWithX] at h
 
+/-- H-O property (ii): `M_{p,q}` is symmetric on well-formed alternating monomials. -/
+theorem M_op_comm_WF (p q : FreeAssocMono) (hwp : p.WF) (hwq : q.WF)
+    (v : FreeJordanAlg) :
+    M_op p q v = M_op q p v := by
+  cases p with
+  | one =>
+    exact (M_op_one_comm q v).symm
+  | xCons i r =>
+    cases q with
+    | one =>
+      exact M_op_one_comm (xCons i r) v
+    | xCons j s =>
+      rw [M_op.eq_def (xCons i r) (xCons j s) v]
+      rw [M_op.eq_def (xCons j s) (xCons i r) v]
+      simp only [ge_iff_le]
+      by_cases hji : j ≤ i
+      · rw [dif_pos hji]
+        by_cases hij : i ≤ j
+        · rw [dif_pos hij]
+          have heq : i = j := by omega
+          subst heq
+          simp only [ite_true]
+          rw [M_op_comm_WF r s hwp.2 hwq.2 v]
+        · rw [dif_neg hij]
+          simp only [show ¬ i = j from by omega, ↓reduceIte]
+          rw [M_op_comm_WF (xCons (i - j - 1) r) s ⟨hwp.1, hwp.2⟩ hwq.2 v]
+      · rw [dif_neg hji]
+        have hij : i ≤ j := by omega
+        rw [dif_pos hij]
+        simp only [show ¬ j = i from by omega, ↓reduceIte]
+        rw [M_op_comm_WF r (xCons (j - i - 1) s) hwp.2 ⟨hwq.1, hwq.2⟩ v]
+    | yCons j s =>
+      exact M_op_xCons_yCons_comm_WF i j r s hwp.1 hwq.1 hwp.2 hwq.2 v
+  | yCons i r =>
+    cases q with
+    | one =>
+      exact M_op_one_comm (yCons i r) v
+    | xCons j s =>
+      exact M_op_yCons_xCons_comm_WF i j r s hwp.1 hwq.1 hwp.2 hwq.2 v
+    | yCons j s =>
+      rw [M_op.eq_def (yCons i r) (yCons j s) v]
+      rw [M_op.eq_def (yCons j s) (yCons i r) v]
+      simp only [ge_iff_le]
+      by_cases hji : j ≤ i
+      · rw [dif_pos hji]
+        by_cases hij : i ≤ j
+        · rw [dif_pos hij]
+          have heq : i = j := by omega
+          subst heq
+          simp only [ite_true]
+          rw [M_op_comm_WF r s hwp.2 hwq.2 v]
+        · rw [dif_neg hij]
+          simp only [show ¬ i = j from by omega, ↓reduceIte]
+          rw [M_op_comm_WF (yCons (i - j - 1) r) s ⟨hwp.1, hwp.2⟩ hwq.2 v]
+      · rw [dif_neg hji]
+        have hij : i ≤ j := by omega
+        rw [dif_pos hij]
+        simp only [show ¬ j = i from by omega, ↓reduceIte]
+        rw [M_op_comm_WF r (yCons (j - i - 1) s) hwp.2 ⟨hwq.1, hwq.2⟩ v]
+termination_by p.weight + q.weight
+decreasing_by
+  all_goals simp_all [FreeAssocMono.weight_xCons, FreeAssocMono.weight_yCons]
+  all_goals omega
+
+/-- WF-specialized symmetry adapter for the x-family, using H-O property (ii)
+    to discharge the three `M_op` commutativity side conditions. -/
+theorem Eq258X_of_swapped_comm_WF {k : ℕ} {p q : FreeAssocMono}
+    (h : Eq258X k q p) (hwp : p.WF) (hwq : q.WF)
+    (hwpX : (prependX k p).WF) (hwqX : (prependX k q).WF) :
+    Eq258X k p q := by
+  exact Eq258X_of_swapped_comm h
+    (fun v => M_op_comm_WF p q hwp hwq v)
+    (fun v => M_op_comm_WF (prependX k p) q hwpX hwq v)
+    (fun v => M_op_comm_WF p (prependX k q) hwp hwqX v)
+
+/-- WF-specialized symmetry adapter for the y-family. -/
+theorem Eq258Y_of_swapped_comm_WF {j : ℕ} {p q : FreeAssocMono}
+    (h : Eq258Y j q p) (hwp : p.WF) (hwq : q.WF)
+    (hwpY : (prependY j p).WF) (hwqY : (prependY j q).WF) :
+    Eq258Y j p q := by
+  exact Eq258Y_of_swapped_comm h
+    (fun v => M_op_comm_WF p q hwp hwq v)
+    (fun v => M_op_comm_WF (prependY j p) q hwpY hwq v)
+    (fun v => M_op_comm_WF p (prependY j q) hwp hwqY v)
+
+/-- WF-specialized lower-left adapter for the x-family. This is the local form
+    needed in H-O's `i < k` branch after swapping the lower-pair induction
+    hypothesis. -/
+theorem Eq258XLowerLeft.of_swapped_eq258X_comm_WF {k : ℕ} {p q : FreeAssocMono}
+    (h : Eq258X k q p) (hwp : p.WF) (hwq : q.WF)
+    (hwpX : (prependX k p).WF) (hwqX : (prependX k q).WF) :
+    Eq258XLowerLeft k p q := by
+  exact Eq258XLowerLeft.of_swapped_eq258X_comm h
+    (fun v => M_op_comm_WF p q hwp hwq v)
+    (fun v => M_op_comm_WF (prependX k p) q hwpX hwq v)
+    (fun v => M_op_comm_WF p (prependX k q) hwp hwqX v)
+
+/-- WF-specialized lower-left adapter for the y-family. -/
+theorem Eq258YLowerLeft.of_swapped_eq258Y_comm_WF {j : ℕ} {p q : FreeAssocMono}
+    (h : Eq258Y j q p) (hwp : p.WF) (hwq : q.WF)
+    (hwpY : (prependY j p).WF) (hwqY : (prependY j q).WF) :
+    Eq258YLowerLeft j p q := by
+  exact Eq258YLowerLeft.of_swapped_eq258Y_comm h
+    (fun v => M_op_comm_WF p q hwp hwq v)
+    (fun v => M_op_comm_WF (prependY j p) q hwpY hwq v)
+    (fun v => M_op_comm_WF p (prependY j q) hwp hwqY v)
+
+/-- Recover the swapped x-family side of H-O's Eq(2.58) from the well-formed
+    core and property (ii). -/
+theorem Eq258DriverWFCore.xSwapped {n : ℕ} (hCore : Eq258DriverWFCore n)
+    (k : ℕ) (p q : FreeAssocMono) (hp : p.inY) (hq : q.inX)
+    (hwp : p.WF) (hwq : q.WF) (hlt : p.weight + q.weight < n) :
+    Eq258X k p q := by
+  have hpX : (prependX k p).WF := FreeAssocMono.WF_prependX_of_inY hp hwp k
+  have hqX : (prependX k q).WF := FreeAssocMono.WF_prependX_of_inX hq hwq k
+  exact Eq258X_of_swapped_comm_WF
+    (hCore.xWF k q p hq hp hwq hwp (by simpa [Nat.add_comm] using hlt))
+    hwp hwq hpX hqX
+
+/-- Recover the swapped y-family side of H-O's Eq(2.58) from the well-formed
+    core and property (ii). -/
+theorem Eq258DriverWFCore.ySwapped {n : ℕ} (hCore : Eq258DriverWFCore n)
+    (j : ℕ) (p q : FreeAssocMono) (hp : p.inX) (hq : q.inY)
+    (hwp : p.WF) (hwq : q.WF) (hlt : p.weight + q.weight < n) :
+    Eq258Y j p q := by
+  have hpY : (prependY j p).WF := FreeAssocMono.WF_prependY_of_inX hp hwp j
+  have hqY : (prependY j q).WF := FreeAssocMono.WF_prependY_of_inY hq hwq j
+  exact Eq258Y_of_swapped_comm_WF
+    (hCore.yWF j q p hq hp hwq hwp (by simpa [Nat.add_comm] using hlt))
+    hwp hwq hpY hqY
+
+/-- Lower-left x-obligation obtained from the well-formed core by swapping the
+    ordinary x-family induction fact. -/
+theorem Eq258DriverWFCore.xLowerLeftSwapped {n : ℕ} (hCore : Eq258DriverWFCore n)
+    (k : ℕ) (p q : FreeAssocMono) (hp : p.inY) (hq : q.inX)
+    (hwp : p.WF) (hwq : q.WF) (hlt : p.weight + q.weight < n) :
+    Eq258XLowerLeft k p q := by
+  have hpX : (prependX k p).WF := FreeAssocMono.WF_prependX_of_inY hp hwp k
+  have hqX : (prependX k q).WF := FreeAssocMono.WF_prependX_of_inX hq hwq k
+  exact Eq258XLowerLeft.of_swapped_eq258X_comm_WF
+    (hCore.xWF k q p hq hp hwq hwp (by simpa [Nat.add_comm] using hlt))
+    hwp hwq hpX hqX
+
+/-- Lower-left y-obligation obtained from the well-formed core by swapping the
+    ordinary y-family induction fact. -/
+theorem Eq258DriverWFCore.yLowerLeftSwapped {n : ℕ} (hCore : Eq258DriverWFCore n)
+    (j : ℕ) (p q : FreeAssocMono) (hp : p.inX) (hq : q.inY)
+    (hwp : p.WF) (hwq : q.WF) (hlt : p.weight + q.weight < n) :
+    Eq258YLowerLeft j p q := by
+  have hpY : (prependY j p).WF := FreeAssocMono.WF_prependY_of_inX hp hwp j
+  have hqY : (prependY j q).WF := FreeAssocMono.WF_prependY_of_inY hq hwq j
+  exact Eq258YLowerLeft.of_swapped_eq258Y_comm_WF
+    (hCore.yWF j q p hq hp hwq hwp (by simpa [Nat.add_comm] using hlt))
+    hwp hwq hpY hqY
+
 /-- Boundary (2.58) obtained by rearranging H-O (2.56a). -/
 theorem eq258X_yCons_one_exact (i m : ℕ) (r' : FreeAssocMono) :
     Eq258X i (yCons m r') one := by
@@ -3685,6 +3840,57 @@ theorem eq258Y_yCons_xCons_from_longBranchIH (l j i m : ℕ) (r' s : FreeAssocMo
       (fun _ => hIH.yLowerRight (l - j - 1) i m r' s h_lower_right_weight)
       v
 
+/-- Y-direction long constructor case from the well-formed core, with the only
+    extra recursive family being the same-`X` lower-right obligation. The
+    swapped and lower-left facts are recovered from H-O symmetry. -/
+theorem eq258Y_yCons_xCons_from_wfCore_sameX (l j i m : ℕ) (r' s : FreeAssocMono)
+    (hr : r'.inY) (hs : s.inY) (hwr : r'.WF) (hws : s.WF)
+    (hCore : Eq258DriverWFCore ((yCons j (xCons m r')).weight + (xCons i s).weight))
+    (hSameX : ∀ (l' : ℕ) (p q : FreeAssocMono),
+      p.inX → q.inX → p.WF → q.WF →
+        p.weight + q.weight < (yCons j (xCons m r')).weight + (xCons i s).weight →
+          Eq258Y l' p q) :
+    Eq258Y l (yCons j (xCons m r')) (xCons i s) := by
+  intro v
+  have h_xCons_m_r_WF : (xCons m r').WF := ⟨hr, hwr⟩
+  have h_xCons_i_s_WF : (xCons i s).WF := ⟨hs, hws⟩
+  have h_prependX_WF : (prependX i (xCons m r')).WF :=
+    FreeAssocMono.WF_prependX_of_inX (xCons_inX m r') h_xCons_m_r_WF i
+  have h_prependY_WF : (prependY j s).WF :=
+    FreeAssocMono.WF_prependY_of_inY hs hws j
+  have h_swap_weight :
+      (prependX i (xCons m r')).weight + (prependY j s).weight <
+        (yCons j (xCons m r')).weight + (xCons i s).weight := by
+    have hy := FreeAssocMono.weight_prependY j s
+    simp [prependX] at hy ⊢
+    omega
+  have h_x_weight :
+      (xCons m r').weight + s.weight <
+        (yCons j (xCons m r')).weight + (xCons i s).weight := by
+    simp
+    omega
+  have h_lower_left_weight :
+      (prependX i (xCons m r')).weight + s.weight <
+        (yCons j (xCons m r')).weight + (xCons i s).weight := by
+    simp [prependX]
+    omega
+  have h_lower_right_weight :
+      (xCons m r').weight + (xCons i s).weight <
+        (yCons j (xCons m r')).weight + (xCons i s).weight := by
+    simp
+  simpa [Eq258Y, prependY] using
+    eq258_yCons_xCons_general_from_lower_obligations l j i m r' s hs
+      (hCore.ySwapped l (prependX i (xCons m r')) (prependY j s)
+        (prependX_inX i (xCons m r')) (prependY_inY j s)
+        h_prependX_WF h_prependY_WF h_swap_weight)
+      (hCore.xWF i (xCons m r') s (xCons_inX m r') hs h_xCons_m_r_WF hws h_x_weight)
+      (fun _ => hCore.yLowerLeftSwapped (l - j - 1) (prependX i (xCons m r')) s
+        (prependX_inX i (xCons m r')) hs h_prependX_WF hws h_lower_left_weight)
+      (fun _ => hSameX (l - j - 1) (xCons m r') (xCons i s)
+        (xCons_inX m r') (xCons_inX i s) h_xCons_m_r_WF h_xCons_i_s_WF
+        h_lower_right_weight)
+      v
+
 /-- Driver-ready y-direction constructor case:
     `p = yCons j (xCons m r')`, `q = xCons i s`. -/
 theorem eq258Y_yCons_xCons_from_driverIH (l j i m : ℕ) (r' s : FreeAssocMono)
@@ -4181,6 +4387,57 @@ theorem eq258X_xCons_yCons_from_longBranchIH (k i j m : ℕ) (r' s : FreeAssocMo
       (fun _ => hIH.xLowerRight (k - i - 1) j m r' s h_lower_right_weight)
       v
 
+/-- X-direction long constructor case from the well-formed core, with the only
+    extra recursive family being the same-`Y` lower-right obligation. The
+    swapped and lower-left facts are recovered from H-O symmetry. -/
+theorem eq258X_xCons_yCons_from_wfCore_sameY (k i j m : ℕ) (r' s : FreeAssocMono)
+    (hr : r'.inX) (hs : s.inX) (hwr : r'.WF) (hws : s.WF)
+    (hCore : Eq258DriverWFCore ((xCons i (yCons m r')).weight + (yCons j s).weight))
+    (hSameY : ∀ (k' : ℕ) (p q : FreeAssocMono),
+      p.inY → q.inY → p.WF → q.WF →
+        p.weight + q.weight < (xCons i (yCons m r')).weight + (yCons j s).weight →
+          Eq258X k' p q) :
+    Eq258X k (xCons i (yCons m r')) (yCons j s) := by
+  intro v
+  have h_yCons_m_r_WF : (yCons m r').WF := ⟨hr, hwr⟩
+  have h_yCons_j_s_WF : (yCons j s).WF := ⟨hs, hws⟩
+  have h_prependY_WF : (prependY j (yCons m r')).WF :=
+    FreeAssocMono.WF_prependY_of_inY (yCons_inY m r') h_yCons_m_r_WF j
+  have h_prependX_WF : (prependX i s).WF :=
+    FreeAssocMono.WF_prependX_of_inX hs hws i
+  have h_swap_weight :
+      (prependY j (yCons m r')).weight + (prependX i s).weight <
+        (xCons i (yCons m r')).weight + (yCons j s).weight := by
+    have hx := FreeAssocMono.weight_prependX i s
+    simp [prependY] at hx ⊢
+    omega
+  have h_y_weight :
+      (yCons m r').weight + s.weight <
+        (xCons i (yCons m r')).weight + (yCons j s).weight := by
+    simp
+    omega
+  have h_lower_left_weight :
+      (prependY j (yCons m r')).weight + s.weight <
+        (xCons i (yCons m r')).weight + (yCons j s).weight := by
+    simp [prependY]
+    omega
+  have h_lower_right_weight :
+      (yCons m r').weight + (yCons j s).weight <
+        (xCons i (yCons m r')).weight + (yCons j s).weight := by
+    simp
+  simpa [Eq258X, prependX] using
+    eq258_xCons_yCons_general_from_lower_obligations k i j m r' s hs
+      (hCore.xSwapped k (prependY j (yCons m r')) (prependX i s)
+        (prependY_inY j (yCons m r')) (prependX_inX i s)
+        h_prependY_WF h_prependX_WF h_swap_weight)
+      (hCore.yWF j (yCons m r') s (yCons_inY m r') hs h_yCons_m_r_WF hws h_y_weight)
+      (fun _ => hCore.xLowerLeftSwapped (k - i - 1) (prependY j (yCons m r')) s
+        (prependY_inY j (yCons m r')) hs h_prependY_WF hws h_lower_left_weight)
+      (fun _ => hSameY (k - i - 1) (yCons m r') (yCons j s)
+        (yCons_inY m r') (yCons_inY j s) h_yCons_m_r_WF h_yCons_j_s_WF
+        h_lower_right_weight)
+      v
+
 /-- Driver-ready constructor case for H-O's weight > 1 branch:
     `p = xCons i (yCons m r')`, `q = yCons j s`. All recursive obligations are
     obtained from the weight-indexed simultaneous IH package. -/
@@ -4252,7 +4509,9 @@ theorem eq258X_of_driverIH_of_inX_inY (k : ℕ) (p q : FreeAssocMono)
         | inl h => cases h
         | inr h => simp [inY0, startsWithY] at h
       | yCons m rest =>
-        exact eq258X_xCons_yCons_from_driverIH k i j m rest s hwq.1 hIH
+        exact eq258X_xCons_yCons_from_wfCore_sameY k i j m rest s
+          hwp.2.1 hwq.1 hwp.2.2 hwq.2 (Eq258DriverWFCore.of_driverIH hIH)
+          (fun k' p q _ _ _ _ hlt => hIH.x k' p q hlt)
   | yCons i r =>
     cases hp with
     | inl h => cases h
@@ -4313,7 +4572,9 @@ theorem eq258Y_of_driverIH_of_inY_inX (l : ℕ) (p q : FreeAssocMono)
         | yCons n rest =>
           exact eq258Y_yCons_one_xCons_yCons_from_driverIH l j i n rest hIH
       | xCons m rest =>
-        exact eq258Y_yCons_xCons_from_driverIH l j i m rest s hwq.1 hIH
+        exact eq258Y_yCons_xCons_from_wfCore_sameX l j i m rest s
+          hwp.2.1 hwq.1 hwp.2.2 hwq.2 (Eq258DriverWFCore.of_driverIH hIH)
+          (fun l' p q _ _ _ _ hlt => hIH.y l' p q hlt)
       | yCons m rest =>
         cases hwp.1 with
         | inl h => cases h
