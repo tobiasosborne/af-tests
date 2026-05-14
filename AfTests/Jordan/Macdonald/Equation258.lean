@@ -775,6 +775,24 @@ structure Eq258DriverLayer (n : ℕ) : Prop where
       (xCons m r').weight + (yCons j one).weight = n →
         Eq258Y l (xCons m r') (yCons j one)
 
+/-- Well-formed current-weight driver layer for the long boundary swaps.
+
+This is closer to H-O's proof than `Eq258DriverLayer`: in the x-boundary case
+`yCons m r'` is well-formed only when `r' ∈ X`, and in the y-boundary case
+`xCons m r'` is well-formed only when `r' ∈ Y`. The pure-tail cases are handled
+by the weight≤1 swapped base lemmas, so this layer only asks for genuinely long
+tails. -/
+structure Eq258DriverWFLayer (n : ℕ) : Prop where
+  lower : Eq258DriverIH n
+  xBoundarySwapLong :
+    ∀ (k i m l : ℕ) (r' : FreeAssocMono),
+      (yCons m (xCons l r')).weight + (xCons i one).weight = n →
+        Eq258X k (yCons m (xCons l r')) (xCons i one)
+  yBoundarySwapLong :
+    ∀ (l j m nTail : ℕ) (r' : FreeAssocMono),
+      (xCons m (yCons nTail r')).weight + (yCons j one).weight = n →
+        Eq258Y l (xCons m (yCons nTail r')) (yCons j one)
+
 /-- The y-generator obligation consumed by the x-direction inductive helpers
     when `p = yCons m r'` and `q = s`. For well-formed H-O applications,
     callers should supply this from `Eq258Y j (yCons m r') s` together with
@@ -954,6 +972,135 @@ theorem M_op_yCons_one_yCons_xCons_one_comm (j l i : ℕ) (v : FreeJordanAlg) :
     simp only [hne1, ↓reduceIte]
     simp only [M_op.eq_def]
 
+/-- Different-letter symmetry for the long x-boundary swapped term, reduced to
+    the two lower symmetry facts exposed by the defining recurrence. -/
+theorem M_op_yCons_xCons_xCons_one_comm_of (m l i : ℕ) (r : FreeAssocMono)
+    (v : FreeJordanAlg)
+    (h_base : M_op (xCons l r) one v = M_op one (xCons l r) v)
+    (h_tail : M_op (xCons (i + 1 + l) r) (yCons m one) v =
+      M_op (yCons m one) (xCons (i + 1 + l) r) v) :
+    M_op (yCons m (xCons l r)) (xCons i one) v =
+      M_op (xCons i one) (yCons m (xCons l r)) v := by
+  rw [M_op.eq_def (yCons m (xCons l r)) (xCons i one) v]
+  rw [M_op.eq_def (xCons i one) (yCons m (xCons l r)) v]
+  simp only [prependX, prependY]
+  rw [h_base, h_tail]
+  rw [U_bilinear_comm]
+
+/-- Different-letter symmetry for the long y-boundary swapped term, reduced to
+    the two lower symmetry facts exposed by the defining recurrence. -/
+theorem M_op_xCons_yCons_yCons_one_comm_of (m l j : ℕ) (r : FreeAssocMono)
+    (v : FreeJordanAlg)
+    (h_base : M_op (yCons l r) one v = M_op one (yCons l r) v)
+    (h_tail : M_op (yCons (j + 1 + l) r) (xCons m one) v =
+      M_op (xCons m one) (yCons (j + 1 + l) r) v) :
+    M_op (xCons m (yCons l r)) (yCons j one) v =
+      M_op (yCons j one) (xCons m (yCons l r)) v := by
+  rw [M_op.eq_def (xCons m (yCons l r)) (yCons j one) v]
+  rw [M_op.eq_def (yCons j one) (xCons m (yCons l r)) v]
+  simp only [prependX, prependY]
+  rw [h_base, h_tail]
+  rw [U_bilinear_comm]
+
+/-- Same-x symmetry for the long x-boundary term, reduced to lower boundary and
+    different-letter symmetry facts. -/
+theorem M_op_xCons_one_xCons_yCons_xCons_comm_of (i k m l : ℕ)
+    (r : FreeAssocMono) (v : FreeJordanAlg)
+    (h_equal : M_op one (yCons m (xCons l r)) v =
+      M_op (yCons m (xCons l r)) one v)
+    (h_boundary : ∀ a : ℕ,
+      M_op one (xCons a (yCons m (xCons l r))) v =
+        M_op (xCons a (yCons m (xCons l r))) one v)
+    (h_diff : ∀ a : ℕ,
+      M_op (xCons a one) (yCons m (xCons l r)) v =
+        M_op (yCons m (xCons l r)) (xCons a one) v) :
+    M_op (xCons i one) (xCons k (yCons m (xCons l r))) v =
+      M_op (xCons k (yCons m (xCons l r))) (xCons i one) v := by
+  rw [M_op.eq_def (xCons i one) (xCons k (yCons m (xCons l r))) v]
+  rw [M_op.eq_def (xCons k (yCons m (xCons l r))) (xCons i one) v]
+  simp only [ge_iff_le]
+  by_cases hki : k ≤ i
+  · rw [dif_pos hki]
+    by_cases hik : i ≤ k
+    · rw [dif_pos hik]
+      have heq : i = k := by omega
+      subst heq
+      simp only [ite_true]
+      rw [h_equal]
+    · rw [dif_neg hik]
+      have hne : ¬ i = k := by omega
+      simp only [hne, ↓reduceIte]
+      rw [h_diff]
+  · rw [dif_neg hki]
+    have hik : i ≤ k := by omega
+    rw [dif_pos hik]
+    have hne : ¬ k = i := by omega
+    simp only [hne, ↓reduceIte]
+    rw [h_boundary]
+
+/-- Same-y symmetry for the long y-boundary term, reduced to lower boundary and
+    different-letter symmetry facts. -/
+theorem M_op_yCons_one_yCons_xCons_yCons_comm_of (j l m n : ℕ)
+    (r : FreeAssocMono) (v : FreeJordanAlg)
+    (h_equal : M_op one (xCons m (yCons n r)) v =
+      M_op (xCons m (yCons n r)) one v)
+    (h_boundary : ∀ a : ℕ,
+      M_op one (yCons a (xCons m (yCons n r))) v =
+        M_op (yCons a (xCons m (yCons n r))) one v)
+    (h_diff : ∀ a : ℕ,
+      M_op (yCons a one) (xCons m (yCons n r)) v =
+        M_op (xCons m (yCons n r)) (yCons a one) v) :
+    M_op (yCons j one) (yCons l (xCons m (yCons n r))) v =
+      M_op (yCons l (xCons m (yCons n r))) (yCons j one) v := by
+  rw [M_op.eq_def (yCons j one) (yCons l (xCons m (yCons n r))) v]
+  rw [M_op.eq_def (yCons l (xCons m (yCons n r))) (yCons j one) v]
+  simp only [ge_iff_le]
+  by_cases hlj : l ≤ j
+  · rw [dif_pos hlj]
+    by_cases hjl : j ≤ l
+    · rw [dif_pos hjl]
+      have heq : j = l := by omega
+      subst heq
+      simp only [ite_true]
+      rw [h_equal]
+    · rw [dif_neg hjl]
+      have hne : ¬ j = l := by omega
+      simp only [hne, ↓reduceIte]
+      rw [h_diff]
+  · rw [dif_neg hlj]
+    have hjl : j ≤ l := by omega
+    rw [dif_pos hjl]
+    have hne : ¬ l = j := by omega
+    simp only [hne, ↓reduceIte]
+    rw [h_boundary]
+
+/-- H-O's symmetry step for the x-family: if Eq(2.58) is known for `(q,p)`
+    and the three resulting `M_op` terms commute, then it is known for `(p,q)`. -/
+theorem Eq258X_of_swapped_comm {k : ℕ} {p q : FreeAssocMono}
+    (h : Eq258X k q p)
+    (h_pq : ∀ v, M_op p q v = M_op q p v)
+    (h_left : ∀ v, M_op (prependX k p) q v = M_op q (prependX k p) v)
+    (h_right : ∀ v, M_op p (prependX k q) v = M_op (prependX k q) p v) :
+    Eq258X k p q := by
+  intro v
+  rw [h_pq]
+  rw [h]
+  rw [← h_left, ← h_right]
+  rw [add_comm]
+
+/-- H-O's symmetry step for the y-family. -/
+theorem Eq258Y_of_swapped_comm {j : ℕ} {p q : FreeAssocMono}
+    (h : Eq258Y j q p)
+    (h_pq : ∀ v, M_op p q v = M_op q p v)
+    (h_left : ∀ v, M_op (prependY j p) q v = M_op q (prependY j p) v)
+    (h_right : ∀ v, M_op p (prependY j q) v = M_op (prependY j q) p v) :
+    Eq258Y j p q := by
+  intro v
+  rw [h_pq]
+  rw [h]
+  rw [← h_left, ← h_right]
+  rw [add_comm]
+
 /-! ### Driver-ready weight≤1 x-direction cases -/
 
 theorem eq258X_one_one (k : ℕ) : Eq258X k one one := by
@@ -1044,6 +1191,38 @@ theorem eq258Y_xCons_one_yCons_one (l i j : ℕ) :
   simpa [Eq258Y, prependY, M_op_yCons_one_xCons_one_comm,
     M_op_yCons_one_yCons_xCons_one_comm, add_comm, Nat.add_comm, Nat.add_left_comm,
     Nat.add_assoc] using h v
+
+/-- Recover the x-boundary swapped obligation from the well-formed driver layer.
+    The pure tail is already the swapped weight≤1 base case. -/
+theorem Eq258DriverWFLayer.xBoundarySwap {n : ℕ} (hLayer : Eq258DriverWFLayer n)
+    (k i m : ℕ) (r' : FreeAssocMono) (hr : r'.inX)
+    (hw : (yCons m r').weight + (xCons i one).weight = n) :
+    Eq258X k (yCons m r') (xCons i one) := by
+  cases r' with
+  | one =>
+    simpa using eq258X_yCons_one_xCons_one k m i
+  | xCons l rest =>
+    exact hLayer.xBoundarySwapLong k i m l rest hw
+  | yCons l rest =>
+    cases hr with
+    | inl h => cases h
+    | inr h => simp [inX0, startsWithX] at h
+
+/-- Recover the y-boundary swapped obligation from the well-formed driver layer.
+    The pure tail is already the swapped weight≤1 base case. -/
+theorem Eq258DriverWFLayer.yBoundarySwap {n : ℕ} (hLayer : Eq258DriverWFLayer n)
+    (l j m : ℕ) (r' : FreeAssocMono) (hr : r'.inY)
+    (hw : (xCons m r').weight + (yCons j one).weight = n) :
+    Eq258Y l (xCons m r') (yCons j one) := by
+  cases r' with
+  | one =>
+    simpa using eq258Y_xCons_one_yCons_one l m j
+  | xCons nTail rest =>
+    cases hr with
+    | inl h => cases h
+    | inr h => simp [inY0, startsWithY] at h
+  | yCons nTail rest =>
+    exact hLayer.yBoundarySwapLong l j m nTail rest hw
 
 /-! ### Equation (2.58) weight > 1 — Inductive cases
 
@@ -1719,6 +1898,43 @@ theorem eq258Y_yCons_xCons_one_from_driverLayer (l j m : ℕ) (r' : FreeAssocMon
     Eq258Y l (yCons j (xCons m r')) one := by
   refine eq258Y_yCons_xCons_one_from_family_obligations l j m r' ?_ ?_
   · exact hLayer.yBoundarySwap l j m r' (by simp)
+  · intro hlt
+    have h_lower_weight :
+        (xCons m r').weight + one.weight <
+          (yCons j (xCons m r')).weight + one.weight := by
+      simp
+    exact eq258YRawRight_of_eq258Y_of_inX (xCons_inX m r') one_inX
+      (hLayer.lower.y (l - j - 1) (xCons m r') one h_lower_weight)
+
+/-- Well-formed driver-layer version of the long x-boundary constructor case.
+
+This follows H-O's side conditions: `yCons m r'` is only used as an alternating
+monomial when `r' ∈ X`. The pure-tail swapped obligation is discharged by the
+swapped weight≤1 base case, so the layer only has to provide genuinely long
+swap fields. -/
+theorem eq258X_xCons_yCons_one_from_wfDriverLayer (k i m : ℕ) (r' : FreeAssocMono)
+    (hr : r'.inX)
+    (hLayer : Eq258DriverWFLayer ((xCons i (yCons m r')).weight + one.weight)) :
+    Eq258X k (xCons i (yCons m r')) one := by
+  refine eq258X_xCons_yCons_one_from_family_obligations k i m r' ?_ ?_
+  · exact hLayer.xBoundarySwap k i m r' hr (by simp)
+  · intro hlt
+    have h_lower_weight :
+        (yCons m r').weight + one.weight <
+          (xCons i (yCons m r')).weight + one.weight := by
+      simp
+    exact eq258XRawRight_of_eq258X_of_inY (yCons_inY m r') one_inY
+      (hLayer.lower.x (k - i - 1) (yCons m r') one h_lower_weight)
+
+/-- Well-formed driver-layer version of the long y-boundary constructor case.
+
+Symmetric to `eq258X_xCons_yCons_one_from_wfDriverLayer`. -/
+theorem eq258Y_yCons_xCons_one_from_wfDriverLayer (l j m : ℕ) (r' : FreeAssocMono)
+    (hr : r'.inY)
+    (hLayer : Eq258DriverWFLayer ((yCons j (xCons m r')).weight + one.weight)) :
+    Eq258Y l (yCons j (xCons m r')) one := by
+  refine eq258Y_yCons_xCons_one_from_family_obligations l j m r' ?_ ?_
+  · exact hLayer.yBoundarySwap l j m r' hr (by simp)
   · intro hlt
     have h_lower_weight :
         (xCons m r').weight + one.weight <

@@ -77,6 +77,24 @@
     `M_op_yCons_one_yCons_xCons_one_comm`.
   - Added swapped pure-power base families:
     `eq258X_yCons_one_xCons_one` and `eq258Y_xCons_one_yCons_one`.
+- Refined the long boundary layer to match the well-formed H-O cases:
+  - Added `Eq258DriverWFLayer`, which keeps strict lower facts in
+    `Eq258DriverIH` and only packages genuinely long same-weight boundary swaps.
+  - Added `Eq258DriverWFLayer.xBoundarySwap` and `.yBoundarySwap`, discharging
+    the pure-tail swaps via the swapped weight≤1 base lemmas.
+  - Added `eq258X_xCons_yCons_one_from_wfDriverLayer` and
+    `eq258Y_yCons_xCons_one_from_wfDriverLayer`, so the long one-argument
+    boundary constructors now consume the narrower well-formed layer.
+- Made the next H-O symmetry obligation explicit:
+  - Added `Eq258X_of_swapped_comm` and `Eq258Y_of_swapped_comm`, generic
+    symmetry-transfer lemmas for Eq(2.58).
+  - Added recurrence-level commutativity reducers:
+    `M_op_yCons_xCons_xCons_one_comm_of`,
+    `M_op_xCons_yCons_yCons_one_comm_of`,
+    `M_op_xCons_one_xCons_yCons_xCons_comm_of`, and
+    `M_op_yCons_one_yCons_xCons_yCons_comm_of`.
+    These deliberately take lower symmetry facts as hypotheses rather than
+    claiming false total-syntax commutativity for non-well-formed branches.
 
 ## Current State
 - Build status: passing (`lake build AfTests 2>&1 | tail -40`, 1915 jobs).
@@ -85,11 +103,15 @@
 - Open blockers:
   - Eq(2.58) still needs the recursive driver itself. The main weight>1 x and y
     constructor branches now have driver-ready theorems.
-  - The long one-argument boundary branches are proven as algebraic adapters, but
-    their swapped same-weight obligations are carried by `Eq258DriverLayer`. The
-    remaining hard driver question is proving the long swap fields themselves:
-    `Eq258X k (yCons m r') (xCons i one)` and
-    `Eq258Y l (xCons m r') (yCons j one)`.
+  - The long one-argument boundary branches are proven as algebraic adapters.
+    The remaining hard driver question is proving the genuinely long swap fields
+    in `Eq258DriverWFLayer`:
+    `Eq258X k (yCons m (xCons l r')) (xCons i one)` and
+    `Eq258Y l (xCons m (yCons n r')) (yCons j one)`.
+  - The H-O symmetry path is now formalized as a bridge plus lower-commutativity
+    reducers. The next missing ingredient is an induction package proving the
+    required lower `M_op` symmetry facts for well-formed boundary shapes, then
+    feeding them through `Eq258X_of_swapped_comm` / `Eq258Y_of_swapped_comm`.
   - In the `<` helpers, the left lower-pair facts are named as `Eq258XRawRight` /
     `Eq258YRawRight`. This keeps the existing proof honest: the helper algebra needs
     the unnormalized products `xCons (k - i - 1) q` and `yCons (l - j - 1) q`, not
@@ -97,10 +119,9 @@
   - Current `bd` embedded Dolt store is empty; old issue data lives in `.beads/issues.jsonl`.
 
 ## Next Steps (Priority Order)
-1. Extend the H-O symmetry formalization from pure powers to long swap fields required
-   by `Eq258DriverLayer`:
-   `Eq258X k (yCons m (xCons ...)) (xCons i one)` and
-   `Eq258Y l (xCons m (yCons ...)) (yCons j one)`.
+1. Prove the lower `M_op` symmetry package for well-formed boundary shapes
+   exposed by the new `_comm_of` lemmas, then instantiate the long swap fields
+   required by `Eq258DriverWFLayer`.
 2. Build the recursive simultaneous induction over the new layer, reusing
    `Eq258DriverIH` for strict total-weight decreases.
 3. Migrate or restore the old JSONL Beads so `bd ready` reflects the historical issue queue.
