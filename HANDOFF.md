@@ -180,41 +180,42 @@
     passes.
   - Started migrating `Equation258.lean` lower-left/raw-right and long-branch
     helper interfaces from raw right constructors to `prependX`/`prependY`.
+- Finished the `Equation258.lean` H-O recurrence migration:
+  - Updated the equal-index long branches to distribute `U` first and then use
+    `M_op_U_prependX` / `M_op_U_prependY`, matching the concatenated (2.55)
+    recurrence instead of forcing raw constructor terms.
+  - Updated the same-letter lower-pair branches to target `prependX` /
+    `prependY` terms and normalize nested concatenations before the final
+    H-O cancellations.
+  - Replaced brittle weight proofs that unfolded `prependX`/`prependY` with
+    `weight_prependX` and `weight_prependY`.
+  - Verified `eq258X_of_driverIH_of_inX_inY` and
+    `eq258Y_of_driverIH_of_inY_inX` with only standard Lean axioms
+    (`propext`, `Classical.choice`, `Quot.sound`); no `sorryAx`.
 
 ## Current State
-- Build status: failing in `AfTests/Jordan/Macdonald/Equation258.lean` during
-  the in-progress H-O recurrence migration.
-- Passing checkpoint: `lake build AfTests.Jordan.Macdonald.MOperatorProperties`
-  succeeds after the `M_op` recurrence and property-layer changes.
-- Failing checkpoint: `lake env lean AfTests/Jordan/Macdonald/Equation258.lean`
-  currently fails in the long `i < k` / `j < l` helper migration. The remaining
-  errors are interface/algebra mismatches where some internal statements still
-  mention raw `xCons`/`yCons` terms but the corrected recurrence now produces
-  nested `prependX`/`prependY` terms.
-- Sorry count: `Equation258.lean` still has no introduced `sorry`, `admit`,
-  `axiom`, or `unsafe` source edits; this session did not add any sneaky axiom.
+- Build status: passing.
+- Passing checkpoints:
+  - `lake env lean AfTests/Jordan/Macdonald/Equation258.lean`
+  - `lake build AfTests.Jordan.Macdonald.Equation258`
+  - `lake build AfTests`
+- Sorry count: `Equation258.lean` and the touched Macdonald support files have
+  no `sorry`, `admit`, `axiom`, or `unsafe` source occurrences.
+- Axiom status for the two Eq258 dispatcher theorems: no `sorryAx`; only
+  `propext`, `Classical.choice`, and `Quot.sound`.
 - Open blockers:
-  - Finish the `Equation258.lean` migration from raw right constructors to
-    H-O concatenated terms. The affected area is the long branch around the
-    y-side helpers near lines 3100-3450 and x-side helpers near 3550-3950.
   - The final driver still needs the global recursive case split, but that
-    should wait until the H-O recurrence migration compiles.
+    should now build on the H-O-aligned dispatcher layer.
   - Current `bd` embedded Dolt store reports no open issues but still has
     runtime state dirty under `.beads`; do not stage `.beads` runtime files.
 
 ## Next Steps (Priority Order)
-1. Make `Equation258.lean` compile with the corrected H-O recurrence. Do not
-   revert the `MOperator.lean` recurrence unless explicitly abandoning the
-   Hanche-Olsen alignment.
-2. In the long branch helpers, consistently use `Eq258X/Y` swapped facts for
-   `prependX i s` / `prependY j s`, and use `prependX_prependX` /
-   `prependY_prependY` to normalize nested concatenations.
-3. Replace the remaining prospective final-driver dependence on broad
+1. Build the final recursive simultaneous induction driver for Eq(2.58) on top
+   of `eq258X_of_driverIH_of_inX_inY` and `eq258Y_of_driverIH_of_inY_inX`.
+2. Replace the remaining prospective final-driver dependence on broad
    `Eq258DriverIH.rawRight` with H-O-shaped packages such as
    `Eq258DriverWFCore` and `Eq258LongBranchIH`.
-4. Build the recursive simultaneous induction step only after the corrected
-   long-branch interface compiles.
-5. Migrate or restore the old JSONL Beads so `bd ready` reflects the historical issue queue.
+3. Migrate or restore the old JSONL Beads so `bd ready` reflects the historical issue queue.
 
 ## Known Issues / Gotchas
 - Always read `examples3/Jordan Operator Algebras/joa-m/joa-m.md` before Macdonald work.
@@ -233,6 +234,8 @@
 - `bd create` currently fails with `database not initialized: issue_prefix config
   is missing`; do not initialize a new prefix until the old JSONL/Dolt state has
   been reconciled.
+- `bd sync` is not available in the installed bd CLI, and `bd dolt push` fails
+  because the embedded Dolt database has no `origin` remote configured.
 - `Eq258YBaseObligation` is intentionally an assumption to the x-direction helpers. It
   records a real y-direction induction obligation rather than hiding it behind a local sorry.
 - `prependY_of_inX` and `prependX_of_inY` already exist in `MonoBlock.lean`; use them

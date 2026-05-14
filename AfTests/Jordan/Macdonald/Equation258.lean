@@ -1069,14 +1069,14 @@ theorem eq258XRawRight_yCons_one_one (k j : ℕ) :
 
 theorem eq258YRawRight_one_one (j : ℕ) : Eq258YRawRight j one one := by
   intro v
-  simp only [Eq258YRawRight, prependY, M_op.eq_def, T_apply]
+  simp only [prependY, M_op.eq_def, T_apply]
   rw [← two_smul ℝ (mul (pow y (j + 1)) v), smul_smul]
   norm_num
 
 theorem eq258YRawRight_xCons_one_one (j i : ℕ) :
     Eq258YRawRight j (xCons i one) one := by
   intro v
-  simp only [Eq258YRawRight, prependY, M_op.eq_def, T_apply, U_bilinear_apply]
+  simp only [prependY, M_op.eq_def, T_apply, U_bilinear_apply]
   conv_rhs =>
     rw [show mul (pow x (i + 1)) (pow y (j + 1)) =
       mul (pow y (j + 1)) (pow x (i + 1)) from FreeJordanAlg.mul_comm _ _]
@@ -3171,13 +3171,11 @@ theorem eq258_yCons_xCons_general_ge (l j i m : ℕ) (r' : FreeAssocMono)
     module
   by_cases hlj' : j = l
   · subst j
-    simp only [Nat.sub_self, pow_zero, U_bilinear_one_left, T_apply]
+    simp only [Nat.sub_self, FreeJordanAlg.pow_zero, U_bilinear_one_left, T_apply]
     rw [ih_x_base]
-    rw [show prependY l (prependX i (xCons m r')) =
-      yCons l (prependX i (xCons m r')) from rfl]
-    rw [← M_op_U_prependY l (prependX i (xCons m r')) s v,
-        ← M_op_U_prependY l (xCons m r') (xCons i s) v]
     rw [← FJ_U_eq, JordanAlgebra.U_smul_right, JordanAlgebra.U_add_right, FJ_U_eq, FJ_U_eq]
+    rw [M_op_U_prependY, M_op_U_prependY]
+    simp [prependY]
   · have hgt : l < j := Nat.lt_of_le_of_ne hlj (Ne.symm hlj')
     have h_iv := M_op_U_bilinear_xCons i (j - l - 1) m r' s v
     rw [show j - l - 1 + 1 = j - l from by omega] at h_iv
@@ -3328,12 +3326,13 @@ theorem eq258_yCons_xCons_general_lt (l j i m : ℕ) (r' : FreeAssocMono)
             M_op (yCons l (xCons m r')) (yCons j (xCons i s)) v) by
     rw [h_same]
     rw [show j + 1 + l = l + 1 + j from by omega]
+    rw [FreeAssocMono.prependY_prependY]
     module
   suffices h_same_pair :
       U_bilinear (pow y (j + 1)) (pow y (l + 1))
           (M_op (prependX i (xCons m r')) s v) =
         (1 / 2 : ℝ) •
-          (M_op (prependY j (prependX i (xCons m r'))) (yCons l s) v +
+          (M_op (prependY j (prependX i (xCons m r'))) (prependY l s) v +
             M_op (prependY l (prependX i (xCons m r'))) (prependY j s) v) ∧
       U_bilinear (pow y (j + 1)) (pow y (l + 1))
           (M_op (xCons m r') (xCons i s) v) =
@@ -3363,15 +3362,9 @@ theorem eq258_yCons_xCons_general_lt (l j i m : ℕ) (r' : FreeAssocMono)
       rw [h_lower_pair.1]
       rw [← FJ_U_eq, JordanAlgebra.U_smul_right, JordanAlgebra.U_add_right,
         FJ_U_eq, FJ_U_eq]
-      rw [show prependY j (prependX i (xCons m r')) =
-        yCons j (prependX i (xCons m r')) from by simp [prependX, prependY]]
-      rw [show prependY l (prependX i (xCons m r')) =
-        yCons l (prependX i (xCons m r')) from by simp [prependX, prependY]]
-      rw [M_op.eq_def (yCons j (prependX i (xCons m r'))) (yCons l s)]
-      rw [M_op.eq_def (yCons l (prependX i (xCons m r'))) (yCons j s)]
-      simp only [ge_iff_le]
-      rw [dif_neg (by omega : ¬ l ≤ j), dif_pos (by omega : j ≤ l)]
-      simp only [show ¬ l = j from by omega, ↓reduceIte]
+      rw [M_op_U_prependY, M_op_U_prependY]
+      rw [FreeAssocMono.prependY_prependY, FreeAssocMono.prependY_prependY]
+      rw [show j + 1 + (l - j - 1) = l from by omega]
     · rw [U_bilinear_y_pow_lt_as_U_T j l hjl]
       rw [h_lower_pair.2]
       rw [← FJ_U_eq, JordanAlgebra.U_smul_right, JordanAlgebra.U_add_right,
@@ -3504,7 +3497,9 @@ theorem eq258Y_yCons_xCons_from_longBranchIH (l j i m : ℕ) (r' s : FreeAssocMo
   have h_swap_weight :
       (prependX i (xCons m r')).weight + (prependY j s).weight <
         (yCons j (xCons m r')).weight + (xCons i s).weight := by
-    simp [prependX, prependY]
+    have hy := FreeAssocMono.weight_prependY j s
+    simp [prependX] at hy ⊢
+    omega
   have h_x_weight :
       (xCons m r').weight + s.weight <
         (yCons j (xCons m r')).weight + (xCons i s).weight := by
@@ -3553,7 +3548,7 @@ theorem eq258_xCons_yCons_general_ge (k i j m : ℕ) (r' : FreeAssocMono)
     -- H-O line 1354: "by induction, (iv) to the second"
     (ih_swap : ∀ v, T (pow x (k + 1))
         (M_op (prependY j (yCons m r')) (prependX i s) v) =
-      (1/2 : ℝ) • (M_op (prependX k (prependY j (yCons m r'))) (prependX i s) v
+      (1 / 2 : ℝ) • (M_op (prependX k (prependY j (yCons m r'))) (prependX i s) v
         + M_op (prependY j (yCons m r')) (prependX k (prependX i s)) v))
     (v : FreeJordanAlg)
     (ih_y_base : Eq258YBaseObligation j m r' s v) :
@@ -3628,17 +3623,14 @@ theorem eq258_xCons_yCons_general_ge (k i j m : ℕ) (r' : FreeAssocMono)
   · -- Case i = k: U_bi(x^0, y^{j+1})(w) = T(y^{j+1})(w)
     -- This requires M_op composition (U applied to nested M_op)
     subst hik'
-    simp only [Nat.sub_self, pow_zero, U_bilinear_one_left, T_apply]
+    simp only [Nat.sub_self, FreeJordanAlg.pow_zero, U_bilinear_one_left, T_apply]
     -- Goal: mul(y^{j+1})(w) = (1/2)•(E + F)
     -- Use the y-direction base obligation to convert mul(y) to M_op, then fold into U.
     rw [ih_y_base]
-    -- Fold RHS M_op terms via M_op_xCons_xCons
-    rw [show prependX i (prependY j (yCons m r')) =
-      xCons i (prependY j (yCons m r')) from rfl]
-    rw [← M_op_U_prependX i (prependY j (yCons m r')) s v,
-        ← M_op_U_prependX i (yCons m r') (yCons j s) v]
     -- Distribute U over (1/2)•(P₁ + P₂) on LHS
     rw [← FJ_U_eq, JordanAlgebra.U_smul_right, JordanAlgebra.U_add_right, FJ_U_eq, FJ_U_eq]
+    rw [M_op_U_prependX, M_op_U_prependX]
+    simp [prependX]
   · -- Case i > k: standard M_op conversion
     have hgt : k < i := Nat.lt_of_le_of_ne hik (Ne.symm hik')
     have h_iv := M_op_U_bilinear_yCons (i - k - 1) j m r' s v
@@ -3823,12 +3815,13 @@ theorem eq258_xCons_yCons_general_lt (k i j m : ℕ) (r' : FreeAssocMono)
             M_op (xCons k (yCons m r')) (xCons i (yCons j s)) v) by
     rw [h_same]
     rw [show i + 1 + k = k + 1 + i from by omega]
+    rw [FreeAssocMono.prependX_prependX]
     module
   suffices h_same_pair :
       U_bilinear (pow x (i + 1)) (pow x (k + 1))
           (M_op (prependY j (yCons m r')) s v) =
         (1 / 2 : ℝ) •
-          (M_op (prependX i (prependY j (yCons m r'))) (xCons k s) v +
+          (M_op (prependX i (prependY j (yCons m r'))) (prependX k s) v +
             M_op (prependX k (prependY j (yCons m r'))) (prependX i s) v) ∧
       U_bilinear (pow x (i + 1)) (pow x (k + 1))
           (M_op (yCons m r') (yCons j s) v) =
@@ -3858,15 +3851,9 @@ theorem eq258_xCons_yCons_general_lt (k i j m : ℕ) (r' : FreeAssocMono)
       rw [h_lower_pair.1]
       rw [← FJ_U_eq, JordanAlgebra.U_smul_right, JordanAlgebra.U_add_right,
         FJ_U_eq, FJ_U_eq]
-      rw [show prependX i (prependY j (yCons m r')) =
-        xCons i (prependY j (yCons m r')) from by simp [prependX, prependY]]
-      rw [show prependX k (prependY j (yCons m r')) =
-        xCons k (prependY j (yCons m r')) from by simp [prependX, prependY]]
-      rw [M_op.eq_def (xCons i (prependY j (yCons m r'))) (xCons k s)]
-      rw [M_op.eq_def (xCons k (prependY j (yCons m r'))) (xCons i s)]
-      simp only [ge_iff_le]
-      rw [dif_neg (by omega : ¬ k ≤ i), dif_pos (by omega : i ≤ k)]
-      simp only [show ¬ k = i from by omega, ↓reduceIte]
+      rw [M_op_U_prependX, M_op_U_prependX]
+      rw [FreeAssocMono.prependX_prependX, FreeAssocMono.prependX_prependX]
+      rw [show i + 1 + (k - i - 1) = k from by omega]
     · rw [U_bilinear_x_pow_lt_as_U_T i k hik]
       rw [h_lower_pair.2]
       rw [← FJ_U_eq, JordanAlgebra.U_smul_right, JordanAlgebra.U_add_right,
@@ -4006,7 +3993,9 @@ theorem eq258X_xCons_yCons_from_longBranchIH (k i j m : ℕ) (r' s : FreeAssocMo
   have h_swap_weight :
       (prependY j (yCons m r')).weight + (prependX i s).weight <
         (xCons i (yCons m r')).weight + (yCons j s).weight := by
-    simp [prependY, prependX]
+    have hx := FreeAssocMono.weight_prependX i s
+    simp [prependY] at hx ⊢
+    omega
   have h_y_weight :
       (yCons m r').weight + s.weight <
         (xCons i (yCons m r')).weight + (yCons j s).weight := by
