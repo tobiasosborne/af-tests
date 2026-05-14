@@ -706,6 +706,400 @@ theorem eq259_xCons_yCons (i j m : ℕ) (r' : FreeAssocMono)
       - M_op (prependY j (yCons m r')) (xCons i s) v :=
   M_op_xCons_yCons_yCons i m r' j s v
 
+/-- Symmetric form of (2.59): M_op recurrence for yCons-xCons with xCons tail. -/
+theorem eq259_yCons_xCons (j i m : ℕ) (r' : FreeAssocMono)
+    (s : FreeAssocMono) (v : FreeJordanAlg) :
+    M_op (yCons j (xCons m r')) (xCons i s) v =
+    (2 : ℝ) • U_bilinear (pow y (j + 1)) (pow x (i + 1))
+        (M_op (xCons m r') s v)
+      - M_op (prependX i (xCons m r')) (yCons j s) v :=
+  M_op_yCons_xCons_xCons j m r' i s v
+
+/-- Y-direction weight > 1, j ≥ l case. Symmetric to
+    `eq258_xCons_yCons_general_ge`. -/
+theorem eq258_yCons_xCons_general_ge (l j i m : ℕ) (r' : FreeAssocMono)
+    (s : FreeAssocMono) (hlj : l ≤ j)
+    (ih_swap : ∀ v, T (pow y (l + 1))
+        (M_op (prependX i (xCons m r')) (yCons j s) v) =
+      (1 / 2 : ℝ) • (M_op (prependY l (prependX i (xCons m r'))) (yCons j s) v
+        + M_op (prependX i (xCons m r')) (yCons (l + 1 + j) s) v))
+    (v : FreeJordanAlg)
+    (ih_x_base : Eq258XBaseObligation i m r' s v) :
+    T (pow y (l + 1)) (M_op (yCons j (xCons m r')) (xCons i s) v) =
+    (1 / 2 : ℝ) • (M_op (yCons (l + 1 + j) (xCons m r')) (xCons i s) v +
+      M_op (yCons j (xCons m r')) (yCons l (xCons i s)) v) := by
+  rw [eq259_yCons_xCons]
+  rw [T_sub, T_smul']
+  have h249 := @JordanAlgebra.operator_identity_249 FreeJordanAlg _
+    FreeJordanAlg.y (FreeJordanAlg.pow FreeJordanAlg.x (i + 1)) (l + 1) (j - l)
+  have h249v := LinearMap.ext_iff.mp h249 (M_op (xCons m r') s v)
+  simp only [LinearMap.smul_apply, LinearMap.comp_apply, LinearMap.add_apply] at h249v
+  simp only [FJ_L_apply, FJ_jpow_eq_pow, FJ_U_bilinear_eq, FJ_U_linear_apply] at h249v
+  rw [show l + 1 + (j - l) = j + 1 from by omega,
+      show l + 1 + (j + 1) = l + 1 + j + 1 from by omega] at h249v
+  rw [ih_swap]
+  have h249' : mul (pow y (l + 1))
+      (U_bilinear (pow y (j + 1)) (pow x (i + 1)) (M_op (xCons m r') s v)) =
+    (1 / 2 : ℝ) • (U (pow y (l + 1))
+        (U_bilinear (pow y (j - l)) (pow x (i + 1)) (M_op (xCons m r') s v)) +
+      U_bilinear (pow y (l + 1 + j + 1)) (pow x (i + 1))
+        (M_op (xCons m r') s v)) := by
+    simp only [T_apply] at h249v ⊢
+    rw [show mul (pow y (l + 1)) (U_bilinear (pow y (j + 1)) (pow x (i + 1))
+          (M_op (xCons m r') s v))
+        = (1 / 2 : ℝ) • ((2 : ℝ) • mul (pow y (l + 1))
+            (U_bilinear (pow y (j + 1)) (pow x (i + 1))
+              (M_op (xCons m r') s v))) from by rw [smul_smul]; norm_num,
+      h249v]
+  simp only [T_apply] at h249' ⊢
+  rw [h249']
+  rw [smul_smul, show (2 : ℝ) * (1 / 2 : ℝ) = 1 from by norm_num, one_smul]
+  rw [M_op_U_bilinear_xCons i (l + 1 + j) m r' s v]
+  suffices h_key : U (pow y (l + 1))
+      (U_bilinear (pow y (j - l)) (pow x (i + 1)) (M_op (xCons m r') s v)) =
+    (1 / 2 : ℝ) • (M_op (prependY l (prependX i (xCons m r'))) (yCons j s) v +
+      M_op (yCons j (xCons m r')) (yCons l (xCons i s)) v) by
+    suffices h_mod :
+        (1 / 2 : ℝ) • (M_op (prependY l (prependX i (xCons m r'))) (yCons j s) v +
+          M_op (yCons j (xCons m r')) (yCons l (xCons i s)) v) +
+        (1 / 2 : ℝ) • (M_op (yCons (l + 1 + j) (xCons m r')) (xCons i s) v +
+          M_op (prependX i (xCons m r')) (yCons (l + 1 + j) s) v) -
+        (1 / 2 : ℝ) • (M_op (prependY l (prependX i (xCons m r'))) (yCons j s) v +
+          M_op (prependX i (xCons m r')) (yCons (l + 1 + j) s) v) =
+      (1 / 2 : ℝ) • (M_op (yCons (l + 1 + j) (xCons m r')) (xCons i s) v +
+        M_op (yCons j (xCons m r')) (yCons l (xCons i s)) v) by
+      rw [h_key]; exact h_mod
+    module
+  by_cases hlj' : j = l
+  · subst j
+    simp only [Nat.sub_self, pow_zero, U_bilinear_one_left, T_apply]
+    rw [ih_x_base]
+    rw [show prependY l (prependX i (xCons m r')) =
+      yCons l (prependX i (xCons m r')) from rfl]
+    rw [M_op_yCons_yCons l (prependX i (xCons m r')) s v,
+        M_op_yCons_yCons l (xCons m r') (xCons i s) v]
+    rw [← FJ_U_eq, JordanAlgebra.U_smul_right, JordanAlgebra.U_add_right, FJ_U_eq, FJ_U_eq]
+  · have hgt : l < j := Nat.lt_of_le_of_ne hlj (Ne.symm hlj')
+    have h_iv := M_op_U_bilinear_xCons i (j - l - 1) m r' s v
+    rw [show j - l - 1 + 1 = j - l from by omega] at h_iv
+    rw [h_iv]
+    rw [← FJ_U_eq, JordanAlgebra.U_smul_right, JordanAlgebra.U_add_right, FJ_U_eq, FJ_U_eq]
+    rw [M_op_U_prependY, M_op_U_prependY]
+    rw [add_comm]
+    rw [show prependY l (yCons (j - l - 1) (xCons m r')) =
+      yCons j (xCons m r') from by
+        simp [prependY]; omega]
+    rw [show prependY l (yCons (j - l - 1) s) = yCons j s from by
+      simp [prependY]; omega]
+    simp only [show prependY l (xCons i s) = yCons l (xCons i s) from rfl]
+
+/-- Y-direction weight > 1, j < l case. Symmetric to
+    `eq258_xCons_yCons_general_lt`. -/
+theorem eq258_yCons_xCons_general_lt (l j i m : ℕ) (r' : FreeAssocMono)
+    (s : FreeAssocMono) (hjl : j < l)
+    (ih_swap : ∀ v, T (pow y (l + 1))
+        (M_op (prependX i (xCons m r')) (yCons j s) v) =
+      (1 / 2 : ℝ) • (M_op (prependY l (prependX i (xCons m r'))) (yCons j s) v
+        + M_op (prependX i (xCons m r')) (yCons (l + 1 + j) s) v))
+    (v : FreeJordanAlg)
+    (ih_x_base : Eq258XBaseObligation i m r' s v)
+    (ih_lower_pair :
+      T (pow y (l - j)) (M_op (prependX i (xCons m r')) s v) =
+        (1 / 2 : ℝ) •
+          (M_op (prependX i (xCons m r')) (yCons (l - j - 1) s) v +
+            M_op (yCons (l - j - 1) (prependX i (xCons m r'))) s v) ∧
+      T (pow y (l - j)) (M_op (xCons m r') (xCons i s) v) =
+        (1 / 2 : ℝ) •
+          (M_op (xCons m r') (yCons (l - j - 1) (xCons i s)) v +
+            M_op (yCons (l - j - 1) (xCons m r')) (xCons i s) v)) :
+    T (pow y (l + 1)) (M_op (yCons j (xCons m r')) (xCons i s) v) =
+    (1 / 2 : ℝ) • (M_op (yCons (l + 1 + j) (xCons m r')) (xCons i s) v +
+      M_op (yCons j (xCons m r')) (yCons l (xCons i s)) v) := by
+  rw [eq259_yCons_xCons]
+  rw [T_sub, T_smul']
+  have h247 := @JordanAlgebra.operator_identity_247 FreeJordanAlg _
+    FreeJordanAlg.y (FreeJordanAlg.pow FreeJordanAlg.x (i + 1)) (j + 1) (l + 1)
+  have h247v := LinearMap.ext_iff.mp h247 (M_op (xCons m r') s v)
+  simp only [LinearMap.comp_apply, LinearMap.add_apply] at h247v
+  simp only [FJ_L_apply, FJ_jpow_eq_pow, FJ_U_bilinear_eq] at h247v
+  rw [ih_swap]
+  have h247_iso :
+      T (pow y (l + 1))
+          (U_bilinear (pow y (j + 1)) (pow x (i + 1)) (M_op (xCons m r') s v)) =
+        -T (pow y (j + 1))
+            (U_bilinear (pow y (l + 1)) (pow x (i + 1)) (M_op (xCons m r') s v)) +
+          U_bilinear (pow y (j + 1)) (pow y (l + 1))
+            (T (pow x (i + 1)) (M_op (xCons m r') s v)) +
+          U_bilinear (pow y (j + 1 + (l + 1))) (pow x (i + 1))
+            (M_op (xCons m r') s v) := by
+    calc
+      T (pow y (l + 1))
+          (U_bilinear (pow y (j + 1)) (pow x (i + 1)) (M_op (xCons m r') s v))
+          =
+        (T (pow y (l + 1))
+            (U_bilinear (pow y (j + 1)) (pow x (i + 1))
+              (M_op (xCons m r') s v)) +
+          T (pow y (j + 1))
+            (U_bilinear (pow y (l + 1)) (pow x (i + 1))
+              (M_op (xCons m r') s v))) -
+          T (pow y (j + 1))
+            (U_bilinear (pow y (l + 1)) (pow x (i + 1))
+              (M_op (xCons m r') s v)) := by
+          abel
+      _ =
+        (U_bilinear (pow y (j + 1)) (pow y (l + 1))
+            (T (pow x (i + 1)) (M_op (xCons m r') s v)) +
+          U_bilinear (pow y (j + 1 + (l + 1))) (pow x (i + 1))
+            (M_op (xCons m r') s v)) -
+          T (pow y (j + 1))
+            (U_bilinear (pow y (l + 1)) (pow x (i + 1))
+              (M_op (xCons m r') s v)) := by
+          rw [h247v]
+      _ =
+        -T (pow y (j + 1))
+            (U_bilinear (pow y (l + 1)) (pow x (i + 1))
+              (M_op (xCons m r') s v)) +
+          U_bilinear (pow y (j + 1)) (pow y (l + 1))
+            (T (pow x (i + 1)) (M_op (xCons m r') s v)) +
+          U_bilinear (pow y (j + 1 + (l + 1))) (pow x (i + 1))
+            (M_op (xCons m r') s v) := by
+          abel
+  have h249 := @JordanAlgebra.operator_identity_249 FreeJordanAlg _
+    FreeJordanAlg.y (FreeJordanAlg.pow FreeJordanAlg.x (i + 1)) (j + 1) (l - j)
+  have h249v := LinearMap.ext_iff.mp h249 (M_op (xCons m r') s v)
+  simp only [LinearMap.smul_apply, LinearMap.comp_apply, LinearMap.add_apply] at h249v
+  simp only [FJ_L_apply, FJ_jpow_eq_pow, FJ_U_bilinear_eq, FJ_U_linear_apply] at h249v
+  rw [show j + 1 + (l - j) = l + 1 from by omega,
+      show j + 1 + (l + 1) = j + 1 + l + 1 from by omega] at h249v
+  have h249_iso :
+      T (pow y (j + 1))
+          (U_bilinear (pow y (l + 1)) (pow x (i + 1)) (M_op (xCons m r') s v)) =
+        (1 / 2 : ℝ) •
+          (U (pow y (j + 1))
+              (U_bilinear (pow y (l - j)) (pow x (i + 1))
+                (M_op (xCons m r') s v)) +
+            U_bilinear (pow y (j + 1 + l + 1)) (pow x (i + 1))
+              (M_op (xCons m r') s v)) := by
+    simp only [T_apply] at h249v ⊢
+    rw [show mul (pow y (j + 1))
+          (U_bilinear (pow y (l + 1)) (pow x (i + 1))
+            (M_op (xCons m r') s v))
+        = (1 / 2 : ℝ) • ((2 : ℝ) • mul (pow y (j + 1))
+            (U_bilinear (pow y (l + 1)) (pow x (i + 1))
+              (M_op (xCons m r') s v))) from by rw [smul_smul]; norm_num,
+      h249v]
+  rw [h247_iso, h249_iso]
+  have h249_first :
+      U (pow y (j + 1))
+          (U_bilinear (pow y (l - j)) (pow x (i + 1))
+            (M_op (xCons m r') s v)) =
+        (1 / 2 : ℝ) •
+          (M_op (yCons l (xCons m r')) (yCons j (xCons i s)) v +
+            M_op (prependY j (prependX i (xCons m r'))) (yCons l s) v) := by
+    have h_iv := M_op_U_bilinear_xCons i (l - j - 1) m r' s v
+    rw [show l - j - 1 + 1 = l - j from by omega] at h_iv
+    rw [h_iv]
+    rw [← FJ_U_eq, JordanAlgebra.U_smul_right, JordanAlgebra.U_add_right,
+      FJ_U_eq, FJ_U_eq]
+    rw [M_op_U_prependY, M_op_U_prependY]
+    rw [show prependY j (yCons (l - j - 1) (xCons m r')) =
+      yCons l (xCons m r') from by
+        simp [prependY]; omega]
+    rw [show prependY j (yCons (l - j - 1) s) = yCons l s from by
+      simp [prependY]; omega]
+    simp only [show prependY j (xCons i s) = yCons j (xCons i s) from rfl]
+  have h249_second :
+      U_bilinear (pow y (j + 1 + l + 1)) (pow x (i + 1))
+          (M_op (xCons m r') s v) =
+        (1 / 2 : ℝ) •
+          (M_op (yCons (j + 1 + l) (xCons m r')) (xCons i s) v +
+            M_op (prependX i (xCons m r')) (yCons (j + 1 + l) s) v) := by
+    simpa [show j + 1 + l + 1 = j + 1 + l + 1 from rfl] using
+      M_op_U_bilinear_xCons i (j + 1 + l) m r' s v
+  rw [h249_first]
+  rw [show j + 1 + (l + 1) = j + 1 + l + 1 from by omega]
+  rw [h249_second]
+  suffices h_same :
+      U_bilinear (pow y (j + 1)) (pow y (l + 1))
+          (T (pow x (i + 1)) (M_op (xCons m r') s v)) =
+        (1 / 4 : ℝ) •
+          (M_op (prependY j (prependX i (xCons m r'))) (yCons l s) v +
+            M_op (prependY l (prependX i (xCons m r'))) (yCons j s) v +
+            M_op (yCons j (xCons m r')) (yCons l (xCons i s)) v +
+            M_op (yCons l (xCons m r')) (yCons j (xCons i s)) v) by
+    rw [h_same]
+    rw [show j + 1 + l = l + 1 + j from by omega]
+    module
+  suffices h_same_pair :
+      U_bilinear (pow y (j + 1)) (pow y (l + 1))
+          (M_op (prependX i (xCons m r')) s v) =
+        (1 / 2 : ℝ) •
+          (M_op (prependY j (prependX i (xCons m r'))) (yCons l s) v +
+            M_op (prependY l (prependX i (xCons m r'))) (yCons j s) v) ∧
+      U_bilinear (pow y (j + 1)) (pow y (l + 1))
+          (M_op (xCons m r') (xCons i s) v) =
+        (1 / 2 : ℝ) •
+          (M_op (yCons j (xCons m r')) (yCons l (xCons i s)) v +
+            M_op (yCons l (xCons m r')) (yCons j (xCons i s)) v) by
+    have h_same_left := h_same_pair.1
+    have h_same_right := h_same_pair.2
+    simp only [T_apply]
+    rw [ih_x_base]
+    rw [← FJ_U_bilinear_eq]
+    rw [map_smul, map_add]
+    rw [FJ_U_bilinear_eq, FJ_U_bilinear_eq]
+    rw [h_same_left, h_same_right]
+    module
+  suffices h_lower_pair :
+      T (pow y (l - j)) (M_op (prependX i (xCons m r')) s v) =
+        (1 / 2 : ℝ) •
+          (M_op (prependX i (xCons m r')) (yCons (l - j - 1) s) v +
+            M_op (yCons (l - j - 1) (prependX i (xCons m r'))) s v) ∧
+      T (pow y (l - j)) (M_op (xCons m r') (xCons i s) v) =
+        (1 / 2 : ℝ) •
+          (M_op (xCons m r') (yCons (l - j - 1) (xCons i s)) v +
+            M_op (yCons (l - j - 1) (xCons m r')) (xCons i s) v) by
+    constructor
+    · rw [U_bilinear_y_pow_lt_as_U_T j l hjl]
+      rw [h_lower_pair.1]
+      rw [← FJ_U_eq, JordanAlgebra.U_smul_right, JordanAlgebra.U_add_right,
+        FJ_U_eq, FJ_U_eq]
+      rw [show prependY j (prependX i (xCons m r')) =
+        yCons j (prependX i (xCons m r')) from by simp [prependX, prependY]]
+      rw [show prependY l (prependX i (xCons m r')) =
+        yCons l (prependX i (xCons m r')) from by simp [prependX, prependY]]
+      rw [M_op.eq_def (yCons j (prependX i (xCons m r'))) (yCons l s)]
+      rw [M_op.eq_def (yCons l (prependX i (xCons m r'))) (yCons j s)]
+      simp only [ge_iff_le]
+      rw [dif_neg (by omega : ¬ l ≤ j), dif_pos (by omega : j ≤ l)]
+      simp only [show ¬ l = j from by omega, ↓reduceIte]
+    · rw [U_bilinear_y_pow_lt_as_U_T j l hjl]
+      rw [h_lower_pair.2]
+      rw [← FJ_U_eq, JordanAlgebra.U_smul_right, JordanAlgebra.U_add_right,
+        FJ_U_eq, FJ_U_eq]
+      rw [M_op.eq_def (yCons j (xCons m r')) (yCons l (xCons i s))]
+      rw [M_op.eq_def (yCons l (xCons m r')) (yCons j (xCons i s))]
+      simp only [ge_iff_le]
+      rw [dif_neg (by omega : ¬ l ≤ j), dif_pos (by omega : j ≤ l)]
+      simp only [show ¬ l = j from by omega, ↓reduceIte]
+  exact ih_lower_pair
+
+/-- Y-direction weight > 1, `j ≥ l`, with family-shaped obligations. -/
+theorem eq258_yCons_xCons_general_ge_from_families (l j i m : ℕ)
+    (r' s : FreeAssocMono) (hlj : l ≤ j) (hs : s.inY)
+    (ih_swap : Eq258Y l (prependX i (xCons m r')) (yCons j s))
+    (ih_x : Eq258X i (xCons m r') s) (v : FreeJordanAlg) :
+    T (pow y (l + 1)) (M_op (yCons j (xCons m r')) (xCons i s) v) =
+    (1 / 2 : ℝ) • (M_op (yCons (l + 1 + j) (xCons m r')) (xCons i s) v +
+      M_op (yCons j (xCons m r')) (yCons l (xCons i s)) v) := by
+  exact eq258_yCons_xCons_general_ge l j i m r' s hlj
+    (eq258Y_yCons_right_of_eq258Y ih_swap) v
+    (eq258XBaseObligation_of_eq258X hs ih_x)
+
+/-- Y-direction weight > 1, `j < l`, with family-shaped obligations and raw
+    lower-pair facts left explicit. -/
+theorem eq258_yCons_xCons_general_lt_from_families (l j i m : ℕ)
+    (r' s : FreeAssocMono) (hjl : j < l) (hs : s.inY)
+    (ih_swap : Eq258Y l (prependX i (xCons m r')) (yCons j s))
+    (ih_x : Eq258X i (xCons m r') s) (v : FreeJordanAlg)
+    (ih_lower_pair :
+      T (pow y (l - j)) (M_op (prependX i (xCons m r')) s v) =
+        (1 / 2 : ℝ) •
+          (M_op (prependX i (xCons m r')) (yCons (l - j - 1) s) v +
+            M_op (yCons (l - j - 1) (prependX i (xCons m r'))) s v) ∧
+      T (pow y (l - j)) (M_op (xCons m r') (xCons i s) v) =
+        (1 / 2 : ℝ) •
+          (M_op (xCons m r') (yCons (l - j - 1) (xCons i s)) v +
+            M_op (yCons (l - j - 1) (xCons m r')) (xCons i s) v)) :
+    T (pow y (l + 1)) (M_op (yCons j (xCons m r')) (xCons i s) v) =
+    (1 / 2 : ℝ) • (M_op (yCons (l + 1 + j) (xCons m r')) (xCons i s) v +
+      M_op (yCons j (xCons m r')) (yCons l (xCons i s)) v) := by
+  exact eq258_yCons_xCons_general_lt l j i m r' s hjl
+    (eq258Y_yCons_right_of_eq258Y ih_swap) v
+    (eq258XBaseObligation_of_eq258X hs ih_x) ih_lower_pair
+
+/-- Y-direction weight > 1, `j < l`, with all remaining obligations supplied
+    from named theorem-family predicates. -/
+theorem eq258_yCons_xCons_general_lt_from_family_obligations (l j i m : ℕ)
+    (r' s : FreeAssocMono) (hjl : j < l) (hs : s.inY)
+    (ih_swap : Eq258Y l (prependX i (xCons m r')) (yCons j s))
+    (ih_x : Eq258X i (xCons m r') s)
+    (v : FreeJordanAlg)
+    (ih_lower_left : Eq258YRawRight (l - j - 1) (prependX i (xCons m r')) s)
+    (ih_lower_right : Eq258Y (l - j - 1) (xCons m r') (xCons i s)) :
+    T (pow y (l + 1)) (M_op (yCons j (xCons m r')) (xCons i s) v) =
+    (1 / 2 : ℝ) • (M_op (yCons (l + 1 + j) (xCons m r')) (xCons i s) v +
+      M_op (yCons j (xCons m r')) (yCons l (xCons i s)) v) := by
+  have h_right :
+      T (pow y (l - j)) (M_op (xCons m r') (xCons i s) v) =
+        (1 / 2 : ℝ) •
+          (M_op (xCons m r') (yCons (l - j - 1) (xCons i s)) v +
+            M_op (yCons (l - j - 1) (xCons m r')) (xCons i s) v) := by
+    have h := eq258Y_xCons_xCons_lower_of_eq258Y ih_lower_right v
+    simpa [show l - j - 1 + 1 = l - j from by omega] using h
+  have h_left :
+      T (pow y (l - j)) (M_op (prependX i (xCons m r')) s v) =
+        (1 / 2 : ℝ) •
+          (M_op (prependX i (xCons m r')) (yCons (l - j - 1) s) v +
+            M_op (yCons (l - j - 1) (prependX i (xCons m r'))) s v) := by
+    have h := eq258YRawRight_lower_left_of_family ih_lower_left v
+    simpa [show l - j - 1 + 1 = l - j from by omega] using h
+  exact eq258_yCons_xCons_general_lt_from_families l j i m r' s hjl hs ih_swap ih_x v
+    ⟨h_left, h_right⟩
+
+/-- Combined y-direction weight > 1 yCons/xCons adapter. -/
+theorem eq258_yCons_xCons_general_from_family_obligations (l j i m : ℕ)
+    (r' s : FreeAssocMono) (hs : s.inY)
+    (ih_swap : Eq258Y l (prependX i (xCons m r')) (yCons j s))
+    (ih_x : Eq258X i (xCons m r') s)
+    (ih_lower_left :
+      j < l → Eq258YRawRight (l - j - 1) (prependX i (xCons m r')) s)
+    (ih_lower_right : j < l → Eq258Y (l - j - 1) (xCons m r') (xCons i s))
+    (v : FreeJordanAlg) :
+    T (pow y (l + 1)) (M_op (yCons j (xCons m r')) (xCons i s) v) =
+    (1 / 2 : ℝ) • (M_op (yCons (l + 1 + j) (xCons m r')) (xCons i s) v +
+      M_op (yCons j (xCons m r')) (yCons l (xCons i s)) v) := by
+  by_cases hlj : l ≤ j
+  · exact eq258_yCons_xCons_general_ge_from_families l j i m r' s hlj hs ih_swap ih_x v
+  · have hjl : j < l := Nat.lt_of_not_ge hlj
+    exact eq258_yCons_xCons_general_lt_from_family_obligations l j i m r' s hjl hs
+      ih_swap ih_x v (ih_lower_left hjl) (ih_lower_right hjl)
+
+/-- Driver-ready y-direction constructor case:
+    `p = yCons j (xCons m r')`, `q = xCons i s`. -/
+theorem eq258Y_yCons_xCons_from_driverIH (l j i m : ℕ) (r' s : FreeAssocMono)
+    (hs : s.inY)
+    (hIH : Eq258DriverIH ((yCons j (xCons m r')).weight + (xCons i s).weight)) :
+    Eq258Y l (yCons j (xCons m r')) (xCons i s) := by
+  intro v
+  have h_swap_weight :
+      (prependX i (xCons m r')).weight + (yCons j s).weight <
+        (yCons j (xCons m r')).weight + (xCons i s).weight := by
+    simp [prependX]
+  have h_x_weight :
+      (xCons m r').weight + s.weight <
+        (yCons j (xCons m r')).weight + (xCons i s).weight := by
+    simp
+    omega
+  have h_lower_left_weight :
+      (prependX i (xCons m r')).weight + s.weight <
+        (yCons j (xCons m r')).weight + (xCons i s).weight := by
+    simp [prependX]
+    omega
+  have h_lower_right_weight :
+      (xCons m r').weight + (xCons i s).weight <
+        (yCons j (xCons m r')).weight + (xCons i s).weight := by
+    simp
+  simpa [Eq258Y, prependY] using
+    eq258_yCons_xCons_general_from_family_obligations l j i m r' s hs
+      (hIH.y l (prependX i (xCons m r')) (yCons j s) h_swap_weight)
+      (hIH.x i (xCons m r') s h_x_weight)
+      (fun _ =>
+        hIH.rawRightY (l - j - 1) (prependX i (xCons m r')) s h_lower_left_weight)
+      (fun _ =>
+        hIH.y (l - j - 1) (xCons m r') (xCons i s) h_lower_right_weight)
+      v
+
 /-- (2.58) weight > 1, i ≥ k case: T_{x^{k+1}} M_{x^{i+1}·(y^m·r'), y^{j+1}·s}.
     H-O lines 1346-1367. Proof structure:
     1. Expand LHS via (2.59) = M_op recurrence
