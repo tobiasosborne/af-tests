@@ -99,12 +99,20 @@
   - Added `M_op_U_bilinear_one_xCons` and `M_op_U_bilinear_one_yCons`, the
     pure/long counterparts to the existing different-letter `M_op_U_bilinear_*`
     rearrangements.
-  - Proved the `i ≥ k` / `j ≥ l` halves:
-    `eq258_xCons_one_yCons_xCons_ge` and
-    `eq258_yCons_one_xCons_yCons_ge`.
-  - Added driver-ready wrappers:
-    `eq258X_xCons_one_yCons_xCons_ge_from_driverIH` and
-    `eq258Y_yCons_one_xCons_yCons_ge_from_driverIH`.
+  - Proved both halves of the x and y pure/long branches:
+    `eq258_xCons_one_yCons_xCons_ge`,
+    `eq258_xCons_one_yCons_xCons_lt`,
+    `eq258_yCons_one_xCons_yCons_ge`, and
+    `eq258_yCons_one_xCons_yCons_lt`.
+  - Added driver-ready combined wrappers:
+    `eq258X_xCons_one_yCons_xCons_from_driverIH` and
+    `eq258Y_yCons_one_xCons_yCons_from_driverIH`.
+  - Added the long swap bridge lemmas:
+    `eq258X_yCons_xCons_xCons_one_from_driverIH_comm` and
+    `eq258Y_xCons_yCons_yCons_one_from_driverIH_comm`. These apply the new
+    swapped pure/long Eq258 branches through `Eq258X_of_swapped_comm` /
+    `Eq258Y_of_swapped_comm`, leaving only the recursive `M_op` symmetry facts
+    required by the reducer lemmas.
 
 ## Current State
 - Build status: passing (`lake build AfTests 2>&1 | tail -40`, 1915 jobs).
@@ -121,34 +129,38 @@
   - The H-O symmetry path is now formalized as a bridge plus lower-commutativity
     reducers. The next missing ingredient is an induction package proving the
     required lower `M_op` symmetry facts for well-formed boundary shapes, then
-    feeding them through `Eq258X_of_swapped_comm` / `Eq258Y_of_swapped_comm`.
-  - The swapped pure/long branch is now done in the easy `≥` case on both x and
-    y sides. The `<` case remains and should mirror the already-proven
-    `eq258_xCons_yCons_general_lt` / `eq258_yCons_xCons_general_lt` pattern,
-    with lower raw-right facts for the pure/long shapes.
-  - In the `<` helpers, the left lower-pair facts are named as `Eq258XRawRight` /
-    `Eq258YRawRight`. This keeps the existing proof honest: the helper algebra needs
-    the unnormalized products `xCons (k - i - 1) q` and `yCons (l - j - 1) q`, not
-    `prependX` / `prependY`.
+    feeding them to
+    `eq258X_yCons_xCons_xCons_one_from_driverIH_comm` /
+    `eq258Y_xCons_yCons_yCons_one_from_driverIH_comm`.
+  - In the `<` helpers, the pure/long first lower-pair facts must be ordinary
+    `Eq258X` / `Eq258Y`, not raw-right variants, because the right argument
+    starts with the same generator and the prepend must merge.
   - Current `bd` embedded Dolt store is empty; old issue data lives in `.beads/issues.jsonl`.
+  - Attempted to file a P1 follow-up bead for the boundary symmetry package, but
+    `bd create` failed because `issue_prefix` is not configured in the current
+    embedded database.
 
 ## Next Steps (Priority Order)
 1. Prove the lower `M_op` symmetry package for well-formed boundary shapes
-   exposed by the new `_comm_of` lemmas, then instantiate the long swap fields
-   required by `Eq258DriverWFLayer`.
-2. Finish the `<` halves of the swapped pure/long boundary branch:
-   `Eq258X k (xCons i one) (yCons j (xCons l r))` for `i < k`, and the y-side
-   mirror for `j < l`.
-3. Build the recursive simultaneous induction over the new layer, reusing
+   exposed by the new `_comm_of` lemmas, then use the new long swap bridge
+   lemmas to instantiate the fields required by `Eq258DriverWFLayer`.
+2. Build the recursive simultaneous induction over the new layer, reusing
    `Eq258DriverIH` for strict total-weight decreases.
-4. Migrate or restore the old JSONL Beads so `bd ready` reflects the historical issue queue.
+3. Migrate or restore the old JSONL Beads so `bd ready` reflects the historical issue queue.
 
 ## Known Issues / Gotchas
 - Always read `examples3/Jordan Operator Algebras/joa-m/joa-m.md` before Macdonald work.
 - Use `lake build AfTests 2>&1 | tail -40`, not bare `lake build`.
 - `M_op.eq_def` can loop under broad `simp`; prefer targeted rewrites.
+- For the long swap fields, do not try to prove total-syntax `M_op` symmetry.
+  The non-well-formed branches of `M_op` are deliberately totalized and can
+  behave differently. Keep the symmetry induction restricted to the H-O
+  well-formed boundary shapes.
 - `bd ready` currently reports no open issues, but `bd show af-0llu` hit an embedded
   Dolt exclusive-lock error in this session. Do not assume Beads state is complete.
+- `bd create` currently fails with `database not initialized: issue_prefix config
+  is missing`; do not initialize a new prefix until the old JSONL/Dolt state has
+  been reconciled.
 - `Eq258YBaseObligation` is intentionally an assumption to the x-direction helpers. It
   records a real y-direction induction obligation rather than hiding it behind a local sorry.
 - `prependY_of_inX` and `prependX_of_inY` already exist in `MonoBlock.lean`; use them
