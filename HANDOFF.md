@@ -95,6 +95,16 @@
     `M_op_yCons_one_yCons_xCons_yCons_comm_of`.
     These deliberately take lower symmetry facts as hypotheses rather than
     claiming false total-syntax commutativity for non-well-formed branches.
+- Advanced the swapped pure/long boundary branch needed by the long symmetry path:
+  - Added `M_op_U_bilinear_one_xCons` and `M_op_U_bilinear_one_yCons`, the
+    pure/long counterparts to the existing different-letter `M_op_U_bilinear_*`
+    rearrangements.
+  - Proved the `i ≥ k` / `j ≥ l` halves:
+    `eq258_xCons_one_yCons_xCons_ge` and
+    `eq258_yCons_one_xCons_yCons_ge`.
+  - Added driver-ready wrappers:
+    `eq258X_xCons_one_yCons_xCons_ge_from_driverIH` and
+    `eq258Y_yCons_one_xCons_yCons_ge_from_driverIH`.
 
 ## Current State
 - Build status: passing (`lake build AfTests 2>&1 | tail -40`, 1915 jobs).
@@ -112,6 +122,10 @@
     reducers. The next missing ingredient is an induction package proving the
     required lower `M_op` symmetry facts for well-formed boundary shapes, then
     feeding them through `Eq258X_of_swapped_comm` / `Eq258Y_of_swapped_comm`.
+  - The swapped pure/long branch is now done in the easy `≥` case on both x and
+    y sides. The `<` case remains and should mirror the already-proven
+    `eq258_xCons_yCons_general_lt` / `eq258_yCons_xCons_general_lt` pattern,
+    with lower raw-right facts for the pure/long shapes.
   - In the `<` helpers, the left lower-pair facts are named as `Eq258XRawRight` /
     `Eq258YRawRight`. This keeps the existing proof honest: the helper algebra needs
     the unnormalized products `xCons (k - i - 1) q` and `yCons (l - j - 1) q`, not
@@ -122,9 +136,12 @@
 1. Prove the lower `M_op` symmetry package for well-formed boundary shapes
    exposed by the new `_comm_of` lemmas, then instantiate the long swap fields
    required by `Eq258DriverWFLayer`.
-2. Build the recursive simultaneous induction over the new layer, reusing
+2. Finish the `<` halves of the swapped pure/long boundary branch:
+   `Eq258X k (xCons i one) (yCons j (xCons l r))` for `i < k`, and the y-side
+   mirror for `j < l`.
+3. Build the recursive simultaneous induction over the new layer, reusing
    `Eq258DriverIH` for strict total-weight decreases.
-3. Migrate or restore the old JSONL Beads so `bd ready` reflects the historical issue queue.
+4. Migrate or restore the old JSONL Beads so `bd ready` reflects the historical issue queue.
 
 ## Known Issues / Gotchas
 - Always read `examples3/Jordan Operator Algebras/joa-m/joa-m.md` before Macdonald work.
