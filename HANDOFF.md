@@ -167,53 +167,53 @@
   - Added `eq258X_xCons_yCons_from_longBranchIH` and
     `eq258Y_yCons_xCons_from_longBranchIH`; the legacy
     `..._from_driverIH` wrappers now delegate through the H-O-shaped package.
+- Began the direct H-O recurrence migration requested after rereading
+  `joa-m.md` lines 1258-1266 and 1326-1377:
+  - Changed the different-letter `M_op` recurrence in `MOperator.lean` so the
+    second recursive argument uses concatenation (`prependX`/`prependY`) rather
+    than raw `xCons`/`yCons`, matching H-O (2.55a,b).
+  - Added `weight_prependX`, `weight_prependY`, `prependX_prependX`, and
+    `prependY_prependY` in `MonoBlock.lean` for termination and concatenation
+    normalization.
+  - Updated `MOperatorProperties.lean` recurrence/property (iv) statements to
+    the concatenated form; `lake build AfTests.Jordan.Macdonald.MOperatorProperties`
+    passes.
+  - Started migrating `Equation258.lean` lower-left/raw-right and long-branch
+    helper interfaces from raw right constructors to `prependX`/`prependY`.
 
 ## Current State
-- Build status: passing (`lake build AfTests 2>&1 | tail -40`, 1915 jobs).
-- Sorry count: 8 actual sorries across `AfTests`.
-- `Equation258.lean`: sorry-free.
+- Build status: failing in `AfTests/Jordan/Macdonald/Equation258.lean` during
+  the in-progress H-O recurrence migration.
+- Passing checkpoint: `lake build AfTests.Jordan.Macdonald.MOperatorProperties`
+  succeeds after the `M_op` recurrence and property-layer changes.
+- Failing checkpoint: `lake env lean AfTests/Jordan/Macdonald/Equation258.lean`
+  currently fails in the long `i < k` / `j < l` helper migration. The remaining
+  errors are interface/algebra mismatches where some internal statements still
+  mention raw `xCons`/`yCons` terms but the corrected recurrence now produces
+  nested `prependX`/`prependY` terms.
+- Sorry count: `Equation258.lean` still has no introduced `sorry`, `admit`,
+  `axiom`, or `unsafe` source edits; this session did not add any sneaky axiom.
 - Open blockers:
-  - Eq(2.58) still needs the global recursive driver itself: a case split over
-    `FreeAssocMono` shapes that constructs the `x`, `y`, `rawRight`, and
-    `rawRightY` fields of `Eq258DriverIH`.
-  - The main weight>1 x/y constructors, one-argument boundary constructors, and
-    the same-weight long boundary swaps now all have driver-IH-ready theorems;
-    the well-formed x/y family dispatchers collect those cases behind one call.
-    The previous `Eq258DriverWFLayer` blocker is resolved by
-    `Eq258DriverWFLayer.of_driverIH`.
-  - Raw-right remains the main technical issue. Direct right-start same-letter
-    raw facts such as `Eq258XRawRight k one (xCons i one)` and the pure cross
-    variant `Eq258XRawRight k (yCons j one) (xCons i one)` are not safe
-    induction hypotheses: targeted unfolding exposes the total-syntax non-WF
-    fallback clauses rather than H-O theorem instances. The long `<` branch
-    now consumes local lower-left obligations, but the final driver still needs
-    a proof source for those obligations that does not assume broad raw-right.
-  - `Eq258LongBranchIH` is now the preferred target for the long constructor
-    branch. Treat the older broad `Eq258DriverIH.rawRight` fields as legacy
-    compatibility, not as the mathematical source of the final proof.
-  - In the `<` helpers, the pure/long first lower-pair facts must be ordinary
-    `Eq258X` / `Eq258Y`, not raw-right variants, because the right argument
-    starts with the same generator and the prepend must merge.
-  - Current `bd` embedded Dolt store is empty; old issue data lives in `.beads/issues.jsonl`.
-  - Attempted to file a P1 follow-up bead for the boundary symmetry package, but
-    `bd create` failed because `issue_prefix` is not configured in the current
-    embedded database.
+  - Finish the `Equation258.lean` migration from raw right constructors to
+    H-O concatenated terms. The affected area is the long branch around the
+    y-side helpers near lines 3100-3450 and x-side helpers near 3550-3950.
+  - The final driver still needs the global recursive case split, but that
+    should wait until the H-O recurrence migration compiles.
+  - Current `bd` embedded Dolt store reports no open issues but still has
+    runtime state dirty under `.beads`; do not stage `.beads` runtime files.
 
 ## Next Steps (Priority Order)
-1. Replace the remaining prospective final-driver dependence on broad
+1. Make `Equation258.lean` compile with the corrected H-O recurrence. Do not
+   revert the `MOperator.lean` recurrence unless explicitly abandoning the
+   Hanche-Olsen alignment.
+2. In the long branch helpers, consistently use `Eq258X/Y` swapped facts for
+   `prependX i s` / `prependY j s`, and use `prependX_prependX` /
+   `prependY_prependY` to normalize nested concatenations.
+3. Replace the remaining prospective final-driver dependence on broad
    `Eq258DriverIH.rawRight` with H-O-shaped packages such as
    `Eq258DriverWFCore` and `Eq258LongBranchIH`.
-2. Find the real proof source for `Eq258XLowerLeft` / `Eq258YLowerLeft` in the
-   long `<` branches, or further refactor the algebra so those local obligations
-   are discharged by ordinary Eq258 facts plus `M_op` same-letter rewrites.
-3. Build the recursive simultaneous induction step using the driver-ready
-   constructor, boundary, and well-formed dispatcher wrappers now in place,
-   but keep it side-conditioned as in H-O rather than total-syntax raw-right.
-4. During the driver case split, expect to add a few small adapters for
-   total-syntax cases such as `one / xCons ...` in the x-family or
-   `one / yCons ...` in the y-family if they are demanded by `Eq258DriverIH`.
-   The raw-right fields are likely the remaining awkward part because their
-   unmerged right argument is not always convertible from ordinary `Eq258X/Y`.
+4. Build the recursive simultaneous induction step only after the corrected
+   long-branch interface compiles.
 5. Migrate or restore the old JSONL Beads so `bd ready` reflects the historical issue queue.
 
 ## Known Issues / Gotchas
@@ -237,8 +237,17 @@
   records a real y-direction induction obligation rather than hiding it behind a local sorry.
 - `prependY_of_inX` and `prependX_of_inY` already exist in `MonoBlock.lean`; use them
   for side-condition conversions.
+- `prependX_prependX` / `prependY_prependY` are now available for nested H-O
+  concatenation. Use them before algebraic `module`/`abel_nf` steps.
+- After correcting (2.55), ordinary helper adapters like
+  `eq258X_xCons_right_of_eq258X` and `eq258Y_yCons_right_of_eq258Y` may be too
+  raw for swapped long-branch terms. Prefer direct `Eq258X`/`Eq258Y` facts on
+  `prependX i s` / `prependY j s`.
 - Do not stage `.beads` runtime/Dolt files unless explicitly working on Beads migration.
 
 ## Files Modified
 - `AfTests/Jordan/Macdonald/Equation258.lean`
+- `AfTests/Jordan/Macdonald/MOperator.lean`
+- `AfTests/Jordan/Macdonald/MOperatorProperties.lean`
+- `AfTests/Jordan/Macdonald/MonoBlock.lean`
 - `HANDOFF.md`

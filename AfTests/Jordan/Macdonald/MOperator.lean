@@ -80,7 +80,7 @@ noncomputable def M_op : FreeAssocMono → FreeAssocMono → FreeJordanAlg → F
     -- Use prependY to merge y-blocks: y^j·(y^k·rp') = y^{j+k+1}·rp' (lower weight)
     (2 : ℝ) • U_bilinear (pow x (i + 1)) (pow y (j + 1))
         (M_op (.yCons k rp') rq v)
-      - M_op (prependY j (.yCons k rp')) (.xCons i rq) v
+      - M_op (prependY j (.yCons k rp')) (prependX i rq) v
   | .xCons i (.xCons _l _rp'), .yCons _j _rq, v =>
     -- Non-WF: consecutive x-blocks in first arg. Return v for totality.
     v
@@ -90,7 +90,7 @@ noncomputable def M_op : FreeAssocMono → FreeAssocMono → FreeJordanAlg → F
     -- Use prependX to merge x-blocks: x^i·(x^l·rq') = x^{i+l+1}·rq' (lower weight)
     (2 : ℝ) • U_bilinear (pow y (j + 1)) (pow x (i + 1))
         (M_op (.xCons l rq') rp v)
-      - M_op (prependX i (.xCons l rq')) (.yCons j rp) v
+      - M_op (prependX i (.xCons l rq')) (prependY j rp) v
   | .yCons _j (.yCons _k _rq'), .xCons _i _rp, v =>
     -- Non-WF: consecutive y-blocks in first arg. Return v for totality.
     v
@@ -203,9 +203,11 @@ decreasing_by
   all_goals
     try simp only [FreeAssocMono.weight_xCons, FreeAssocMono.weight_yCons,
       FreeAssocMono.weight_one, FreeAssocMono.prependY, FreeAssocMono.prependX]
+    repeat' split
     try split_ifs
   all_goals
-    try simp only [FreeAssocMono.weight_xCons, FreeAssocMono.weight_yCons]
+    try simp only [FreeAssocMono.weight_xCons, FreeAssocMono.weight_yCons,
+      FreeAssocMono.weight_one]
     rw [Prod.lex_def]
     first
     | left; omega

@@ -723,13 +723,12 @@ def Eq258X (k : ℕ) (p q : FreeAssocMono) : Prop :=
     T (pow x (k + 1)) (M_op p q v) =
       (1 / 2 : ℝ) • (M_op (prependX k p) q v + M_op p (prependX k q) v)
 
-/-- X-direction helper-family where the right multiplication is intentionally
-    left unmerged as `xCons k q`. This is the raw shape produced by the current
-    `M_op` recurrence helpers in the reversed-orientation lower-pair branch. -/
+/-- X-direction helper-family in the concatenated form used by H-O (2.58).
+    This is the right-oriented display of the ordinary x-family. -/
 def Eq258XRawRight (k : ℕ) (p q : FreeAssocMono) : Prop :=
   ∀ v : FreeJordanAlg,
     T (pow x (k + 1)) (M_op p q v) =
-      (1 / 2 : ℝ) • (M_op p (xCons k q) v + M_op (xCons k p) q v)
+      (1 / 2 : ℝ) • (M_op p (prependX k q) v + M_op (prependX k p) q v)
 
 /-- Y-direction companion to H-O (2.58), obtained by swapping `x` and `y`.
     The side conditions `p ∈ Y`, `q ∈ X` are tracked by the callers. -/
@@ -738,28 +737,26 @@ def Eq258Y (j : ℕ) (p q : FreeAssocMono) : Prop :=
     T (pow y (j + 1)) (M_op p q v) =
       (1 / 2 : ℝ) • (M_op (prependY j p) q v + M_op p (prependY j q) v)
 
-/-- Y-direction helper-family where the right multiplication is intentionally
-    left unmerged as `yCons j q`, symmetric to `Eq258XRawRight`. -/
+/-- Y-direction helper-family in the concatenated form used by H-O (2.58),
+    symmetric to `Eq258XRawRight`. -/
 def Eq258YRawRight (j : ℕ) (p q : FreeAssocMono) : Prop :=
   ∀ v : FreeJordanAlg,
     T (pow y (j + 1)) (M_op p q v) =
-      (1 / 2 : ℝ) • (M_op p (yCons j q) v + M_op (yCons j p) q v)
+      (1 / 2 : ℝ) • (M_op p (prependY j q) v + M_op (prependY j p) q v)
 
 /-- Local x-direction lower-left obligation consumed by the `i < k` long
     constructor algebra. This has the same displayed equation as
-    `Eq258XRawRight`, but it is intentionally not a global theorem-family field:
-    some total-syntax right-start same-letter instances are not H-O theorem
-    instances and should not be demanded from the final induction package. -/
+    `Eq258XRawRight`, but it is intentionally not a global theorem-family field. -/
 def Eq258XLowerLeft (k : ℕ) (p q : FreeAssocMono) : Prop :=
   ∀ v : FreeJordanAlg,
     T (pow x (k + 1)) (M_op p q v) =
-      (1 / 2 : ℝ) • (M_op p (xCons k q) v + M_op (xCons k p) q v)
+      (1 / 2 : ℝ) • (M_op p (prependX k q) v + M_op (prependX k p) q v)
 
 /-- Local y-direction lower-left obligation, symmetric to `Eq258XLowerLeft`. -/
 def Eq258YLowerLeft (j : ℕ) (p q : FreeAssocMono) : Prop :=
   ∀ v : FreeJordanAlg,
     T (pow y (j + 1)) (M_op p q v) =
-      (1 / 2 : ℝ) • (M_op p (yCons j q) v + M_op (yCons j p) q v)
+      (1 / 2 : ℝ) • (M_op p (prependY j q) v + M_op (prependY j p) q v)
 
 /-- Weight-indexed induction package for the eventual simultaneous Eq(2.58)
     driver. It ranges over the total `FreeAssocMono` syntax, not just WF inputs,
@@ -814,8 +811,8 @@ raw-right theorem family over total syntax. -/
 structure Eq258LongBranchIH (n : ℕ) : Prop where
   xSwap :
     ∀ (k i j m : ℕ) (r' s : FreeAssocMono),
-      (prependY j (yCons m r')).weight + (xCons i s).weight < n →
-        Eq258X k (prependY j (yCons m r')) (xCons i s)
+      (prependY j (yCons m r')).weight + (prependX i s).weight < n →
+        Eq258X k (prependY j (yCons m r')) (prependX i s)
   xYBase :
     ∀ (j m : ℕ) (r' s : FreeAssocMono),
       (yCons m r').weight + s.weight < n → Eq258Y j (yCons m r') s
@@ -829,8 +826,8 @@ structure Eq258LongBranchIH (n : ℕ) : Prop where
         Eq258X k (yCons m r') (yCons j s)
   ySwap :
     ∀ (l j i m : ℕ) (r' s : FreeAssocMono),
-      (prependX i (xCons m r')).weight + (yCons j s).weight < n →
-        Eq258Y l (prependX i (xCons m r')) (yCons j s)
+      (prependX i (xCons m r')).weight + (prependY j s).weight < n →
+        Eq258Y l (prependX i (xCons m r')) (prependY j s)
   yXBase :
     ∀ (i m : ℕ) (r' s : FreeAssocMono),
       (xCons m r').weight + s.weight < n → Eq258X i (xCons m r') s
@@ -848,12 +845,12 @@ structure Eq258LongBranchIH (n : ℕ) : Prop where
     `Eq258LongBranchIH` directly. -/
 theorem Eq258LongBranchIH.of_driverIH {n : ℕ} (hIH : Eq258DriverIH n) :
     Eq258LongBranchIH n where
-  xSwap := fun k i j m r' s hlt => hIH.x k (prependY j (yCons m r')) (xCons i s) hlt
+  xSwap := fun k i j m r' s hlt => hIH.x k (prependY j (yCons m r')) (prependX i s) hlt
   xYBase := fun j m r' s hlt => hIH.y j (yCons m r') s hlt
   xLowerLeft := fun k j m r' s hlt =>
     fun v => hIH.rawRight k (prependY j (yCons m r')) s hlt v
   xLowerRight := fun k j m r' s hlt => hIH.x k (yCons m r') (yCons j s) hlt
-  ySwap := fun l j i m r' s hlt => hIH.y l (prependX i (xCons m r')) (yCons j s) hlt
+  ySwap := fun l j i m r' s hlt => hIH.y l (prependX i (xCons m r')) (prependY j s) hlt
   yXBase := fun i m r' s hlt => hIH.x i (xCons m r') s hlt
   yLowerLeft := fun l i m r' s hlt =>
     fun v => hIH.rawRightY l (prependX i (xCons m r')) s hlt v
@@ -959,7 +956,7 @@ theorem eq258XRawRight_lower_left_of_family {k : ℕ} {p q : FreeAssocMono}
     (h : Eq258XRawRight k p q) :
     ∀ v : FreeJordanAlg,
       T (pow x (k + 1)) (M_op p q v) =
-        (1 / 2 : ℝ) • (M_op p (xCons k q) v + M_op (xCons k p) q v) := by
+        (1 / 2 : ℝ) • (M_op p (prependX k q) v + M_op (prependX k p) q v) := by
   intro v
   exact h v
 
@@ -971,6 +968,21 @@ theorem Eq258XLowerLeft.of_rawRight {k : ℕ} {p q : FreeAssocMono}
     Eq258XLowerLeft k p q := by
   intro v
   exact h v
+
+/-- Build the local x lower-left obligation from the ordinary swapped Eq(2.58)
+    branch, plus the explicit `M_op` symmetry/normalization facts needed to
+    rewrite H-O's concatenated terms into the orientation used by this local
+    lower-left branch. -/
+theorem Eq258XLowerLeft.of_swapped_eq258X_comm {k : ℕ} {p q : FreeAssocMono}
+    (h : Eq258X k q p)
+    (h_pq : ∀ v : FreeJordanAlg, M_op p q v = M_op q p v)
+    (h_left : ∀ v : FreeJordanAlg, M_op (prependX k p) q v = M_op q (prependX k p) v)
+    (h_right : ∀ v : FreeJordanAlg, M_op p (prependX k q) v = M_op (prependX k q) p v) :
+    Eq258XLowerLeft k p q := by
+  intro v
+  rw [h_pq]
+  rw [h]
+  rw [← h_right, ← h_left]
 
 /-- Convert the ordinary x-family to the raw-right x-family when both arguments
     lie in `Y`, so neither x-prepend merges. -/
@@ -1009,7 +1021,7 @@ theorem eq258YRawRight_lower_left_of_family {j : ℕ} {p q : FreeAssocMono}
     (h : Eq258YRawRight j p q) :
     ∀ v : FreeJordanAlg,
       T (pow y (j + 1)) (M_op p q v) =
-        (1 / 2 : ℝ) • (M_op p (yCons j q) v + M_op (yCons j p) q v) := by
+        (1 / 2 : ℝ) • (M_op p (prependY j q) v + M_op (prependY j p) q v) := by
   intro v
   exact h v
 
@@ -1020,6 +1032,20 @@ theorem Eq258YLowerLeft.of_rawRight {j : ℕ} {p q : FreeAssocMono}
     Eq258YLowerLeft j p q := by
   intro v
   exact h v
+
+/-- Y-side analogue of `Eq258XLowerLeft.of_swapped_eq258X_comm`. It converts
+    the swapped ordinary Eq(2.58) branch into the local lower-left obligation,
+    with all needed `M_op` symmetry/normalization facts kept explicit. -/
+theorem Eq258YLowerLeft.of_swapped_eq258Y_comm {j : ℕ} {p q : FreeAssocMono}
+    (h : Eq258Y j q p)
+    (h_pq : ∀ v : FreeJordanAlg, M_op p q v = M_op q p v)
+    (h_left : ∀ v : FreeJordanAlg, M_op (prependY j p) q v = M_op q (prependY j p) v)
+    (h_right : ∀ v : FreeJordanAlg, M_op p (prependY j q) v = M_op (prependY j q) p v) :
+    Eq258YLowerLeft j p q := by
+  intro v
+  rw [h_pq]
+  rw [h]
+  rw [← h_right, ← h_left]
 
 /-- Convert the ordinary y-family to the raw-right y-family when both arguments
     lie in `X`, so neither y-prepend merges. -/
@@ -1034,30 +1060,23 @@ theorem eq258YRawRight_of_eq258Y_of_inX {j : ℕ} {p q : FreeAssocMono}
 
 theorem eq258XRawRight_one_one (k : ℕ) : Eq258XRawRight k one one := by
   intro v
-  simp only [M_op.eq_def, T_apply]
-  rw [← two_smul ℝ (mul (pow x (k + 1)) v), smul_smul]
-  norm_num
+  simpa [Eq258XRawRight, prependX, add_comm] using eq258_one_one k v
 
 theorem eq258XRawRight_yCons_one_one (k j : ℕ) :
     Eq258XRawRight k (yCons j one) one := by
   intro v
-  simp only [M_op.eq_def, T_apply, U_bilinear_apply]
-  conv_rhs =>
-    rw [show mul (pow y (j + 1)) (pow x (k + 1)) =
-      mul (pow x (k + 1)) (pow y (j + 1)) from FreeJordanAlg.mul_comm _ _]
-  simp only [smul_add, smul_sub, smul_smul]
-  norm_num
+  simpa [Eq258XRawRight, prependX, add_comm] using eq258_yCons_one k j v
 
 theorem eq258YRawRight_one_one (j : ℕ) : Eq258YRawRight j one one := by
   intro v
-  simp only [M_op.eq_def, T_apply]
+  simp only [Eq258YRawRight, prependY, M_op.eq_def, T_apply]
   rw [← two_smul ℝ (mul (pow y (j + 1)) v), smul_smul]
   norm_num
 
 theorem eq258YRawRight_xCons_one_one (j i : ℕ) :
     Eq258YRawRight j (xCons i one) one := by
   intro v
-  simp only [M_op.eq_def, T_apply, U_bilinear_apply]
+  simp only [Eq258YRawRight, prependY, M_op.eq_def, T_apply, U_bilinear_apply]
   conv_rhs =>
     rw [show mul (pow x (i + 1)) (pow y (j + 1)) =
       mul (pow y (j + 1)) (pow x (i + 1)) from FreeJordanAlg.mul_comm _ _]
@@ -1401,7 +1420,7 @@ theorem eq259_xCons_yCons (i j m : ℕ) (r' : FreeAssocMono)
     M_op (xCons i (yCons m r')) (yCons j s) v =
     (2 : ℝ) • U_bilinear (pow x (i + 1)) (pow y (j + 1))
         (M_op (yCons m r') s v)
-      - M_op (prependY j (yCons m r')) (xCons i s) v :=
+      - M_op (prependY j (yCons m r')) (prependX i s) v :=
   M_op_xCons_yCons_yCons i m r' j s v
 
 /-- Symmetric form of (2.59): M_op recurrence for yCons-xCons with xCons tail. -/
@@ -1410,7 +1429,7 @@ theorem eq259_yCons_xCons (j i m : ℕ) (r' : FreeAssocMono)
     M_op (yCons j (xCons m r')) (xCons i s) v =
     (2 : ℝ) • U_bilinear (pow y (j + 1)) (pow x (i + 1))
         (M_op (xCons m r') s v)
-      - M_op (prependX i (xCons m r')) (yCons j s) v :=
+      - M_op (prependX i (xCons m r')) (prependY j s) v :=
   M_op_yCons_xCons_xCons j m r' i s v
 
 /-- Boundary form of (2.59) from H-O (2.56a): second argument is `1`. -/
@@ -3099,9 +3118,9 @@ theorem eq258Y_yCons_xCons_one_from_driverIH (l j m : ℕ) (r' : FreeAssocMono)
 theorem eq258_yCons_xCons_general_ge (l j i m : ℕ) (r' : FreeAssocMono)
     (s : FreeAssocMono) (hlj : l ≤ j)
     (ih_swap : ∀ v, T (pow y (l + 1))
-        (M_op (prependX i (xCons m r')) (yCons j s) v) =
-      (1 / 2 : ℝ) • (M_op (prependY l (prependX i (xCons m r'))) (yCons j s) v
-        + M_op (prependX i (xCons m r')) (yCons (l + 1 + j) s) v))
+        (M_op (prependX i (xCons m r')) (prependY j s) v) =
+      (1 / 2 : ℝ) • (M_op (prependY l (prependX i (xCons m r'))) (prependY j s) v
+        + M_op (prependX i (xCons m r')) (prependY l (prependY j s)) v))
     (v : FreeJordanAlg)
     (ih_x_base : Eq258XBaseObligation i m r' s v) :
     T (pow y (l + 1)) (M_op (yCons j (xCons m r')) (xCons i s) v) =
@@ -3136,18 +3155,19 @@ theorem eq258_yCons_xCons_general_ge (l j i m : ℕ) (r' : FreeAssocMono)
   rw [M_op_U_bilinear_xCons i (l + 1 + j) m r' s v]
   suffices h_key : U (pow y (l + 1))
       (U_bilinear (pow y (j - l)) (pow x (i + 1)) (M_op (xCons m r') s v)) =
-    (1 / 2 : ℝ) • (M_op (prependY l (prependX i (xCons m r'))) (yCons j s) v +
+    (1 / 2 : ℝ) • (M_op (prependY l (prependX i (xCons m r'))) (prependY j s) v +
       M_op (yCons j (xCons m r')) (yCons l (xCons i s)) v) by
     suffices h_mod :
-        (1 / 2 : ℝ) • (M_op (prependY l (prependX i (xCons m r'))) (yCons j s) v +
+        (1 / 2 : ℝ) • (M_op (prependY l (prependX i (xCons m r'))) (prependY j s) v +
           M_op (yCons j (xCons m r')) (yCons l (xCons i s)) v) +
         (1 / 2 : ℝ) • (M_op (yCons (l + 1 + j) (xCons m r')) (xCons i s) v +
-          M_op (prependX i (xCons m r')) (yCons (l + 1 + j) s) v) -
-        (1 / 2 : ℝ) • (M_op (prependY l (prependX i (xCons m r'))) (yCons j s) v +
-          M_op (prependX i (xCons m r')) (yCons (l + 1 + j) s) v) =
+          M_op (prependX i (xCons m r')) (prependY (l + 1 + j) s) v) -
+        (1 / 2 : ℝ) • (M_op (prependY l (prependX i (xCons m r'))) (prependY j s) v +
+          M_op (prependX i (xCons m r')) (prependY l (prependY j s)) v) =
       (1 / 2 : ℝ) • (M_op (yCons (l + 1 + j) (xCons m r')) (xCons i s) v +
         M_op (yCons j (xCons m r')) (yCons l (xCons i s)) v) by
       rw [h_key]; exact h_mod
+    rw [prependY_prependY]
     module
   by_cases hlj' : j = l
   · subst j
@@ -3155,8 +3175,8 @@ theorem eq258_yCons_xCons_general_ge (l j i m : ℕ) (r' : FreeAssocMono)
     rw [ih_x_base]
     rw [show prependY l (prependX i (xCons m r')) =
       yCons l (prependX i (xCons m r')) from rfl]
-    rw [M_op_yCons_yCons l (prependX i (xCons m r')) s v,
-        M_op_yCons_yCons l (xCons m r') (xCons i s) v]
+    rw [← M_op_U_prependY l (prependX i (xCons m r')) s v,
+        ← M_op_U_prependY l (xCons m r') (xCons i s) v]
     rw [← FJ_U_eq, JordanAlgebra.U_smul_right, JordanAlgebra.U_add_right, FJ_U_eq, FJ_U_eq]
   · have hgt : l < j := Nat.lt_of_le_of_ne hlj (Ne.symm hlj')
     have h_iv := M_op_U_bilinear_xCons i (j - l - 1) m r' s v
@@ -3168,8 +3188,8 @@ theorem eq258_yCons_xCons_general_ge (l j i m : ℕ) (r' : FreeAssocMono)
     rw [show prependY l (yCons (j - l - 1) (xCons m r')) =
       yCons j (xCons m r') from by
         simp [prependY]; omega]
-    rw [show prependY l (yCons (j - l - 1) s) = yCons j s from by
-      simp [prependY]; omega]
+    rw [prependY_prependY]
+    rw [show l + 1 + (j - l - 1) = j from by omega]
     simp only [show prependY l (xCons i s) = yCons l (xCons i s) from rfl]
 
 /-- Y-direction weight > 1, j < l case. Symmetric to
@@ -3177,16 +3197,16 @@ theorem eq258_yCons_xCons_general_ge (l j i m : ℕ) (r' : FreeAssocMono)
 theorem eq258_yCons_xCons_general_lt (l j i m : ℕ) (r' : FreeAssocMono)
     (s : FreeAssocMono) (hjl : j < l)
     (ih_swap : ∀ v, T (pow y (l + 1))
-        (M_op (prependX i (xCons m r')) (yCons j s) v) =
-      (1 / 2 : ℝ) • (M_op (prependY l (prependX i (xCons m r'))) (yCons j s) v
-        + M_op (prependX i (xCons m r')) (yCons (l + 1 + j) s) v))
+        (M_op (prependX i (xCons m r')) (prependY j s) v) =
+      (1 / 2 : ℝ) • (M_op (prependY l (prependX i (xCons m r'))) (prependY j s) v
+        + M_op (prependX i (xCons m r')) (prependY l (prependY j s)) v))
     (v : FreeJordanAlg)
     (ih_x_base : Eq258XBaseObligation i m r' s v)
     (ih_lower_pair :
       T (pow y (l - j)) (M_op (prependX i (xCons m r')) s v) =
         (1 / 2 : ℝ) •
-          (M_op (prependX i (xCons m r')) (yCons (l - j - 1) s) v +
-            M_op (yCons (l - j - 1) (prependX i (xCons m r'))) s v) ∧
+          (M_op (prependX i (xCons m r')) (prependY (l - j - 1) s) v +
+            M_op (prependY (l - j - 1) (prependX i (xCons m r'))) s v) ∧
       T (pow y (l - j)) (M_op (xCons m r') (xCons i s) v) =
         (1 / 2 : ℝ) •
           (M_op (xCons m r') (yCons (l - j - 1) (xCons i s)) v +
@@ -3274,7 +3294,7 @@ theorem eq258_yCons_xCons_general_lt (l j i m : ℕ) (r' : FreeAssocMono)
             (M_op (xCons m r') s v)) =
         (1 / 2 : ℝ) •
           (M_op (yCons l (xCons m r')) (yCons j (xCons i s)) v +
-            M_op (prependY j (prependX i (xCons m r'))) (yCons l s) v) := by
+            M_op (prependY j (prependX i (xCons m r'))) (prependY l s) v) := by
     have h_iv := M_op_U_bilinear_xCons i (l - j - 1) m r' s v
     rw [show l - j - 1 + 1 = l - j from by omega] at h_iv
     rw [h_iv]
@@ -3284,15 +3304,15 @@ theorem eq258_yCons_xCons_general_lt (l j i m : ℕ) (r' : FreeAssocMono)
     rw [show prependY j (yCons (l - j - 1) (xCons m r')) =
       yCons l (xCons m r') from by
         simp [prependY]; omega]
-    rw [show prependY j (yCons (l - j - 1) s) = yCons l s from by
-      simp [prependY]; omega]
+    rw [prependY_prependY]
+    rw [show j + 1 + (l - j - 1) = l from by omega]
     simp only [show prependY j (xCons i s) = yCons j (xCons i s) from rfl]
   have h249_second :
       U_bilinear (pow y (j + 1 + l + 1)) (pow x (i + 1))
           (M_op (xCons m r') s v) =
         (1 / 2 : ℝ) •
           (M_op (yCons (j + 1 + l) (xCons m r')) (xCons i s) v +
-            M_op (prependX i (xCons m r')) (yCons (j + 1 + l) s) v) := by
+            M_op (prependX i (xCons m r')) (prependY (j + 1 + l) s) v) := by
     simpa [show j + 1 + l + 1 = j + 1 + l + 1 from rfl] using
       M_op_U_bilinear_xCons i (j + 1 + l) m r' s v
   rw [h249_first]
@@ -3302,8 +3322,8 @@ theorem eq258_yCons_xCons_general_lt (l j i m : ℕ) (r' : FreeAssocMono)
       U_bilinear (pow y (j + 1)) (pow y (l + 1))
           (T (pow x (i + 1)) (M_op (xCons m r') s v)) =
         (1 / 4 : ℝ) •
-          (M_op (prependY j (prependX i (xCons m r'))) (yCons l s) v +
-            M_op (prependY l (prependX i (xCons m r'))) (yCons j s) v +
+      (M_op (prependY j (prependX i (xCons m r'))) (prependY l s) v +
+            M_op (prependY l (prependX i (xCons m r'))) (prependY j s) v +
             M_op (yCons j (xCons m r')) (yCons l (xCons i s)) v +
             M_op (yCons l (xCons m r')) (yCons j (xCons i s)) v) by
     rw [h_same]
@@ -3314,7 +3334,7 @@ theorem eq258_yCons_xCons_general_lt (l j i m : ℕ) (r' : FreeAssocMono)
           (M_op (prependX i (xCons m r')) s v) =
         (1 / 2 : ℝ) •
           (M_op (prependY j (prependX i (xCons m r'))) (yCons l s) v +
-            M_op (prependY l (prependX i (xCons m r'))) (yCons j s) v) ∧
+            M_op (prependY l (prependX i (xCons m r'))) (prependY j s) v) ∧
       U_bilinear (pow y (j + 1)) (pow y (l + 1))
           (M_op (xCons m r') (xCons i s) v) =
         (1 / 2 : ℝ) •
@@ -3332,8 +3352,8 @@ theorem eq258_yCons_xCons_general_lt (l j i m : ℕ) (r' : FreeAssocMono)
   suffices h_lower_pair :
       T (pow y (l - j)) (M_op (prependX i (xCons m r')) s v) =
         (1 / 2 : ℝ) •
-          (M_op (prependX i (xCons m r')) (yCons (l - j - 1) s) v +
-            M_op (yCons (l - j - 1) (prependX i (xCons m r'))) s v) ∧
+          (M_op (prependX i (xCons m r')) (prependY (l - j - 1) s) v +
+            M_op (prependY (l - j - 1) (prependX i (xCons m r'))) s v) ∧
       T (pow y (l - j)) (M_op (xCons m r') (xCons i s) v) =
         (1 / 2 : ℝ) •
           (M_op (xCons m r') (yCons (l - j - 1) (xCons i s)) v +
@@ -3366,26 +3386,26 @@ theorem eq258_yCons_xCons_general_lt (l j i m : ℕ) (r' : FreeAssocMono)
 /-- Y-direction weight > 1, `j ≥ l`, with family-shaped obligations. -/
 theorem eq258_yCons_xCons_general_ge_from_families (l j i m : ℕ)
     (r' s : FreeAssocMono) (hlj : l ≤ j) (hs : s.inY)
-    (ih_swap : Eq258Y l (prependX i (xCons m r')) (yCons j s))
+    (ih_swap : Eq258Y l (prependX i (xCons m r')) (prependY j s))
     (ih_x : Eq258X i (xCons m r') s) (v : FreeJordanAlg) :
     T (pow y (l + 1)) (M_op (yCons j (xCons m r')) (xCons i s) v) =
     (1 / 2 : ℝ) • (M_op (yCons (l + 1 + j) (xCons m r')) (xCons i s) v +
       M_op (yCons j (xCons m r')) (yCons l (xCons i s)) v) := by
   exact eq258_yCons_xCons_general_ge l j i m r' s hlj
-    (eq258Y_yCons_right_of_eq258Y ih_swap) v
+    (fun w => by simpa [Eq258Y] using ih_swap w) v
     (eq258XBaseObligation_of_eq258X hs ih_x)
 
 /-- Y-direction weight > 1, `j < l`, with family-shaped obligations and raw
     lower-pair facts left explicit. -/
 theorem eq258_yCons_xCons_general_lt_from_families (l j i m : ℕ)
     (r' s : FreeAssocMono) (hjl : j < l) (hs : s.inY)
-    (ih_swap : Eq258Y l (prependX i (xCons m r')) (yCons j s))
+    (ih_swap : Eq258Y l (prependX i (xCons m r')) (prependY j s))
     (ih_x : Eq258X i (xCons m r') s) (v : FreeJordanAlg)
     (ih_lower_pair :
       T (pow y (l - j)) (M_op (prependX i (xCons m r')) s v) =
         (1 / 2 : ℝ) •
-          (M_op (prependX i (xCons m r')) (yCons (l - j - 1) s) v +
-            M_op (yCons (l - j - 1) (prependX i (xCons m r'))) s v) ∧
+          (M_op (prependX i (xCons m r')) (prependY (l - j - 1) s) v +
+            M_op (prependY (l - j - 1) (prependX i (xCons m r'))) s v) ∧
       T (pow y (l - j)) (M_op (xCons m r') (xCons i s) v) =
         (1 / 2 : ℝ) •
           (M_op (xCons m r') (yCons (l - j - 1) (xCons i s)) v +
@@ -3394,14 +3414,14 @@ theorem eq258_yCons_xCons_general_lt_from_families (l j i m : ℕ)
     (1 / 2 : ℝ) • (M_op (yCons (l + 1 + j) (xCons m r')) (xCons i s) v +
       M_op (yCons j (xCons m r')) (yCons l (xCons i s)) v) := by
   exact eq258_yCons_xCons_general_lt l j i m r' s hjl
-    (eq258Y_yCons_right_of_eq258Y ih_swap) v
+    (fun w => by simpa [Eq258Y] using ih_swap w) v
     (eq258XBaseObligation_of_eq258X hs ih_x) ih_lower_pair
 
 /-- Y-direction weight > 1, `j < l`, with all remaining obligations supplied
     from named lower-pair predicates. -/
 theorem eq258_yCons_xCons_general_lt_from_lower_obligations (l j i m : ℕ)
     (r' s : FreeAssocMono) (hjl : j < l) (hs : s.inY)
-    (ih_swap : Eq258Y l (prependX i (xCons m r')) (yCons j s))
+    (ih_swap : Eq258Y l (prependX i (xCons m r')) (prependY j s))
     (ih_x : Eq258X i (xCons m r') s)
     (v : FreeJordanAlg)
     (ih_lower_left : Eq258YLowerLeft (l - j - 1) (prependX i (xCons m r')) s)
@@ -3419,8 +3439,8 @@ theorem eq258_yCons_xCons_general_lt_from_lower_obligations (l j i m : ℕ)
   have h_left :
       T (pow y (l - j)) (M_op (prependX i (xCons m r')) s v) =
         (1 / 2 : ℝ) •
-          (M_op (prependX i (xCons m r')) (yCons (l - j - 1) s) v +
-            M_op (yCons (l - j - 1) (prependX i (xCons m r'))) s v) := by
+          (M_op (prependX i (xCons m r')) (prependY (l - j - 1) s) v +
+            M_op (prependY (l - j - 1) (prependX i (xCons m r'))) s v) := by
     have h := ih_lower_left v
     simpa [show l - j - 1 + 1 = l - j from by omega] using h
   exact eq258_yCons_xCons_general_lt_from_families l j i m r' s hjl hs ih_swap ih_x v
@@ -3429,7 +3449,7 @@ theorem eq258_yCons_xCons_general_lt_from_lower_obligations (l j i m : ℕ)
 /-- Y-direction compatibility wrapper for the older raw-right lower-left input. -/
 theorem eq258_yCons_xCons_general_lt_from_family_obligations (l j i m : ℕ)
     (r' s : FreeAssocMono) (hjl : j < l) (hs : s.inY)
-    (ih_swap : Eq258Y l (prependX i (xCons m r')) (yCons j s))
+    (ih_swap : Eq258Y l (prependX i (xCons m r')) (prependY j s))
     (ih_x : Eq258X i (xCons m r') s)
     (v : FreeJordanAlg)
     (ih_lower_left : Eq258YRawRight (l - j - 1) (prependX i (xCons m r')) s)
@@ -3444,7 +3464,7 @@ theorem eq258_yCons_xCons_general_lt_from_family_obligations (l j i m : ℕ)
     obligations rather than broad raw-right theorem-family facts. -/
 theorem eq258_yCons_xCons_general_from_lower_obligations (l j i m : ℕ)
     (r' s : FreeAssocMono) (hs : s.inY)
-    (ih_swap : Eq258Y l (prependX i (xCons m r')) (yCons j s))
+    (ih_swap : Eq258Y l (prependX i (xCons m r')) (prependY j s))
     (ih_x : Eq258X i (xCons m r') s)
     (ih_lower_left :
       j < l → Eq258YLowerLeft (l - j - 1) (prependX i (xCons m r')) s)
@@ -3462,7 +3482,7 @@ theorem eq258_yCons_xCons_general_from_lower_obligations (l j i m : ℕ)
 /-- Combined y-direction compatibility wrapper for older raw-right lower-left input. -/
 theorem eq258_yCons_xCons_general_from_family_obligations (l j i m : ℕ)
     (r' s : FreeAssocMono) (hs : s.inY)
-    (ih_swap : Eq258Y l (prependX i (xCons m r')) (yCons j s))
+    (ih_swap : Eq258Y l (prependX i (xCons m r')) (prependY j s))
     (ih_x : Eq258X i (xCons m r') s)
     (ih_lower_left :
       j < l → Eq258YRawRight (l - j - 1) (prependX i (xCons m r')) s)
@@ -3482,9 +3502,9 @@ theorem eq258Y_yCons_xCons_from_longBranchIH (l j i m : ℕ) (r' s : FreeAssocMo
     Eq258Y l (yCons j (xCons m r')) (xCons i s) := by
   intro v
   have h_swap_weight :
-      (prependX i (xCons m r')).weight + (yCons j s).weight <
+      (prependX i (xCons m r')).weight + (prependY j s).weight <
         (yCons j (xCons m r')).weight + (xCons i s).weight := by
-    simp [prependX]
+    simp [prependX, prependY]
   have h_x_weight :
       (xCons m r').weight + s.weight <
         (yCons j (xCons m r')).weight + (xCons i s).weight := by
@@ -3532,9 +3552,9 @@ theorem eq258_xCons_yCons_general_ge (k i j m : ℕ) (r' : FreeAssocMono)
     -- w(prependY j (yCons m r')) + w(xCons i s) < w(xCons i (yCons m r')) + w(yCons j s)
     -- H-O line 1354: "by induction, (iv) to the second"
     (ih_swap : ∀ v, T (pow x (k + 1))
-        (M_op (prependY j (yCons m r')) (xCons i s) v) =
-      (1/2 : ℝ) • (M_op (prependX k (prependY j (yCons m r'))) (xCons i s) v
-        + M_op (prependY j (yCons m r')) (xCons (k + 1 + i) s) v))
+        (M_op (prependY j (yCons m r')) (prependX i s) v) =
+      (1/2 : ℝ) • (M_op (prependX k (prependY j (yCons m r'))) (prependX i s) v
+        + M_op (prependY j (yCons m r')) (prependX k (prependX i s)) v))
     (v : FreeJordanAlg)
     (ih_y_base : Eq258YBaseObligation j m r' s v) :
     T (pow x (k + 1)) (M_op (xCons i (yCons m r')) (yCons j s) v) =
@@ -3589,18 +3609,19 @@ theorem eq258_xCons_yCons_general_ge (k i j m : ℕ) (r' : FreeAssocMono)
   -- Step 7: Reduce to h_key via module arithmetic (D terms cancel)
   suffices h_key : U (pow x (k + 1))
       (U_bilinear (pow x (i - k)) (pow y (j + 1)) (M_op (yCons m r') s v)) =
-    (1/2 : ℝ) • (M_op (prependX k (prependY j (yCons m r'))) (xCons i s) v +
+    (1/2 : ℝ) • (M_op (prependX k (prependY j (yCons m r'))) (prependX i s) v +
       M_op (xCons i (yCons m r')) (xCons k (yCons j s)) v) by
     suffices h_mod :
-        (1/2 : ℝ) • (M_op (prependX k (prependY j (yCons m r'))) (xCons i s) v +
+        (1/2 : ℝ) • (M_op (prependX k (prependY j (yCons m r'))) (prependX i s) v +
           M_op (xCons i (yCons m r')) (xCons k (yCons j s)) v) +
         (1/2 : ℝ) • (M_op (xCons (k + 1 + i) (yCons m r')) (yCons j s) v +
-          M_op (prependY j (yCons m r')) (xCons (k + 1 + i) s) v) -
-        (1/2 : ℝ) • (M_op (prependX k (prependY j (yCons m r'))) (xCons i s) v +
-          M_op (prependY j (yCons m r')) (xCons (k + 1 + i) s) v) =
+          M_op (prependY j (yCons m r')) (prependX (k + 1 + i) s) v) -
+        (1/2 : ℝ) • (M_op (prependX k (prependY j (yCons m r'))) (prependX i s) v +
+          M_op (prependY j (yCons m r')) (prependX k (prependX i s)) v) =
       (1/2 : ℝ) • (M_op (xCons (k + 1 + i) (yCons m r')) (yCons j s) v +
         M_op (xCons i (yCons m r')) (xCons k (yCons j s)) v) by
       rw [h_key]; exact h_mod
+    rw [prependX_prependX]
     module
   -- Step 8: Prove h_key by cases on i = k vs i > k
   by_cases hik' : i = k
@@ -3614,8 +3635,8 @@ theorem eq258_xCons_yCons_general_ge (k i j m : ℕ) (r' : FreeAssocMono)
     -- Fold RHS M_op terms via M_op_xCons_xCons
     rw [show prependX i (prependY j (yCons m r')) =
       xCons i (prependY j (yCons m r')) from rfl]
-    rw [M_op_xCons_xCons i (prependY j (yCons m r')) s v,
-        M_op_xCons_xCons i (yCons m r') (yCons j s) v]
+    rw [← M_op_U_prependX i (prependY j (yCons m r')) s v,
+        ← M_op_U_prependX i (yCons m r') (yCons j s) v]
     -- Distribute U over (1/2)•(P₁ + P₂) on LHS
     rw [← FJ_U_eq, JordanAlgebra.U_smul_right, JordanAlgebra.U_add_right, FJ_U_eq, FJ_U_eq]
   · -- Case i > k: standard M_op conversion
@@ -3632,8 +3653,8 @@ theorem eq258_xCons_yCons_general_ge (k i j m : ℕ) (r' : FreeAssocMono)
     -- Simplify prependX merging: k+1+(i-k-1) = i
     rw [show prependX k (xCons (i - k - 1) (yCons m r')) = xCons i (yCons m r') from by
       simp [prependX]; omega]
-    rw [show prependX k (xCons (i - k - 1) s) = xCons i s from by
-      simp [prependX]; omega]
+    rw [prependX_prependX]
+    rw [show k + 1 + (i - k - 1) = i from by omega]
     simp only [show prependX k (yCons j s) = xCons k (yCons j s) from rfl]
 
 /-- (2.58) weight > 1, i < k case: T_{x^{k+1}} M_{x^{i+1}·(y^m·r'), y^{j+1}·s}.
@@ -3649,9 +3670,9 @@ theorem eq258_xCons_yCons_general_lt (k i j m : ℕ) (r' : FreeAssocMono)
     (s : FreeAssocMono) (hik : i < k)
     -- IH: eq258 for swapped term (same as ge case)
     (ih_swap : ∀ v, T (pow x (k + 1))
-        (M_op (prependY j (yCons m r')) (xCons i s) v) =
-      (1 / 2 : ℝ) • (M_op (prependX k (prependY j (yCons m r'))) (xCons i s) v
-        + M_op (prependY j (yCons m r')) (xCons (k + 1 + i) s) v))
+        (M_op (prependY j (yCons m r')) (prependX i s) v) =
+      (1 / 2 : ℝ) • (M_op (prependX k (prependY j (yCons m r'))) (prependX i s) v
+        + M_op (prependY j (yCons m r')) (prependX k (prependX i s)) v))
     (v : FreeJordanAlg)
     (ih_y_base : Eq258YBaseObligation j m r' s v)
     -- Lower-power IH needed after `U_bilinear_x_pow_lt_as_U_T` turns
@@ -3659,8 +3680,8 @@ theorem eq258_xCons_yCons_general_lt (k i j m : ℕ) (r' : FreeAssocMono)
     (ih_lower_pair :
       T (pow x (k - i)) (M_op (prependY j (yCons m r')) s v) =
         (1 / 2 : ℝ) •
-          (M_op (prependY j (yCons m r')) (xCons (k - i - 1) s) v +
-            M_op (xCons (k - i - 1) (prependY j (yCons m r'))) s v) ∧
+          (M_op (prependY j (yCons m r')) (prependX (k - i - 1) s) v +
+            M_op (prependX (k - i - 1) (prependY j (yCons m r'))) s v) ∧
       T (pow x (k - i)) (M_op (yCons m r') (yCons j s) v) =
         (1 / 2 : ℝ) •
           (M_op (yCons m r') (xCons (k - i - 1) (yCons j s)) v +
@@ -3764,7 +3785,7 @@ theorem eq258_xCons_yCons_general_lt (k i j m : ℕ) (r' : FreeAssocMono)
             (M_op (yCons m r') s v)) =
         (1 / 2 : ℝ) •
           (M_op (xCons k (yCons m r')) (xCons i (yCons j s)) v +
-            M_op (prependX i (prependY j (yCons m r'))) (xCons k s) v) := by
+            M_op (prependX i (prependY j (yCons m r'))) (prependX k s) v) := by
     have h_iv := M_op_U_bilinear_yCons (k - i - 1) j m r' s v
     rw [show k - i - 1 + 1 = k - i from by omega] at h_iv
     rw [h_iv]
@@ -3774,8 +3795,8 @@ theorem eq258_xCons_yCons_general_lt (k i j m : ℕ) (r' : FreeAssocMono)
     rw [show prependX i (xCons (k - i - 1) (yCons m r')) =
       xCons k (yCons m r') from by
         simp [prependX]; omega]
-    rw [show prependX i (xCons (k - i - 1) s) = xCons k s from by
-      simp [prependX]; omega]
+    rw [prependX_prependX]
+    rw [show i + 1 + (k - i - 1) = k from by omega]
     simp only [show prependX i (yCons j s) = xCons i (yCons j s) from rfl]
   -- Step 5d: Convert the standalone mixed `U_{x^{i+k+2},y^{j+1}}` term.
   have h249_second :
@@ -3783,7 +3804,7 @@ theorem eq258_xCons_yCons_general_lt (k i j m : ℕ) (r' : FreeAssocMono)
           (M_op (yCons m r') s v) =
         (1 / 2 : ℝ) •
           (M_op (xCons (i + 1 + k) (yCons m r')) (yCons j s) v +
-            M_op (prependY j (yCons m r')) (xCons (i + 1 + k) s) v) := by
+            M_op (prependY j (yCons m r')) (prependX (i + 1 + k) s) v) := by
     simpa [show i + 1 + k + 1 = i + 1 + k + 1 from rfl] using
       M_op_U_bilinear_yCons (i + 1 + k) j m r' s v
   rw [h249_first]
@@ -3796,8 +3817,8 @@ theorem eq258_xCons_yCons_general_lt (k i j m : ℕ) (r' : FreeAssocMono)
       U_bilinear (pow x (i + 1)) (pow x (k + 1))
           (T (pow y (j + 1)) (M_op (yCons m r') s v)) =
         (1 / 4 : ℝ) •
-          (M_op (prependX i (prependY j (yCons m r'))) (xCons k s) v +
-            M_op (prependX k (prependY j (yCons m r'))) (xCons i s) v +
+      (M_op (prependX i (prependY j (yCons m r'))) (prependX k s) v +
+            M_op (prependX k (prependY j (yCons m r'))) (prependX i s) v +
             M_op (xCons i (yCons m r')) (xCons k (yCons j s)) v +
             M_op (xCons k (yCons m r')) (xCons i (yCons j s)) v) by
     rw [h_same]
@@ -3808,7 +3829,7 @@ theorem eq258_xCons_yCons_general_lt (k i j m : ℕ) (r' : FreeAssocMono)
           (M_op (prependY j (yCons m r')) s v) =
         (1 / 2 : ℝ) •
           (M_op (prependX i (prependY j (yCons m r'))) (xCons k s) v +
-            M_op (prependX k (prependY j (yCons m r'))) (xCons i s) v) ∧
+            M_op (prependX k (prependY j (yCons m r'))) (prependX i s) v) ∧
       U_bilinear (pow x (i + 1)) (pow x (k + 1))
           (M_op (yCons m r') (yCons j s) v) =
         (1 / 2 : ℝ) •
@@ -3826,8 +3847,8 @@ theorem eq258_xCons_yCons_general_lt (k i j m : ℕ) (r' : FreeAssocMono)
   suffices h_lower_pair :
       T (pow x (k - i)) (M_op (prependY j (yCons m r')) s v) =
         (1 / 2 : ℝ) •
-          (M_op (prependY j (yCons m r')) (xCons (k - i - 1) s) v +
-            M_op (xCons (k - i - 1) (prependY j (yCons m r'))) s v) ∧
+          (M_op (prependY j (yCons m r')) (prependX (k - i - 1) s) v +
+            M_op (prependX (k - i - 1) (prependY j (yCons m r'))) s v) ∧
       T (pow x (k - i)) (M_op (yCons m r') (yCons j s) v) =
         (1 / 2 : ℝ) •
           (M_op (yCons m r') (xCons (k - i - 1) (yCons j s)) v +
@@ -3862,13 +3883,13 @@ theorem eq258_xCons_yCons_general_lt (k i j m : ℕ) (r' : FreeAssocMono)
     from the eventual simultaneous induction driver. -/
 theorem eq258_xCons_yCons_general_ge_from_families (k i j m : ℕ)
     (r' s : FreeAssocMono) (hik : k ≤ i) (hs : s.inX)
-    (ih_swap : Eq258X k (prependY j (yCons m r')) (xCons i s))
+    (ih_swap : Eq258X k (prependY j (yCons m r')) (prependX i s))
     (ih_y : Eq258Y j (yCons m r') s) (v : FreeJordanAlg) :
     T (pow x (k + 1)) (M_op (xCons i (yCons m r')) (yCons j s) v) =
     (1 / 2 : ℝ) • (M_op (xCons (k + 1 + i) (yCons m r')) (yCons j s) v +
       M_op (xCons i (yCons m r')) (xCons k (yCons j s)) v) := by
   exact eq258_xCons_yCons_general_ge k i j m r' s hik
-    (eq258X_xCons_right_of_eq258X ih_swap) v
+    (fun w => by simpa [Eq258X] using ih_swap w) v
     (eq258YBaseObligation_of_eq258Y hs ih_y)
 
 /-- Weight > 1, `i < k`, with the swapped and y-base obligations supplied from
@@ -3876,13 +3897,13 @@ theorem eq258_xCons_yCons_general_ge_from_families (k i j m : ℕ)
     they are the remaining simultaneous-induction obligations for this branch. -/
 theorem eq258_xCons_yCons_general_lt_from_families (k i j m : ℕ)
     (r' s : FreeAssocMono) (hik : i < k) (hs : s.inX)
-    (ih_swap : Eq258X k (prependY j (yCons m r')) (xCons i s))
+    (ih_swap : Eq258X k (prependY j (yCons m r')) (prependX i s))
     (ih_y : Eq258Y j (yCons m r') s) (v : FreeJordanAlg)
     (ih_lower_pair :
       T (pow x (k - i)) (M_op (prependY j (yCons m r')) s v) =
         (1 / 2 : ℝ) •
-          (M_op (prependY j (yCons m r')) (xCons (k - i - 1) s) v +
-            M_op (xCons (k - i - 1) (prependY j (yCons m r'))) s v) ∧
+          (M_op (prependY j (yCons m r')) (prependX (k - i - 1) s) v +
+            M_op (prependX (k - i - 1) (prependY j (yCons m r'))) s v) ∧
       T (pow x (k - i)) (M_op (yCons m r') (yCons j s) v) =
         (1 / 2 : ℝ) •
           (M_op (yCons m r') (xCons (k - i - 1) (yCons j s)) v +
@@ -3891,7 +3912,7 @@ theorem eq258_xCons_yCons_general_lt_from_families (k i j m : ℕ)
     (1 / 2 : ℝ) • (M_op (xCons (k + 1 + i) (yCons m r')) (yCons j s) v +
       M_op (xCons i (yCons m r')) (xCons k (yCons j s)) v) := by
   exact eq258_xCons_yCons_general_lt k i j m r' s hik
-    (eq258X_xCons_right_of_eq258X ih_swap) v
+    (fun w => by simpa [Eq258X] using ih_swap w) v
     (eq258YBaseObligation_of_eq258Y hs ih_y) ih_lower_pair
 
 /-- Weight > 1, `i < k`, with all remaining obligations supplied from named
@@ -3901,7 +3922,7 @@ theorem eq258_xCons_yCons_general_lt_from_families (k i j m : ℕ)
     package to prove arbitrary raw-right facts. -/
 theorem eq258_xCons_yCons_general_lt_from_lower_obligations (k i j m : ℕ)
     (r' s : FreeAssocMono) (hik : i < k) (hs : s.inX)
-    (ih_swap : Eq258X k (prependY j (yCons m r')) (xCons i s))
+    (ih_swap : Eq258X k (prependY j (yCons m r')) (prependX i s))
     (ih_y : Eq258Y j (yCons m r') s)
     (v : FreeJordanAlg)
     (ih_lower_left : Eq258XLowerLeft (k - i - 1) (prependY j (yCons m r')) s)
@@ -3919,8 +3940,8 @@ theorem eq258_xCons_yCons_general_lt_from_lower_obligations (k i j m : ℕ)
   have h_left :
       T (pow x (k - i)) (M_op (prependY j (yCons m r')) s v) =
         (1 / 2 : ℝ) •
-          (M_op (prependY j (yCons m r')) (xCons (k - i - 1) s) v +
-            M_op (xCons (k - i - 1) (prependY j (yCons m r'))) s v) := by
+          (M_op (prependY j (yCons m r')) (prependX (k - i - 1) s) v +
+            M_op (prependX (k - i - 1) (prependY j (yCons m r'))) s v) := by
     have h := ih_lower_left v
     simpa [show k - i - 1 + 1 = k - i from by omega] using h
   exact eq258_xCons_yCons_general_lt_from_families k i j m r' s hik hs ih_swap ih_y v
@@ -3929,7 +3950,7 @@ theorem eq258_xCons_yCons_general_lt_from_lower_obligations (k i j m : ℕ)
 /-- Compatibility wrapper for the older raw-right lower-left input. -/
 theorem eq258_xCons_yCons_general_lt_from_family_obligations (k i j m : ℕ)
     (r' s : FreeAssocMono) (hik : i < k) (hs : s.inX)
-    (ih_swap : Eq258X k (prependY j (yCons m r')) (xCons i s))
+    (ih_swap : Eq258X k (prependY j (yCons m r')) (prependX i s))
     (ih_y : Eq258Y j (yCons m r') s)
     (v : FreeJordanAlg)
     (ih_lower_left : Eq258XRawRight (k - i - 1) (prependY j (yCons m r')) s)
@@ -3945,7 +3966,7 @@ theorem eq258_xCons_yCons_general_lt_from_family_obligations (k i j m : ℕ)
     by the selected branch. -/
 theorem eq258_xCons_yCons_general_from_lower_obligations (k i j m : ℕ)
     (r' s : FreeAssocMono) (hs : s.inX)
-    (ih_swap : Eq258X k (prependY j (yCons m r')) (xCons i s))
+    (ih_swap : Eq258X k (prependY j (yCons m r')) (prependX i s))
     (ih_y : Eq258Y j (yCons m r') s)
     (ih_lower_left :
       i < k → Eq258XLowerLeft (k - i - 1) (prependY j (yCons m r')) s)
@@ -3963,7 +3984,7 @@ theorem eq258_xCons_yCons_general_from_lower_obligations (k i j m : ℕ)
 /-- Combined x-direction compatibility wrapper for older raw-right lower-left input. -/
 theorem eq258_xCons_yCons_general_from_family_obligations (k i j m : ℕ)
     (r' s : FreeAssocMono) (hs : s.inX)
-    (ih_swap : Eq258X k (prependY j (yCons m r')) (xCons i s))
+    (ih_swap : Eq258X k (prependY j (yCons m r')) (prependX i s))
     (ih_y : Eq258Y j (yCons m r') s)
     (ih_lower_left :
       i < k → Eq258XRawRight (k - i - 1) (prependY j (yCons m r')) s)
@@ -3983,9 +4004,9 @@ theorem eq258X_xCons_yCons_from_longBranchIH (k i j m : ℕ) (r' s : FreeAssocMo
     Eq258X k (xCons i (yCons m r')) (yCons j s) := by
   intro v
   have h_swap_weight :
-      (prependY j (yCons m r')).weight + (xCons i s).weight <
+      (prependY j (yCons m r')).weight + (prependX i s).weight <
         (xCons i (yCons m r')).weight + (yCons j s).weight := by
-    simp [prependY]
+    simp [prependY, prependX]
   have h_y_weight :
       (yCons m r').weight + s.weight <
         (xCons i (yCons m r')).weight + (yCons j s).weight := by

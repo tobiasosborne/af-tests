@@ -55,66 +55,68 @@ We prove the recurrence equation directly for each pattern match case,
 then derive property (iv) as a corollary. -/
 
 /-- Recurrence (2.55): M(xCons k (yCons m p'), yCons l q) unfolds to
-    2·U_{x^{k+1},y^{l+1}}(M(yCons m p', q)) - M(yCons l (yCons m p'), xCons k q). -/
+    2·U_{x^{k+1},y^{l+1}}(M(yCons m p', q))
+      - M(prependY l (yCons m p'), prependX k q). -/
 theorem M_op_xCons_yCons_yCons (k m : ℕ) (p' : FreeAssocMono)
     (l : ℕ) (q : FreeAssocMono) (v : FreeJordanAlg) :
     M_op (xCons k (yCons m p')) (yCons l q) v =
       (2 : ℝ) • U_bilinear (pow x (k + 1)) (pow y (l + 1))
           (M_op (yCons m p') q v)
-        - M_op (prependY l (yCons m p')) (xCons k q) v := by
+        - M_op (prependY l (yCons m p')) (prependX k q) v := by
   rw [M_op.eq_def]
 
 /-- Symmetric recurrence (2.55b): M(yCons l (xCons n q'), xCons k p) unfolds to
-    2·U_{y^{l+1},x^{k+1}}(M(xCons n q', p)) - M(xCons k (xCons n q'), yCons l p). -/
+    2·U_{y^{l+1},x^{k+1}}(M(xCons n q', p))
+      - M(prependX k (xCons n q'), prependY l p). -/
 theorem M_op_yCons_xCons_xCons (l n : ℕ) (q' : FreeAssocMono)
     (k : ℕ) (p : FreeAssocMono) (v : FreeJordanAlg) :
     M_op (yCons l (xCons n q')) (xCons k p) v =
       (2 : ℝ) • U_bilinear (pow y (l + 1)) (pow x (k + 1))
           (M_op (xCons n q') p v)
-        - M_op (prependX k (xCons n q')) (yCons l p) v := by
+        - M_op (prependX k (xCons n q')) (prependY l p) v := by
   rw [M_op.eq_def]
 
 /-- Property (iv), yCons case: U_{x^{k+1},y^{l+1}}(M(yCons m p', q) v) =
-    ½(M(xCons k (yCons m p'), yCons l q) + M(prependY l (yCons m p'), xCons k q)).
+    ½(M(xCons k (yCons m p'), yCons l q) + M(prependY l (yCons m p'), prependX k q)).
     Derived by rearranging the different-letter recurrence (2.55). -/
 theorem M_op_U_bilinear_yCons (k l m : ℕ) (p' : FreeAssocMono)
     (q : FreeAssocMono) (v : FreeJordanAlg) :
     U_bilinear (pow x (k + 1)) (pow y (l + 1))
         (M_op (yCons m p') q v) =
       (1 / 2 : ℝ) • (M_op (xCons k (yCons m p')) (yCons l q) v
-        + M_op (prependY l (yCons m p')) (xCons k q) v) := by
+        + M_op (prependY l (yCons m p')) (prependX k q) v) := by
   have h := M_op_xCons_yCons_yCons k m p' l q v
   have key : (2 : ℝ) • U_bilinear (pow x (k + 1)) (pow y (l + 1))
       (M_op (yCons m p') q v) =
     M_op (xCons k (yCons m p')) (yCons l q) v
-      + M_op (prependY l (yCons m p')) (xCons k q) v := by
+      + M_op (prependY l (yCons m p')) (prependX k q) v := by
     rw [h]; abel
   calc U_bilinear (pow x (k + 1)) (pow y (l + 1)) (M_op (yCons m p') q v)
       = (1 / 2 : ℝ) • ((2 : ℝ) • U_bilinear (pow x (k + 1)) (pow y (l + 1))
           (M_op (yCons m p') q v)) := by rw [smul_smul]; norm_num
     _ = (1 / 2 : ℝ) • (M_op (xCons k (yCons m p')) (yCons l q) v
-        + M_op (prependY l (yCons m p')) (xCons k q) v) := by rw [key]
+        + M_op (prependY l (yCons m p')) (prependX k q) v) := by rw [key]
 
 /-- Property (iv), xCons case: U_{y^{l+1},x^{k+1}}(M(xCons n q', p) v) =
-    ½(M(yCons l (xCons n q'), xCons k p) + M(prependX k (xCons n q'), yCons l p)).
+    ½(M(yCons l (xCons n q'), xCons k p) + M(prependX k (xCons n q'), prependY l p)).
     Symmetric version of `M_op_U_bilinear_yCons`. -/
 theorem M_op_U_bilinear_xCons (k l n : ℕ) (q' : FreeAssocMono)
     (p : FreeAssocMono) (v : FreeJordanAlg) :
     U_bilinear (pow y (l + 1)) (pow x (k + 1))
         (M_op (xCons n q') p v) =
       (1 / 2 : ℝ) • (M_op (yCons l (xCons n q')) (xCons k p) v
-        + M_op (prependX k (xCons n q')) (yCons l p) v) := by
+        + M_op (prependX k (xCons n q')) (prependY l p) v) := by
   have h := M_op_yCons_xCons_xCons l n q' k p v
   have key : (2 : ℝ) • U_bilinear (pow y (l + 1)) (pow x (k + 1))
       (M_op (xCons n q') p v) =
     M_op (yCons l (xCons n q')) (xCons k p) v
-      + M_op (prependX k (xCons n q')) (yCons l p) v := by
+      + M_op (prependX k (xCons n q')) (prependY l p) v := by
     rw [h]; abel
   calc U_bilinear (pow y (l + 1)) (pow x (k + 1)) (M_op (xCons n q') p v)
       = (1 / 2 : ℝ) • ((2 : ℝ) • U_bilinear (pow y (l + 1)) (pow x (k + 1))
           (M_op (xCons n q') p v)) := by rw [smul_smul]; norm_num
     _ = (1 / 2 : ℝ) • (M_op (yCons l (xCons n q')) (xCons k p) v
-        + M_op (prependX k (xCons n q')) (yCons l p) v) := by rw [key]
+        + M_op (prependX k (xCons n q')) (prependY l p) v) := by rw [key]
 
 /-! ### U-power composition -/
 

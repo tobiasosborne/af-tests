@@ -189,6 +189,22 @@ theorem weight_prependY_of_inX {p : FreeAssocMono} (hp : p.inX) (l : ℕ) :
     (prependY l p).weight = p.weight + 1 := by
   rw [prependY_of_inX hp, weight_yCons]
 
+theorem weight_prependX (k : ℕ) (p : FreeAssocMono) :
+    (prependX k p).weight ≤ p.weight + 1 := by
+  cases p <;> simp [prependX, weight]
+
+theorem weight_prependY (l : ℕ) (p : FreeAssocMono) :
+    (prependY l p).weight ≤ p.weight + 1 := by
+  cases p <;> simp [prependY, weight]
+
+theorem prependX_prependX (k i : ℕ) (p : FreeAssocMono) :
+    prependX k (prependX i p) = prependX (k + 1 + i) p := by
+  cases p <;> simp [prependX, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm]
+
+theorem prependY_prependY (l j : ℕ) (p : FreeAssocMono) :
+    prependY l (prependY j p) = prependY (l + 1 + j) p := by
+  cases p <;> simp [prependY, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm]
+
 theorem weight_prependX_of_inX0 {p : FreeAssocMono} (hp : p.inX0) (k : ℕ) :
     (prependX k p).weight = p.weight := by
   cases p with
