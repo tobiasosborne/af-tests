@@ -113,25 +113,30 @@
     swapped pure/long Eq258 branches through `Eq258X_of_swapped_comm` /
     `Eq258Y_of_swapped_comm`, leaving only the recursive `M_op` symmetry facts
     required by the reducer lemmas.
+- Eliminated the long boundary swap-layer blocker:
+  - Added small direct unfold lemmas for the pure boundary and non-WF same-letter
+    boundary cases where broad `simp [M_op.eq_def]` loops.
+  - Proved the mutual `M_op` symmetry package:
+    `M_op_one_comm`, `M_op_xCons_one_yCons_comm`, and
+    `M_op_yCons_one_xCons_comm`.
+  - Added `Eq258DriverWFLayer.of_driverIH`, deriving the well-formed current
+    boundary swap layer directly from `Eq258DriverIH`.
+  - Added direct driver-IH long boundary wrappers:
+    `eq258X_xCons_yCons_one_from_driverIH` and
+    `eq258Y_yCons_xCons_one_from_driverIH`.
 
 ## Current State
 - Build status: passing (`lake build AfTests 2>&1 | tail -40`, 1915 jobs).
 - Sorry count: 8 actual sorries across `AfTests`.
 - `Equation258.lean`: sorry-free.
 - Open blockers:
-  - Eq(2.58) still needs the recursive driver itself. The main weight>1 x and y
-    constructor branches now have driver-ready theorems.
-  - The long one-argument boundary branches are proven as algebraic adapters.
-    The remaining hard driver question is proving the genuinely long swap fields
-    in `Eq258DriverWFLayer`:
-    `Eq258X k (yCons m (xCons l r')) (xCons i one)` and
-    `Eq258Y l (xCons m (yCons n r')) (yCons j one)`.
-  - The H-O symmetry path is now formalized as a bridge plus lower-commutativity
-    reducers. The next missing ingredient is an induction package proving the
-    required lower `M_op` symmetry facts for well-formed boundary shapes, then
-    feeding them to
-    `eq258X_yCons_xCons_xCons_one_from_driverIH_comm` /
-    `eq258Y_xCons_yCons_yCons_one_from_driverIH_comm`.
+  - Eq(2.58) still needs the global recursive driver itself: a case split over
+    `FreeAssocMono` shapes that constructs the `x`, `y`, `rawRight`, and
+    `rawRightY` fields of `Eq258DriverIH`.
+  - The main weight>1 x/y constructors, one-argument boundary constructors, and
+    the same-weight long boundary swaps now all have driver-IH-ready theorems.
+    The previous `Eq258DriverWFLayer` blocker is resolved by
+    `Eq258DriverWFLayer.of_driverIH`.
   - In the `<` helpers, the pure/long first lower-pair facts must be ordinary
     `Eq258X` / `Eq258Y`, not raw-right variants, because the right argument
     starts with the same generator and the prepend must merge.
@@ -141,21 +146,22 @@
     embedded database.
 
 ## Next Steps (Priority Order)
-1. Prove the lower `M_op` symmetry package for well-formed boundary shapes
-   exposed by the new `_comm_of` lemmas, then use the new long swap bridge
-   lemmas to instantiate the fields required by `Eq258DriverWFLayer`.
-2. Build the recursive simultaneous induction over the new layer, reusing
-   `Eq258DriverIH` for strict total-weight decreases.
+1. Build the recursive simultaneous induction step that produces
+   `Eq258DriverIH (n + 1)` from `Eq258DriverIH n`, using the driver-ready
+   constructor and boundary wrappers now in place.
+2. During the driver case split, expect to add a few small adapters for
+   total-syntax cases such as `one / xCons ...` in the x-family or
+   `one / yCons ...` in the y-family if they are demanded by `Eq258DriverIH`.
 3. Migrate or restore the old JSONL Beads so `bd ready` reflects the historical issue queue.
 
 ## Known Issues / Gotchas
 - Always read `examples3/Jordan Operator Algebras/joa-m/joa-m.md` before Macdonald work.
 - Use `lake build AfTests 2>&1 | tail -40`, not bare `lake build`.
 - `M_op.eq_def` can loop under broad `simp`; prefer targeted rewrites.
-- For the long swap fields, do not try to prove total-syntax `M_op` symmetry.
-  The non-well-formed branches of `M_op` are deliberately totalized and can
-  behave differently. Keep the symmetry induction restricted to the H-O
-  well-formed boundary shapes.
+- The useful `M_op` symmetry package is not full arbitrary `M_op p q`
+  commutativity. It covers boundary symmetry against `1` and pure-vs-opposite-
+  start symmetry, exactly the shapes exposed by (2.56)/(2.57) and the long
+  boundary swap reducers.
 - `bd ready` currently reports no open issues, but `bd show af-0llu` hit an embedded
   Dolt exclusive-lock error in this session. Do not assume Beads state is complete.
 - `bd create` currently fails with `database not initialized: issue_prefix config

@@ -1318,6 +1318,130 @@ theorem eq259_one_yCons (j m : ℕ) (r' : FreeAssocMono) (v : FreeJordanAlg) :
   | yCons l rest =>
     rw [M_op.eq_def one (yCons j (xCons m (yCons l rest))) v]
 
+/-- Pure x boundary symmetry against `1`, directly from the base cases. -/
+theorem M_op_xCons_one_one_comm (i : ℕ) (v : FreeJordanAlg) :
+    M_op (xCons i one) one v = M_op one (xCons i one) v := by
+  rw [M_op.eq_def (xCons i one) one v, M_op.eq_def one (xCons i one) v]
+
+/-- Pure y boundary symmetry against `1`, directly from the base cases. -/
+theorem M_op_yCons_one_one_comm (j : ℕ) (v : FreeJordanAlg) :
+    M_op (yCons j one) one v = M_op one (yCons j one) v := by
+  rw [M_op.eq_def (yCons j one) one v, M_op.eq_def one (yCons j one) v]
+
+/-- Non-well-formed same-x boundary reduction on the left. -/
+theorem M_op_xCons_xCons_one_boundary (i l : ℕ) (r : FreeAssocMono)
+    (v : FreeJordanAlg) :
+    M_op (xCons i (xCons l r)) one v =
+      T (pow x (i + 1)) (M_op (xCons l r) one v) := by
+  rw [M_op.eq_def (xCons i (xCons l r)) one v]
+
+/-- Non-well-formed same-x boundary reduction on the right. -/
+theorem M_op_one_xCons_xCons_boundary (i l : ℕ) (r : FreeAssocMono)
+    (v : FreeJordanAlg) :
+    M_op one (xCons i (xCons l r)) v =
+      T (pow x (i + 1)) (M_op one (xCons l r) v) := by
+  rw [M_op.eq_def one (xCons i (xCons l r)) v]
+
+/-- Non-well-formed same-y boundary reduction on the left. -/
+theorem M_op_yCons_yCons_one_boundary (j m : ℕ) (r : FreeAssocMono)
+    (v : FreeJordanAlg) :
+    M_op (yCons j (yCons m r)) one v =
+      T (pow y (j + 1)) (M_op (yCons m r) one v) := by
+  rw [M_op.eq_def (yCons j (yCons m r)) one v]
+
+/-- Non-well-formed same-y boundary reduction on the right. -/
+theorem M_op_one_yCons_yCons_boundary (j m : ℕ) (r : FreeAssocMono)
+    (v : FreeJordanAlg) :
+    M_op one (yCons j (yCons m r)) v =
+      T (pow y (j + 1)) (M_op one (yCons m r) v) := by
+  rw [M_op.eq_def one (yCons j (yCons m r)) v]
+
+/-- Non-well-formed second y-block symmetry for pure x against a y-start term. -/
+theorem M_op_xCons_one_yCons_yCons_comm (i j m : ℕ) (r : FreeAssocMono)
+    (v : FreeJordanAlg) :
+    M_op (xCons i one) (yCons j (yCons m r)) v =
+      M_op (yCons j (yCons m r)) (xCons i one) v := by
+  rw [M_op.eq_def (xCons i one) (yCons j (yCons m r)) v,
+    M_op.eq_def (yCons j (yCons m r)) (xCons i one) v]
+
+/-- Non-well-formed second x-block symmetry for pure y against an x-start term. -/
+theorem M_op_yCons_one_xCons_xCons_comm (j i l : ℕ) (r : FreeAssocMono)
+    (v : FreeJordanAlg) :
+    M_op (yCons j one) (xCons i (xCons l r)) v =
+      M_op (xCons i (xCons l r)) (yCons j one) v := by
+  rw [M_op.eq_def (yCons j one) (xCons i (xCons l r)) v,
+    M_op.eq_def (xCons i (xCons l r)) (yCons j one) v]
+
+mutual
+
+/-- Boundary symmetry for the total `M_op` recursion against `1`.
+
+This packages H-O's evident symmetry `M_{p,q}=M_{q,p}` for the boundary shapes
+needed by Eq(2.58). The proof is mutually recursive with the pure/long
+different-letter symmetry facts because the boundary recurrences (2.56)/(2.57)
+expose those terms. -/
+theorem M_op_one_comm (p : FreeAssocMono) (v : FreeJordanAlg) :
+    M_op p one v = M_op one p v := by
+  cases p with
+  | one =>
+    rfl
+  | xCons i r =>
+    cases r with
+    | one =>
+      exact M_op_xCons_one_one_comm i v
+    | xCons l rest =>
+      rw [M_op_xCons_xCons_one_boundary i l rest v,
+        M_op_one_xCons_xCons_boundary i l rest v]
+      rw [M_op_one_comm (xCons l rest) v]
+    | yCons m rest =>
+      rw [eq259_xCons_one i m rest v, eq259_one_xCons i m rest v]
+      rw [M_op_one_comm (yCons m rest) v]
+      rw [← M_op_xCons_one_yCons_comm i m rest v]
+  | yCons j r =>
+    cases r with
+    | one =>
+      exact M_op_yCons_one_one_comm j v
+    | xCons m rest =>
+      rw [eq259_yCons_one j m rest v, eq259_one_yCons j m rest v]
+      rw [M_op_one_comm (xCons m rest) v]
+      rw [← M_op_yCons_one_xCons_comm j m rest v]
+    | yCons m rest =>
+      rw [M_op_yCons_yCons_one_boundary j m rest v,
+        M_op_one_yCons_yCons_boundary j m rest v]
+      rw [M_op_one_comm (yCons m rest) v]
+
+/-- Different-letter symmetry for a pure x-block against a y-start monomial. -/
+theorem M_op_xCons_one_yCons_comm (i j : ℕ) (r : FreeAssocMono)
+    (v : FreeJordanAlg) :
+    M_op (xCons i one) (yCons j r) v =
+      M_op (yCons j r) (xCons i one) v := by
+  cases r with
+  | one =>
+    exact (M_op_yCons_one_xCons_one_comm j i v).symm
+  | xCons l rest =>
+    exact (M_op_yCons_xCons_xCons_one_comm_of j l i rest v
+      (M_op_one_comm (xCons l rest) v)
+      ((M_op_yCons_one_xCons_comm j (i + 1 + l) rest v).symm)).symm
+  | yCons m rest =>
+    exact M_op_xCons_one_yCons_yCons_comm i j m rest v
+
+/-- Different-letter symmetry for a pure y-block against an x-start monomial. -/
+theorem M_op_yCons_one_xCons_comm (j i : ℕ) (r : FreeAssocMono)
+    (v : FreeJordanAlg) :
+    M_op (yCons j one) (xCons i r) v =
+      M_op (xCons i r) (yCons j one) v := by
+  cases r with
+  | one =>
+    exact M_op_yCons_one_xCons_one_comm j i v
+  | xCons l rest =>
+    exact M_op_yCons_one_xCons_xCons_comm j i l rest v
+  | yCons n rest =>
+    exact (M_op_xCons_yCons_yCons_one_comm_of i n j rest v
+      (M_op_one_comm (yCons n rest) v)
+      ((M_op_xCons_one_yCons_comm i (j + 1 + n) rest v).symm)).symm
+
+end
+
 /-- Boundary (2.58) obtained by rearranging H-O (2.56a). -/
 theorem eq258X_yCons_one_exact (i m : ℕ) (r' : FreeAssocMono) :
     Eq258X i (yCons m r') one := by
@@ -2699,6 +2823,34 @@ theorem eq258Y_xCons_yCons_yCons_one_from_driverIH_comm (l j m n : ℕ)
       M_op_xCons_yCons_yCons_one_comm_of m n (l + 1 + j) r v
         (h_base v) (h_tail (l + 1 + j) v)
 
+/-- The well-formed same-weight boundary layer is recoverable from the ordinary
+    lower-weight driver IH plus the recursively proved `M_op` symmetry package. -/
+theorem Eq258DriverWFLayer.of_driverIH {n : ℕ} (hIH : Eq258DriverIH n) :
+    Eq258DriverWFLayer n where
+  lower := hIH
+  xBoundarySwapLong := by
+    intro k i m l r hw
+    have hIH' :
+        Eq258DriverIH ((yCons m (xCons l r)).weight + (xCons i one).weight) := by
+      rw [hw]
+      exact hIH
+    exact eq258X_yCons_xCons_xCons_one_from_driverIH_comm k i m l r hIH'
+      (fun v => M_op_one_comm (xCons l r) v)
+      (fun a v => (M_op_yCons_one_xCons_comm m (a + 1 + l) r v).symm)
+      (fun v => (M_op_one_comm (yCons m (xCons l r)) v).symm)
+      (fun a v => (M_op_one_comm (xCons a (yCons m (xCons l r))) v).symm)
+  yBoundarySwapLong := by
+    intro l j m nTail r hw
+    have hIH' :
+        Eq258DriverIH ((xCons m (yCons nTail r)).weight + (yCons j one).weight) := by
+      rw [hw]
+      exact hIH
+    exact eq258Y_xCons_yCons_yCons_one_from_driverIH_comm l j m nTail r hIH'
+      (fun v => M_op_one_comm (yCons nTail r) v)
+      (fun a v => (M_op_xCons_one_yCons_comm m (a + 1 + nTail) r v).symm)
+      (fun v => (M_op_one_comm (xCons m (yCons nTail r)) v).symm)
+      (fun a v => (M_op_one_comm (yCons a (xCons m (yCons nTail r))) v).symm)
+
 /-- Driver-layer version of the long x-boundary constructor case.
 
 This is the first consumer of `Eq258DriverLayer`: the same-weight swapped term is
@@ -2771,6 +2923,23 @@ theorem eq258Y_yCons_xCons_one_from_wfDriverLayer (l j m : ℕ) (r' : FreeAssocM
       simp
     exact eq258YRawRight_of_eq258Y_of_inX (xCons_inX m r') one_inX
       (hLayer.lower.y (l - j - 1) (xCons m r') one h_lower_weight)
+
+/-- Driver-IH version of the long x-boundary constructor case. The current
+    same-weight swap is supplied by `Eq258DriverWFLayer.of_driverIH`. -/
+theorem eq258X_xCons_yCons_one_from_driverIH (k i m : ℕ) (r' : FreeAssocMono)
+    (hr : r'.inX)
+    (hIH : Eq258DriverIH ((xCons i (yCons m r')).weight + one.weight)) :
+    Eq258X k (xCons i (yCons m r')) one := by
+  exact eq258X_xCons_yCons_one_from_wfDriverLayer k i m r' hr
+    (Eq258DriverWFLayer.of_driverIH hIH)
+
+/-- Driver-IH version of the long y-boundary constructor case. -/
+theorem eq258Y_yCons_xCons_one_from_driverIH (l j m : ℕ) (r' : FreeAssocMono)
+    (hr : r'.inY)
+    (hIH : Eq258DriverIH ((yCons j (xCons m r')).weight + one.weight)) :
+    Eq258Y l (yCons j (xCons m r')) one := by
+  exact eq258Y_yCons_xCons_one_from_wfDriverLayer l j m r' hr
+    (Eq258DriverWFLayer.of_driverIH hIH)
 
 /-- Y-direction weight > 1, j ≥ l case. Symmetric to
     `eq258_xCons_yCons_general_ge`. -/
