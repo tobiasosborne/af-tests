@@ -757,6 +757,24 @@ structure Eq258DriverIH (n : ℕ) : Prop where
   rawRightY :
     ∀ (j : ℕ) (p q : FreeAssocMono), p.weight + q.weight < n → Eq258YRawRight j p q
 
+/-- Same-weight boundary package for the Eq(2.58) driver.
+
+The long one-argument boundary recurrences do not decrease total block weight:
+expanding `M(xCons i r, 1)` exposes the swapped term `M(r, xCons i 1)`, with
+the same total weight as the target. This layer records exactly those
+same-weight swapped facts, while strict lower-weight facts remain in
+`Eq258DriverIH`. -/
+structure Eq258DriverLayer (n : ℕ) : Prop where
+  lower : Eq258DriverIH n
+  xBoundarySwap :
+    ∀ (k i m : ℕ) (r' : FreeAssocMono),
+      (yCons m r').weight + (xCons i one).weight = n →
+        Eq258X k (yCons m r') (xCons i one)
+  yBoundarySwap :
+    ∀ (l j m : ℕ) (r' : FreeAssocMono),
+      (xCons m r').weight + (yCons j one).weight = n →
+        Eq258Y l (xCons m r') (yCons j one)
+
 /-- The y-generator obligation consumed by the x-direction inductive helpers
     when `p = yCons m r'` and `q = s`. For well-formed H-O applications,
     callers should supply this from `Eq258Y j (yCons m r') s` together with
@@ -825,6 +843,15 @@ theorem eq258XRawRight_lower_left_of_family {k : ℕ} {p q : FreeAssocMono}
   intro v
   exact h v
 
+/-- Convert the ordinary x-family to the raw-right x-family when both arguments
+    lie in `Y`, so neither x-prepend merges. -/
+theorem eq258XRawRight_of_eq258X_of_inY {k : ℕ} {p q : FreeAssocMono}
+    (hp : p.inY) (hq : q.inY) (h : Eq258X k p q) :
+    Eq258XRawRight k p q := by
+  intro v
+  simpa [Eq258XRawRight, Eq258X, prependX_of_inY hp, prependX_of_inY hq, add_comm]
+    using h v
+
 /-- Specialize a y-direction Eq(2.58) hypothesis when the right argument starts
     with a y-block. Symmetric to `eq258X_xCons_right_of_eq258X`. -/
 theorem eq258Y_yCons_right_of_eq258Y {j l : ℕ} {p s : FreeAssocMono}
@@ -856,6 +883,15 @@ theorem eq258YRawRight_lower_left_of_family {j : ℕ} {p q : FreeAssocMono}
         (1 / 2 : ℝ) • (M_op p (yCons j q) v + M_op (yCons j p) q v) := by
   intro v
   exact h v
+
+/-- Convert the ordinary y-family to the raw-right y-family when both arguments
+    lie in `X`, so neither y-prepend merges. -/
+theorem eq258YRawRight_of_eq258Y_of_inX {j : ℕ} {p q : FreeAssocMono}
+    (hp : p.inX) (hq : q.inX) (h : Eq258Y j p q) :
+    Eq258YRawRight j p q := by
+  intro v
+  simpa [Eq258YRawRight, Eq258Y, prependY_of_inX hp, prependY_of_inX hq, add_comm]
+    using h v
 
 /-! ### Driver-ready weight≤1 x-direction cases -/
 
@@ -1573,6 +1609,42 @@ theorem eq258X_one_yCons_xCons_exact (k j m : ℕ) (r' : FreeAssocMono) :
 theorem eq258Y_one_xCons_yCons_exact (l i m : ℕ) (r' : FreeAssocMono) :
     Eq258Y l one (xCons i (yCons m r')) :=
   eq258Y_one_xCons_exact l i (yCons m r')
+
+/-- Driver-layer version of the long x-boundary constructor case.
+
+This is the first consumer of `Eq258DriverLayer`: the same-weight swapped term is
+read from the layer, while the `<` branch's raw-right lower fact is recovered
+from the strict lower x-family because both arguments are in `Y`. -/
+theorem eq258X_xCons_yCons_one_from_driverLayer (k i m : ℕ) (r' : FreeAssocMono)
+    (hLayer : Eq258DriverLayer ((xCons i (yCons m r')).weight + one.weight)) :
+    Eq258X k (xCons i (yCons m r')) one := by
+  refine eq258X_xCons_yCons_one_from_family_obligations k i m r' ?_ ?_
+  · exact hLayer.xBoundarySwap k i m r' (by simp)
+  · intro hlt
+    have h_lower_weight :
+        (yCons m r').weight + one.weight <
+          (xCons i (yCons m r')).weight + one.weight := by
+      simp
+    exact eq258XRawRight_of_eq258X_of_inY (yCons_inY m r') one_inY
+      (hLayer.lower.x (k - i - 1) (yCons m r') one h_lower_weight)
+
+/-- Driver-layer version of the long y-boundary constructor case.
+
+Symmetric to `eq258X_xCons_yCons_one_from_driverLayer`: the same-weight swapped
+term comes from the layer, and the lower raw-right fact is derived from the
+strict lower y-family because both arguments are in `X`. -/
+theorem eq258Y_yCons_xCons_one_from_driverLayer (l j m : ℕ) (r' : FreeAssocMono)
+    (hLayer : Eq258DriverLayer ((yCons j (xCons m r')).weight + one.weight)) :
+    Eq258Y l (yCons j (xCons m r')) one := by
+  refine eq258Y_yCons_xCons_one_from_family_obligations l j m r' ?_ ?_
+  · exact hLayer.yBoundarySwap l j m r' (by simp)
+  · intro hlt
+    have h_lower_weight :
+        (xCons m r').weight + one.weight <
+          (yCons j (xCons m r')).weight + one.weight := by
+      simp
+    exact eq258YRawRight_of_eq258Y_of_inX (xCons_inX m r') one_inX
+      (hLayer.lower.y (l - j - 1) (xCons m r') one h_lower_weight)
 
 /-- Y-direction weight > 1, j ≥ l case. Symmetric to
     `eq258_xCons_yCons_general_ge`. -/

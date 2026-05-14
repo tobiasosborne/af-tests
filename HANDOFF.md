@@ -62,6 +62,15 @@
     same-total-weight term `M(r, x_i)`. That obligation is now explicit in the
     helper statements; it is not available from the current total-weight-only
     `Eq258DriverIH`.
+- Added the current-weight driver layer for those same-weight boundary swaps:
+  - `Eq258DriverLayer` packages strict lower-weight facts from `Eq258DriverIH` plus
+    the current-weight swapped boundary obligations.
+  - `eq258XRawRight_of_eq258X_of_inY` and `eq258YRawRight_of_eq258Y_of_inX` recover
+    raw-right lower facts from ordinary Eq258 families when both arguments are on the
+    non-merging side.
+  - `eq258X_xCons_yCons_one_from_driverLayer` and
+    `eq258Y_yCons_xCons_one_from_driverLayer` prove the long right-boundary
+    constructor cases from `Eq258DriverLayer`.
 
 ## Current State
 - Build status: passing (`lake build AfTests 2>&1 | tail -40`, 1915 jobs).
@@ -71,9 +80,10 @@
   - Eq(2.58) still needs the recursive driver itself. The main weight>1 x and y
     constructor branches now have driver-ready theorems.
   - The long one-argument boundary branches are proven as algebraic adapters, but
-    their swapped same-weight obligations are explicit. The remaining hard driver
-    design question is how to supply those obligations without assuming a false
-    decrease in `p.weight + q.weight`.
+    their swapped same-weight obligations are carried by `Eq258DriverLayer`. The
+    remaining hard driver question is proving the swap fields themselves:
+    `Eq258X k (yCons m r') (xCons i one)` and
+    `Eq258Y l (xCons m r') (yCons j one)`.
   - In the `<` helpers, the left lower-pair facts are named as `Eq258XRawRight` /
     `Eq258YRawRight`. This keeps the existing proof honest: the helper algebra needs
     the unnormalized products `xCons (k - i - 1) q` and `yCons (l - j - 1) q`, not
@@ -81,11 +91,11 @@
   - Current `bd` embedded Dolt store is empty; old issue data lives in `.beads/issues.jsonl`.
 
 ## Next Steps (Priority Order)
-1. Decide the driver architecture for same-weight swapped boundary obligations.
-   Options include widening the IH package beyond strict total-weight decrease or proving
-   a separate swapped-boundary theorem family by a more refined measure.
-2. Build the recursive simultaneous induction over the chosen measure/package, reusing
-   `Eq258DriverIH` where strict total-weight decrease is sufficient.
+1. Prove or package the same-weight boundary swap fields required by `Eq258DriverLayer`:
+   `Eq258X k (yCons m r') (xCons i one)` and
+   `Eq258Y l (xCons m r') (yCons j one)`.
+2. Build the recursive simultaneous induction over the new layer, reusing
+   `Eq258DriverIH` for strict total-weight decreases.
 3. Migrate or restore the old JSONL Beads so `bd ready` reflects the historical issue queue.
 
 ## Known Issues / Gotchas
