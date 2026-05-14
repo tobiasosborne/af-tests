@@ -24,6 +24,14 @@
     H-O uses after converting `U_bilinear(x^i,x^k)` to `U_x^i T_{x^{k-i}}`.
   - Eliminated the `eq258_xCons_yCons_general_lt` sorry; H-O line 1373-1377
     cancellation now closes.
+- Follow-up investigation of the last `Equation258.lean` sorry:
+  - `eq258_y_base` is not a stale local algebra step. It is the y-generator
+    l=0 case of Eq(2.58), i.e. the symmetric companion to the x-generator
+    induction.
+  - Blind `simp [M_op.eq_def]` loops on the recursive definition.
+  - The statement also uses `yCons j s` rather than `prependY j s`, matching
+    the informal side condition `s ∈ X`; the current theorem has no such
+    explicit hypothesis.
 
 ## Current State
 - Build status: passing (`lake build AfTests 2>&1 | tail -40`, 1915 jobs).
