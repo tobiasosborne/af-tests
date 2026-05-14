@@ -14,22 +14,31 @@
     `T(x^{k+1}) U_bi(x^{i+1}, y^{j+1})`.
   - Added `h249_iso`, a Lean-checked application of H-O (2.49) to the exposed
     `T(x^{i+1}) U_bi(x^{k+1}, y^{j+1})` term.
-  - Updated the local proof comments so completed vs remaining steps are explicit.
+  - Added `h249_first`, converting the mixed `U_x^i U_{x^{k-i},y^j}` term to
+    M-operator form using `M_op_U_bilinear_yCons`, U-linearity, and
+    `M_op_U_prependX`.
+  - Added `h249_second`, converting the standalone mixed `U_{x^{i+k},y^j}` term
+    to M-operator form using `M_op_U_bilinear_yCons`.
+  - Reduced the final algebra to one explicit missing same-letter
+    `U_bilinear(x^i,x^k)` M-operator conversion pair; assuming that pair, the
+    H-O line 1373-1377 cancellation closes by `module`.
 
 ## Current State
-- Build status: passing (`lake build AfTests`, 1915 jobs).
+- Build status: passing (`lake build AfTests 2>&1 | tail -40`, 1915 jobs).
 - Sorry count: 10 total across `AfTests`; `Equation258.lean` still has 2 known sorries.
 - Open blockers:
   - `eq258_y_base`: still needed for the `i = k` boundary of the `general_ge` proof.
-  - `eq258_xCons_yCons_general_lt`: now past H-O line 1371 rewrites, still needs
-    property (iii)/(iv) conversion to M-op terms and final module algebra.
+  - `eq258_xCons_yCons_general_lt`: all mixed terms after (2.47)/(2.49) are now
+    converted. The only remaining proof obligation is the same-letter
+    `U_bilinear(x^{i+1},x^{k+1})` conversion on
+    `M_op (prependY j (yCons m r')) s v` and
+    `M_op (yCons m r') (yCons j s) v`.
   - Old JSONL Beads are not migrated into the current embedded Dolt backend, so `bd ready`
     reports no work even though `.beads/issues.jsonl` has open issues.
 
 ## Next Steps (Priority Order)
-1. Continue `eq258_xCons_yCons_general_lt`: convert the remaining
-   `U_bi(x^{i+1}, x^{k+1})(T_y(w))` and `U(x^{i+1})(U_bi(...))` terms into M-op form
-   using property (iii)/(iv), following H-O lines 1373-1377.
+1. Finish `eq258_xCons_yCons_general_lt` by proving the same-letter conversion
+   now isolated as `h_same_pair` at the final `sorry`.
 2. Prove or structurally replace `eq258_y_base`; likely needs x/y swap equivariance or a
    simultaneous y-version of the Eq(2.58) induction.
 3. Migrate or restore old JSONL Beads so issue status matches the current codebase.

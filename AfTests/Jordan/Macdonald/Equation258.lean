@@ -514,15 +514,75 @@ theorem eq258_xCons_yCons_general_lt (k i j m : ℕ) (r' : FreeAssocMono)
               (M_op (yCons m r') s v))) from by rw [smul_smul]; norm_num,
       h249v]
   rw [h247_iso, h249_iso]
-  -- Remaining goal (H-O lines 1371-1377):
-  -- Involves T(x^{i+1})(U_bi(x^{k+1},y^{j+1})(w)), U_bi(x^{i+1},x^{k+1})(T(y^{j+1})(w)),
-  -- and various M_op terms from ih_swap expansion.
-  --
-  -- Completed here:
-  -- a) `h247_iso` expresses T(x^{k+1}) U_bi in terms of T(x^{i+1}), U_bi, etc.
-  -- b) `h249_iso` applies (2.49) to T(x^{i+1}) U_bi(x^{k+1},y^{j+1}).
-  -- Remaining:
-  -- c) Use property (iii) on U_bi(x^{i+1},x^{k+1}) T terms.
-  -- d) Apply (iv) and induction to convert everything to M_op.
-  -- e) Cancel matching terms in the 6-line algebra (H-O lines 1373-1377).
+  -- Step 5c: Convert the mixed `U_{x^{k-i},y^{j+1}}` term exposed by (2.49),
+  -- then push the outer `U_{x^{i+1}}` through the resulting two M-operators.
+  -- This is the first summand in H-O line 1373.
+  have h249_first :
+      U (pow x (i + 1))
+          (U_bilinear (pow x (k - i)) (pow y (j + 1))
+            (M_op (yCons m r') s v)) =
+        (1 / 2 : ℝ) •
+          (M_op (xCons k (yCons m r')) (xCons i (yCons j s)) v +
+            M_op (prependX i (prependY j (yCons m r'))) (xCons k s) v) := by
+    have h_iv := M_op_U_bilinear_yCons (k - i - 1) j m r' s v
+    rw [show k - i - 1 + 1 = k - i from by omega] at h_iv
+    rw [h_iv]
+    rw [← FJ_U_eq, JordanAlgebra.U_smul_right, JordanAlgebra.U_add_right,
+      FJ_U_eq, FJ_U_eq]
+    rw [M_op_U_prependX, M_op_U_prependX]
+    rw [show prependX i (xCons (k - i - 1) (yCons m r')) =
+      xCons k (yCons m r') from by
+        simp [prependX]; omega]
+    rw [show prependX i (xCons (k - i - 1) s) = xCons k s from by
+      simp [prependX]; omega]
+    simp only [show prependX i (yCons j s) = xCons i (yCons j s) from rfl]
+  -- Step 5d: Convert the standalone mixed `U_{x^{i+k+2},y^{j+1}}` term.
+  have h249_second :
+      U_bilinear (pow x (i + 1 + k + 1)) (pow y (j + 1))
+          (M_op (yCons m r') s v) =
+        (1 / 2 : ℝ) •
+          (M_op (xCons (i + 1 + k) (yCons m r')) (yCons j s) v +
+            M_op (prependY j (yCons m r')) (xCons (i + 1 + k) s) v) := by
+    simpa [show i + 1 + k + 1 = i + 1 + k + 1 from rfl] using
+      M_op_U_bilinear_yCons (i + 1 + k) j m r' s v
+  rw [h249_first]
+  rw [show i + 1 + (k + 1) = i + 1 + k + 1 from by omega]
+  rw [h249_second]
+  -- Step 5e: The remaining H-O algebra closes once the same-letter
+  -- linearized property (iii) is available on the two M-operators produced by
+  -- the y-base case.
+  suffices h_same :
+      U_bilinear (pow x (i + 1)) (pow x (k + 1))
+          (T (pow y (j + 1)) (M_op (yCons m r') s v)) =
+        (1 / 4 : ℝ) •
+          (M_op (prependX i (prependY j (yCons m r'))) (xCons k s) v +
+            M_op (prependX k (prependY j (yCons m r'))) (xCons i s) v +
+            M_op (xCons i (yCons m r')) (xCons k (yCons j s)) v +
+            M_op (xCons k (yCons m r')) (xCons i (yCons j s)) v) by
+    rw [h_same]
+    rw [show i + 1 + k = k + 1 + i from by omega]
+    module
+  suffices h_same_pair :
+      U_bilinear (pow x (i + 1)) (pow x (k + 1))
+          (M_op (prependY j (yCons m r')) s v) =
+        (1 / 2 : ℝ) •
+          (M_op (prependX i (prependY j (yCons m r'))) (xCons k s) v +
+            M_op (prependX k (prependY j (yCons m r'))) (xCons i s) v) ∧
+      U_bilinear (pow x (i + 1)) (pow x (k + 1))
+          (M_op (yCons m r') (yCons j s) v) =
+        (1 / 2 : ℝ) •
+          (M_op (xCons i (yCons m r')) (xCons k (yCons j s)) v +
+            M_op (xCons k (yCons m r')) (xCons i (yCons j s)) v) by
+    have h_same_left := h_same_pair.1
+    have h_same_right := h_same_pair.2
+    simp only [T_apply]
+    rw [eq258_y_base j m r' s v]
+    rw [← FJ_U_bilinear_eq]
+    rw [map_smul, map_add]
+    rw [FJ_U_bilinear_eq, FJ_U_bilinear_eq]
+    rw [h_same_left, h_same_right]
+    module
+  -- Blocker: this is the missing same-letter `U_bilinear(x^i,x^k)`
+  -- M-operator conversion. The existing `M_op_U_bilinear_*` lemmas only cover
+  -- mixed x/y outer variables.
   sorry
