@@ -337,6 +337,16 @@ def Eq258Y (j : ℕ) (p q : FreeAssocMono) : Prop :=
     T (pow y (j + 1)) (M_op p q v) =
       (1 / 2 : ℝ) • (M_op (prependY j p) q v + M_op p (prependY j q) v)
 
+/-- Weight-indexed induction package for the eventual simultaneous Eq(2.58)
+    driver. It ranges over the total `FreeAssocMono` syntax, not just WF inputs,
+    because the recursive `M_op` equations generate unmerged products such as
+    `xCons i s` even when `s ∈ X`. -/
+structure Eq258DriverIH (n : ℕ) : Prop where
+  x : ∀ (k : ℕ) (p q : FreeAssocMono), p.weight + q.weight < n → Eq258X k p q
+  y : ∀ (j : ℕ) (p q : FreeAssocMono), p.weight + q.weight < n → Eq258Y j p q
+  rawRight :
+    ∀ (k : ℕ) (p q : FreeAssocMono), p.weight + q.weight < n → Eq258XRawRight k p q
+
 /-- The y-generator obligation consumed by the x-direction inductive helpers
     when `p = yCons m r'` and `q = s`. For well-formed H-O applications,
     callers should supply this from `Eq258Y j (yCons m r') s` together with
@@ -388,6 +398,28 @@ theorem eq258XRawRight_lower_left_of_family {k : ℕ} {p q : FreeAssocMono}
         (1 / 2 : ℝ) • (M_op p (xCons k q) v + M_op (xCons k p) q v) := by
   intro v
   exact h v
+
+/-! ### Driver-ready weight≤1 x-direction cases -/
+
+theorem eq258X_one_one (k : ℕ) : Eq258X k one one := by
+  intro v
+  simpa [Eq258X, prependX] using eq258_one_one k v
+
+theorem eq258X_one_yCons_one (k j : ℕ) : Eq258X k one (yCons j one) := by
+  intro v
+  simpa [Eq258X, prependX] using eq258_one_yCons k j v
+
+theorem eq258X_yCons_one_one (k j : ℕ) : Eq258X k (yCons j one) one := by
+  intro v
+  simpa [Eq258X, prependX] using eq258_yCons_one k j v
+
+theorem eq258X_xCons_one_yCons_one (k i j : ℕ) :
+    Eq258X k (xCons i one) (yCons j one) := by
+  intro v
+  by_cases hik : k ≤ i
+  · simpa [Eq258X, prependX] using eq258_xCons_yCons_ge k i j hik v
+  · have hlt : i < k := Nat.lt_of_not_ge hik
+    simpa [Eq258X, prependX] using eq258_xCons_yCons_lt k i j hlt v
 
 /-! ### Equation (2.58) weight > 1 — Inductive cases
 
@@ -844,3 +876,39 @@ theorem eq258_xCons_yCons_general_from_family_obligations (k i j m : ℕ)
   · have hlt : i < k := Nat.lt_of_not_ge hik
     exact eq258_xCons_yCons_general_lt_from_family_obligations k i j m r' s hlt hs
       ih_swap ih_y v (ih_lower_left hlt) (ih_lower_right hlt)
+
+/-- Driver-ready constructor case for H-O's weight > 1 branch:
+    `p = xCons i (yCons m r')`, `q = yCons j s`. All recursive obligations are
+    obtained from the weight-indexed simultaneous IH package. -/
+theorem eq258X_xCons_yCons_from_driverIH (k i j m : ℕ) (r' s : FreeAssocMono)
+    (hs : s.inX)
+    (hIH : Eq258DriverIH ((xCons i (yCons m r')).weight + (yCons j s).weight)) :
+    Eq258X k (xCons i (yCons m r')) (yCons j s) := by
+  intro v
+  have h_swap_weight :
+      (prependY j (yCons m r')).weight + (xCons i s).weight <
+        (xCons i (yCons m r')).weight + (yCons j s).weight := by
+    simp [prependY]
+  have h_y_weight :
+      (yCons m r').weight + s.weight <
+        (xCons i (yCons m r')).weight + (yCons j s).weight := by
+    simp
+    omega
+  have h_lower_left_weight :
+      (prependY j (yCons m r')).weight + s.weight <
+        (xCons i (yCons m r')).weight + (yCons j s).weight := by
+    simp [prependY]
+    omega
+  have h_lower_right_weight :
+      (yCons m r').weight + (yCons j s).weight <
+        (xCons i (yCons m r')).weight + (yCons j s).weight := by
+    simp
+  simpa [Eq258X, prependX] using
+    eq258_xCons_yCons_general_from_family_obligations k i j m r' s hs
+      (hIH.x k (prependY j (yCons m r')) (xCons i s) h_swap_weight)
+      (hIH.y j (yCons m r') s h_y_weight)
+      (fun _ =>
+        hIH.rawRight (k - i - 1) (prependY j (yCons m r')) s h_lower_left_weight)
+      (fun _ =>
+        hIH.x (k - i - 1) (yCons m r') (yCons j s) h_lower_right_weight)
+      v
