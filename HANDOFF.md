@@ -13,23 +13,32 @@
   - `eq258_xCons_yCons_general_lt`
 - Confirmed `AfTests/Jordan/Macdonald/Equation258.lean` has no `sorry`/`admit` source
   occurrences and compiles.
+- Added the first driver-adapter layer:
+  - `eq258YBaseObligation_of_eq258Y` converts `Eq258Y` plus `s.inX` into the concrete
+    y-base obligation.
+  - `eq258X_xCons_right_of_eq258X` converts an `Eq258X` hypothesis into the swapped
+    `ih_swap` shape.
+  - `eq258X_yCons_yCons_lower_of_eq258X` converts the right lower-pair fact from
+    `Eq258X`.
+  - New `_from_families` wrappers for the `i ≥ k` and `i < k` weight>1 helpers.
 
 ## Current State
 - Build status: passing (`lake build AfTests 2>&1 | tail -40`, 1915 jobs).
 - Sorry count: 8 actual sorries across `AfTests`.
 - `Equation258.lean`: sorry-free.
 - Open blockers:
-  - Eq(2.58) still needs a final simultaneous induction driver that supplies
-    `ih_swap`, `ih_y_base`, and `ih_lower_pair` to the helper lemmas.
-  - The y-base obligation should come from the y-direction Eq(2.58) induction plus the
-    H-O side condition `s ∈ X`, turning `prependY j s` into `yCons j s`.
+  - Eq(2.58) still needs a final simultaneous induction driver. The `i ≥ k` helper now
+    consumes only family-shaped `Eq258X`/`Eq258Y` obligations.
+  - In the `i < k` helper, only the left lower-pair fact remains raw. Its current shape
+    uses the unnormalized product `xCons (k - i - 1) s`; under H-O's `s ∈ X` side
+    condition, a fully normalized family statement would usually expose `prependX`.
   - Current `bd` embedded Dolt store is empty; old issue data lives in `.beads/issues.jsonl`.
 
 ## Next Steps (Priority Order)
-1. Build the simultaneous Eq(2.58) induction driver over x/y directions and weight, with
+1. Decide whether to refactor the left lower-pair obligation to use normalized `prependX`
+   or to prove a dedicated unnormalized bridge for that exact helper shape.
+2. Build the simultaneous Eq(2.58) induction driver over x/y directions and weight, with
    side conditions matching H-O (`p ∈ X, q ∈ Y` and the swapped `p ∈ Y, q ∈ X`).
-2. Add small lemmas connecting the side conditions to prepend constructors, especially
-   `s ∈ X -> prependY j s = yCons j s` for the y-base boundary.
 3. Migrate or restore the old JSONL Beads so `bd ready` reflects the historical issue queue.
 
 ## Known Issues / Gotchas
@@ -38,6 +47,8 @@
 - `M_op.eq_def` can loop under broad `simp`; prefer targeted rewrites.
 - `Eq258YBaseObligation` is intentionally an assumption to the x-direction helpers. It
   records a real y-direction induction obligation rather than hiding it behind a local sorry.
+- `prependY_of_inX` and `prependX_of_inY` already exist in `MonoBlock.lean`; use them
+  for side-condition conversions.
 - Do not stage `.beads` runtime/Dolt files unless explicitly working on Beads migration.
 
 ## Files Modified

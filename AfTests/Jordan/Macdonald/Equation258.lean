@@ -339,6 +339,38 @@ def Eq258YBaseObligation (j m : ℕ) (r' s : FreeAssocMono) (v : FreeJordanAlg) 
     (1 / 2 : ℝ) • (M_op (prependY j (yCons m r')) s v +
       M_op (yCons m r') (yCons j s) v)
 
+/-- Convert the y-direction Eq(2.58) family into the concrete y-base obligation
+    used by the x-direction helpers. The `s ∈ X` side condition prevents the
+    right prepend from merging and turns `prependY j s` into `yCons j s`. -/
+theorem eq258YBaseObligation_of_eq258Y {j m : ℕ} {r' s : FreeAssocMono}
+    {v : FreeJordanAlg} (hs : s.inX) (h : Eq258Y j (yCons m r') s) :
+    Eq258YBaseObligation j m r' s v := by
+  simpa [Eq258YBaseObligation, T_apply, prependY_of_inX hs] using h v
+
+/-- Specialize an x-direction Eq(2.58) hypothesis when the right argument starts
+    with an x-block. This is the shape of the swapped induction term in the
+    weight > 1 helpers. -/
+theorem eq258X_xCons_right_of_eq258X {k i : ℕ} {p s : FreeAssocMono}
+    (h : Eq258X k p (xCons i s)) :
+    ∀ v : FreeJordanAlg,
+      T (pow x (k + 1)) (M_op p (xCons i s) v) =
+        (1 / 2 : ℝ) • (M_op (prependX k p) (xCons i s) v +
+          M_op p (xCons (k + 1 + i) s) v) := by
+  intro v
+  simpa [Eq258X, prependX] using h v
+
+/-- Specialize an x-direction Eq(2.58) hypothesis when both arguments start
+    with y-blocks, in the order used by the lower-pair obligation. -/
+theorem eq258X_yCons_yCons_lower_of_eq258X {k j m : ℕ} {r' s : FreeAssocMono}
+    (h : Eq258X k (yCons m r') (yCons j s)) :
+    ∀ v : FreeJordanAlg,
+      T (pow x (k + 1)) (M_op (yCons m r') (yCons j s) v) =
+        (1 / 2 : ℝ) •
+          (M_op (yCons m r') (xCons k (yCons j s)) v +
+            M_op (xCons k (yCons m r')) (yCons j s) v) := by
+  intro v
+  simpa [Eq258X, prependX, add_comm] using h v
+
 /-! ### Equation (2.58) weight > 1 — Inductive cases
 
 H-O lines 1346-1377. For p = x^{i+1}·r, q = y^{j+1}·s where r ∈ Y, s ∈ X,
@@ -706,3 +738,67 @@ theorem eq258_xCons_yCons_general_lt (k i j m : ℕ) (r' : FreeAssocMono)
       rw [dif_neg (by omega : ¬ k ≤ i), dif_pos (by omega : i ≤ k)]
       simp only [show ¬ k = i from by omega, ↓reduceIte]
   exact ih_lower_pair
+
+/-- Weight > 1, `i ≥ k`, with the swapped and y-base obligations supplied from
+    the Eq(2.58) theorem-family predicates. This is the adapter shape expected
+    from the eventual simultaneous induction driver. -/
+theorem eq258_xCons_yCons_general_ge_from_families (k i j m : ℕ)
+    (r' s : FreeAssocMono) (hik : k ≤ i) (hs : s.inX)
+    (ih_swap : Eq258X k (prependY j (yCons m r')) (xCons i s))
+    (ih_y : Eq258Y j (yCons m r') s) (v : FreeJordanAlg) :
+    T (pow x (k + 1)) (M_op (xCons i (yCons m r')) (yCons j s) v) =
+    (1 / 2 : ℝ) • (M_op (xCons (k + 1 + i) (yCons m r')) (yCons j s) v +
+      M_op (xCons i (yCons m r')) (xCons k (yCons j s)) v) := by
+  exact eq258_xCons_yCons_general_ge k i j m r' s hik
+    (eq258X_xCons_right_of_eq258X ih_swap) v
+    (eq258YBaseObligation_of_eq258Y hs ih_y)
+
+/-- Weight > 1, `i < k`, with the swapped and y-base obligations supplied from
+    the Eq(2.58) theorem-family predicates. The lower-pair facts remain explicit:
+    they are the remaining simultaneous-induction obligations for this branch. -/
+theorem eq258_xCons_yCons_general_lt_from_families (k i j m : ℕ)
+    (r' s : FreeAssocMono) (hik : i < k) (hs : s.inX)
+    (ih_swap : Eq258X k (prependY j (yCons m r')) (xCons i s))
+    (ih_y : Eq258Y j (yCons m r') s) (v : FreeJordanAlg)
+    (ih_lower_pair :
+      T (pow x (k - i)) (M_op (prependY j (yCons m r')) s v) =
+        (1 / 2 : ℝ) •
+          (M_op (prependY j (yCons m r')) (xCons (k - i - 1) s) v +
+            M_op (xCons (k - i - 1) (prependY j (yCons m r'))) s v) ∧
+      T (pow x (k - i)) (M_op (yCons m r') (yCons j s) v) =
+        (1 / 2 : ℝ) •
+          (M_op (yCons m r') (xCons (k - i - 1) (yCons j s)) v +
+            M_op (xCons (k - i - 1) (yCons m r')) (yCons j s) v)) :
+    T (pow x (k + 1)) (M_op (xCons i (yCons m r')) (yCons j s) v) =
+    (1 / 2 : ℝ) • (M_op (xCons (k + 1 + i) (yCons m r')) (yCons j s) v +
+      M_op (xCons i (yCons m r')) (xCons k (yCons j s)) v) := by
+  exact eq258_xCons_yCons_general_lt k i j m r' s hik
+    (eq258X_xCons_right_of_eq258X ih_swap) v
+    (eq258YBaseObligation_of_eq258Y hs ih_y) ih_lower_pair
+
+/-- Weight > 1, `i < k`, with all family-shaped obligations supplied from
+    `Eq258X`/`Eq258Y`. Only the left lower-pair fact remains explicit because
+    its current helper shape uses the unnormalized product `xCons _ s`. -/
+theorem eq258_xCons_yCons_general_lt_from_family_obligations (k i j m : ℕ)
+    (r' s : FreeAssocMono) (hik : i < k) (hs : s.inX)
+    (ih_swap : Eq258X k (prependY j (yCons m r')) (xCons i s))
+    (ih_y : Eq258Y j (yCons m r') s)
+    (v : FreeJordanAlg)
+    (ih_lower_left :
+      T (pow x (k - i)) (M_op (prependY j (yCons m r')) s v) =
+        (1 / 2 : ℝ) •
+          (M_op (prependY j (yCons m r')) (xCons (k - i - 1) s) v +
+            M_op (xCons (k - i - 1) (prependY j (yCons m r'))) s v))
+    (ih_lower_right : Eq258X (k - i - 1) (yCons m r') (yCons j s)) :
+    T (pow x (k + 1)) (M_op (xCons i (yCons m r')) (yCons j s) v) =
+    (1 / 2 : ℝ) • (M_op (xCons (k + 1 + i) (yCons m r')) (yCons j s) v +
+      M_op (xCons i (yCons m r')) (xCons k (yCons j s)) v) := by
+  have h_right :
+      T (pow x (k - i)) (M_op (yCons m r') (yCons j s) v) =
+        (1 / 2 : ℝ) •
+          (M_op (yCons m r') (xCons (k - i - 1) (yCons j s)) v +
+            M_op (xCons (k - i - 1) (yCons m r')) (yCons j s) v) := by
+    have h := eq258X_yCons_yCons_lower_of_eq258X ih_lower_right v
+    simpa [show k - i - 1 + 1 = k - i from by omega] using h
+  exact eq258_xCons_yCons_general_lt_from_families k i j m r' s hik hs ih_swap ih_y v
+    ⟨ih_lower_left, h_right⟩
