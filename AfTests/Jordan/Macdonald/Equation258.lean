@@ -1058,6 +1058,522 @@ theorem eq258Y_one_xCons_exact (j m : ℕ) (r' : FreeAssocMono) :
   rw [h]
   module
 
+/-- Long boundary case for Eq(2.58), `i ≥ k`, with second argument `1`.
+
+This is the H-O (2.56a) boundary analogue of
+`eq258_xCons_yCons_general_ge`. The swapped term has the same total block
+weight as the target, so this helper exposes that obligation explicitly rather
+than pretending it is available from `Eq258DriverIH`. -/
+theorem eq258_xCons_one_general_ge (k i m : ℕ) (r' : FreeAssocMono)
+    (hik : k ≤ i)
+    (ih_swap : ∀ v, T (pow x (k + 1)) (M_op (yCons m r') (xCons i one) v) =
+      (1 / 2 : ℝ) • (M_op (xCons k (yCons m r')) (xCons i one) v +
+        M_op (yCons m r') (xCons (k + 1 + i) one) v))
+    (v : FreeJordanAlg) :
+    T (pow x (k + 1)) (M_op (xCons i (yCons m r')) one v) =
+    (1 / 2 : ℝ) • (M_op (xCons (k + 1 + i) (yCons m r')) one v +
+      M_op (xCons i (yCons m r')) (xCons k one) v) := by
+  rw [eq259_xCons_one]
+  rw [T_sub, T_smul']
+  have h249 := @JordanAlgebra.operator_identity_249 FreeJordanAlg _
+    FreeJordanAlg.x (1 : FreeJordanAlg) (k + 1) (i - k)
+  have h249v := LinearMap.ext_iff.mp h249 (M_op (yCons m r') one v)
+  simp only [LinearMap.smul_apply, LinearMap.comp_apply, LinearMap.add_apply] at h249v
+  simp only [FJ_L_apply, FJ_jpow_eq_pow, FJ_U_bilinear_eq, FJ_U_linear_apply] at h249v
+  rw [show k + 1 + (i - k) = i + 1 from by omega,
+      show k + 1 + (i + 1) = k + 1 + i + 1 from by omega] at h249v
+  rw [ih_swap]
+  have h249' : T (pow x (k + 1)) (T (pow x (i + 1)) (M_op (yCons m r') one v)) =
+    (1 / 2 : ℝ) • (U (pow x (k + 1))
+        (U_bilinear (pow x (i - k)) 1 (M_op (yCons m r') one v)) +
+      U_bilinear (pow x (k + 1 + i + 1)) 1 (M_op (yCons m r') one v)) := by
+    simp only [T_apply] at h249v ⊢
+    rw [show mul (pow x (i + 1)) (M_op (yCons m r') one v) =
+        U_bilinear (pow x (i + 1)) 1 (M_op (yCons m r') one v) from by
+      rw [U_bilinear_one_right]
+      rfl]
+    rw [show mul (pow x (k + 1))
+          (U_bilinear (pow x (i + 1)) 1 (M_op (yCons m r') one v))
+        = (1 / 2 : ℝ) • ((2 : ℝ) • mul (pow x (k + 1))
+            (U_bilinear (pow x (i + 1)) 1 (M_op (yCons m r') one v))) from by
+          rw [smul_smul]
+          norm_num,
+      h249v]
+  rw [h249']
+  rw [smul_smul, show (2 : ℝ) * (1 / 2 : ℝ) = 1 from by norm_num, one_smul]
+  have h_big : U_bilinear (pow x (k + 1 + i + 1)) 1 (M_op (yCons m r') one v) =
+      (1 / 2 : ℝ) • (M_op (xCons (k + 1 + i) (yCons m r')) one v +
+        M_op (yCons m r') (xCons (k + 1 + i) one) v) := by
+    rw [U_bilinear_one_right]
+    have h := eq258X_yCons_one_exact (k + 1 + i) m r'
+    have hv := h v
+    simpa [Eq258X, prependX, T_apply] using hv
+  rw [h_big]
+  suffices h_key : U (pow x (k + 1))
+      (U_bilinear (pow x (i - k)) 1 (M_op (yCons m r') one v)) =
+    (1 / 2 : ℝ) • (M_op (xCons k (yCons m r')) (xCons i one) v +
+      M_op (xCons i (yCons m r')) (xCons k one) v) by
+    rw [h_key]
+    module
+  by_cases hik' : i = k
+  · subst hik'
+    rw [show pow x (i - i) = 1 from by simp [FreeJordanAlg.pow_zero]]
+    rw [U_bilinear_one_left]
+    simp only [T_apply, one_mul_eq]
+    rw [M_op_xCons_xCons i (yCons m r') one v]
+    module
+  · have hgt : k < i := Nat.lt_of_le_of_ne hik (Ne.symm hik')
+    have hbase := eq258X_yCons_one_exact (i - k - 1) m r'
+    have hbasev := hbase v
+    have hbase' : U_bilinear (pow x (i - k)) 1 (M_op (yCons m r') one v) =
+      (1 / 2 : ℝ) • (M_op (xCons (i - k - 1) (yCons m r')) one v +
+        M_op (yCons m r') (xCons (i - k - 1) one) v) := by
+      rw [U_bilinear_one_right]
+      simpa [Eq258X, prependX, T_apply, show i - k - 1 + 1 = i - k from by omega]
+        using hbasev
+    rw [hbase']
+    rw [← FJ_U_eq, JordanAlgebra.U_smul_right, JordanAlgebra.U_add_right,
+      FJ_U_eq, FJ_U_eq]
+    rw [M_op_U_prependX, M_op_U_prependX]
+    rw [show prependX k (xCons (i - k - 1) (yCons m r')) =
+      xCons i (yCons m r') from by
+        simp [prependX]
+        omega]
+    rw [show prependX k (xCons (i - k - 1) one) = xCons i one from by
+      simp [prependX]
+      omega]
+    simp only [show prependX k (yCons m r') = xCons k (yCons m r') from rfl,
+      show prependX k one = xCons k one from rfl]
+    rw [add_comm]
+
+/-- Long boundary case for Eq(2.58), `i < k`, with second argument `1`.
+
+The lower obligation is raw-right because the same-letter property naturally
+produces the unmerged right product `xCons (k - i - 1) one`. -/
+theorem eq258_xCons_one_general_lt (k i m : ℕ) (r' : FreeAssocMono)
+    (hik : i < k)
+    (ih_swap : ∀ v, T (pow x (k + 1)) (M_op (yCons m r') (xCons i one) v) =
+      (1 / 2 : ℝ) • (M_op (xCons k (yCons m r')) (xCons i one) v +
+        M_op (yCons m r') (xCons (k + 1 + i) one) v))
+    (v : FreeJordanAlg)
+    (ih_lower : Eq258XRawRight (k - i - 1) (yCons m r') one) :
+    T (pow x (k + 1)) (M_op (xCons i (yCons m r')) one v) =
+    (1 / 2 : ℝ) • (M_op (xCons (k + 1 + i) (yCons m r')) one v +
+      M_op (xCons i (yCons m r')) (xCons k one) v) := by
+  rw [eq259_xCons_one]
+  rw [T_sub, T_smul']
+  have h247 := @JordanAlgebra.operator_identity_247 FreeJordanAlg _
+    FreeJordanAlg.x (1 : FreeJordanAlg) (i + 1) (k + 1)
+  have h247v := LinearMap.ext_iff.mp h247 (M_op (yCons m r') one v)
+  simp only [LinearMap.comp_apply, LinearMap.add_apply] at h247v
+  simp only [FJ_L_apply, FJ_jpow_eq_pow, FJ_U_bilinear_eq] at h247v
+  rw [ih_swap]
+  have h247_iso :
+      T (pow x (k + 1)) (T (pow x (i + 1)) (M_op (yCons m r') one v)) =
+        -T (pow x (i + 1))
+            (U_bilinear (pow x (k + 1)) 1 (M_op (yCons m r') one v)) +
+          U_bilinear (pow x (i + 1)) (pow x (k + 1))
+            (T 1 (M_op (yCons m r') one v)) +
+          U_bilinear (pow x (i + 1 + (k + 1))) 1
+            (M_op (yCons m r') one v) := by
+    rw [← U_bilinear_one_right (pow x (i + 1)) (M_op (yCons m r') one v)]
+    calc
+      T (pow x (k + 1))
+          (U_bilinear (pow x (i + 1)) 1 (M_op (yCons m r') one v)) =
+        (T (pow x (k + 1))
+            (U_bilinear (pow x (i + 1)) 1 (M_op (yCons m r') one v)) +
+          T (pow x (i + 1))
+            (U_bilinear (pow x (k + 1)) 1 (M_op (yCons m r') one v))) -
+          T (pow x (i + 1))
+            (U_bilinear (pow x (k + 1)) 1 (M_op (yCons m r') one v)) := by
+          abel
+      _ =
+        (U_bilinear (pow x (i + 1)) (pow x (k + 1))
+            (T 1 (M_op (yCons m r') one v)) +
+          U_bilinear (pow x (i + 1 + (k + 1))) 1
+            (M_op (yCons m r') one v)) -
+          T (pow x (i + 1))
+            (U_bilinear (pow x (k + 1)) 1 (M_op (yCons m r') one v)) := by
+          rw [h247v]
+      _ =
+        -T (pow x (i + 1))
+            (U_bilinear (pow x (k + 1)) 1 (M_op (yCons m r') one v)) +
+          U_bilinear (pow x (i + 1)) (pow x (k + 1))
+            (T 1 (M_op (yCons m r') one v)) +
+          U_bilinear (pow x (i + 1 + (k + 1))) 1
+            (M_op (yCons m r') one v) := by
+          abel
+  have h249 := @JordanAlgebra.operator_identity_249 FreeJordanAlg _
+    FreeJordanAlg.x (1 : FreeJordanAlg) (i + 1) (k - i)
+  have h249v := LinearMap.ext_iff.mp h249 (M_op (yCons m r') one v)
+  simp only [LinearMap.smul_apply, LinearMap.comp_apply, LinearMap.add_apply] at h249v
+  simp only [FJ_L_apply, FJ_jpow_eq_pow, FJ_U_bilinear_eq, FJ_U_linear_apply] at h249v
+  rw [show i + 1 + (k - i) = k + 1 from by omega,
+      show i + 1 + (k + 1) = i + 1 + k + 1 from by omega] at h249v
+  have h249_iso :
+      T (pow x (i + 1))
+          (U_bilinear (pow x (k + 1)) 1 (M_op (yCons m r') one v)) =
+        (1 / 2 : ℝ) •
+          (U (pow x (i + 1))
+              (U_bilinear (pow x (k - i)) 1 (M_op (yCons m r') one v)) +
+            U_bilinear (pow x (i + 1 + k + 1)) 1
+              (M_op (yCons m r') one v)) := by
+    simp only [T_apply] at h249v ⊢
+    rw [show mul (pow x (i + 1))
+          (U_bilinear (pow x (k + 1)) 1 (M_op (yCons m r') one v))
+        = (1 / 2 : ℝ) • ((2 : ℝ) • mul (pow x (i + 1))
+            (U_bilinear (pow x (k + 1)) 1 (M_op (yCons m r') one v))) from by
+          rw [smul_smul]
+          norm_num,
+      h249v]
+  rw [h247_iso, h249_iso]
+  have h_same :
+      U_bilinear (pow x (i + 1)) (pow x (k + 1))
+          (T 1 (M_op (yCons m r') one v)) =
+        (1 / 2 : ℝ) • (M_op (xCons k (yCons m r')) (xCons i one) v +
+          M_op (xCons i (yCons m r')) (xCons k one) v) := by
+    simp only [T_apply, one_mul_eq]
+    rw [U_bilinear_x_pow_lt_as_U_T i k hik]
+    have h_lower' :
+        T (pow x (k - i)) (M_op (yCons m r') one v) =
+          (1 / 2 : ℝ) •
+            (M_op (yCons m r') (xCons (k - i - 1) one) v +
+              M_op (xCons (k - i - 1) (yCons m r')) one v) := by
+      simpa [Eq258XRawRight, show k - i - 1 + 1 = k - i from by omega]
+        using ih_lower v
+    rw [h_lower']
+    rw [← FJ_U_eq, JordanAlgebra.U_smul_right, JordanAlgebra.U_add_right,
+      FJ_U_eq, FJ_U_eq]
+    rw [M_op_U_prependX, M_op_U_prependX]
+    rw [show prependX i (xCons (k - i - 1) (yCons m r')) =
+      xCons k (yCons m r') from by
+        simp [prependX]
+        omega]
+    rw [show prependX i (xCons (k - i - 1) one) = xCons k one from by
+      simp [prependX]
+      omega]
+    simp only [show prependX i (yCons m r') = xCons i (yCons m r') from rfl,
+      show prependX i one = xCons i one from rfl]
+    rw [add_comm]
+  have h_first : U (pow x (i + 1))
+      (U_bilinear (pow x (k - i)) 1 (M_op (yCons m r') one v)) =
+        (1 / 2 : ℝ) • (M_op (xCons k (yCons m r')) (xCons i one) v +
+          M_op (xCons i (yCons m r')) (xCons k one) v) := by
+    have h_lower' :
+        T (pow x (k - i)) (M_op (yCons m r') one v) =
+          (1 / 2 : ℝ) •
+            (M_op (yCons m r') (xCons (k - i - 1) one) v +
+              M_op (xCons (k - i - 1) (yCons m r')) one v) := by
+      simpa [Eq258XRawRight, show k - i - 1 + 1 = k - i from by omega]
+        using ih_lower v
+    rw [show U_bilinear (pow x (k - i)) 1 (M_op (yCons m r') one v) =
+        T (pow x (k - i)) (M_op (yCons m r') one v) from by
+      rw [U_bilinear_one_right]]
+    rw [h_lower']
+    rw [← FJ_U_eq, JordanAlgebra.U_smul_right, JordanAlgebra.U_add_right,
+      FJ_U_eq, FJ_U_eq]
+    rw [M_op_U_prependX, M_op_U_prependX]
+    rw [show prependX i (xCons (k - i - 1) (yCons m r')) =
+      xCons k (yCons m r') from by
+        simp [prependX]
+        omega]
+    rw [show prependX i (xCons (k - i - 1) one) = xCons k one from by
+      simp [prependX]
+      omega]
+    simp only [show prependX i (yCons m r') = xCons i (yCons m r') from rfl,
+      show prependX i one = xCons i one from rfl]
+    rw [add_comm]
+  have h_big : U_bilinear (pow x (i + 1 + k + 1)) 1 (M_op (yCons m r') one v) =
+      (1 / 2 : ℝ) • (M_op (xCons (i + 1 + k) (yCons m r')) one v +
+        M_op (yCons m r') (xCons (i + 1 + k) one) v) := by
+    rw [U_bilinear_one_right]
+    have h := eq258X_yCons_one_exact (i + 1 + k) m r'
+    have hv := h v
+    simpa [Eq258X, prependX, T_apply] using hv
+  rw [h_first]
+  rw [h_same]
+  rw [show i + 1 + (k + 1) = i + 1 + k + 1 from by omega]
+  rw [h_big]
+  rw [show i + 1 + k = k + 1 + i from by omega]
+  module
+
+/-- Combined long boundary x-direction adapter for second argument `1`.
+
+The swapped same-weight obligation remains explicit; it cannot be discharged from
+the total-weight `Eq258DriverIH` alone. -/
+theorem eq258X_xCons_yCons_one_from_family_obligations (k i m : ℕ)
+    (r' : FreeAssocMono)
+    (ih_swap : Eq258X k (yCons m r') (xCons i one))
+    (ih_lower : i < k → Eq258XRawRight (k - i - 1) (yCons m r') one) :
+    Eq258X k (xCons i (yCons m r')) one := by
+  intro v
+  by_cases hik : k ≤ i
+  · simpa [Eq258X, prependX] using
+      eq258_xCons_one_general_ge k i m r' hik (eq258X_xCons_right_of_eq258X ih_swap) v
+  · have hlt : i < k := Nat.lt_of_not_ge hik
+    simpa [Eq258X, prependX] using
+      eq258_xCons_one_general_lt k i m r' hlt (eq258X_xCons_right_of_eq258X ih_swap) v
+        (ih_lower hlt)
+
+/-- Long boundary case for the y-direction Eq(2.58), `j ≥ l`, with second argument `1`.
+
+Symmetric to `eq258_xCons_one_general_ge`; the same-weight swapped obligation is
+kept explicit for the same reason. -/
+theorem eq258_yCons_one_general_ge (l j m : ℕ) (r' : FreeAssocMono)
+    (hlj : l ≤ j)
+    (ih_swap : ∀ v, T (pow y (l + 1)) (M_op (xCons m r') (yCons j one) v) =
+      (1 / 2 : ℝ) • (M_op (yCons l (xCons m r')) (yCons j one) v +
+        M_op (xCons m r') (yCons (l + 1 + j) one) v))
+    (v : FreeJordanAlg) :
+    T (pow y (l + 1)) (M_op (yCons j (xCons m r')) one v) =
+    (1 / 2 : ℝ) • (M_op (yCons (l + 1 + j) (xCons m r')) one v +
+      M_op (yCons j (xCons m r')) (yCons l one) v) := by
+  rw [eq259_yCons_one]
+  rw [T_sub, T_smul']
+  have h249 := @JordanAlgebra.operator_identity_249 FreeJordanAlg _
+    FreeJordanAlg.y (1 : FreeJordanAlg) (l + 1) (j - l)
+  have h249v := LinearMap.ext_iff.mp h249 (M_op (xCons m r') one v)
+  simp only [LinearMap.smul_apply, LinearMap.comp_apply, LinearMap.add_apply] at h249v
+  simp only [FJ_L_apply, FJ_jpow_eq_pow, FJ_U_bilinear_eq, FJ_U_linear_apply] at h249v
+  rw [show l + 1 + (j - l) = j + 1 from by omega,
+      show l + 1 + (j + 1) = l + 1 + j + 1 from by omega] at h249v
+  rw [ih_swap]
+  have h249' : T (pow y (l + 1)) (T (pow y (j + 1)) (M_op (xCons m r') one v)) =
+    (1 / 2 : ℝ) • (U (pow y (l + 1))
+        (U_bilinear (pow y (j - l)) 1 (M_op (xCons m r') one v)) +
+      U_bilinear (pow y (l + 1 + j + 1)) 1 (M_op (xCons m r') one v)) := by
+    simp only [T_apply] at h249v ⊢
+    rw [show mul (pow y (j + 1)) (M_op (xCons m r') one v) =
+        U_bilinear (pow y (j + 1)) 1 (M_op (xCons m r') one v) from by
+      rw [U_bilinear_one_right]
+      rfl]
+    rw [show mul (pow y (l + 1))
+          (U_bilinear (pow y (j + 1)) 1 (M_op (xCons m r') one v))
+        = (1 / 2 : ℝ) • ((2 : ℝ) • mul (pow y (l + 1))
+            (U_bilinear (pow y (j + 1)) 1 (M_op (xCons m r') one v))) from by
+          rw [smul_smul]
+          norm_num,
+      h249v]
+  rw [h249']
+  rw [smul_smul, show (2 : ℝ) * (1 / 2 : ℝ) = 1 from by norm_num, one_smul]
+  have h_big : U_bilinear (pow y (l + 1 + j + 1)) 1 (M_op (xCons m r') one v) =
+      (1 / 2 : ℝ) • (M_op (yCons (l + 1 + j) (xCons m r')) one v +
+        M_op (xCons m r') (yCons (l + 1 + j) one) v) := by
+    rw [U_bilinear_one_right]
+    have h := eq258Y_xCons_one_exact (l + 1 + j) m r'
+    have hv := h v
+    simpa [Eq258Y, prependY, T_apply] using hv
+  rw [h_big]
+  suffices h_key : U (pow y (l + 1))
+      (U_bilinear (pow y (j - l)) 1 (M_op (xCons m r') one v)) =
+    (1 / 2 : ℝ) • (M_op (yCons l (xCons m r')) (yCons j one) v +
+      M_op (yCons j (xCons m r')) (yCons l one) v) by
+    rw [h_key]
+    module
+  by_cases hlj' : j = l
+  · subst hlj'
+    rw [show pow y (j - j) = 1 from by simp [FreeJordanAlg.pow_zero]]
+    rw [U_bilinear_one_left]
+    simp only [T_apply, one_mul_eq]
+    rw [M_op_yCons_yCons j (xCons m r') one v]
+    module
+  · have hgt : l < j := Nat.lt_of_le_of_ne hlj (Ne.symm hlj')
+    have hbase := eq258Y_xCons_one_exact (j - l - 1) m r'
+    have hbasev := hbase v
+    have hbase' : U_bilinear (pow y (j - l)) 1 (M_op (xCons m r') one v) =
+      (1 / 2 : ℝ) • (M_op (yCons (j - l - 1) (xCons m r')) one v +
+        M_op (xCons m r') (yCons (j - l - 1) one) v) := by
+      rw [U_bilinear_one_right]
+      simpa [Eq258Y, prependY, T_apply, show j - l - 1 + 1 = j - l from by omega]
+        using hbasev
+    rw [hbase']
+    rw [← FJ_U_eq, JordanAlgebra.U_smul_right, JordanAlgebra.U_add_right,
+      FJ_U_eq, FJ_U_eq]
+    rw [M_op_U_prependY, M_op_U_prependY]
+    rw [show prependY l (yCons (j - l - 1) (xCons m r')) =
+      yCons j (xCons m r') from by
+        simp [prependY]
+        omega]
+    rw [show prependY l (yCons (j - l - 1) one) = yCons j one from by
+      simp [prependY]
+      omega]
+    simp only [show prependY l (xCons m r') = yCons l (xCons m r') from rfl,
+      show prependY l one = yCons l one from rfl]
+    rw [add_comm]
+
+/-- Long boundary case for the y-direction Eq(2.58), `j < l`, with second argument `1`. -/
+theorem eq258_yCons_one_general_lt (l j m : ℕ) (r' : FreeAssocMono)
+    (hjl : j < l)
+    (ih_swap : ∀ v, T (pow y (l + 1)) (M_op (xCons m r') (yCons j one) v) =
+      (1 / 2 : ℝ) • (M_op (yCons l (xCons m r')) (yCons j one) v +
+        M_op (xCons m r') (yCons (l + 1 + j) one) v))
+    (v : FreeJordanAlg)
+    (ih_lower : Eq258YRawRight (l - j - 1) (xCons m r') one) :
+    T (pow y (l + 1)) (M_op (yCons j (xCons m r')) one v) =
+    (1 / 2 : ℝ) • (M_op (yCons (l + 1 + j) (xCons m r')) one v +
+      M_op (yCons j (xCons m r')) (yCons l one) v) := by
+  rw [eq259_yCons_one]
+  rw [T_sub, T_smul']
+  have h247 := @JordanAlgebra.operator_identity_247 FreeJordanAlg _
+    FreeJordanAlg.y (1 : FreeJordanAlg) (j + 1) (l + 1)
+  have h247v := LinearMap.ext_iff.mp h247 (M_op (xCons m r') one v)
+  simp only [LinearMap.comp_apply, LinearMap.add_apply] at h247v
+  simp only [FJ_L_apply, FJ_jpow_eq_pow, FJ_U_bilinear_eq] at h247v
+  rw [ih_swap]
+  have h247_iso :
+      T (pow y (l + 1)) (T (pow y (j + 1)) (M_op (xCons m r') one v)) =
+        -T (pow y (j + 1))
+            (U_bilinear (pow y (l + 1)) 1 (M_op (xCons m r') one v)) +
+          U_bilinear (pow y (j + 1)) (pow y (l + 1))
+            (T 1 (M_op (xCons m r') one v)) +
+          U_bilinear (pow y (j + 1 + (l + 1))) 1
+            (M_op (xCons m r') one v) := by
+    rw [← U_bilinear_one_right (pow y (j + 1)) (M_op (xCons m r') one v)]
+    calc
+      T (pow y (l + 1))
+          (U_bilinear (pow y (j + 1)) 1 (M_op (xCons m r') one v)) =
+        (T (pow y (l + 1))
+            (U_bilinear (pow y (j + 1)) 1 (M_op (xCons m r') one v)) +
+          T (pow y (j + 1))
+            (U_bilinear (pow y (l + 1)) 1 (M_op (xCons m r') one v))) -
+          T (pow y (j + 1))
+            (U_bilinear (pow y (l + 1)) 1 (M_op (xCons m r') one v)) := by
+          abel
+      _ =
+        (U_bilinear (pow y (j + 1)) (pow y (l + 1))
+            (T 1 (M_op (xCons m r') one v)) +
+          U_bilinear (pow y (j + 1 + (l + 1))) 1
+            (M_op (xCons m r') one v)) -
+          T (pow y (j + 1))
+            (U_bilinear (pow y (l + 1)) 1 (M_op (xCons m r') one v)) := by
+          rw [h247v]
+      _ =
+        -T (pow y (j + 1))
+            (U_bilinear (pow y (l + 1)) 1 (M_op (xCons m r') one v)) +
+          U_bilinear (pow y (j + 1)) (pow y (l + 1))
+            (T 1 (M_op (xCons m r') one v)) +
+          U_bilinear (pow y (j + 1 + (l + 1))) 1
+            (M_op (xCons m r') one v) := by
+          abel
+  have h249 := @JordanAlgebra.operator_identity_249 FreeJordanAlg _
+    FreeJordanAlg.y (1 : FreeJordanAlg) (j + 1) (l - j)
+  have h249v := LinearMap.ext_iff.mp h249 (M_op (xCons m r') one v)
+  simp only [LinearMap.smul_apply, LinearMap.comp_apply, LinearMap.add_apply] at h249v
+  simp only [FJ_L_apply, FJ_jpow_eq_pow, FJ_U_bilinear_eq, FJ_U_linear_apply] at h249v
+  rw [show j + 1 + (l - j) = l + 1 from by omega,
+      show j + 1 + (l + 1) = j + 1 + l + 1 from by omega] at h249v
+  have h249_iso :
+      T (pow y (j + 1))
+          (U_bilinear (pow y (l + 1)) 1 (M_op (xCons m r') one v)) =
+        (1 / 2 : ℝ) •
+          (U (pow y (j + 1))
+              (U_bilinear (pow y (l - j)) 1 (M_op (xCons m r') one v)) +
+            U_bilinear (pow y (j + 1 + l + 1)) 1
+              (M_op (xCons m r') one v)) := by
+    simp only [T_apply] at h249v ⊢
+    rw [show mul (pow y (j + 1))
+          (U_bilinear (pow y (l + 1)) 1 (M_op (xCons m r') one v))
+        = (1 / 2 : ℝ) • ((2 : ℝ) • mul (pow y (j + 1))
+            (U_bilinear (pow y (l + 1)) 1 (M_op (xCons m r') one v))) from by
+          rw [smul_smul]
+          norm_num,
+      h249v]
+  rw [h247_iso, h249_iso]
+  have h_same :
+      U_bilinear (pow y (j + 1)) (pow y (l + 1))
+          (T 1 (M_op (xCons m r') one v)) =
+        (1 / 2 : ℝ) • (M_op (yCons l (xCons m r')) (yCons j one) v +
+          M_op (yCons j (xCons m r')) (yCons l one) v) := by
+    simp only [T_apply, one_mul_eq]
+    rw [U_bilinear_y_pow_lt_as_U_T j l hjl]
+    have h_lower' :
+        T (pow y (l - j)) (M_op (xCons m r') one v) =
+          (1 / 2 : ℝ) •
+            (M_op (xCons m r') (yCons (l - j - 1) one) v +
+              M_op (yCons (l - j - 1) (xCons m r')) one v) := by
+      simpa [Eq258YRawRight, show l - j - 1 + 1 = l - j from by omega]
+        using ih_lower v
+    rw [h_lower']
+    rw [← FJ_U_eq, JordanAlgebra.U_smul_right, JordanAlgebra.U_add_right,
+      FJ_U_eq, FJ_U_eq]
+    rw [M_op_U_prependY, M_op_U_prependY]
+    rw [show prependY j (yCons (l - j - 1) (xCons m r')) =
+      yCons l (xCons m r') from by
+        simp [prependY]
+        omega]
+    rw [show prependY j (yCons (l - j - 1) one) = yCons l one from by
+      simp [prependY]
+      omega]
+    simp only [show prependY j (xCons m r') = yCons j (xCons m r') from rfl,
+      show prependY j one = yCons j one from rfl]
+    rw [add_comm]
+  have h_first : U (pow y (j + 1))
+      (U_bilinear (pow y (l - j)) 1 (M_op (xCons m r') one v)) =
+        (1 / 2 : ℝ) • (M_op (yCons l (xCons m r')) (yCons j one) v +
+          M_op (yCons j (xCons m r')) (yCons l one) v) := by
+    have h_lower' :
+        T (pow y (l - j)) (M_op (xCons m r') one v) =
+          (1 / 2 : ℝ) •
+            (M_op (xCons m r') (yCons (l - j - 1) one) v +
+              M_op (yCons (l - j - 1) (xCons m r')) one v) := by
+      simpa [Eq258YRawRight, show l - j - 1 + 1 = l - j from by omega]
+        using ih_lower v
+    rw [show U_bilinear (pow y (l - j)) 1 (M_op (xCons m r') one v) =
+        T (pow y (l - j)) (M_op (xCons m r') one v) from by
+      rw [U_bilinear_one_right]]
+    rw [h_lower']
+    rw [← FJ_U_eq, JordanAlgebra.U_smul_right, JordanAlgebra.U_add_right,
+      FJ_U_eq, FJ_U_eq]
+    rw [M_op_U_prependY, M_op_U_prependY]
+    rw [show prependY j (yCons (l - j - 1) (xCons m r')) =
+      yCons l (xCons m r') from by
+        simp [prependY]
+        omega]
+    rw [show prependY j (yCons (l - j - 1) one) = yCons l one from by
+      simp [prependY]
+      omega]
+    simp only [show prependY j (xCons m r') = yCons j (xCons m r') from rfl,
+      show prependY j one = yCons j one from rfl]
+    rw [add_comm]
+  have h_big : U_bilinear (pow y (j + 1 + l + 1)) 1 (M_op (xCons m r') one v) =
+      (1 / 2 : ℝ) • (M_op (yCons (j + 1 + l) (xCons m r')) one v +
+        M_op (xCons m r') (yCons (j + 1 + l) one) v) := by
+    rw [U_bilinear_one_right]
+    have h := eq258Y_xCons_one_exact (j + 1 + l) m r'
+    have hv := h v
+    simpa [Eq258Y, prependY, T_apply] using hv
+  rw [h_first]
+  rw [h_same]
+  rw [show j + 1 + (l + 1) = j + 1 + l + 1 from by omega]
+  rw [h_big]
+  rw [show j + 1 + l = l + 1 + j from by omega]
+  module
+
+/-- Combined long boundary y-direction adapter for second argument `1`. -/
+theorem eq258Y_yCons_xCons_one_from_family_obligations (l j m : ℕ)
+    (r' : FreeAssocMono)
+    (ih_swap : Eq258Y l (xCons m r') (yCons j one))
+    (ih_lower : j < l → Eq258YRawRight (l - j - 1) (xCons m r') one) :
+    Eq258Y l (yCons j (xCons m r')) one := by
+  intro v
+  by_cases hlj : l ≤ j
+  · simpa [Eq258Y, prependY] using
+      eq258_yCons_one_general_ge l j m r' hlj (eq258Y_yCons_right_of_eq258Y ih_swap) v
+  · have hlt : j < l := Nat.lt_of_not_ge hlj
+    simpa [Eq258Y, prependY] using
+      eq258_yCons_one_general_lt l j m r' hlt (eq258Y_yCons_right_of_eq258Y ih_swap) v
+        (ih_lower hlt)
+
+/-- Left-boundary x-direction adapter for the long `one / yCons (xCons ...)` case. -/
+theorem eq258X_one_yCons_xCons_exact (k j m : ℕ) (r' : FreeAssocMono) :
+    Eq258X k one (yCons j (xCons m r')) :=
+  eq258X_one_yCons_exact k j (xCons m r')
+
+/-- Left-boundary y-direction adapter for the long `one / xCons (yCons ...)` case. -/
+theorem eq258Y_one_xCons_yCons_exact (l i m : ℕ) (r' : FreeAssocMono) :
+    Eq258Y l one (xCons i (yCons m r')) :=
+  eq258Y_one_xCons_exact l i (yCons m r')
+
 /-- Y-direction weight > 1, j ≥ l case. Symmetric to
     `eq258_xCons_yCons_general_ge`. -/
 theorem eq258_yCons_xCons_general_ge (l j i m : ℕ) (r' : FreeAssocMono)
