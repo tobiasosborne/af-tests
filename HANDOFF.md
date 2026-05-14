@@ -71,6 +71,12 @@
   - `eq258X_xCons_yCons_one_from_driverLayer` and
     `eq258Y_yCons_xCons_one_from_driverLayer` prove the long right-boundary
     constructor cases from `Eq258DriverLayer`.
+- Began formalizing the H-O symmetry step for swapped same-weight boundary facts:
+  - Added `M_op_yCons_one_xCons_one_comm`,
+    `M_op_xCons_one_xCons_yCons_one_comm`, and
+    `M_op_yCons_one_yCons_xCons_one_comm`.
+  - Added swapped pure-power base families:
+    `eq258X_yCons_one_xCons_one` and `eq258Y_xCons_one_yCons_one`.
 
 ## Current State
 - Build status: passing (`lake build AfTests 2>&1 | tail -40`, 1915 jobs).
@@ -81,7 +87,7 @@
     constructor branches now have driver-ready theorems.
   - The long one-argument boundary branches are proven as algebraic adapters, but
     their swapped same-weight obligations are carried by `Eq258DriverLayer`. The
-    remaining hard driver question is proving the swap fields themselves:
+    remaining hard driver question is proving the long swap fields themselves:
     `Eq258X k (yCons m r') (xCons i one)` and
     `Eq258Y l (xCons m r') (yCons j one)`.
   - In the `<` helpers, the left lower-pair facts are named as `Eq258XRawRight` /
@@ -91,9 +97,10 @@
   - Current `bd` embedded Dolt store is empty; old issue data lives in `.beads/issues.jsonl`.
 
 ## Next Steps (Priority Order)
-1. Prove or package the same-weight boundary swap fields required by `Eq258DriverLayer`:
-   `Eq258X k (yCons m r') (xCons i one)` and
-   `Eq258Y l (xCons m r') (yCons j one)`.
+1. Extend the H-O symmetry formalization from pure powers to long swap fields required
+   by `Eq258DriverLayer`:
+   `Eq258X k (yCons m (xCons ...)) (xCons i one)` and
+   `Eq258Y l (xCons m (yCons ...)) (yCons j one)`.
 2. Build the recursive simultaneous induction over the new layer, reusing
    `Eq258DriverIH` for strict total-weight decreases.
 3. Migrate or restore the old JSONL Beads so `bd ready` reflects the historical issue queue.

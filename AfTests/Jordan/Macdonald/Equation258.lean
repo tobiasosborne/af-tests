@@ -893,6 +893,67 @@ theorem eq258YRawRight_of_eq258Y_of_inX {j : ℕ} {p q : FreeAssocMono}
   simpa [Eq258YRawRight, Eq258Y, prependY_of_inX hp, prependY_of_inX hq, add_comm]
     using h v
 
+/-- Symmetry of `M_op` on opposite pure powers. This is the concrete
+    weight≤1 instance of H-O's symmetry in the tensor arguments. -/
+theorem M_op_yCons_one_xCons_one_comm (j i : ℕ) (v : FreeJordanAlg) :
+    M_op (yCons j one) (xCons i one) v = M_op (xCons i one) (yCons j one) v := by
+  simp only [M_op.eq_def]
+  rw [U_bilinear_comm]
+
+/-- Symmetry of the same-x pure/one-block term used by the swapped x-base case. -/
+theorem M_op_xCons_one_xCons_yCons_one_comm (i k j : ℕ) (v : FreeJordanAlg) :
+    M_op (xCons i one) (xCons k (yCons j one)) v =
+      M_op (xCons k (yCons j one)) (xCons i one) v := by
+  rw [M_op.eq_def (xCons i one) (xCons k (yCons j one)) v]
+  rw [M_op.eq_def (xCons k (yCons j one)) (xCons i one) v]
+  simp only [ge_iff_le]
+  by_cases hki : k ≤ i
+  · rw [dif_pos hki]
+    by_cases hik : i ≤ k
+    · rw [dif_pos hik]
+      have heq : i = k := by omega
+      subst heq
+      simp only [ite_true]
+      rw [M_op.eq_def one (yCons j one) v, M_op.eq_def (yCons j one) one v]
+    · rw [dif_neg hik]
+      have hne1 : ¬ i = k := by omega
+      simp only [hne1, ↓reduceIte]
+      simp only [M_op.eq_def]
+      rw [U_bilinear_comm]
+  · rw [dif_neg hki]
+    have hik : i ≤ k := by omega
+    rw [dif_pos hik]
+    have hne1 : ¬ k = i := by omega
+    simp only [hne1, ↓reduceIte]
+    simp only [M_op.eq_def]
+
+/-- Symmetry of the same-y pure/one-block term used by the swapped y-base case. -/
+theorem M_op_yCons_one_yCons_xCons_one_comm (j l i : ℕ) (v : FreeJordanAlg) :
+    M_op (yCons j one) (yCons l (xCons i one)) v =
+      M_op (yCons l (xCons i one)) (yCons j one) v := by
+  rw [M_op.eq_def (yCons j one) (yCons l (xCons i one)) v]
+  rw [M_op.eq_def (yCons l (xCons i one)) (yCons j one) v]
+  simp only [ge_iff_le]
+  by_cases hlj : l ≤ j
+  · rw [dif_pos hlj]
+    by_cases hjl : j ≤ l
+    · rw [dif_pos hjl]
+      have heq : j = l := by omega
+      subst heq
+      simp only [ite_true]
+      rw [M_op.eq_def one (xCons i one) v, M_op.eq_def (xCons i one) one v]
+    · rw [dif_neg hjl]
+      have hne1 : ¬ j = l := by omega
+      simp only [hne1, ↓reduceIte]
+      simp only [M_op.eq_def]
+      rw [U_bilinear_comm]
+  · rw [dif_neg hlj]
+    have hjl : j ≤ l := by omega
+    rw [dif_pos hjl]
+    have hne1 : ¬ l = j := by omega
+    simp only [hne1, ↓reduceIte]
+    simp only [M_op.eq_def]
+
 /-! ### Driver-ready weight≤1 x-direction cases -/
 
 theorem eq258X_one_one (k : ℕ) : Eq258X k one one := by
@@ -921,6 +982,16 @@ theorem eq258X_xCons_one_yCons_one (k i j : ℕ) :
   · simpa [Eq258X, prependX] using eq258_xCons_yCons_ge k i j hik v
   · have hlt : i < k := Nat.lt_of_not_ge hik
     simpa [Eq258X, prependX] using eq258_xCons_yCons_lt k i j hlt v
+
+/-- Swapped pure-power x-direction base case, following H-O's symmetry between
+    `p ∈ X, q ∈ Y` and `p ∈ Y, q ∈ X`. -/
+theorem eq258X_yCons_one_xCons_one (k j i : ℕ) :
+    Eq258X k (yCons j one) (xCons i one) := by
+  intro v
+  have h := eq258X_xCons_one_yCons_one k i j
+  simpa [Eq258X, prependX, M_op_yCons_one_xCons_one_comm,
+    M_op_xCons_one_xCons_yCons_one_comm, add_comm, Nat.add_comm, Nat.add_left_comm,
+    Nat.add_assoc] using h v
 
 /-! ### Driver-ready easy weight≤1 y-direction cases -/
 
@@ -963,6 +1034,16 @@ theorem eq258Y_yCons_one_xCons_one (l j i : ℕ) :
   · simpa [Eq258Y, prependY] using eq258_yCons_xCons_ge l j i hlj v
   · have hjl : j < l := Nat.lt_of_not_ge hlj
     simpa [Eq258Y, prependY] using eq258_yCons_xCons_lt l j i hjl v
+
+/-- Swapped pure-power y-direction base case, following H-O's symmetry between
+    `p ∈ Y, q ∈ X` and `p ∈ X, q ∈ Y`. -/
+theorem eq258Y_xCons_one_yCons_one (l i j : ℕ) :
+    Eq258Y l (xCons i one) (yCons j one) := by
+  intro v
+  have h := eq258Y_yCons_one_xCons_one l j i
+  simpa [Eq258Y, prependY, M_op_yCons_one_xCons_one_comm,
+    M_op_yCons_one_yCons_xCons_one_comm, add_comm, Nat.add_comm, Nat.add_left_comm,
+    Nat.add_assoc] using h v
 
 /-! ### Equation (2.58) weight > 1 — Inductive cases
 
