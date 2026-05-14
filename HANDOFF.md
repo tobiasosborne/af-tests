@@ -192,17 +192,32 @@
   - Verified `eq258X_of_driverIH_of_inX_inY` and
     `eq258Y_of_driverIH_of_inY_inX` with only standard Lean axioms
     (`propext`, `Classical.choice`, `Quot.sound`); no `sorryAx`.
+- Advanced the final-driver symmetry prerequisites:
+  - Added `M_op_xCons_yCons_comm_WF` and `M_op_yCons_xCons_comm_WF`, mutual
+    well-formed different-letter commutativity lemmas for H-O property (ii).
+    These cover the long/long swapped terms that the final side-conditioned
+    induction needs, without asserting false commutativity for arbitrary
+    non-WF total syntax.
+  - Added merged-prepend commutativity wrappers
+    `M_op_prependY_prependX_comm_WF` and
+    `M_op_prependX_prependY_comm_WF` for the exact concatenated products
+    produced by H-O (2.55)/(2.58).
+  - Added `prependX_inX`, `prependY_inY`, `WF_prependX_of_inX`, and
+    `WF_prependY_of_inY` in `MonoBlock.lean`, so merged prepends can be fed
+    back into the well-formed dispatcher layer.
 
 ## Current State
 - Build status: passing.
 - Passing checkpoints:
+  - `lake env lean AfTests/Jordan/Macdonald/MonoBlock.lean`
   - `lake env lean AfTests/Jordan/Macdonald/Equation258.lean`
   - `lake build AfTests.Jordan.Macdonald.Equation258`
   - `lake build AfTests`
 - Sorry count: `Equation258.lean` and the touched Macdonald support files have
   no `sorry`, `admit`, `axiom`, or `unsafe` source occurrences.
-- Axiom status for the two Eq258 dispatcher theorems: no `sorryAx`; only
-  `propext`, `Classical.choice`, and `Quot.sound`.
+- Axiom status for the two Eq258 dispatcher theorems and the new well-formed
+  commutativity lemmas: no `sorryAx`; only `propext`, `Classical.choice`, and
+  `Quot.sound`.
 - Open blockers:
   - The final driver still needs the global recursive case split, but that
     should now build on the H-O-aligned dispatcher layer.
@@ -210,11 +225,13 @@
     runtime state dirty under `.beads`; do not stage `.beads` runtime files.
 
 ## Next Steps (Priority Order)
-1. Build the final recursive simultaneous induction driver for Eq(2.58) on top
-   of `eq258X_of_driverIH_of_inX_inY` and `eq258Y_of_driverIH_of_inY_inX`.
-2. Replace the remaining prospective final-driver dependence on broad
-   `Eq258DriverIH.rawRight` with H-O-shaped packages such as
-   `Eq258DriverWFCore` and `Eq258LongBranchIH`.
+1. Replace the remaining broad `Eq258DriverIH` dependencies in the long
+   constructor wrappers with side-conditioned `Eq258DriverWFCore` obligations,
+   using the new `M_op_*_comm_WF` and merged-prepend commutativity wrappers for
+   the swapped H-O induction calls.
+2. Build the final recursive simultaneous induction driver for Eq(2.58) on top
+   of `eq258X_of_driverIH_of_inX_inY`, `eq258Y_of_driverIH_of_inY_inX`, and the
+   narrowed WF-core/long-branch adapters.
 3. Migrate or restore the old JSONL Beads so `bd ready` reflects the historical issue queue.
 
 ## Known Issues / Gotchas
@@ -229,6 +246,11 @@
   commutativity. It covers boundary symmetry against `1` and pure-vs-opposite-
   start symmetry, exactly the shapes exposed by (2.56)/(2.57) and the long
   boundary swap reducers.
+- `M_op_xCons_yCons_comm_WF` / `M_op_yCons_xCons_comm_WF` are the full
+  different-letter symmetry lemmas to use under H-O well-formed side
+  conditions. For merged H-O products, prefer
+  `M_op_prependY_prependX_comm_WF` and
+  `M_op_prependX_prependY_comm_WF`.
 - `bd ready` currently reports no open issues, but `bd show af-0llu` hit an embedded
   Dolt exclusive-lock error in this session. Do not assume Beads state is complete.
 - `bd create` currently fails with `database not initialized: issue_prefix config

@@ -1614,6 +1614,169 @@ theorem M_op_yCons_one_xCons_comm (j i : ℕ) (r : FreeAssocMono)
 
 end
 
+/-! Full different-letter symmetry for well-formed alternating blocks.
+
+This is H-O property (ii) in the x/y-starting case. It extends the boundary
+symmetry package above to the long/long shapes needed when the Eq(2.58)
+induction invokes the symmetric orientation. -/
+mutual
+
+/-- X-start/y-start form of H-O property (ii) for well-formed alternating blocks. -/
+theorem M_op_xCons_yCons_comm_WF (i j : ℕ) (r s : FreeAssocMono)
+    (hr : r.inY) (hs : s.inX) (hwr : r.WF) (hws : s.WF) (v : FreeJordanAlg) :
+    M_op (xCons i r) (yCons j s) v =
+      M_op (yCons j s) (xCons i r) v := by
+  cases r with
+  | one =>
+    cases s with
+    | one =>
+      exact (M_op_yCons_one_xCons_one_comm j i v).symm
+    | xCons l s' =>
+      exact M_op_xCons_one_yCons_comm i j (xCons l s') v
+    | yCons l s' =>
+      cases hs with
+      | inl h => cases h
+      | inr h => simp [inX0, startsWithX] at h
+  | xCons m r' =>
+    cases hr with
+    | inl h => cases h
+    | inr h => simp [inY0, startsWithY] at h
+  | yCons m r' =>
+    cases s with
+    | one =>
+      exact M_op_xCons_yCons_yCons_one_comm_of i m j r' v
+        (M_op_one_comm (yCons m r') v)
+        ((M_op_xCons_one_yCons_comm i (j + 1 + m) r' v).symm)
+    | xCons l s' =>
+      rw [M_op.eq_def (xCons i (yCons m r')) (yCons j (xCons l s')) v]
+      rw [M_op.eq_def (yCons j (xCons l s')) (xCons i (yCons m r')) v]
+      simp only [prependX, prependY]
+      rw [M_op_yCons_xCons_comm_WF m l r' s' hwr.1 hws.1 hwr.2 hws.2 v]
+      rw [M_op_yCons_xCons_comm_WF (j + 1 + m) (i + 1 + l) r' s'
+        hwr.1 hws.1 hwr.2 hws.2 v]
+      rw [U_bilinear_comm]
+    | yCons l s' =>
+      cases hs with
+      | inl h => cases h
+      | inr h => simp [inX0, startsWithX] at h
+
+/-- Y-start/x-start form of H-O property (ii) for well-formed alternating blocks. -/
+theorem M_op_yCons_xCons_comm_WF (j i : ℕ) (r s : FreeAssocMono)
+    (hr : r.inX) (hs : s.inY) (hwr : r.WF) (hws : s.WF) (v : FreeJordanAlg) :
+    M_op (yCons j r) (xCons i s) v =
+      M_op (xCons i s) (yCons j r) v := by
+  cases r with
+  | one =>
+    cases s with
+    | one =>
+      exact M_op_yCons_one_xCons_one_comm j i v
+    | xCons l s' =>
+      cases hs with
+      | inl h => cases h
+      | inr h => simp [inY0, startsWithY] at h
+    | yCons l s' =>
+      exact M_op_yCons_one_xCons_comm j i (yCons l s') v
+  | xCons m r' =>
+    cases s with
+    | one =>
+      exact M_op_yCons_xCons_xCons_one_comm_of j m i r' v
+        (M_op_one_comm (xCons m r') v)
+        ((M_op_yCons_one_xCons_comm j (i + 1 + m) r' v).symm)
+    | xCons l s' =>
+      cases hs with
+      | inl h => cases h
+      | inr h => simp [inY0, startsWithY] at h
+    | yCons l s' =>
+      rw [M_op.eq_def (yCons j (xCons m r')) (xCons i (yCons l s')) v]
+      rw [M_op.eq_def (xCons i (yCons l s')) (yCons j (xCons m r')) v]
+      simp only [prependX, prependY]
+      rw [M_op_xCons_yCons_comm_WF m l r' s' hwr.1 hws.1 hwr.2 hws.2 v]
+      rw [M_op_xCons_yCons_comm_WF (i + 1 + m) (j + 1 + l) r' s'
+        hwr.1 hws.1 hwr.2 hws.2 v]
+      rw [U_bilinear_comm]
+  | yCons m r' =>
+    cases hr with
+    | inl h => cases h
+    | inr h => simp [inX0, startsWithX] at h
+
+end
+
+/-- Commutativity for the merged y/x products exposed by the H-O long branches. -/
+theorem M_op_prependY_prependX_comm_WF (j i : ℕ) (p q : FreeAssocMono)
+    (hp : p.inY) (hq : q.inX) (hwp : p.WF) (hwq : q.WF) (v : FreeJordanAlg) :
+    M_op (prependY j p) (prependX i q) v =
+      M_op (prependX i q) (prependY j p) v := by
+  cases p with
+  | one =>
+    cases q with
+    | one =>
+      simpa [prependY, prependX] using
+        M_op_yCons_xCons_comm_WF j i one one one_inX one_inY trivial trivial v
+    | xCons l q' =>
+      simpa [prependY, prependX] using
+        M_op_yCons_xCons_comm_WF j (i + 1 + l) one q' one_inX hwq.1
+          trivial hwq.2 v
+    | yCons l q' =>
+      cases hq with
+      | inl h => cases h
+      | inr h => simp [inX0, startsWithX] at h
+  | xCons m p' =>
+    cases hp with
+    | inl h => cases h
+    | inr h => simp [inY0, startsWithY] at h
+  | yCons m p' =>
+    cases q with
+    | one =>
+      simpa [prependY, prependX] using
+        M_op_yCons_xCons_comm_WF (j + 1 + m) i p' one hwp.1 one_inY
+          hwp.2 trivial v
+    | xCons l q' =>
+      simpa [prependY, prependX] using
+        M_op_yCons_xCons_comm_WF (j + 1 + m) (i + 1 + l) p' q'
+          hwp.1 hwq.1 hwp.2 hwq.2 v
+    | yCons l q' =>
+      cases hq with
+      | inl h => cases h
+      | inr h => simp [inX0, startsWithX] at h
+
+/-- Commutativity for the merged x/y products exposed by the symmetric H-O long branches. -/
+theorem M_op_prependX_prependY_comm_WF (i j : ℕ) (p q : FreeAssocMono)
+    (hp : p.inX) (hq : q.inY) (hwp : p.WF) (hwq : q.WF) (v : FreeJordanAlg) :
+    M_op (prependX i p) (prependY j q) v =
+      M_op (prependY j q) (prependX i p) v := by
+  cases p with
+  | one =>
+    cases q with
+    | one =>
+      simpa [prependX, prependY] using
+        M_op_xCons_yCons_comm_WF i j one one one_inY one_inX trivial trivial v
+    | xCons l q' =>
+      cases hq with
+      | inl h => cases h
+      | inr h => simp [inY0, startsWithY] at h
+    | yCons l q' =>
+      simpa [prependX, prependY] using
+        M_op_xCons_yCons_comm_WF i (j + 1 + l) one q' one_inY hwq.1
+          trivial hwq.2 v
+  | xCons m p' =>
+    cases q with
+    | one =>
+      simpa [prependX, prependY] using
+        M_op_xCons_yCons_comm_WF (i + 1 + m) j p' one hwp.1 one_inX
+          hwp.2 trivial v
+    | xCons l q' =>
+      cases hq with
+      | inl h => cases h
+      | inr h => simp [inY0, startsWithY] at h
+    | yCons l q' =>
+      simpa [prependX, prependY] using
+        M_op_xCons_yCons_comm_WF (i + 1 + m) (j + 1 + l) p' q'
+          hwp.1 hwq.1 hwp.2 hwq.2 v
+  | yCons m p' =>
+    cases hp with
+    | inl h => cases h
+    | inr h => simp [inX0, startsWithX] at h
+
 /-- Boundary (2.58) obtained by rearranging H-O (2.56a). -/
 theorem eq258X_yCons_one_exact (i m : ℕ) (r' : FreeAssocMono) :
     Eq258X i (yCons m r') one := by

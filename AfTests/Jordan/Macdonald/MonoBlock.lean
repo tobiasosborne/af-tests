@@ -199,11 +199,43 @@ theorem weight_prependY (l : ℕ) (p : FreeAssocMono) :
 
 theorem prependX_prependX (k i : ℕ) (p : FreeAssocMono) :
     prependX k (prependX i p) = prependX (k + 1 + i) p := by
-  cases p <;> simp [prependX, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm]
+  cases p <;> simp [prependX, Nat.add_comm, Nat.add_left_comm]
 
 theorem prependY_prependY (l j : ℕ) (p : FreeAssocMono) :
     prependY l (prependY j p) = prependY (l + 1 + j) p := by
-  cases p <;> simp [prependY, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm]
+  cases p <;> simp [prependY, Nat.add_comm, Nat.add_left_comm]
+
+theorem prependX_inX (k : ℕ) (p : FreeAssocMono) : (prependX k p).inX :=
+  Or.inr (prependX_inX0 k p)
+
+theorem prependY_inY (l : ℕ) (p : FreeAssocMono) : (prependY l p).inY :=
+  Or.inr (prependY_inY0 l p)
+
+theorem WF_prependX_of_inX {p : FreeAssocMono} (hp : p.inX) (hwp : p.WF) (k : ℕ) :
+    (prependX k p).WF := by
+  cases p with
+  | one =>
+    simp [prependX, WF, one_inY]
+  | xCons i rest =>
+    simp [prependX, WF] at hwp ⊢
+    exact hwp
+  | yCons j rest =>
+    cases hp with
+    | inl h => cases h
+    | inr h => exact absurd h (by simp [inX0, startsWithX])
+
+theorem WF_prependY_of_inY {p : FreeAssocMono} (hp : p.inY) (hwp : p.WF) (l : ℕ) :
+    (prependY l p).WF := by
+  cases p with
+  | one =>
+    simp [prependY, WF, one_inX]
+  | xCons i rest =>
+    cases hp with
+    | inl h => cases h
+    | inr h => exact absurd h (by simp [inY0, startsWithY])
+  | yCons j rest =>
+    simp [prependY, WF] at hwp ⊢
+    exact hwp
 
 theorem weight_prependX_of_inX0 {p : FreeAssocMono} (hp : p.inX0) (k : ℕ) :
     (prependX k p).weight = p.weight := by
