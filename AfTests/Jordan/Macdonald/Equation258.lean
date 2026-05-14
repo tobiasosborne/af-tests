@@ -322,6 +322,14 @@ def Eq258X (k : ℕ) (p q : FreeAssocMono) : Prop :=
     T (pow x (k + 1)) (M_op p q v) =
       (1 / 2 : ℝ) • (M_op (prependX k p) q v + M_op p (prependX k q) v)
 
+/-- X-direction helper-family where the right multiplication is intentionally
+    left unmerged as `xCons k q`. This is the raw shape produced by the current
+    `M_op` recurrence helpers in the reversed-orientation lower-pair branch. -/
+def Eq258XRawRight (k : ℕ) (p q : FreeAssocMono) : Prop :=
+  ∀ v : FreeJordanAlg,
+    T (pow x (k + 1)) (M_op p q v) =
+      (1 / 2 : ℝ) • (M_op p (xCons k q) v + M_op (xCons k p) q v)
+
 /-- Y-direction companion to H-O (2.58), obtained by swapping `x` and `y`.
     The side conditions `p ∈ Y`, `q ∈ X` are tracked by the callers. -/
 def Eq258Y (j : ℕ) (p q : FreeAssocMono) : Prop :=
@@ -370,6 +378,16 @@ theorem eq258X_yCons_yCons_lower_of_eq258X {k j m : ℕ} {r' s : FreeAssocMono}
             M_op (xCons k (yCons m r')) (yCons j s) v) := by
   intro v
   simpa [Eq258X, prependX, add_comm] using h v
+
+/-- Specialize the raw-right x-direction helper-family to the left lower-pair
+    shape used in the `i < k` branch. -/
+theorem eq258XRawRight_lower_left_of_family {k : ℕ} {p q : FreeAssocMono}
+    (h : Eq258XRawRight k p q) :
+    ∀ v : FreeJordanAlg,
+      T (pow x (k + 1)) (M_op p q v) =
+        (1 / 2 : ℝ) • (M_op p (xCons k q) v + M_op (xCons k p) q v) := by
+  intro v
+  exact h v
 
 /-! ### Equation (2.58) weight > 1 — Inductive cases
 
@@ -776,19 +794,16 @@ theorem eq258_xCons_yCons_general_lt_from_families (k i j m : ℕ)
     (eq258X_xCons_right_of_eq258X ih_swap) v
     (eq258YBaseObligation_of_eq258Y hs ih_y) ih_lower_pair
 
-/-- Weight > 1, `i < k`, with all family-shaped obligations supplied from
-    `Eq258X`/`Eq258Y`. Only the left lower-pair fact remains explicit because
-    its current helper shape uses the unnormalized product `xCons _ s`. -/
+/-- Weight > 1, `i < k`, with all remaining obligations supplied from named
+    theorem-family predicates. The left lower-pair obligation uses
+    `Eq258XRawRight` because the current recurrence-helper algebra keeps the
+    right product unmerged as `xCons _ s`. -/
 theorem eq258_xCons_yCons_general_lt_from_family_obligations (k i j m : ℕ)
     (r' s : FreeAssocMono) (hik : i < k) (hs : s.inX)
     (ih_swap : Eq258X k (prependY j (yCons m r')) (xCons i s))
     (ih_y : Eq258Y j (yCons m r') s)
     (v : FreeJordanAlg)
-    (ih_lower_left :
-      T (pow x (k - i)) (M_op (prependY j (yCons m r')) s v) =
-        (1 / 2 : ℝ) •
-          (M_op (prependY j (yCons m r')) (xCons (k - i - 1) s) v +
-            M_op (xCons (k - i - 1) (prependY j (yCons m r'))) s v))
+    (ih_lower_left : Eq258XRawRight (k - i - 1) (prependY j (yCons m r')) s)
     (ih_lower_right : Eq258X (k - i - 1) (yCons m r') (yCons j s)) :
     T (pow x (k + 1)) (M_op (xCons i (yCons m r')) (yCons j s) v) =
     (1 / 2 : ℝ) • (M_op (xCons (k + 1 + i) (yCons m r')) (yCons j s) v +
@@ -800,5 +815,32 @@ theorem eq258_xCons_yCons_general_lt_from_family_obligations (k i j m : ℕ)
             M_op (xCons (k - i - 1) (yCons m r')) (yCons j s) v) := by
     have h := eq258X_yCons_yCons_lower_of_eq258X ih_lower_right v
     simpa [show k - i - 1 + 1 = k - i from by omega] using h
+  have h_left :
+      T (pow x (k - i)) (M_op (prependY j (yCons m r')) s v) =
+        (1 / 2 : ℝ) •
+          (M_op (prependY j (yCons m r')) (xCons (k - i - 1) s) v +
+            M_op (xCons (k - i - 1) (prependY j (yCons m r'))) s v) := by
+    have h := eq258XRawRight_lower_left_of_family ih_lower_left v
+    simpa [show k - i - 1 + 1 = k - i from by omega] using h
   exact eq258_xCons_yCons_general_lt_from_families k i j m r' s hik hs ih_swap ih_y v
-    ⟨ih_lower_left, h_right⟩
+    ⟨h_left, h_right⟩
+
+/-- Combined weight > 1 xCons/yCons adapter. It selects the H-O `i ≥ k` or
+    `i < k` helper internally, leaving only the induction-family obligations
+    needed by the selected branch. -/
+theorem eq258_xCons_yCons_general_from_family_obligations (k i j m : ℕ)
+    (r' s : FreeAssocMono) (hs : s.inX)
+    (ih_swap : Eq258X k (prependY j (yCons m r')) (xCons i s))
+    (ih_y : Eq258Y j (yCons m r') s)
+    (ih_lower_left :
+      i < k → Eq258XRawRight (k - i - 1) (prependY j (yCons m r')) s)
+    (ih_lower_right : i < k → Eq258X (k - i - 1) (yCons m r') (yCons j s))
+    (v : FreeJordanAlg) :
+    T (pow x (k + 1)) (M_op (xCons i (yCons m r')) (yCons j s) v) =
+    (1 / 2 : ℝ) • (M_op (xCons (k + 1 + i) (yCons m r')) (yCons j s) v +
+      M_op (xCons i (yCons m r')) (xCons k (yCons j s)) v) := by
+  by_cases hik : k ≤ i
+  · exact eq258_xCons_yCons_general_ge_from_families k i j m r' s hik hs ih_swap ih_y v
+  · have hlt : i < k := Nat.lt_of_not_ge hik
+    exact eq258_xCons_yCons_general_lt_from_family_obligations k i j m r' s hlt hs
+      ih_swap ih_y v (ih_lower_left hlt) (ih_lower_right hlt)

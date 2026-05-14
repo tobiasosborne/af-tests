@@ -20,7 +20,11 @@
     `ih_swap` shape.
   - `eq258X_yCons_yCons_lower_of_eq258X` converts the right lower-pair fact from
     `Eq258X`.
+  - `Eq258XRawRight` names the raw unmerged right-product obligation produced by the
+    current recurrence-helper algebra.
   - New `_from_families` wrappers for the `i ≥ k` and `i < k` weight>1 helpers.
+  - `eq258_xCons_yCons_general_from_family_obligations` combines the `i ≥ k`/`i < k`
+    split behind one constructor-case theorem for the future driver.
 
 ## Current State
 - Build status: passing (`lake build AfTests 2>&1 | tail -40`, 1915 jobs).
@@ -29,16 +33,16 @@
 - Open blockers:
   - Eq(2.58) still needs a final simultaneous induction driver. The `i ≥ k` helper now
     consumes only family-shaped `Eq258X`/`Eq258Y` obligations.
-  - In the `i < k` helper, only the left lower-pair fact remains raw. Its current shape
-    uses the unnormalized product `xCons (k - i - 1) s`; under H-O's `s ∈ X` side
-    condition, a fully normalized family statement would usually expose `prependX`.
+  - In the `i < k` helper, the left lower-pair fact is now named as `Eq258XRawRight`.
+    This keeps the existing proof honest: the helper algebra needs the unnormalized
+    product `xCons (k - i - 1) s`, not `prependX`.
   - Current `bd` embedded Dolt store is empty; old issue data lives in `.beads/issues.jsonl`.
 
 ## Next Steps (Priority Order)
-1. Decide whether to refactor the left lower-pair obligation to use normalized `prependX`
-   or to prove a dedicated unnormalized bridge for that exact helper shape.
-2. Build the simultaneous Eq(2.58) induction driver over x/y directions and weight, with
+1. Build the simultaneous Eq(2.58) induction driver over x/y directions and weight, with
    side conditions matching H-O (`p ∈ X, q ∈ Y` and the swapped `p ∈ Y, q ∈ X`).
+2. Include `Eq258XRawRight` as an auxiliary induction-family obligation, or refactor the
+   recurrence-helper algebra later if a normalized-only statement becomes necessary.
 3. Migrate or restore the old JSONL Beads so `bd ready` reflects the historical issue queue.
 
 ## Known Issues / Gotchas
