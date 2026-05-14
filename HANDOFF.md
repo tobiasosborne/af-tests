@@ -145,6 +145,18 @@
   - `eq258XRawRight_yCons_one_one` and `eq258YRawRight_xCons_one_one`.
   - These close directly after unfolding the boundary `M_op` definitions and
     commuting the pure opposite powers.
+- Refactored the long `<` branch lower-pair interface:
+  - Added local obligations `Eq258XLowerLeft` and `Eq258YLowerLeft`.
+  - Added compatibility adapters `Eq258XLowerLeft.of_rawRight` and
+    `Eq258YLowerLeft.of_rawRight`.
+  - Added lower-obligation wrappers:
+    `eq258_xCons_yCons_general_lt_from_lower_obligations`,
+    `eq258_xCons_yCons_general_from_lower_obligations`,
+    `eq258_yCons_xCons_general_lt_from_lower_obligations`, and
+    `eq258_yCons_xCons_general_from_lower_obligations`.
+  - Existing raw-right wrappers now route through these lower-obligation
+    wrappers, and the driver-IH constructor wrappers call the lower interface
+    directly with an explicit compatibility conversion.
 
 ## Current State
 - Build status: passing (`lake build AfTests 2>&1 | tail -40`, 1915 jobs).
@@ -163,9 +175,9 @@
     raw facts such as `Eq258XRawRight k one (xCons i one)` and the pure cross
     variant `Eq258XRawRight k (yCons j one) (xCons i one)` are not safe
     induction hypotheses: targeted unfolding exposes the total-syntax non-WF
-    fallback clauses rather than H-O theorem instances. The `<` branch should
-    be refactored to consume an adapter/proposition tailored to the generated
-    lower-pair algebra, not a broad raw-right family over cross WF inputs.
+    fallback clauses rather than H-O theorem instances. The long `<` branch
+    now consumes local lower-left obligations, but the final driver still needs
+    a proof source for those obligations that does not assume broad raw-right.
   - In the `<` helpers, the pure/long first lower-pair facts must be ordinary
     `Eq258X` / `Eq258Y`, not raw-right variants, because the right argument
     starts with the same generator and the prepend must merge.
@@ -178,10 +190,9 @@
 1. Build the recursive simultaneous induction step that produces
    `Eq258DriverIH (n + 1)` from `Eq258DriverIH n`, using the driver-ready
    constructor, boundary, and well-formed dispatcher wrappers now in place.
-2. Refactor the `<` branch lower-pair interface so it does not require broad
-   `Eq258XRawRight` / `Eq258YRawRight` on right-start same-letter total syntax.
-   Introduce a narrower lower-pair adapter matching the algebraic expression
-   actually needed by `eq258_xCons_yCons_general_lt` and its y-mirror.
+2. Find the real proof source for `Eq258XLowerLeft` / `Eq258YLowerLeft` in the
+   long `<` branches, or further refactor the algebra so those local obligations
+   are discharged by ordinary Eq258 facts plus `M_op` same-letter rewrites.
 3. During the driver case split, expect to add a few small adapters for
    total-syntax cases such as `one / xCons ...` in the x-family or
    `one / yCons ...` in the y-family if they are demanded by `Eq258DriverIH`.

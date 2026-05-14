@@ -745,6 +745,22 @@ def Eq258YRawRight (j : ℕ) (p q : FreeAssocMono) : Prop :=
     T (pow y (j + 1)) (M_op p q v) =
       (1 / 2 : ℝ) • (M_op p (yCons j q) v + M_op (yCons j p) q v)
 
+/-- Local x-direction lower-left obligation consumed by the `i < k` long
+    constructor algebra. This has the same displayed equation as
+    `Eq258XRawRight`, but it is intentionally not a global theorem-family field:
+    some total-syntax right-start same-letter instances are not H-O theorem
+    instances and should not be demanded from the final induction package. -/
+def Eq258XLowerLeft (k : ℕ) (p q : FreeAssocMono) : Prop :=
+  ∀ v : FreeJordanAlg,
+    T (pow x (k + 1)) (M_op p q v) =
+      (1 / 2 : ℝ) • (M_op p (xCons k q) v + M_op (xCons k p) q v)
+
+/-- Local y-direction lower-left obligation, symmetric to `Eq258XLowerLeft`. -/
+def Eq258YLowerLeft (j : ℕ) (p q : FreeAssocMono) : Prop :=
+  ∀ v : FreeJordanAlg,
+    T (pow y (j + 1)) (M_op p q v) =
+      (1 / 2 : ℝ) • (M_op p (yCons j q) v + M_op (yCons j p) q v)
+
 /-- Weight-indexed induction package for the eventual simultaneous Eq(2.58)
     driver. It ranges over the total `FreeAssocMono` syntax, not just WF inputs,
     because the recursive `M_op` equations generate unmerged products such as
@@ -893,6 +909,15 @@ theorem eq258XRawRight_lower_left_of_family {k : ℕ} {p q : FreeAssocMono}
   intro v
   exact h v
 
+/-- Compatibility adapter from the old raw-right family to the narrower local
+    lower-left obligation. Future driver code should target `Eq258XLowerLeft`
+    directly rather than asking for arbitrary raw-right facts. -/
+theorem Eq258XLowerLeft.of_rawRight {k : ℕ} {p q : FreeAssocMono}
+    (h : Eq258XRawRight k p q) :
+    Eq258XLowerLeft k p q := by
+  intro v
+  exact h v
+
 /-- Convert the ordinary x-family to the raw-right x-family when both arguments
     lie in `Y`, so neither x-prepend merges. -/
 theorem eq258XRawRight_of_eq258X_of_inY {k : ℕ} {p q : FreeAssocMono}
@@ -931,6 +956,14 @@ theorem eq258YRawRight_lower_left_of_family {j : ℕ} {p q : FreeAssocMono}
     ∀ v : FreeJordanAlg,
       T (pow y (j + 1)) (M_op p q v) =
         (1 / 2 : ℝ) • (M_op p (yCons j q) v + M_op (yCons j p) q v) := by
+  intro v
+  exact h v
+
+/-- Compatibility adapter from the old raw-right y-family to the narrower local
+    lower-left obligation. -/
+theorem Eq258YLowerLeft.of_rawRight {j : ℕ} {p q : FreeAssocMono}
+    (h : Eq258YRawRight j p q) :
+    Eq258YLowerLeft j p q := by
   intro v
   exact h v
 
@@ -3311,13 +3344,13 @@ theorem eq258_yCons_xCons_general_lt_from_families (l j i m : ℕ)
     (eq258XBaseObligation_of_eq258X hs ih_x) ih_lower_pair
 
 /-- Y-direction weight > 1, `j < l`, with all remaining obligations supplied
-    from named theorem-family predicates. -/
-theorem eq258_yCons_xCons_general_lt_from_family_obligations (l j i m : ℕ)
+    from named lower-pair predicates. -/
+theorem eq258_yCons_xCons_general_lt_from_lower_obligations (l j i m : ℕ)
     (r' s : FreeAssocMono) (hjl : j < l) (hs : s.inY)
     (ih_swap : Eq258Y l (prependX i (xCons m r')) (yCons j s))
     (ih_x : Eq258X i (xCons m r') s)
     (v : FreeJordanAlg)
-    (ih_lower_left : Eq258YRawRight (l - j - 1) (prependX i (xCons m r')) s)
+    (ih_lower_left : Eq258YLowerLeft (l - j - 1) (prependX i (xCons m r')) s)
     (ih_lower_right : Eq258Y (l - j - 1) (xCons m r') (xCons i s)) :
     T (pow y (l + 1)) (M_op (yCons j (xCons m r')) (xCons i s) v) =
     (1 / 2 : ℝ) • (M_op (yCons (l + 1 + j) (xCons m r')) (xCons i s) v +
@@ -3334,12 +3367,45 @@ theorem eq258_yCons_xCons_general_lt_from_family_obligations (l j i m : ℕ)
         (1 / 2 : ℝ) •
           (M_op (prependX i (xCons m r')) (yCons (l - j - 1) s) v +
             M_op (yCons (l - j - 1) (prependX i (xCons m r'))) s v) := by
-    have h := eq258YRawRight_lower_left_of_family ih_lower_left v
+    have h := ih_lower_left v
     simpa [show l - j - 1 + 1 = l - j from by omega] using h
   exact eq258_yCons_xCons_general_lt_from_families l j i m r' s hjl hs ih_swap ih_x v
     ⟨h_left, h_right⟩
 
-/-- Combined y-direction weight > 1 yCons/xCons adapter. -/
+/-- Y-direction compatibility wrapper for the older raw-right lower-left input. -/
+theorem eq258_yCons_xCons_general_lt_from_family_obligations (l j i m : ℕ)
+    (r' s : FreeAssocMono) (hjl : j < l) (hs : s.inY)
+    (ih_swap : Eq258Y l (prependX i (xCons m r')) (yCons j s))
+    (ih_x : Eq258X i (xCons m r') s)
+    (v : FreeJordanAlg)
+    (ih_lower_left : Eq258YRawRight (l - j - 1) (prependX i (xCons m r')) s)
+    (ih_lower_right : Eq258Y (l - j - 1) (xCons m r') (xCons i s)) :
+    T (pow y (l + 1)) (M_op (yCons j (xCons m r')) (xCons i s) v) =
+    (1 / 2 : ℝ) • (M_op (yCons (l + 1 + j) (xCons m r')) (xCons i s) v +
+      M_op (yCons j (xCons m r')) (yCons l (xCons i s)) v) := by
+  exact eq258_yCons_xCons_general_lt_from_lower_obligations l j i m r' s hjl hs
+    ih_swap ih_x v (Eq258YLowerLeft.of_rawRight ih_lower_left) ih_lower_right
+
+/-- Combined y-direction weight > 1 yCons/xCons adapter using lower-left
+    obligations rather than broad raw-right theorem-family facts. -/
+theorem eq258_yCons_xCons_general_from_lower_obligations (l j i m : ℕ)
+    (r' s : FreeAssocMono) (hs : s.inY)
+    (ih_swap : Eq258Y l (prependX i (xCons m r')) (yCons j s))
+    (ih_x : Eq258X i (xCons m r') s)
+    (ih_lower_left :
+      j < l → Eq258YLowerLeft (l - j - 1) (prependX i (xCons m r')) s)
+    (ih_lower_right : j < l → Eq258Y (l - j - 1) (xCons m r') (xCons i s))
+    (v : FreeJordanAlg) :
+    T (pow y (l + 1)) (M_op (yCons j (xCons m r')) (xCons i s) v) =
+    (1 / 2 : ℝ) • (M_op (yCons (l + 1 + j) (xCons m r')) (xCons i s) v +
+      M_op (yCons j (xCons m r')) (yCons l (xCons i s)) v) := by
+  by_cases hlj : l ≤ j
+  · exact eq258_yCons_xCons_general_ge_from_families l j i m r' s hlj hs ih_swap ih_x v
+  · have hjl : j < l := Nat.lt_of_not_ge hlj
+    exact eq258_yCons_xCons_general_lt_from_lower_obligations l j i m r' s hjl hs
+      ih_swap ih_x v (ih_lower_left hjl) (ih_lower_right hjl)
+
+/-- Combined y-direction compatibility wrapper for older raw-right lower-left input. -/
 theorem eq258_yCons_xCons_general_from_family_obligations (l j i m : ℕ)
     (r' s : FreeAssocMono) (hs : s.inY)
     (ih_swap : Eq258Y l (prependX i (xCons m r')) (yCons j s))
@@ -3351,11 +3417,8 @@ theorem eq258_yCons_xCons_general_from_family_obligations (l j i m : ℕ)
     T (pow y (l + 1)) (M_op (yCons j (xCons m r')) (xCons i s) v) =
     (1 / 2 : ℝ) • (M_op (yCons (l + 1 + j) (xCons m r')) (xCons i s) v +
       M_op (yCons j (xCons m r')) (yCons l (xCons i s)) v) := by
-  by_cases hlj : l ≤ j
-  · exact eq258_yCons_xCons_general_ge_from_families l j i m r' s hlj hs ih_swap ih_x v
-  · have hjl : j < l := Nat.lt_of_not_ge hlj
-    exact eq258_yCons_xCons_general_lt_from_family_obligations l j i m r' s hjl hs
-      ih_swap ih_x v (ih_lower_left hjl) (ih_lower_right hjl)
+  exact eq258_yCons_xCons_general_from_lower_obligations l j i m r' s hs ih_swap ih_x
+    (fun hlt => Eq258YLowerLeft.of_rawRight (ih_lower_left hlt)) ih_lower_right v
 
 /-- Driver-ready y-direction constructor case:
     `p = yCons j (xCons m r')`, `q = xCons i s`. -/
@@ -3383,11 +3446,12 @@ theorem eq258Y_yCons_xCons_from_driverIH (l j i m : ℕ) (r' s : FreeAssocMono)
         (yCons j (xCons m r')).weight + (xCons i s).weight := by
     simp
   simpa [Eq258Y, prependY] using
-    eq258_yCons_xCons_general_from_family_obligations l j i m r' s hs
+    eq258_yCons_xCons_general_from_lower_obligations l j i m r' s hs
       (hIH.y l (prependX i (xCons m r')) (yCons j s) h_swap_weight)
       (hIH.x i (xCons m r') s h_x_weight)
       (fun _ =>
-        hIH.rawRightY (l - j - 1) (prependX i (xCons m r')) s h_lower_left_weight)
+        Eq258YLowerLeft.of_rawRight
+          (hIH.rawRightY (l - j - 1) (prependX i (xCons m r')) s h_lower_left_weight))
       (fun _ =>
         hIH.y (l - j - 1) (xCons m r') (xCons i s) h_lower_right_weight)
       v
@@ -3771,15 +3835,16 @@ theorem eq258_xCons_yCons_general_lt_from_families (k i j m : ℕ)
     (eq258YBaseObligation_of_eq258Y hs ih_y) ih_lower_pair
 
 /-- Weight > 1, `i < k`, with all remaining obligations supplied from named
-    theorem-family predicates. The left lower-pair obligation uses
-    `Eq258XRawRight` because the current recurrence-helper algebra keeps the
-    right product unmerged as `xCons _ s`. -/
-theorem eq258_xCons_yCons_general_lt_from_family_obligations (k i j m : ℕ)
+    lower-pair predicates. The left lower-pair obligation is intentionally
+    local: the current recurrence-helper algebra keeps the right product
+    unmerged as `xCons _ s`, but that should not force the final induction
+    package to prove arbitrary raw-right facts. -/
+theorem eq258_xCons_yCons_general_lt_from_lower_obligations (k i j m : ℕ)
     (r' s : FreeAssocMono) (hik : i < k) (hs : s.inX)
     (ih_swap : Eq258X k (prependY j (yCons m r')) (xCons i s))
     (ih_y : Eq258Y j (yCons m r') s)
     (v : FreeJordanAlg)
-    (ih_lower_left : Eq258XRawRight (k - i - 1) (prependY j (yCons m r')) s)
+    (ih_lower_left : Eq258XLowerLeft (k - i - 1) (prependY j (yCons m r')) s)
     (ih_lower_right : Eq258X (k - i - 1) (yCons m r') (yCons j s)) :
     T (pow x (k + 1)) (M_op (xCons i (yCons m r')) (yCons j s) v) =
     (1 / 2 : ℝ) • (M_op (xCons (k + 1 + i) (yCons m r')) (yCons j s) v +
@@ -3796,14 +3861,46 @@ theorem eq258_xCons_yCons_general_lt_from_family_obligations (k i j m : ℕ)
         (1 / 2 : ℝ) •
           (M_op (prependY j (yCons m r')) (xCons (k - i - 1) s) v +
             M_op (xCons (k - i - 1) (prependY j (yCons m r'))) s v) := by
-    have h := eq258XRawRight_lower_left_of_family ih_lower_left v
+    have h := ih_lower_left v
     simpa [show k - i - 1 + 1 = k - i from by omega] using h
   exact eq258_xCons_yCons_general_lt_from_families k i j m r' s hik hs ih_swap ih_y v
     ⟨h_left, h_right⟩
 
+/-- Compatibility wrapper for the older raw-right lower-left input. -/
+theorem eq258_xCons_yCons_general_lt_from_family_obligations (k i j m : ℕ)
+    (r' s : FreeAssocMono) (hik : i < k) (hs : s.inX)
+    (ih_swap : Eq258X k (prependY j (yCons m r')) (xCons i s))
+    (ih_y : Eq258Y j (yCons m r') s)
+    (v : FreeJordanAlg)
+    (ih_lower_left : Eq258XRawRight (k - i - 1) (prependY j (yCons m r')) s)
+    (ih_lower_right : Eq258X (k - i - 1) (yCons m r') (yCons j s)) :
+    T (pow x (k + 1)) (M_op (xCons i (yCons m r')) (yCons j s) v) =
+    (1 / 2 : ℝ) • (M_op (xCons (k + 1 + i) (yCons m r')) (yCons j s) v +
+      M_op (xCons i (yCons m r')) (xCons k (yCons j s)) v) := by
+  exact eq258_xCons_yCons_general_lt_from_lower_obligations k i j m r' s hik hs
+    ih_swap ih_y v (Eq258XLowerLeft.of_rawRight ih_lower_left) ih_lower_right
+
 /-- Combined weight > 1 xCons/yCons adapter. It selects the H-O `i ≥ k` or
-    `i < k` helper internally, leaving only the induction-family obligations
-    needed by the selected branch. -/
+    `i < k` helper internally, leaving only the lower-pair obligations needed
+    by the selected branch. -/
+theorem eq258_xCons_yCons_general_from_lower_obligations (k i j m : ℕ)
+    (r' s : FreeAssocMono) (hs : s.inX)
+    (ih_swap : Eq258X k (prependY j (yCons m r')) (xCons i s))
+    (ih_y : Eq258Y j (yCons m r') s)
+    (ih_lower_left :
+      i < k → Eq258XLowerLeft (k - i - 1) (prependY j (yCons m r')) s)
+    (ih_lower_right : i < k → Eq258X (k - i - 1) (yCons m r') (yCons j s))
+    (v : FreeJordanAlg) :
+    T (pow x (k + 1)) (M_op (xCons i (yCons m r')) (yCons j s) v) =
+    (1 / 2 : ℝ) • (M_op (xCons (k + 1 + i) (yCons m r')) (yCons j s) v +
+      M_op (xCons i (yCons m r')) (xCons k (yCons j s)) v) := by
+  by_cases hik : k ≤ i
+  · exact eq258_xCons_yCons_general_ge_from_families k i j m r' s hik hs ih_swap ih_y v
+  · have hlt : i < k := Nat.lt_of_not_ge hik
+    exact eq258_xCons_yCons_general_lt_from_lower_obligations k i j m r' s hlt hs
+      ih_swap ih_y v (ih_lower_left hlt) (ih_lower_right hlt)
+
+/-- Combined x-direction compatibility wrapper for older raw-right lower-left input. -/
 theorem eq258_xCons_yCons_general_from_family_obligations (k i j m : ℕ)
     (r' s : FreeAssocMono) (hs : s.inX)
     (ih_swap : Eq258X k (prependY j (yCons m r')) (xCons i s))
@@ -3815,11 +3912,8 @@ theorem eq258_xCons_yCons_general_from_family_obligations (k i j m : ℕ)
     T (pow x (k + 1)) (M_op (xCons i (yCons m r')) (yCons j s) v) =
     (1 / 2 : ℝ) • (M_op (xCons (k + 1 + i) (yCons m r')) (yCons j s) v +
       M_op (xCons i (yCons m r')) (xCons k (yCons j s)) v) := by
-  by_cases hik : k ≤ i
-  · exact eq258_xCons_yCons_general_ge_from_families k i j m r' s hik hs ih_swap ih_y v
-  · have hlt : i < k := Nat.lt_of_not_ge hik
-    exact eq258_xCons_yCons_general_lt_from_family_obligations k i j m r' s hlt hs
-      ih_swap ih_y v (ih_lower_left hlt) (ih_lower_right hlt)
+  exact eq258_xCons_yCons_general_from_lower_obligations k i j m r' s hs ih_swap ih_y
+    (fun hlt => Eq258XLowerLeft.of_rawRight (ih_lower_left hlt)) ih_lower_right v
 
 /-- Driver-ready constructor case for H-O's weight > 1 branch:
     `p = xCons i (yCons m r')`, `q = yCons j s`. All recursive obligations are
@@ -3848,11 +3942,12 @@ theorem eq258X_xCons_yCons_from_driverIH (k i j m : ℕ) (r' s : FreeAssocMono)
         (xCons i (yCons m r')).weight + (yCons j s).weight := by
     simp
   simpa [Eq258X, prependX] using
-    eq258_xCons_yCons_general_from_family_obligations k i j m r' s hs
+    eq258_xCons_yCons_general_from_lower_obligations k i j m r' s hs
       (hIH.x k (prependY j (yCons m r')) (xCons i s) h_swap_weight)
       (hIH.y j (yCons m r') s h_y_weight)
       (fun _ =>
-        hIH.rawRight (k - i - 1) (prependY j (yCons m r')) s h_lower_left_weight)
+        Eq258XLowerLeft.of_rawRight
+          (hIH.rawRight (k - i - 1) (prependY j (yCons m r')) s h_lower_left_weight))
       (fun _ =>
         hIH.x (k - i - 1) (yCons m r') (yCons j s) h_lower_right_weight)
       v
